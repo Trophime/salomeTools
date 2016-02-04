@@ -21,3 +21,8 @@ coverage run --source=../commands/config.py -a config/option_value_2.py >> test_
 coverage run --source=../commands/config.py -a config/create_user_pyconf.py >> test_res.html
 coverage run --source=../commands/config.py -a config/option_copy.py >> test_res.html
 coverage html
+
+# Test PEP8
+#pep8 --statistics ../commands/config.py ../commands/*.py ../src/*.py ../src/*/*.py
+
+
