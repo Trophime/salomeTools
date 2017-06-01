@@ -45,7 +45,7 @@ def show_in_editor(editor, filePath, logger):
         cmd = editor % filePath
         logger.write('Launched command:\n' + cmd + '\n', 5)
         p = subprocess.Popen(cmd, shell=True)
-        p.communicate()
+        #p.communicate()
     except:
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)

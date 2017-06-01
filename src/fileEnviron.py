@@ -23,8 +23,7 @@ bat_header="""@echo off
 rem The following variables are used only in case of a sat package
 set out_dir_Path=%~dp0
 set PRODUCT_OUT_DIR=%out_dir_Path%
-set prereq_install_Path=%out_dir_Path%\PREREQUISITES\INSTALL
-set prereq_build_Path=%out_dir_Path%\PREREQUISITES\BUILD
+set HOME=%userprofile%
 """
 
 

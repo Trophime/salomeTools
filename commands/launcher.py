@@ -171,7 +171,10 @@ def generate_launch_link(config,
         
     # Write the Python environment files
     env = src.environment.SalomeEnviron( config, 
-                        src.fileEnviron.get_file_environ( f, shell, config ) )
+                                         src.fileEnviron.get_file_environ(f,
+                                                                          shell,
+                                                                          config ),
+                                         for_package=packageLauncher)
     env.set_a_product( "Python", logger)
 
     # Write the call to the original launcher

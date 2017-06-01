@@ -24,6 +24,7 @@ import tarfile
 import codecs
 import string
 
+import launcher
 import src
 
 from application import get_SALOME_modules
@@ -39,24 +40,28 @@ PROJECT_DIR = "PROJECT"
 IGNORED_DIRS = [".git", ".svn"]
 IGNORED_EXTENSIONS = []
 
+
+sep = os.path.sep
+if src.architecture.is_windows():
+    sep += os.path.sep
 PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
 # The path to the archive root directory
-root_path : $PWD + "/../"
+root_path : $PWD + \"""" + sep + """..""" + sep + """\"
 # path to the PROJECT
-project_path : $PWD + "/"
+project_path : $PWD + \"""" + sep + """\"
 
 # Where to search the archives of the products
 ARCHIVEPATH : $root_path + "ARCHIVES"
 # Where to search the pyconf of the applications
-APPLICATIONPATH : $project_path + "applications/"
+APPLICATIONPATH : $project_path + "applications""" + sep + """\"
 # Where to search the pyconf of the products
-PRODUCTPATH : $project_path + "products/"
+PRODUCTPATH : $project_path + "products""" + sep + """\"
 # Where to search the pyconf of the jobs of the project
-JOBPATH : $project_path + "jobs/"
+JOBPATH : $project_path + "jobs""" + sep + """\"
 # Where to search the pyconf of the machines of the project
-MACHINEPATH : $project_path + "machines/"
+MACHINEPATH : $project_path + "machines""" + sep + """\"
 """
 
 SITE_TEMPLATE = ("""#!/usr/bin/env python
@@ -66,7 +71,7 @@ SITE :
 {   
     log :
     {
-        log_dir : $USER.workdir + "/LOGS"
+        log_dir : $USER.workdir + $VARS.sep + "LOGS"
     }
     test :{
            tmp_dir_with_application : '/tmp' + $VARS.sep + $VARS.user + """
@@ -392,6 +397,91 @@ def product_appli_creation_script(config,
     
     return tmp_file_path
 
+
+def generate_launch_link(config,
+                         logger,
+                         launcherPath,
+                         pathlauncher=None,
+                         display=True,
+                         packageLauncher=False):
+    '''Generates the launcher link that sources Python
+       and call the actual launcher.
+
+    :param config Config: The global configuration
+    :param logger Logger: The logger instance to use for the display
+                          and logging
+    :param launcherPath str: The path to the launcher to call
+    :param pathlauncher str: The path to the launcher (link) to generate
+    :param display boolean: If False, do not print anything in the terminal
+    :param packageLauncher boolean: if True, use a relative path (for package)
+    :return: The launcher link file path.
+    :rtype: str
+    '''
+    if pathlauncher is None:
+        # Make an executable file that sources python, then launch the launcher
+        # produced by generate_launch_file method
+        sourceLauncher = os.path.join(config.APPLICATION.workdir,
+                                      config.APPLICATION.profile.launcher_name)
+    else:
+        sourceLauncher = os.path.join(pathlauncher,
+                                      config.APPLICATION.profile.launcher_name)
+
+    # Change the extension for the windows case
+    if platform.system() == "Windows":
+        sourceLauncher += '.bat'
+
+    # display some information
+    if display:
+        logger.write(_("\nGenerating the executable that sources"
+                       " python and runs the launcher :\n"), 1)
+        logger.write("  %s\n" % src.printcolors.printcLabel(sourceLauncher), 1)
+
+    # open the file to write
+    f = open(sourceLauncher, "w")
+
+    # Write the set up of the environment
+    if platform.system() == "Windows":
+        shell = 'bat'
+    else:
+        shell = 'bash'
+
+    # Write the Python environment files
+    env = src.environment.SalomeEnviron(config,
+                                        src.fileEnviron.get_file_environ(f, shell, config))
+    env.set_a_product("Python", logger)
+
+    # Write the call to the original launcher
+    f.write("\n\n")
+    if packageLauncher:
+        cmd = os.path.join('${out_dir_Path}', launcherPath)
+    else:
+        cmd = launcherPath
+
+    if platform.system() == "Windows":
+        cmd = 'python ' + cmd + ' %*'
+    else:
+        cmd = cmd + ' $*'
+
+    f.write(cmd)
+    f.write("\n\n")
+
+    # Write the cleaning of the environment
+    env.finish(True)
+
+    # Close new launcher
+    f.close()
+    os.chmod(sourceLauncher,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IWGRP |
+             stat.S_IWOTH |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+    return sourceLauncher
+
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a binary package.
@@ -508,10 +598,27 @@ def binary_package(config, logger, options, tmp_working_dir):
                                              not(options.without_commercial))
     
         d_products["launcher"] = (launcher_package, launcher_name)
+
+        if src.architecture.is_windows():
+            # Add a .bat file that sources python
+            # and then executes the launcher
+            link_path = launcher.generate_launch_link(config,
+                                                      logger,
+                                                      "salome",
+                                                      pathlauncher = tmp_working_dir,
+                                                      display = False,
+                                                      packageLauncher = binaries_dir_name)
+
+            # Little hack to put out_dir_Path on windows syntax
+            src.replace_in_file(link_path, 'out_dir_Path\\', '%out_dir_Path%\\')
+            src.replace_in_file(link_path, '${out_dir_Path}', '%out_dir_Path%')
+            d_products["Windows launcher"] = (link_path, launcher_name + ".bat")
+
         if options.sources:
             # if we mix binaries and sources, we add a copy of the launcher, 
             # prefixed  with "bin",in order to avoid clashes
             d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
+
     else:
         # Provide a script for the creation of an application EDF style
         appli_script = product_appli_creation_script(config,
@@ -1162,8 +1269,11 @@ def run(args, runner, logger):
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
- 
-    path_targz = os.path.join(dir_name, archive_name + ".tgz")
+
+    extension = ".tgz"
+    if src.architecture.is_windows():
+        extension = ".tar.gz"
+    path_targz = os.path.join(dir_name, archive_name + extension)
     
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
@@ -1278,10 +1388,20 @@ def run(args, runner, logger):
         logger.write(_("OK"), 1)
         logger.write(_("\n"), 1)
         return 1
-    
-    # remove the working directory    
-    shutil.rmtree(tmp_working_dir)
-    
+
+    # remove the working directory
+    try:
+        shutil.rmtree(tmp_working_dir)
+    except Exception as e:
+        msg1 = _("WARNING: An error occured while removing the working "
+                "directory")
+        msg2 = str(e)
+        msg3 = _("Remove manually the repository %s" % src.printcolors.printcInfo(
+                                                                tmp_working_dir))
+        logger.write("%s\n%s\n%s\n" % (src.printcolors.printcWarning(msg1),
+                                       src.printcolors.printcWarning(msg2),
+                                       msg3))
+
     # Print again the path of the package
     logger.write("\n", 2)
     src.printcolors.print_value(logger, "Package path", path_targz, 2)

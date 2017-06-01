@@ -800,7 +800,7 @@ class Sequence(Container):
         object.__setattr__(self, 'data', [])
         object.__setattr__(self, 'comments', [])
 
-    def append(self, item, comment):
+    def append(self, item, comment=""):
         """
         Add an item to the sequence.
 

@@ -92,7 +92,10 @@ def get_product_config(config, product_name, with_install_dir=True):
         if prod_info is not None and 'opt_depend' in prod_info:
             for depend in prod_info.opt_depend:
                 if depend in config.APPLICATION.products:
-                    prod_info.depend.append(depend,'')
+                    try :
+                        prod_info.depend.append(depend,'')
+                    except: # for Win
+                        prod_info.depend.append(depend)
         
         # In case of a product get with a vcs, 
         # put the tag (equal to the version)
@@ -211,7 +214,7 @@ def get_product_config(config, product_name, with_install_dir=True):
                 raise src.SatException(_("Compilation script not found: %s") % 
                                    script_name)
             prod_info.compil_script = script_path
-            if src.architecture.is_windows():
+            if src.architecture.is_windows() and prod_info.compil_script.endswith(".sh"):
                 prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
        
         # Check that the script is executable
