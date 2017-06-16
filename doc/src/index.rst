@@ -45,6 +45,15 @@ developer documentation
    
    Add a command <write_command>
 
+integrator documentation
+========================
+ 
+.. toctree::
+   :maxdepth: 1
+   
+   Introduction <integrator/introduction.rst>
+
+
 Release Notes
 =============
 Here are the release notes for sat:
