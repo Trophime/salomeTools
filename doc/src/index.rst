@@ -53,6 +53,15 @@ integrator documentation
    
    Introduction <integrator/introduction.rst>
 
+INDEX
+=====
+
+.. toctree::
+   :maxdepth: 1
+   
+   Project <common/project.rst>
+   Application <common/application.rst>
+   Product <common/product.rst>
 
 Release Notes
 =============
