@@ -161,9 +161,10 @@ def get_source_from_dir(product_info, source_dir, logger):
 
     # check that source exists
     if not os.path.exists(product_info.dir_info.dir):
-        msg = _("Error: the dir %s defined in the file"
-                " %s.pyconf does not exists" % (product_info.dir_info.dir,
-                                                product_info.name))
+        msg = _("""\
+Error: the dir '%(1)s' defined in the file"
+       %(2)s.pyconf does not exists""" % 
+          {"1": product_info.dir_info.dir, "2": product_info.name})
         logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
         return False
     

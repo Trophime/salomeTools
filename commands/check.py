@@ -122,13 +122,11 @@ def check_product(p_name_info, config, logger):
     # Verify if the command has to be launched or not
     ignored = False
     if not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
-        msg = _("The product %s is defined as not having tests. "
-                "product ignored." % p_name)
+        msg = _("The product %s is defined as not having tests. product ignored.") % p_name
         logger.write("%s\n" % msg, 4)
         ignored = True
     if "build_dir" not in p_info:
-        msg = _("No build_dir key defined in "
-                "the config file of %s: product ignored." % p_name)
+        msg = _("No build_dir key defined in the config file of %s: product ignored.") % p_name
         logger.write("%s\n" % msg, 4)
         ignored = True
     if not src.product.product_compiles(p_info):
@@ -144,9 +142,10 @@ def check_product(p_name_info, config, logger):
         command = src.get_cfg_param(p_info, "test_build", "Not found")
         if command == "Not found":
             cmd_found = False
-            msg = _('WARNING: The product %s is defined as having tests. But it'
-                    ' is compiled using a script and the key "test_build" is '
-                    'not defined in the definition of %s' % (p_name, p_name))
+            msg = _('''\
+WARNING: The product %(name)s is defined as having tests.
+  But it is compiled using a script and the key "test_build"
+  is not defined in the definition of %(name)''') % {"name": p_name}
             logger.write("%s\n" % msg, 4)
                 
     if ignored or not cmd_found:

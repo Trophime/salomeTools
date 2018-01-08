@@ -97,8 +97,7 @@ def check_path(path_to_check, logger):
     
     # If it is a file, do nothing and return error
     if path.isfile():
-        msg = _("Error: The given path is a file. Please provide a path to "
-                "a directory")
+        msg = _("Error: The given path is a file. Please provide a path to a directory")
         logger.write(src.printcolors.printcError(msg), 1)
         return 1
       
@@ -107,8 +106,8 @@ def check_path(path_to_check, logger):
         src.ensure_path_exists(str(path))
     except Exception as e:
         err = src.printcolors.printcError(str(e))
-        msg = _("Unable to create the directory %s: %s\n" % (str(path),
-                                                             err))
+        msg = _("Unable to create the directory '%(1)s': %(2)s\n" % 
+          {"1": str(path), "2": err})
         logger.write(msg, 1)
         return 1
     

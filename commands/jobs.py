@@ -121,10 +121,11 @@ class Machine(object):
         :rtype: bool
         '''
         if self._connection_successful == None:
-            message = _("Warning : trying to ask if the connection to "
-            "(name: %s host: %s, port: %s, user: %s) is OK whereas there were"
-            " no connection request" % 
-                        (self.name, self.host, self.port, self.user))
+            message = _("""\
+Warning : trying to ask if the connection to 
+          (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
+          whereas there were no connection request""" % 
+              {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
             logger.write( src.printcolors.printcWarning(message))
         return self._connection_successful
 
@@ -398,8 +399,8 @@ class Job(object):
             # The first line is the result of the command (0 success or 1 fail)
             self.res_job = file_lines[0]
         except Exception as e:
-            self.err += _("Unable to get status from remote file %s: %s" % 
-                                                    (remote_path, str(e)))
+            self.err += _("Unable to get status from remote file '%(1)s': %(2)s" % 
+                        {"1": remote_path, "2": str(e)})
 
         for i, job_path_remote in enumerate(file_lines[1:]):
             try:
@@ -439,9 +440,8 @@ class Job(object):
                     self.machine.sftp.get(job_path_remote, local_path)
                 self.remote_log_files.append(local_path)
             except Exception as e:
-                self.err += _("Unable to get %s log file from remote: %s" % 
-                                                    (str(job_path_remote),
-                                                     str(e)))
+                self.err += _("Unable to get %(1)s log file from remote: %(2)s" % 
+                            {"1": str(job_path_remote), "2": str(e)})
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -1326,8 +1326,8 @@ class Gui(object):
                     global_xml = src.xmlManager.ReadXmlFile(file_path)
                     l_globalxml.append(global_xml)
                 except Exception as e:
-                    msg = _("\nWARNING: the file %s can not be read, it will be "
-                            "ignored\n%s" % (file_path, e))
+                    msg = _("\nWarning: the file '%(1)s' can not be read, it will be "
+                            "ignored\n%(2)s" % {"1": file_path, "2": e})
                     self.logger.write("%s\n" % src.printcolors.printcWarning(
                                                                         msg), 5)
                     
@@ -1852,8 +1852,7 @@ def run(args, runner, logger):
         res = 0
         if interruped:
             res = 1
-            msg = _("Killing the running jobs and trying"
-                    " to get the corresponding logs\n")
+            msg = _("Killing the running jobs and trying to get the corresponding logs\n")
             logger.write(src.printcolors.printcWarning(msg))
             
         # find the potential not finished jobs and kill them
@@ -1863,7 +1862,7 @@ def run(args, runner, logger):
                 try:
                     jb.kill_remote_process()
                 except Exception as e:
-                    msg = _("Failed to kill job %s: %s\n" % (jb.name, e))
+                    msg = _("Failed to kill job %(1)s: %(2)s\n" % {"1": jb.name, "2": e})
                     logger.write(src.printcolors.printcWarning(msg))
             if jb.res_job != "0":
                 res = 1

@@ -82,9 +82,9 @@ parser.add_option('v', 'verbose', 'int', "output_verbose_level",
 parser.add_option('b', 'batch', 'boolean', "batch", 
                   _("batch mode (no question)."))
 parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal", 
-                  _("All traces in the terminal (for example compilation logs)."))
+                  _("all traces in the terminal (for example compilation logs)."))
 parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
-                  _("Put the command result and paths to log files in ."))
+                  _("put the command result and paths to log files."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -334,7 +334,7 @@ class Sat(object):
                     # print the log file path if 
                     # the maximum verbose mode is invoked
                     if not micro_command:
-                        logger_command.write("\nPath to the xml log file :\n",
+                        logger_command.write("\nPath to the xml log file:\n",
                                              5)
                         logger_command.write("%s\n\n" % src.printcolors.printcInfo(
                                                 logger_command.logFilePath), 5)

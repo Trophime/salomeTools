@@ -145,13 +145,14 @@ def get_product_config(config, product_name, with_install_dir=True):
         prod_pyconf_path = src.find_file_in_lpath(product_name + ".pyconf",
                                                   config.PATHS.PRODUCTPATH)
         if not prod_pyconf_path:
-            msg = _("No definition found for the product %s\n"
-               "Please create a %s.pyconf file." % (product_name, product_name))
+            msg = _("""\
+No definition found for the product %(1)s.
+Please create a %(2)s.pyconf file.""" % {"1": product_name, "2": product_name})
         else:
-            msg = _("No definition corresponding to the version %(version)s was"
-                    " found in the file %(prod_file_path)s.\nPlease add a "
-                    "section in it." % {"version" : vv,
-                                        "prod_file_path" : prod_pyconf_path} )
+            msg = _("""\
+No definition corresponding to the version %(1)s
+was found in the file %(2)s.
+Please add a section in it.""" % {"1" : vv, "2" : prod_pyconf_path} )
         raise src.SatException(msg)
     
     # Set the debug, dev and version keys
@@ -170,9 +171,8 @@ def get_product_config(config, product_name, with_install_dir=True):
             arch_path = src.find_file_in_lpath(arch_name,
                                                config.PATHS.ARCHIVEPATH)
             if not arch_path:
-                msg = _("Archive %(arch_name)s for %(prod_name)s not found:"
-                            "\n" % {"arch_name" : arch_name,
-                                     "prod_name" : prod_info.name}) 
+                msg = _("Archive %(1)s for %(2)s not found.\n" % 
+                       {"1" : arch_name, "2" : prod_info.name}) 
                 raise src.SatException(msg)
             prod_info.archive_info.archive_name = arch_path
         else:
@@ -183,9 +183,8 @@ def get_product_config(config, product_name, with_install_dir=True):
                                             arch_name,
                                             config.PATHS.ARCHIVEPATH)
                 if not arch_path:
-                    msg = _("Archive %(arch_name)s for %(prod_name)s not found:"
-                                "\n" % {"arch_name" : arch_name,
-                                         "prod_name" : prod_info.name}) 
+                    msg = _("Archive %(1)s for %(2)s not found:\n" % 
+                           {"1" : arch_name, "2" : prod_info.name}) 
                     raise src.SatException(msg)
                 prod_info.archive_info.archive_name = arch_path
         
@@ -194,9 +193,9 @@ def get_product_config(config, product_name, with_install_dir=True):
     if product_has_script(prod_info):
         # Check the compil_script key existence
         if "compil_script" not in prod_info:
-            msg = _("No compilation script found for the product %s\n"
-                "Please provide a \"compil_script\" key in its definition." 
-                % (product_name))
+            msg = _("""\
+No compilation script found for the product %s.
+Please provide a 'compil_script' key in its definition.""" % (product_name))
             raise src.SatException(msg)
         
         # Get the path of the script
@@ -216,9 +215,11 @@ def get_product_config(config, product_name, with_install_dir=True):
        
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
-            raise src.SatException(
-                    _("Compilation script cannot be executed: %s") % 
-                    prod_info.compil_script)
+            #raise src.SatException(
+            #        _("Compilation script cannot be executed: %s") % 
+            #        prod_info.compil_script)
+            print("Compilation script cannot be executed: %s" % 
+                  prod_info.compil_script)
     
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
@@ -232,9 +233,8 @@ def get_product_config(config, product_name, with_install_dir=True):
                                                     config.PATHS.PRODUCTPATH,
                                                     "patches")
                 if not patch_path:
-                    msg = _("Patch %(patch_name)s for %(prod_name)s not found:"
-                            "\n" % {"patch_name" : patch,
-                                     "prod_name" : prod_info.name}) 
+                    msg = _("Patch %(1)s for %(2)s not found:\n" %
+                           {"1" : patch, "2" : prod_info.name}) 
                     raise src.SatException(msg)
             patches.append(patch_path)
         prod_info.patches = patches
@@ -251,9 +251,8 @@ def get_product_config(config, product_name, with_install_dir=True):
                                             config.PATHS.PRODUCTPATH,
                                             "env_scripts")
             if not env_script_path:
-                msg = _("Environment script %(env_name)s for %(prod_name)s not "
-                        "found.\n" % {"env_name" : env_script_path,
-                                       "prod_name" : prod_info.name}) 
+                msg = _("Environment script %(1)s for %(2)s not found.\n" % 
+                       {"1" : env_script_path, "2" : prod_info.name}) 
                 raise src.SatException(msg)
 
         prod_info.environ.env_script = env_script_path
