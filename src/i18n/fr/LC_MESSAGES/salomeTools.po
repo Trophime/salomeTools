@@ -13,6 +13,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+# test accentué
+msgid "Georges says '%(1)s' for %(2)s."
+msgstr "pour %(2)s Hervé dit '%(1)s'."
+
 msgid "shows global help or help on a specific command."
 msgstr "affiche l'aide générale ou pour une commande spécifique."
 
