@@ -122,7 +122,7 @@ class Machine(object):
         '''
         if self._connection_successful == None:
             message = _("""\
-Warning : trying to ask if the connection to 
+WARNING : trying to ask if the connection to 
           (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
           whereas there were no connection request""" % 
               {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
@@ -533,7 +533,7 @@ class Job(object):
         
         # Prevent multiple run
         if self.has_begun():
-            msg = _("Warning: A job can only be launched one time")
+            msg = _("WARNING: A job can only be launched one time")
             msg2 = _("Trying to launch the job \"%s\" whereas it has "
                      "already been launched." % self.name)
             self.logger.write(src.printcolors.printcWarning("%s\n%s\n" % (msg,
@@ -708,8 +708,9 @@ class Jobs(object):
         for job_def in self.cfg_jobs.jobs :
                 
             if not "machine" in job_def:
-                msg = _('WARNING: The job "%s" do not have the key '
-                       '"machine", this job is ignored.\n\n' % job_def.name)
+                msg = _("""\
+WARNING: The job '%s' do not have the key 'machine'.
+         This job is ignored.\n""") % job_def.name
                 self.logger.write(src.printcolors.printcWarning(msg))
                 continue
             name_machine = job_def.machine
@@ -762,13 +763,12 @@ class Jobs(object):
                             host_list.append((host, port))
                 
                 if a_machine == None:
-                    msg = _("WARNING: The job \"%(job_name)s\" requires the "
-                            "machine \"%(machine_name)s\" but this machine "
-                            "is not defined in the configuration file.\n"
-                            "The job will not be launched\n")
-                    self.logger.write(src.printcolors.printcWarning(
-                                        msg % {"job_name" : job_def.name,
-                                               "machine_name" : name_machine}))
+                    msg = _("""\
+WARNING: The job '%(job)s' requires the machine '%(machine)s'.
+         This machine is not defined in the configuration file.
+         The job will not be launched.
+""") % {"job" : job_def.name, "machine" : name_machine}
+                    self.logger.write(src.printcolors.printcWarning(msg))
                     continue
                                   
             a_job = self.define_job(job_def, a_machine)
@@ -791,7 +791,7 @@ class Jobs(object):
                         "Establishing connection with all the machines :\n")))
         for machine in self.lmachines:
             # little algorithm in order to display traces
-            begin_line = (_("Connection to %s: " % machine.name))
+            begin_line = (_("Connection to %s: ") % machine.name)
             if pad - len(begin_line) < 0:
                 endline = " "
             else:
@@ -853,7 +853,7 @@ class Jobs(object):
                         (begin_line,
                          endline,
                          src.printcolors.printc(src.KO_STATUS),
-                         _("Copy of SAT failed: %s" % res_copy)), 3)
+                         _("Copy of SAT failed: %s") % res_copy), 3)
             else:
                 self.logger.write('\r%s' % 
                                   ((len(begin_line)+len(endline)+20) * " "), 3)
@@ -1326,8 +1326,8 @@ class Gui(object):
                     global_xml = src.xmlManager.ReadXmlFile(file_path)
                     l_globalxml.append(global_xml)
                 except Exception as e:
-                    msg = _("\nWarning: the file '%(1)s' can not be read, it will be "
-                            "ignored\n%(2)s" % {"1": file_path, "2": e})
+                    msg = _("WARNING: the file '%(1)s' can not be read, it will be "
+                            "ignored\n%(2)s") % {"1": file_path, "2": e}
                     self.logger.write("%s\n" % src.printcolors.printcWarning(
                                                                         msg), 5)
                     
@@ -1862,7 +1862,7 @@ def run(args, runner, logger):
                 try:
                     jb.kill_remote_process()
                 except Exception as e:
-                    msg = _("Failed to kill job %(1)s: %(2)s\n" % {"1": jb.name, "2": e})
+                    msg = _("Failed to kill job %(1)s: %(2)s\n") % {"1": jb.name, "2": e}
                     logger.write(src.printcolors.printcWarning(msg))
             if jb.res_job != "0":
                 res = 1

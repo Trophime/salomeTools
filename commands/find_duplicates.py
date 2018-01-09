@@ -273,8 +273,9 @@ def run(args, runner, logger):
     # Check that there are no singletons in the result (it would be a bug)
     for elem in dic_fic_paths:
         if len(dic_fic_paths[elem])<2:
-            logger.write(_("Warning : element %s has not more than"
-                         " two paths.\n") % elem, 3)
+            logger.write(
+              _("WARNING : element %s has not more than two paths.\n") % elem,
+              3 )
 
 
     # Display the results

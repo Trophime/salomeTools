@@ -162,7 +162,7 @@ def suppress_directories(l_paths, logger):
     '''    
     for path in l_paths:
         if not path.isdir():
-            msg = _("Warning: the path %s does not "
+            msg = _("WARNING: the path %s does not "
                     "exists (or is not a directory)\n" % path.__str__())
             logger.write(src.printcolors.printcWarning(msg), 1)
         else:

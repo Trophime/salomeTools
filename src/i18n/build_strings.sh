@@ -11,11 +11,17 @@ echo "Build strings for French, create and merging salomeTools.po"
 poFile=$I18HOME/fr/LC_MESSAGES/salomeTools.po
 refFile=$I18HOME/fr/LC_MESSAGES/ref.pot
 
-xgettext $SRC_DIR/*.py $SRC_DIR/commands/*.py $SRC_DIR/src/*.py \
-    --no-wrap --no-location --language=Python --omit-header \
-    --output=$refFile
+xgettext $SRC_DIR/src/i18n/*.py \
+         $SRC_DIR/*.py \
+         $SRC_DIR/commands/*.py \
+         $SRC_DIR/src/*.py \
+         --no-wrap \
+         --no-location \
+         --language=Python \
+         --omit-header \
+         --output=$refFile
 
-msgmerge --quiet --update $poFile $refFile
+msgmerge --quiet --update --previous $poFile $refFile
 
 #retirer les messages obsolètes « #~ »
 #msgattrib --no-obsolete -o $poFile $poFile

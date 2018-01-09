@@ -119,8 +119,8 @@ def get_product_config(config, product_name, with_install_dir=True):
                 prod_info.get_source = "native"
             elif prod_info.get_source == "native":
                 msg = _("The product %(prod)s has version %(ver)s but is "
-                        "declared as native in its definition" %
-                        { 'prod': prod_info.name, 'ver': version})
+                        "declared as native in its definition") %
+                        {'prod': prod_info.name, 'ver': version}
                 raise src.SatException(msg)
 
     # If there is no definition but the product is declared as native,
@@ -147,12 +147,12 @@ def get_product_config(config, product_name, with_install_dir=True):
         if not prod_pyconf_path:
             msg = _("""\
 No definition found for the product %(1)s.
-Please create a %(2)s.pyconf file.""" % {"1": product_name, "2": product_name})
+Please create a %(2)s.pyconf file.""") % {"1": product_name, "2": product_name}
         else:
             msg = _("""\
 No definition corresponding to the version %(1)s
 was found in the file %(2)s.
-Please add a section in it.""" % {"1" : vv, "2" : prod_pyconf_path} )
+Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
         raise src.SatException(msg)
     
     # Set the debug, dev and version keys
@@ -171,8 +171,8 @@ Please add a section in it.""" % {"1" : vv, "2" : prod_pyconf_path} )
             arch_path = src.find_file_in_lpath(arch_name,
                                                config.PATHS.ARCHIVEPATH)
             if not arch_path:
-                msg = _("Archive %(1)s for %(2)s not found.\n" % 
-                       {"1" : arch_name, "2" : prod_info.name}) 
+                msg = _("Archive %(1)s for %(2)s not found.\n") % 
+                       {"1" : arch_name, "2" : prod_info.name}
                 raise src.SatException(msg)
             prod_info.archive_info.archive_name = arch_path
         else:
@@ -183,8 +183,8 @@ Please add a section in it.""" % {"1" : vv, "2" : prod_pyconf_path} )
                                             arch_name,
                                             config.PATHS.ARCHIVEPATH)
                 if not arch_path:
-                    msg = _("Archive %(1)s for %(2)s not found:\n" % 
-                           {"1" : arch_name, "2" : prod_info.name}) 
+                    msg = _("Archive %(1)s for %(2)s not found:\n") % 
+                           {"1" : arch_name, "2" : prod_info.name}
                     raise src.SatException(msg)
                 prod_info.archive_info.archive_name = arch_path
         
@@ -195,7 +195,7 @@ Please add a section in it.""" % {"1" : vv, "2" : prod_pyconf_path} )
         if "compil_script" not in prod_info:
             msg = _("""\
 No compilation script found for the product %s.
-Please provide a 'compil_script' key in its definition.""" % (product_name))
+Please provide a 'compil_script' key in its definition.""") % product_name
             raise src.SatException(msg)
         
         # Get the path of the script
@@ -233,8 +233,8 @@ Please provide a 'compil_script' key in its definition.""" % (product_name))
                                                     config.PATHS.PRODUCTPATH,
                                                     "patches")
                 if not patch_path:
-                    msg = _("Patch %(1)s for %(2)s not found:\n" %
-                           {"1" : patch, "2" : prod_info.name}) 
+                    msg = _("Patch %(1)s for %(2)s not found:\n") %
+                           {"1" : patch, "2" : prod_info.name} 
                     raise src.SatException(msg)
             patches.append(patch_path)
         prod_info.patches = patches
@@ -251,8 +251,8 @@ Please provide a 'compil_script' key in its definition.""" % (product_name))
                                             config.PATHS.PRODUCTPATH,
                                             "env_scripts")
             if not env_script_path:
-                msg = _("Environment script %(1)s for %(2)s not found.\n" % 
-                       {"1" : env_script_path, "2" : prod_info.name}) 
+                msg = _("Environment script %(1)s for %(2)s not found.\n") % 
+                       {"1" : env_script_path, "2" : prod_info.name} 
                 raise src.SatException(msg)
 
         prod_info.environ.env_script = env_script_path

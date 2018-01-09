@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# test accentué
+#, python-format
 msgid "Georges says '%(1)s' for %(2)s."
 msgstr "pour %(2)s Hervé dit '%(1)s'."
 
@@ -171,7 +171,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Product %(product)s not defined in application %(application)s"
+msgid "Product %(1)s not defined in application %(2)s"
 msgstr ""
 
 #, python-format
@@ -192,8 +192,8 @@ msgstr ""
 
 msgid ""
 "WARNING: The product %(name)s is defined as having tests.\n"
-"  But it is compiled using a script and the key \"test_build\"\n"
-"  is not defined in the definition of %(name)"
+"         But it is compiled using a script and the key 'test_build'\n"
+"         is not defined in the definition of %(name)"
 msgstr ""
 
 msgid ""
@@ -246,7 +246,11 @@ msgid "Optional: do not clean the products in development mode."
 msgstr ""
 
 #, python-format
-msgid "Warning: the path %s does not exists (or is not a directory)\n"
+msgid "Product %(product)s not defined in application %(application)s"
+msgstr ""
+
+#, python-format
+msgid "WARNING: the path %s does not exists (or is not a directory)\n"
 msgstr ""
 
 #, python-format
@@ -646,7 +650,7 @@ msgid "No duplicate files found.\n"
 msgstr ""
 
 #, python-format
-msgid "Warning : element %s has not more than two paths.\n"
+msgid "WARNING : element %s has not more than two paths.\n"
 msgstr ""
 
 msgid ""
@@ -845,7 +849,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Warning : trying to ask if the connection to \n"
+"WARNING : trying to ask if the connection to \n"
 "          (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK\n"
 "          whereas there were no connection request"
 msgstr ""
@@ -877,7 +881,7 @@ msgid ""
 "%s\n"
 msgstr ""
 
-msgid "Warning: A job can only be launched one time"
+msgid "WARNING: A job can only be launched one time"
 msgstr ""
 
 #, python-format
@@ -886,16 +890,15 @@ msgstr ""
 
 #, python-format
 msgid ""
-"WARNING: The job \"%s\" do not have the key \"machine\", this job is "
-"ignored.\n"
-"\n"
+"WARNING: The job '%s' do not have the key 'machine'.\n"
+"         This job is ignored.\n"
 msgstr ""
 
 #, python-format
 msgid ""
-"WARNING: The job \"%(job_name)s\" requires the machine \"%(machine_name)s\" "
-"but this machine is not defined in the configuration file.\n"
-"The job will not be launched\n"
+"WARNING: The job '%(job)s' requires the machine '%(machine)s'.\n"
+"         This machine is not defined in the configuration file.\n"
+"         The job will not be launched.\n"
 msgstr ""
 
 #, python-format
@@ -920,8 +923,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"\n"
-"Warning: the file '%(1)s' can not be read, it will be ignored\n"
+"WARNING: the file '%(1)s' can not be read, it will be ignored\n"
 "%(2)s"
 msgstr ""
 
@@ -1858,7 +1860,7 @@ msgid "Test base"
 msgstr ""
 
 #, python-format
-msgid "########## ERROR: test base '%s' not found\n"
+msgid "ERROR: test base '%s' not found\n"
 msgstr ""
 
 #, python-format

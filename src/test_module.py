@@ -98,12 +98,12 @@ class Test:
                             symlinks=True)
 
     def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
-        self.logger.write(_("get test base from dir: %s\n") % \
+        self.logger.write(_("get test base from dir: %s\n") %
                           src.printcolors.printcLabel(testbase_dir), 3)
         if not os.access(testbase_dir, os.X_OK):
-            raise src.SatException(_("testbase %(name)s (%(dir)s) does not "
-                                     "exist ...\n") % { 'name': testbase_name,
-                                                       'dir': testbase_dir })
+            raise src.SatException(
+              _("testbase %(name)s (%(dir)s) does not exist ...\n") % 
+              { 'name': testbase_name, 'dir': testbase_dir } )
 
         self._copy_dir(testbase_dir,
                        os.path.join(self.tmp_working_dir, 'BASES', testbase_name))
@@ -113,10 +113,10 @@ class Test:
                                   testbase_base,
                                   testbase_tag):
         self.logger.write(
-            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % {
-                        "testbase" : src.printcolors.printcLabel(testbase_name),
-                        "tag" : src.printcolors.printcLabel(testbase_tag)},
-                          3)
+            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % 
+              { "testbase" : src.printcolors.printcLabel(testbase_name),
+                "tag" : src.printcolors.printcLabel(testbase_tag) },
+            3)
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -160,7 +160,7 @@ class Test:
             sys.exit(0)
 
     def prepare_testbase_from_svn(self, user, testbase_name, testbase_base):
-        self.logger.write(_("get test base '%s' from svn\n") % \
+        self.logger.write(_("get test base '%s' from svn\n") %
                           src.printcolors.printcLabel(testbase_name), 3)
         try:
             def set_signal(): # pragma: no cover
@@ -197,10 +197,9 @@ class Test:
                                 env=env_appli.environ.environ,)
 
             if res != 0:
-                raise src.SatException(_("Error: unable to get test base '%(nam"
-                                         "e)s' from svn '%(repo)s'.") % \
-                                       { 'name': testbase_name,
-                                        'repo': testbase_base })
+                raise src.SatException(
+                  _("Error: unable to get test base '%(name)s' from svn '%(repo)s'.") %
+                  { 'name': testbase_name, 'repo': testbase_base } )
 
         except OSError:
             self.logger.error(_("svn is not installed. exiting...\n"))
@@ -232,8 +231,7 @@ class Test:
                 return 0
         
         if not test_base_info:
-            message = (_("########## ERROR: test base '%s' not found\n") % 
-                       test_base_name)
+            message = (_("ERROR: test base '%s' not found\n") % test_base_name)
             self.logger.write("%s\n" % src.printcolors.printcError(message))
             return 1
 
@@ -252,10 +250,9 @@ class Test:
                                        test_base_name,
                                        test_base_info.info.base)
         else:
-            raise src.SatException(_("unknown source type '%(type)s' for test b"
-                                     "ase '%(base)s' ...\n") % {
-                                        'type': test_base_info.get_sources,
-                                        'base': test_base_name })
+            raise src.SatException(
+              _("unknown source type '%(type)s' for test base '%(base)s' ...\n") % 
+              {'type': test_base_info.get_sources, 'base': test_base_name } )
 
         self.currentTestBase = test_base_name
 
@@ -867,8 +864,8 @@ class Test:
         res_count = "%d / %d" % (self.nb_succeed,
                                  self.nb_run - self.nb_acknoledge)
 
-        res_out = _("Tests Results: %(succeed)d / %(total)d\n") % \
-            { 'succeed': self.nb_succeed, 'total': self.nb_run }
+        res_out = _("Tests Results: %(succeed)d / %(total)d\n") %
+                  { 'succeed': self.nb_succeed, 'total': self.nb_run }
         if self.nb_succeed == self.nb_run:
             res_out = src.printcolors.printcSuccess(res_out)
         else:

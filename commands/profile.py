@@ -121,8 +121,8 @@ def generate_profile_sources( config, options, logger ):
     prefix = os.path.join( options.prefix, name )
     if os.path.exists( prefix ) :
         if not options.force :
-            raise src.SatException( _("The path %s already exists, use option"
-                                      " --force to remove it." %prefix ) )
+            raise src.SatException( 
+              _("The path %s already exists, use option --force to remove it.") %             prefix )
         else :
             shutil.rmtree( prefix )
 
@@ -162,8 +162,9 @@ def update_pyconf( config, options, logger ):
     #Save previous version
     pyconf = config.VARS.product + '.pyconf'
     pyconfBackup = config.VARS.product + '-backup.pyconf'
-    logger.write(_("Updating %(new)s (previous version saved "
-                   "as %(old)s).") % { "new": pyconf, "old": pyconfBackup }, 3)
+    logger.write(
+      _("Updating %(new)s (previous version saved as %(old)s)." ) % 
+      { "new": pyconf, "old": pyconfBackup }, 3)
     path = config.getPath( pyconf )
     shutil.copyfile( os.path.join( path, pyconf ),
                      os.path.join( path, pyconfBackup ) )

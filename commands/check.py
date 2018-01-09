@@ -50,9 +50,9 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                msg = _("Product %(1)s not defined in application %(2)s") %
+                      { '1': p, '2': cfg.VARS.application}
+                raise src.SatException(msg)
     
     # Construct the list of tuple containing 
     # the products name and their definition
@@ -142,10 +142,10 @@ def check_product(p_name_info, config, logger):
         command = src.get_cfg_param(p_info, "test_build", "Not found")
         if command == "Not found":
             cmd_found = False
-            msg = _('''\
+            msg = _("""\
 WARNING: The product %(name)s is defined as having tests.
-  But it is compiled using a script and the key "test_build"
-  is not defined in the definition of %(name)''') % {"name": p_name}
+         But it is compiled using a script and the key 'test_build'
+         is not defined in the definition of %(name)""") % {"name": p_name}
             logger.write("%s\n" % msg, 4)
                 
     if ignored or not cmd_found:

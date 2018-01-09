@@ -98,7 +98,7 @@ def ask_a_path():
             return ask_a_path()
 
     elif os.path.exists(path):
-        result = raw_input("Warning, the content of %s will be deleted. Are you"
+        result = raw_input("WARNING: the content of %s will be deleted. Are you"
                            " sure to continue ? [y/n] " % path)
         if result == "y":
             return path
@@ -556,20 +556,20 @@ def run(args, runner, logger):
                                                 runner.cfg.VARS.application), 1)
         with_application = True
     elif not options.base:
-        raise src.SatException(_('A test base is required. Use the --base '
-                                 'option'))
+        raise src.SatException(
+          _('A test base is required. Use the --base option') )
 
     # the launcher is specified either by the application, or by the --launcher option
     if with_application:
         # check if environment is loaded
         if 'KERNEL_ROOT_DIR' in os.environ:
-            logger.write(src.printcolors.printcWarning(_("WARNING: "
-                            "SALOME environment already sourced")) + "\n", 1)
+            logger.write( src.printcolors.printcWarning(
+               _("WARNING: SALOME environment already sourced")) + "\n", 1 )
             
         
     elif options.launcher:
-        logger.write(src.printcolors.printcWarning(_("Running SALOME "
-                                                "application.")) + "\n\n", 1)
+        logger.write(src.printcolors.printcWarning(
+           _("Running SALOME application.")) + "\n\n", 1)
     else:
         msg = _("Impossible to find any launcher.\nPlease specify an "
                 "application or a launcher")
