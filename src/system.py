@@ -47,8 +47,8 @@ def show_in_editor(editor, filePath, logger):
         p = subprocess.Popen(cmd, shell=True)
         p.communicate()
     except:
-        logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
-                                             % filePath), 1)
+        logger.write(printcolors.printcError(
+            _("Unable to edit file %s\n") % filePath), 1)
 
 
 def git_extract(from_what, tag, where, logger, environment=None):

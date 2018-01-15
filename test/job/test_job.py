@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,26 +17,17 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestJob(unittest.TestCase):
-    '''Test of the job command
-    '''
+class TestCase(unittest.TestCase):
+    """Test the job command"""
 
-    def test_job(self):
-        '''Test the job command
-        '''
+    def test_010(self):
+        # Test the job command
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
 
@@ -54,13 +46,11 @@ class TestJob(unittest.TestCase):
 
         if "nb_proc" in text:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
 
-    def test_failing_job(self):
-        '''Test the job command with a failing command
-        '''
+    def test_020(self):
+        # Test the job command with a failing command
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
 
@@ -74,9 +64,8 @@ class TestJob(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_file_conf_not_found(self):
-        '''Test the job command with a wrong file configuration
-        '''
+    def test_030(self):
+        # Test the job command with a wrong file configuration
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
 
@@ -87,12 +76,10 @@ class TestJob(unittest.TestCase):
 
         if res == 1:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_no_option_jobs_config(self):
-        '''Test the job command without --jobs_config option
-        '''
+    def test_040(self):
+        # Test the job command without --jobs_config option
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
 
@@ -103,12 +90,10 @@ class TestJob(unittest.TestCase):
 
         if res == 1:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_job_not_found(self):
-        '''Test the job command without --jobs_config option
-        '''
+    def test_050(self):
+        # Test the job command without --jobs_config option
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
 
@@ -119,23 +104,19 @@ class TestJob(unittest.TestCase):
 
         if res == 1:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h job
-        '''        
-
+    def test_060(self):
+        # Test the sat -h job     
         OK = "KO"
 
         import job
         
         if "Executes the commands of the job defined in the jobs configuration file" in job.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

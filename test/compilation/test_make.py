@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,28 +17,18 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 import src.product
-
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestMake(unittest.TestCase):
-    '''Test of the make command
-    '''
+class TestCase(unittest.TestCase):
+    """Test of the make command"""
 
-    def test_make(self):
-        '''Test the configure command without any option
-        '''
+    def test_010(self):
+        # Test the configure command without any option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -49,8 +40,7 @@ class TestMake(unittest.TestCase):
         expected_build_dir = src.product.get_product_config(sat.cfg, product_name).build_dir
         expected_file_path = os.path.join(expected_build_dir, 'hello')
        
-        sat.configure(appli + ' --product ' + product_name)
-        
+        sat.configure(appli + ' --product ' + product_name)        
         sat.make(appli + ' --product ' + product_name)
         
         if os.path.exists(os.path.join(expected_build_dir, expected_file_path)):
@@ -58,11 +48,9 @@ class TestMake(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_make_option(self):
-        '''Test the make command with an option
-        '''
+    def test_020(self):
+        # Test the make command with an option
         OK = 'KO'
-
         appli = 'appli-test'
         product_name = 'PRODUCT_GIT'
 
@@ -72,8 +60,7 @@ class TestMake(unittest.TestCase):
         expected_build_dir = src.product.get_product_config(sat.cfg, product_name).build_dir
         expected_file_path = os.path.join(expected_build_dir, 'hello')
        
-        sat.configure(appli + ' --product ' + product_name)
-        
+        sat.configure(appli + ' --product ' + product_name)   
         sat.make(appli + ' --product ' + product_name + ' --option -j3')
         
         if os.path.exists(os.path.join(expected_build_dir, expected_file_path)):
@@ -81,9 +68,8 @@ class TestMake(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_make_script(self):
-        '''Test the make command with a product in script mode
-        '''
+    def test_030(self):
+        # Test the make command with a product in script mode
         OK = 'KO'
 
         appli = 'appli-test'
@@ -102,10 +88,8 @@ class TestMake(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h make
-        '''        
-
+    def test_040(self):
+        # Test the sat -h make 
         OK = "KO"
 
         import make
@@ -118,4 +102,5 @@ class TestMake(unittest.TestCase):
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

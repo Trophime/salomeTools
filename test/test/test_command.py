@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,26 +17,17 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
 
 class TestTest(unittest.TestCase):
-    '''Test of the test command
-    '''
+    """Test of the test command"""
 
-    def test_test(self):
-        '''Test the test command
-        '''
+    def test_010(self):
+        # Test the test command
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
         application = "SALOME-7.8.0"
@@ -55,12 +47,10 @@ class TestTest(unittest.TestCase):
 
         if '<session name="light">' in text:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_PY_test(self):
-        '''Test the test command with PY type
-        '''
+    def test_020(self):
+        # Test the test command with PY type
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
         application = "SALOME-7.8.0"
@@ -80,23 +70,19 @@ class TestTest(unittest.TestCase):
 
         if '<session name="PY_test_withKernel">' in text:
             OK = 'OK'         
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h test
-        '''        
-
+    def test_030(self):
+        # Test the sat -h test
         OK = "KO"
 
         import test
         
         if "The test command runs a test base on a SALOME installation" in test.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

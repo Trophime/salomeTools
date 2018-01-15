@@ -307,9 +307,12 @@ def description():
     :return: The text to display for the generate command description.
     :rtype: str
     '''
-    return _("The generate command generates SALOME modules from 'pure cpp' "
-             "products.\nWARNING this command NEEDS YACSGEN to run!\n\nexample:"
-             "\nsat generate SALOME-master --products FLICACPP")
+    return _("""\
+The generate command generates SALOME modules from 'pure cpp' products.
+WARNING: this command NEEDS YACSGEN to run.
+
+example:
+>> sat generate SALOME-master --products FLICACPP""")
 
 
 def run(args, runner, logger):
@@ -332,7 +335,7 @@ def run(args, runner, logger):
     if isinstance(yacsgen_dir, tuple):
         # The check failed
         __, error = yacsgen_dir
-        msg = _("Error: %s" % error)
+        msg = _("Error: %s") % error
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1

@@ -49,9 +49,9 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                raise src.SatException(
+                    _("Product %(product)s not defined in application %(application)s") %
+                    {'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
     # the products name and their definition
@@ -176,13 +176,18 @@ def description():
     :return: The text to display for the configure command description.
     :rtype: str
     '''
-    return _("The configure command executes in the build directory"
-             " the configure commands corresponding\nto the compilation mode"
-             " of the application products.\nThe possible compilation modes"
-             " are \"cmake\", \"autotools\", or a script.\n\nHere are the "
-             "commands to be run :\nautotools: build_configure and configure\n"
-             "cmake: cmake\nscript: do nothing\n\nexample:\nsat configure "
-             "SALOME-master --products KERNEL,GUI,PARAVIS")
+    return _("""\
+The configure command executes in the build directory commands
+corresponding to the compilation mode of the application products.
+The possible compilation modes are 'cmake', 'autotools', or 'script'.
+
+Here are the commands to be run:
+  autotools: >> build_configure and configure
+  cmake:     >> cmake
+  script:    (do nothing)
+
+example:
+>> sat configure SALOME-master --products KERNEL,GUI,PARAVIS""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.

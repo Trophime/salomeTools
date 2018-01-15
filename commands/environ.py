@@ -116,8 +116,11 @@ def write_all_source_files(config,
 ##
 # Describes the command
 def description():
-    return _("The environ command generates the environment files of your "
-             "application.\n\nexample:\nsat environ SALOME-master")
+    return _("""\
+The environ command generates the environment files of your application.
+
+example:
+>> sat environ SALOME-master""")
 
 ##
 # Runs the command.

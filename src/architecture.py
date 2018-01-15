@@ -21,7 +21,9 @@ In this file : all the stuff that can change with the architecture
 on which SAT is running
 '''
 
-import os, sys, platform
+import os
+import sys
+import platform
 
 def is_windows():
     '''method that checks windows OS

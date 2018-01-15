@@ -22,39 +22,43 @@ import src
 
 # create a parser for command line options
 parser = src.options.Options()
-parser.add_option("s",
-                  "sources",
-                  "boolean",
-                  "sources",
-                  _("Search the duplicate files in the SOURCES directory."))
-parser.add_option("p",
-                  "path",
-                  "list2",
-                  "path",
-                  _("Optional: Search the duplicate files in the given "
-                    "directory paths."))
-parser.add_option("",
-                  "exclude-file",
-                  "list2",
-                  "exclude_file",
-                  _("Optional: Override the default list of filtered files."))
-parser.add_option("",
-                  "exclude-extension",
-                  "list2",
-                  "exclude_extension",
-                  _("Optional: Override the default list of filtered "
-                    "extensions."))
-parser.add_option("",
-                  "exclude-path",
-                  "list2",
-                  "exclude_path",
-                  _("Optional: Override the default list of filtered paths."))
+parser.add_option(
+    "s",
+    "sources",
+    "boolean",
+    "sources",
+    _("Search the duplicate files in the SOURCES directory.") )
+parser.add_option(
+    "p",
+    "path",
+    "list2",
+    "path",
+    _("Optional: Search the duplicate files in the given directory paths.") )
+parser.add_option(
+    "",
+    "exclude-file",
+    "list2",
+    "exclude_file",
+    _("Optional: Override the default list of filtered files.") )
+parser.add_option(
+    "",
+    "exclude-extension",
+    "list2",
+    "exclude_extension",
+    _("Optional: Override the default list of filtered extensions.") )
+parser.add_option(
+    "",
+    "exclude-path",
+    "list2",
+    "exclude_path",
+    _("Optional: Override the default list of filtered paths.") )
 
-default_extension_ignored = ['html', 'png', 'txt', 'js', 'xml', 'cmake', 'gif', 
-                     'm4', 'in', 'pyo', 'pyc', 'doctree', 'css']
-default_files_ignored = ['__init__.py', 'Makefile.am', 'VERSION',
-                         'build_configure', 
-                         'README', 'AUTHORS', 'NEWS', 'COPYING', 'ChangeLog']
+default_extension_ignored = \
+    'html png txt js xml cmake gif m4 in pyo pyc doctree css'.split()
+
+default_files_ignored = \
+    '__init__.py Makefile.am VERSION build_configure README AUTHORS NEWS COPYING ChangeLog'.split()
+
 default_directories_ignored = []
 
 def list_directory(lpath, extension_ignored, files_ignored, directories_ignored):
@@ -157,10 +161,13 @@ def description():
     :return: The text to display for the find_duplicates command description.
     :rtype: str
     '''
-    return _("The find_duplicates command search recursively for all duplicates"
-             " files in a the INSTALL directory (or the optionally given "
-             "directory) and prints the found files to the terminal.\n\n"
-             "example:\nsat find_duplicates --path /tmp")
+    return _("""\
+The find_duplicates command search recursively for all duplicates files
+in INSTALL directory (or the optionally given directory) and 
+prints the found files to the terminal.
+
+example:
+>> sat find_duplicates --path /tmp""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with find_duplicates 
@@ -205,8 +212,8 @@ def run(args, runner, logger):
     l_dir_path = []
     for dir_path in l_path:
         if not(os.path.isdir(dir_path)):
-            msg = _("%s does not exists or is not a directory path: "
-                    "it will be ignored" % dir_path)
+            msg = _("%s does not exists or is not a directory path: it will be ignored" %
+                  dir_path)
             logger.write("%s\n" % src.printcolors.printcWarning(msg), 3)
             continue
         l_dir_path.append(dir_path)
@@ -274,8 +281,8 @@ def run(args, runner, logger):
     for elem in dic_fic_paths:
         if len(dic_fic_paths[elem])<2:
             logger.write(
-              _("WARNING : element %s has not more than two paths.\n") % elem,
-              3 )
+                _("WARNING : element %s has not more than two paths.\n") % elem,
+                3 )
 
 
     # Display the results

@@ -35,21 +35,21 @@ from src.xmlManager import add_simple_node
 # Define all possible option for the test command :  sat test <options>
 parser = src.options.Options()
 parser.add_option('b', 'base', 'string', 'base',
-    _("Optional: Indicate the name of the test base to use.\n\tThis name has to"
-      " be registered in your application and in a project.\n\tA path to a "
-      "test base can also be used."))
+    _("""\
+Optional: Indicate the name of the test base to use.
+  This name has to be registered in your application and in a project.
+  A path to a test base can also be used."""))
 parser.add_option('l', 'launcher', 'string', 'launcher',
     _("Optional: Use this option to specify the path to a SALOME launcher to "
       "use to launch the test scripts of the test base."))
 parser.add_option('g', 'grid', 'list', 'grids',
-    _('Optional: Indicate which grid(s) to test (subdirectory of the test '
-      'base).'))
+    _('Optional: Indicate which grid(s) to test (subdirectory of the test base).'))
 parser.add_option('s', 'session', 'list', 'sessions',
-    _('Optional: indicate which session(s) to test (subdirectory of the '
-      'grid).'))
+    _('Optional: indicate which session(s) to test (subdirectory of the grid).'))
 parser.add_option('', 'display', 'string', 'display',
-    _("Optional: set the display where to launch SALOME.\n"
-"\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
+    _("""\
+Optional: set the display where to launch SALOME.
+  If value is NO then option --show-desktop=0 will be used to launch SALOME."""))
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -57,8 +57,10 @@ def description():
     :return: The text to display for the test command description.
     :rtype: str
     '''
-    return _("The test command runs a test base on a SALOME installation.\n\n"
-             "example:\nsat test SALOME-master --grid GEOM --session light")     
+    return _("""\
+The test command runs a test base on a SALOME installation.
+example:
+>> sat test SALOME-master --grid GEOM --session light""")     
 
 def parse_option(args, config):
     """ Parse the options and do some verifications about it
@@ -74,14 +76,13 @@ def parse_option(args, config):
         options.launcher = ""
     elif not os.path.isabs(options.launcher):
         if not src.config_has_application(config):
-            raise src.SatException(_("An application is required to use a "
-                                     "relative path with option --appli"))
-        options.launcher = os.path.join(config.APPLICATION.workdir,
-                                        options.launcher)
+            raise src.SatException(
+                _("An application is required to use a relative path with option --appli") )
+        options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
 
         if not os.path.exists(options.launcher):
-            raise src.SatException(_("Launcher not found: %s") % 
-                                   options.launcher)
+            raise src.SatException(
+                _("Launcher not found: %s") % options.launcher )
 
     return (options, args)
 
@@ -209,9 +210,9 @@ def move_test_results(in_dir, what, out_dir, logger):
     logger.write("\n", 3, False)
 
 def check_remote_machine(machine_name, logger):
-    logger.write(_("\ncheck the display on %s\n" % machine_name), 4)
+    logger.write(_("\ncheck the display on %s\n") % machine_name, 4)
     ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s "ls"' % machine_name
-    logger.write(_("Executing the command : %s " % ssh_cmd), 4)
+    logger.write(_("Executing the command : %s ") % ssh_cmd, 4)
     p = subprocess.Popen(ssh_cmd, 
                          shell=True,
                          stdin =subprocess.PIPE,
@@ -221,8 +222,8 @@ def check_remote_machine(machine_name, logger):
     if p.returncode != 0:
         logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 1)
         logger.write("    " + src.printcolors.printcError(p.stderr.read()), 2)
-        logger.write(src.printcolors.printcWarning((
-                                    "No ssh access to the display machine.")),1)
+        logger.write(src.printcolors.printcWarning(
+            _("No ssh access to the display machine.")), 1)
     else:
         logger.write(src.printcolors.printcSuccess(src.OK_STATUS) + "\n\n", 4)
 
@@ -551,9 +552,9 @@ def run(args, runner, logger):
     # the test base is specified either by the application, or by the --base option
     with_application = False
     if runner.cfg.VARS.application != 'None':
-        logger.write(_('Running tests on application %s\n') % 
-                            src.printcolors.printcLabel(
-                                                runner.cfg.VARS.application), 1)
+        logger.write(
+            _('Running tests on application %s\n') % 
+            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
         with_application = True
     elif not options.base:
         raise src.SatException(
@@ -571,8 +572,8 @@ def run(args, runner, logger):
         logger.write(src.printcolors.printcWarning(
            _("Running SALOME application.")) + "\n\n", 1)
     else:
-        msg = _("Impossible to find any launcher.\nPlease specify an "
-                "application or a launcher")
+        msg = _("Impossible to find any launcher.\n"
+                "Please specify an application or a launcher")
         logger.write(src.printcolors.printcError(msg))
         logger.write("\n")
         return 1
@@ -610,8 +611,8 @@ def run(args, runner, logger):
         try:
             shutil.rmtree(tmp_dir)
         except:
-            logger.error(_("error removing TT_TMP_RESULT %s\n") 
-                                % tmp_dir)
+            logger.error(
+                _("error removing TT_TMP_RESULT %s\n") % tmp_dir)
 
     lines = []
     lines.append("date = '%s'" % runner.cfg.VARS.date)
@@ -718,8 +719,9 @@ def run(args, runner, logger):
     # Add the historic files into the log files list of the command
     logger.l_logFiles.append(historic_xml_path)
     
-    logger.write(_("Removing the temporary directory: "
-                   "rm -rf %s\n" % test_runner.tmp_working_dir), 5)
+    logger.write(
+        _("Removing the temporary directory: %s\n" % 
+        test_runner.tmp_working_dir), 5 )
     if os.path.exists(test_runner.tmp_working_dir):
         shutil.rmtree(test_runner.tmp_working_dir)
 

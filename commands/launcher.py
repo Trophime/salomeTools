@@ -27,15 +27,16 @@ import src
 
 parser = src.options.Options()
 
-parser.add_option('n', 'name', 'string', 'name', _('Optional: The name of the'
-                            ' launcher (default is '
-                            'APPLICATION.profile.launcher_name)'))
-parser.add_option('c', 'catalog', 'string', 'catalog',
-    _('Optional: The resources catalog to use'))
-parser.add_option('', 'gencat', 'string', 'gencat',
-    _("Optional: Create a resources catalog for the specified machines "
-      "(separated with ',') \n\tNOTICE: this command will ssh to retrieve"
-      " information to each machine in the list"))
+parser.add_option(
+    'n', 'name', 'string', 'name', 
+    _('Optional: The name of the launcher (default is APPLICATION.profile.launcher_name)') )
+parser.add_option(
+    'c', 'catalog', 'string', 'catalog',
+    _('Optional: The resources catalog to use') )
+parser.add_option(
+    '', 'gencat', 'string', 'gencat',
+    _("Optional: Create a resources catalog for the specified machines (separated with ',')\n"
+      "  NOTICE: this command will ssh to retrieve information to each machine in the list") )
 
 def generate_launch_file(config,
                          logger,
@@ -222,8 +223,11 @@ def copy_catalog(config, catalog_path):
 ##
 # Describes the command
 def description():
-    return _("The launcher command generates a SALOME launcher.\n\nexample:"
-             "\nsat launcher SALOME-master")
+    return _("""\
+The launcher command generates a SALOME launcher.
+
+example:
+>> sat launcher SALOME-master""")
 
 ##
 # Runs the command.

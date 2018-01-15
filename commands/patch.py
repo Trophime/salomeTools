@@ -45,8 +45,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
         logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)
         logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
         logger.write("\n", 4, False)
-        msg = _("The %s product is native. Do not apply "
-                "any patch.") % product_info.name
+        msg = _("The %s product is native. Do not apply any patch.") % product_info.name
         logger.write(msg, 4)
         logger.write("\n", 4)
         return True, ""       
@@ -127,9 +126,12 @@ def description():
     :return: The text to display for the patch command description.
     :rtype: str
     '''
-    return _("The patch command apply the patches on the sources of "
-             "the application products if there is any.\n\nexample:\nsat "
-             "patch SALOME-master --products qt,boost")
+    return _("""\
+The patch command apply the patches on the sources of the application products
+if there is any.
+
+example:
+>> sat patch SALOME-master --products qt,boost""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with patch parameter.

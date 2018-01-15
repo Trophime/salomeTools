@@ -40,6 +40,7 @@ sys.path.append(satdir)
 sys.path.append(cmdsdir)
 
 import config
+import src.debug as DBG
 
 # load resources for internationalization
 #es = gettext.translation('salomeTools', os.path.join(satdir, 'src', 'i18n'))
@@ -519,6 +520,7 @@ def write_exception(exc):
     sys.stderr.write(src.printcolors.printcError("salomeTools ERROR:"))
     sys.stderr.write("\n" + str(exc) + "\n")
 
+
 # ###############################
 # MAIN : terminal command usage #
 # ###############################
@@ -526,7 +528,10 @@ if __name__ == "__main__":
     # Initialize the code that will be returned by the terminal command 
     code = 0
     (options, args) = parser.parse_args(sys.argv[1:])
-    
+    DBG.push_debug(True)
+    DBG.write("options", options)    
+    DBG.write("args", args)    
+
     # no arguments : print general help
     if len(args) == 0:
         print_help()
@@ -536,11 +541,14 @@ if __name__ == "__main__":
     sat = Sat(sys.argv[1:])
     # the command called
     command = args[0]
+    DBG.write("command", command)
     # get dynamically the command function to call
     fun_command = sat.__getattr__(command)
+    DBG.write("fun_command", fun_command)
     # Run the command using the arguments
     code = fun_command(args[1:])
-    
+    DBG.write("code", code)
+
     # exit salomeTools with the right code (0 if no errors, else 1)
     if code is None: code = 0
     sys.exit(code)

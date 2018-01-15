@@ -163,11 +163,13 @@ def description():
     :return: The text to display for the makeinstall command description.
     :rtype: str
     '''
-    return _("The makeinstall command executes the \"make install\" command in"
-             " the build directory.\nIn case of  product that is constructed "
-             "using a script (build_source :  \"script\"), then the "
-             "makeinstall command do nothing.\n\nexample:\nsat makeinstall "
-             "SALOME-master --products KERNEL,GUI")
+    return _("""\
+The makeinstall command executes the 'make install' command in the build directory.
+In case of product constructed using a script (build_source : 'script'), 
+then the makeinstall command do nothing.
+
+example:
+>> sat makeinstall SALOME-master --products KERNEL,GUI""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with makeinstall parameter.
@@ -201,9 +203,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nMake install: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nMake install: %(status)s (%(1)d/%(2)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     return res 

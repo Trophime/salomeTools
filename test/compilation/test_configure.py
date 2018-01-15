@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,28 +17,24 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 import src.product
+from src.salomeTools import Sat
 
-from salomeTools import Sat
-import HTMLTestRunner
+class TestCase(unittest.TestCase):
+    """Test of the configure command"""
 
-class TestConfigure(unittest.TestCase):
-    '''Test of the configure command
-    '''
+    def setUp(self):
+        print("setUp")
 
-    def test_configure_cmake(self):
-        '''Test the configure command with a product in cmake
-        '''
+    def tearDown(self):
+        print("tearDown")
+
+    def test_010(self):
+        # Test the configure command with a product in cmake
         OK = 'KO'
 
         appli = 'appli-test'
@@ -56,9 +53,8 @@ class TestConfigure(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_configure_autotools(self):
-        '''Test the configure command with a product in autotools
-        '''
+    def test_020(self):
+        # Test the configure command with a product in autotools
         OK = 'KO'
 
         appli = 'appli-test'
@@ -77,9 +73,8 @@ class TestConfigure(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_configure_script(self):
-        '''Test the configure command with a product in script mode
-        '''
+    def test_030(self):
+        # Test the configure command with a product in script mode
         OK = 'KO'
 
         appli = 'appli-test'
@@ -97,10 +92,8 @@ class TestConfigure(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h configure
-        '''        
-
+    def test_040(self):
+        # Test the 'sat -h configure'
         OK = "KO"
 
         import configure
@@ -113,4 +106,5 @@ class TestConfigure(unittest.TestCase):
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

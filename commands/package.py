@@ -103,8 +103,8 @@ parser.add_option('', 'add_files', 'list2', 'add_files',
 parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
     _('Optional: do not add commercial licence.'), False)
 parser.add_option('', 'without_property', 'string', 'without_property',
-    _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--without_property <property>:<value>'))
+    _('Optional: Filter the products by their properties.\n'
+      '\tSyntax: --without_property <property>:<value>'))
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
@@ -266,12 +266,14 @@ def hack_for_distene_licence(filepath):
         return
     del text[num_line +1]
     del text[num_line +1]
-    text_to_insert ="""    import imp
+    text_to_insert ="""\
+    import imp
     try:
         distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
         distene.set_distene_variables(context)
     except:
-        pass\n"""
+        pass
+"""
     text.insert(num_line + 1, text_to_insert)
     for line in text:
         fout.write(line)
@@ -1035,12 +1037,12 @@ For that it is necessary to copy the binaries from BINARIES to INSTALL,
 and do some substitutions on cmake and .la files (replace the build directories
 with local paths).
 The procedure to do it is:
- 1) Remove or rename INSTALL directory if it exists
- 2) Execute the shell script install_bin.sh:
- > cd $ROOT
- > ./install_bin.sh
- 3) Use SalomeTool (as explained in Sources section) and compile only the 
-    modules you need to (with -p option)
+  1) Remove or rename INSTALL directory if it exists
+  2) Execute the shell script install_bin.sh:
+     >> cd $ROOT
+     >> ./install_bin.sh
+  3) Use SalomeTool (as explained in Sources section) and compile only the 
+     modules you need to (with -p option)
 
 """
         readme_header_tpl=string.Template(readme_header)
@@ -1120,14 +1122,17 @@ def description():
     :return: The text to display for the package command description.
     :rtype: str
     '''
-    return _("The package command creates an archive.\nThere are 4 kinds of "
-             "archive, which can be mixed:\n  1- The binary archive. It contains all the product "
-             "installation directories and a launcher,\n  2- The sources archive."
-             " It contains the products archives, a project corresponding to "
-             "the application and salomeTools,\n  3- The project archive. It "
-             "contains a project (give the project file path as argument),\n  4-"
-             " The salomeTools archive. It contains salomeTools.\n\nexample:"
-             "\nsat package SALOME-master --bineries --sources")
+    return _("""\
+The package command creates an archive.
+There are 4 kinds of archive, which can be mixed:
+  1- The binary archive. It contains all the product installation directories and a launcher.
+  2- The sources archive. It contains the products archives, 
+     a project corresponding to the application and salomeTools.
+  3- The project archive. It contains a project (give the project file path as argument).
+  4- The salomeTools archive. It contains salomeTools.
+
+example:
+>> sat package SALOME-master --bineries --sources""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.
@@ -1144,9 +1149,9 @@ def run(args, runner, logger):
 
     # Check if no option for package type
     if all_option_types.count(True) == 0:
-        msg = _("Error: Precise a type for the package\nUse one of the "
-                "following options: --binaries, --sources, --project or"
-                " --salometools")
+        msg = _("ERROR: needs a type for the package\n"
+                "       Use one of the following options:\n"
+                "       --binaries, --sources, --project or --salometools")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
@@ -1160,12 +1165,11 @@ def run(args, runner, logger):
         src.check_config_has_application(runner.cfg)
 
         # Display information
-        logger.write(_("Packaging application %s\n") % src.printcolors.printcLabel(
-                                                    runner.cfg.VARS.application), 1)
+        logger.write(_("Packaging application %s\n") % \
+            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
         
         # Get the default directory where to put the packages
-        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir,
-                                            "PACKAGE")
+        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
         src.ensure_path_exists(package_default_path)
         
     # if the package contains a project:
@@ -1176,8 +1180,8 @@ def run(args, runner, logger):
                                      "data",
                                      "local.pyconf")
             msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
-                    "\nPlease add it in the %(local)s file." % {
-                                  "proj" : options.project, "local" : local_path})
+                    "\nPlease add it in the %(local)s file.") % \
+                  {"proj" : options.project, "local" : local_path}
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
@@ -1226,8 +1230,8 @@ def run(args, runner, logger):
             archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
         if len(archive_name)==0: # no option worked 
             msg = _("Error: Cannot name the archive\n"
-                    " check if at least one of the following options was "
-                    "selected : --binaries, --sources, --project or"
+                    "  check if at least one of the following options was "
+                    "selected: --binaries, --sources, --project or"
                     " --salometools")
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
@@ -1243,7 +1247,7 @@ def run(args, runner, logger):
                                    runner.cfg.VARS.datehour)
     src.ensure_path_exists(tmp_working_dir)
     logger.write("\n", 5)
-    logger.write(_("The temporary working directory: %s\n" % tmp_working_dir),5)
+    logger.write(_("The temporary working directory: %s\n") % tmp_working_dir, 5)
     
     logger.write("\n", 3)
 
@@ -1319,7 +1323,7 @@ def run(args, runner, logger):
     if options.add_files:
         for file_path in options.add_files:
             if not os.path.exists(file_path):
-                msg = _("WARNING: the file %s is not accessible.\n" % file_path)
+                msg = _("WARNING: the file %s is not accessible.\n") % file_path
                 continue
             file_name = os.path.basename(file_path)
             d_files_to_add[file_name] = (file_path, file_name)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,25 +17,17 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestConfig(unittest.TestCase):
-    '''sat config -c
-    '''
+class TestCase(unittest.TestCase):
+    """sat config --copy"""
     
-    def test_option_copy(self):
-        '''Test the copy of a pyconf
-        '''
+    def test_010(self):
+        # Test the copy of a pyconf
         res = "KO"
         appli_to_copy = "appli-test"
 
@@ -46,14 +39,12 @@ class TestConfig(unittest.TestCase):
         sat = Sat('')
         sat.config('appli-test -c')
 
-
         if os.path.exists(expected_file):
             res = "OK"
             os.remove(expected_file)
-
-        # pyunit method to compare 2 str
         self.assertEqual(res, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

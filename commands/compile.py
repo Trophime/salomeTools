@@ -29,33 +29,43 @@ except NameError:
 
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
-parser.add_option('', 'with_fathers', 'boolean', 'fathers',
-    _("Optional: build all necessary products to the given product (KERNEL is "
-      "build before building GUI)."), False)
-parser.add_option('', 'with_children', 'boolean', 'children',
-    _("Optional: build all products using the given product (all SMESH plugins"
-      " are build after SMESH)."), False)
-parser.add_option('', 'clean_all', 'boolean', 'clean_all',
+parser.add_option(
+    'p', 'products', 'list2', 'products',
+    _('Optional: products to configure. This option can be passed several time to configure several products.'))
+parser.add_option(
+    '', 'with_fathers', 'boolean', 'fathers',
+    _("Optional: build all necessary products to the given product (KERNEL is build before building GUI)."), 
+    False)
+parser.add_option(
+    '', 'with_children', 'boolean', 'children',
+    _("Optional: build all products using the given product (all SMESH plugins  are build after SMESH)."),
+    False)
+parser.add_option(
+    '', 'clean_all', 'boolean', 'clean_all',
     _("Optional: clean BUILD dir and INSTALL dir before building product."),
     False)
-parser.add_option('', 'clean_install', 'boolean', 'clean_install',
+parser.add_option(
+    '', 'clean_install', 'boolean', 'clean_install',
     _("Optional: clean INSTALL dir before building product."), False)
-parser.add_option('', 'make_flags', 'string', 'makeflags',
+parser.add_option(
+    '', 'make_flags', 'string', 'makeflags',
     _("Optional: add extra options to the 'make' command."))
-parser.add_option('', 'show', 'boolean', 'no_compile',
+parser.add_option(
+    '', 'show', 'boolean', 'no_compile',
     _("Optional: DO NOT COMPILE just show if products are installed or not."),
     False)
-parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
-                  "Optional: Stops the command at first product compilation"
-                  " fail."), False)
-parser.add_option('', 'check', 'boolean', 'check', _(
-                  "Optional: execute the unit tests after compilation"), False)
-
-parser.add_option('', 'clean_build_after', 'boolean', 'clean_build_after', 
-                  _('Optional: remove the build directory after successful compilation'), False)
+parser.add_option(
+    '', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
+    "Optional: Stops the command at first product compilation fail."), 
+    False)
+parser.add_option(
+    '', 'check', 'boolean', 'check', 
+    _("Optional: execute the unit tests after compilation"), 
+   False)
+parser.add_option(
+    '', 'clean_build_after', 'boolean', 'clean_build_after', 
+    _('Optional: remove the build directory after successful compilation'), 
+    False)
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -79,9 +89,9 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                raise src.SatException(
+                    _("Product %(product)s not defined in application %(application)s") %
+                    { 'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
     # the products name and their definition
@@ -130,11 +140,12 @@ def get_recursive_children(config, p_name_p_info, without_native_fixed=False):
         l_children_name = [pn_pi[0] for pn_pi in l_children]
         if child_name not in l_children_name:
             if child_name not in config.APPLICATION.products:
-                msg = _("The product %(child_name)s that is in %(product_nam"
-                        "e)s children is not present in application "
-                        "%(appli_name)s" % {"child_name" : child_name, 
-                                    "product_name" : p_name.name, 
-                                    "appli_name" : config.VARS.application})
+                msg = _("""\
+The product %(child_name)s that is in %(product_name)s children
+is not present in application %(appli_name)s.""" % 
+                     {"child_name" : child_name, 
+                      "product_name" : p_name.name, 
+                      "appli_name" : config.VARS.application} )
                 raise src.SatException(msg)
             prod_info_child = src.product.get_product_config(config,
                                                               child_name)
@@ -371,9 +382,8 @@ def compile_all_products(sat, config, options, products_infos, logger):
             
             if error_step != "CHECK":
                 # Clean the install directory if there is any
-                logger.write(_(
-                            "Cleaning the install directory if there is any\n"),
-                             5)
+                logger.write(
+                    _("Cleaning the install directory if there is any\n"), 5)
                 sat.clean(config.VARS.application + 
                           " --products " + p_name + 
                           " --install",
@@ -398,14 +408,14 @@ def compile_all_products(sat, config, options, products_infos, logger):
             logger.write("\n==== %(KO)s in compile of %(name)s \n" %
                 { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
             if error_step == "CHECK":
-                logger.write(_("\nINSTALL directory = %s" % 
-                           src.printcolors.printcInfo(p_info.install_dir)), 3)
+                logger.write(_("\nINSTALL directory = %s") % 
+                           src.printcolors.printcInfo(p_info.install_dir), 3)
             logger.flush()
         else:
             logger.write("\r%s%s" % (header, " " * len_end_line), 3)
             logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-            logger.write(_("\nINSTALL directory = %s" % 
-                           src.printcolors.printcInfo(p_info.install_dir)), 3)
+            logger.write(_("\nINSTALL directory = %s") % 
+                           src.printcolors.printcInfo(p_info.install_dir), 3)
             logger.write("\n==== %s \n" % src.printcolors.printcInfo("OK"), 4)
             logger.write("\n==== Compilation of %(name)s %(OK)s \n" %
                 { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
@@ -628,9 +638,11 @@ def description():
     :return: The text to display for the compile command description.
     :rtype: str
     '''
-    return _("The compile command constructs the products of the application"
-             "\n\nexample:\nsat compile SALOME-master --products KERNEL,GUI,"
-             "MEDCOUPLING --clean_all")
+    return _("""\
+The compile command constructs the products of the application
+
+example:
+>> sat compile SALOME-master --products KERNEL,GUI,MEDCOUPLING --clean_all""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with compile parameter.
@@ -645,7 +657,7 @@ def run(args, runner, logger):
         options.products is None and 
         not runner.options.batch):
         rep = input(_("You used --clean_all without specifying a product"
-                          " are you sure you want to continue? [Yes/No] "))
+                      " are you sure you want to continue? [Yes/No] "))
         if rep.upper() != _("YES").upper():
             return 0
         
@@ -654,9 +666,8 @@ def run(args, runner, logger):
 
     # Print some informations
     logger.write(_('Executing the compile commands in the build '
-                                'directories of the products of '
-                                'the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+                   'directories of the products of the application %s\n') % 
+                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     
     info = [
             (_("SOURCE directory"),
@@ -692,10 +703,10 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nCompilation: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") %
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     code = res
     if code != 0:

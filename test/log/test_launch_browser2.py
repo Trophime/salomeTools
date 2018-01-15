@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,31 +17,22 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
 import threading
 import time
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 from salomeTools import Sat
-from tools import check_proc_existence_and_kill_multi
-import HTMLTestRunner
+from test.unittestpy.tools import check_proc_existence_and_kill_multi
 
 sleep_time = 2
 
-class TestLog(unittest.TestCase):
-    '''Test of log command: launch of browser
-    '''
-    def test_launch_browser(self):
-        '''Test the launch of browser when invoking the log command
-        '''
+class TestCase(unittest.TestCase):
+    """Test of log command: launch of browser"""
 
+    def test_010(self):
+        # Test the launch of browser when invoking the log command
         OK = "KO"
 
         sat = Sat("-oUSER.browser='konqueror'")
@@ -56,9 +48,9 @@ class TestLog(unittest.TestCase):
 
         if pid:
             OK = "OK"
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

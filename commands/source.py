@@ -54,7 +54,7 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     # +2 because product name is followed by ': '
     logger.write(" " * (pad+2), 3, False) 
     
-    logger.write('dev: %s ... ' % 
+    logger.write('dev: %s ... ' % \
                  src.printcolors.printcInfo(product_info.source_dir), 3, False)
     logger.flush()
     
@@ -122,13 +122,12 @@ def get_source_from_archive(product_info, source_dir, logger):
     '''
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
-        raise src.SatException(_("Archive not found: '%s'") % 
+        raise src.SatException(_("Archive not found: '%s'") % \
                                product_info.archive_info.archive_name)
 
-    logger.write('arc:%s ... ' % 
+    logger.write('arc:%s ... ' % \
                  src.printcolors.printcInfo(product_info.archive_info.archive_name),
-                 3, 
-                 False)
+                 3, False)
     logger.flush()
     # Call the system function that do the extraction in archive mode
     retcode, NameExtractedDirectory = src.system.archive_extract(
@@ -148,23 +147,21 @@ def get_source_from_archive(product_info, source_dir, logger):
 def get_source_from_dir(product_info, source_dir, logger):
     
     if "dir_info" not in product_info:
-        msg = _("Error: you must put a dir_info section"
-                " in the file %s.pyconf" % product_info.name)
+        msg = _("Error: you must put a dir_info section in the file %s.pyconf") % \
+              product_info.name
         logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
         return False
 
     if "dir" not in product_info.dir_info:
-        msg = _("Error: you must put a dir in the dir_info section"
-                " in the file %s.pyconf" % product_info.name)
+        msg = _("Error: you must put a dir in the dir_info section  in the file %s.pyconf") % \
+              product_info.name
         logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
         return False
 
     # check that source exists
     if not os.path.exists(product_info.dir_info.dir):
-        msg = _("""\
-Error: the dir '%(1)s' defined in the file"
-       %(2)s.pyconf does not exists""" % 
-          {"1": product_info.dir_info.dir, "2": product_info.name})
+        msg = _("ERROR: the dir '%(1)s' defined in the file %(2)s.pyconf does not exists") % \
+              {"1": product_info.dir_info.dir, "2": product_info.name}
         logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
         return False
     
@@ -217,22 +214,16 @@ def get_source_from_cvs(user,
     if checkout: coflag = src.printcolors.printcHighlight(coflag.upper())
 
     logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(cvs_line)), 
-                 3, 
-                 False)
+                 3, False)
     logger.write(' ' * (pad + 50 - len(cvs_line)), 3, False)
-    logger.write(' src:%s' % 
-                 src.printcolors.printcInfo(product_info.cvs_info.source), 
-                 3, 
-                 False)
+    logger.write(' src:%s' % src.printcolors.printcInfo(product_info.cvs_info.source), 
+                 3, False)
     logger.write(' ' * (pad + 1 - len(product_info.cvs_info.source)), 3, False)
-    logger.write(' tag:%s' % 
-                    src.printcolors.printcInfo(product_info.cvs_info.tag), 
-                 3, 
-                 False)
+    logger.write(' tag:%s' % src.printcolors.printcInfo(product_info.cvs_info.tag), 
+                 3, False)
     # at least one '.' is visible
     logger.write(' %s. ' % ('.' * (10 - len(product_info.cvs_info.tag))), 
-                 3, 
-                 False) 
+                 3, False) 
     logger.flush()
     logger.write('\n', 5, False)
 
@@ -268,11 +259,8 @@ def get_source_from_svn(user,
     coflag = 'svn'
     if checkout: coflag = src.printcolors.printcHighlight(coflag.upper())
 
-    logger.write('%s:%s ... ' % (coflag, 
-                                 src.printcolors.printcInfo(
-                                            product_info.svn_info.repo)), 
-                 3, 
-                 False)
+    logger.write('%s:%s ... ' % (coflag, src.printcolors.printcInfo(product_info.svn_info.repo)), 
+                 3,  False)
     logger.flush()
     logger.write('\n', 5, False)
     # Call the system function that do the extraction in svn mode
@@ -353,8 +341,7 @@ def get_product_sources(config,
         logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
                      3,
                      False)
-        msg = _('INFORMATION : Not doing anything because the product'
-                ' is of type "native".\n')
+        msg = _("INFORMATION : do nothing because the product is of type 'native'.\n")
         logger.write(msg, 3)
         return True        
 
@@ -363,14 +350,14 @@ def get_product_sources(config,
         logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
                      3,
                      False)
-        msg = _('INFORMATION : Not doing anything because the product'
-                ' is of type "fixed".\n')
+        msg = _("INFORMATION : do nothing because the product is of type 'fixed'.\n")
         logger.write(msg, 3)
         return True  
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]
-    logger.write(_("Unknown get source method \"%(get)s\" for product %(product)s") % \
-        { 'get': product_info.get_source, 'product': product_info.name }, 3, False)
+    logger.write(_("Unknown get source method '%(get)s' for product %(product)s") % \
+                 {'get': product_info.get_source, 'product': product_info.name}, 
+                 3, False)
     logger.write(" ... ", 3, False)
     logger.flush()
     return False
@@ -444,7 +431,7 @@ def get_all_product_sources(config, products, logger):
             check_OK, wrong_path = check_sources(product_info, logger)
             if not check_OK:
                 # Print the missing file path
-                msg = _("The required file %s does not exists. " % wrong_path)
+                msg = _("The required file %s does not exists. ") % wrong_path
                 logger.write(src.printcolors.printcError("\nERROR: ") + msg, 3)
                 retcode = False
 
@@ -509,7 +496,7 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
 
     # Print some informations
-    logger.write(_('Getting sources of the application %s\n') % 
+    logger.write(_('Getting sources of the application %s\n') % \
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     src.printcolors.print_value(logger, 'workdir', 
                                 runner.cfg.APPLICATION.workdir, 2)

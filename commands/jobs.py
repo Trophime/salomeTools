@@ -39,28 +39,31 @@ CSV_DELIMITER = ";"
 
 parser = src.options.Options()
 
-parser.add_option('n', 'name', 'list2', 'jobs_cfg', 
-                  _('Mandatory: The name of the config file that contains'
-                  ' the jobs configuration. Can be a list.'))
-parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
-                  _('Optional: the list of jobs to launch, by their name. '))
-parser.add_option('l', 'list', 'boolean', 'list', 
-                  _('Optional: list all available config files.'))
-parser.add_option('t', 'test_connection', 'boolean', 'test_connection',
-                  _("Optional: try to connect to the machines. "
-                    "Not executing the jobs."),
-                  False)
-parser.add_option('p', 'publish', 'boolean', 'publish',
-                  _("Optional: generate an xml file that can be read in a "
-                    "browser to display the jobs status."),
-                  False)
-parser.add_option('i', 'input_boards', 'string', 'input_boards', _("Optional: "
-                                "the path to csv file that contain "
-                                "the expected boards."),"")
-parser.add_option('', 'completion', 'boolean', 'no_label',
-                  _("Optional (internal use): do not print labels, Works only "
-                    "with --list."),
-                  False)
+parser.add_option(
+    'n', 'name', 'list2', 'jobs_cfg', 
+    _('Mandatory: The name of the config file that contains the jobs configuration. Can be a list.') )
+parser.add_option(
+    'o', 'only_jobs', 'list2', 'only_jobs',
+    _('Optional: the list of jobs to launch, by their name. ') )
+parser.add_option(
+    'l', 'list', 'boolean', 'list', 
+                  _('Optional: list all available config files.') )
+parser.add_option(
+    't', 'test_connection', 'boolean', 'test_connection',
+    _("Optional: try to connect to the machines. Not executing the jobs."),
+    False )
+parser.add_option(
+    'p', 'publish', 'boolean', 'publish',
+    _("Optional: generate an xml file that can be read in a browser to display the jobs status."),
+    False )
+parser.add_option(
+    'i', 'input_boards', 'string', 'input_boards', _("Optional: "
+    "the path to csv file that contain the expected boards."),
+    "" )
+parser.add_option(
+    '', 'completion', 'boolean', 'no_label',
+    _("Optional (internal use): do not print labels, Works only with --list."),
+    False )
 
 class Machine(object):
     '''Class to manage a ssh connection on a machine
@@ -152,9 +155,9 @@ WARNING : trying to ask if the connection to
         return res
         
     def put_dir(self, source, target, filters = []):
-        ''' Uploads the contents of the source directory to the target path. The
-            target directory needs to exists. All sub-directories in source are 
-            created under target.
+        '''Uploads the contents of the source directory to the target path.
+        The target directory needs to exists. 
+        All sub-directories in source are created under target.
         '''
         for item in os.listdir(source):
             if item in filters:
@@ -179,8 +182,7 @@ WARNING : trying to ask if the connection to
                     self.put_dir(source_path, destination_path)
 
     def mkdir(self, path, mode=511, ignore_existing=False):
-        ''' Augments mkdir by adding an option to not fail 
-            if the folder exists 
+        '''As mkdir by adding an option to not fail if the folder exists 
         '''
         try:
             self.sftp.mkdir(path, mode)
@@ -365,7 +367,7 @@ class Job(object):
             try:
                 self.get_log_files()
             except Exception as e:
-                self.err += _("Unable to get remote log files: %s" % e)
+                self.err += _("Unable to get remote log files: %s") % e
         
         return self._has_finished
           
@@ -399,8 +401,8 @@ class Job(object):
             # The first line is the result of the command (0 success or 1 fail)
             self.res_job = file_lines[0]
         except Exception as e:
-            self.err += _("Unable to get status from remote file '%(1)s': %(2)s" % 
-                        {"1": remote_path, "2": str(e)})
+            self.err += _("Unable to get status from remote file '%(1)s': %(2)s") % \
+                        {"1": remote_path, "2": str(e)}
 
         for i, job_path_remote in enumerate(file_lines[1:]):
             try:
@@ -440,8 +442,8 @@ class Job(object):
                     self.machine.sftp.get(job_path_remote, local_path)
                 self.remote_log_files.append(local_path)
             except Exception as e:
-                self.err += _("Unable to get %(1)s log file from remote: %(2)s" % 
-                            {"1": str(job_path_remote), "2": str(e)})
+                self.err += _("Unable to get %(1)s log file from remote: %(2)s") % \
+                            {"1": str(job_path_remote), "2": str(e)}
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -471,8 +473,9 @@ class Job(object):
         self._has_begun = True
         self._has_finished = True
         self.cancelled = True
-        self.out += _("This job was not launched because its father has failed.")
-        self.err += _("This job was not launched because its father has failed.")
+        msg = _("This job was not launched because its father has failed.")
+        self.out += msg
+        self.err += msg
 
     def is_running(self):
         '''Returns True if the job commands are running 
@@ -535,9 +538,9 @@ class Job(object):
         if self.has_begun():
             msg = _("WARNING: A job can only be launched one time")
             msg2 = _("Trying to launch the job \"%s\" whereas it has "
-                     "already been launched." % self.name)
-            self.logger.write(src.printcolors.printcWarning("%s\n%s\n" % (msg,
-                                                                        msg2)))
+                     "already been launched.") % self.name
+            self.logger.write(
+                src.printcolors.printcWarning("%s\n%s\n" % (msg,msg2)) )
             return
         
         # Do not execute the command if the machine could not be reached
@@ -991,8 +994,8 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
         '''
 
         # Print header
-        self.logger.write(src.printcolors.printcInfo(
-                                                _('Executing the jobs :\n')))
+        self.logger.write(
+            src.printcolors.printcInfo(_('Executing the jobs :\n')) )
         text_line = ""
         for host_port in self.lhosts:
             host = host_port[0]
@@ -1687,9 +1690,12 @@ def develop_factorized_jobs(config_jobs):
 ##
 # Describes the command
 def description():
-    return _("The jobs command launches maintenances that are described"
-             " in the dedicated jobs configuration file.\n\nexample:\nsat "
-             "jobs --name my_jobs --publish")
+    return _("""\
+The jobs command launches maintenances that are described in 
+the dedicated jobs configuration file.
+
+example:
+>> sat jobs --name my_jobs --publish""")
 
 ##
 # Runs the command.
@@ -1728,9 +1734,9 @@ def run(args, runner, logger):
     for config_file in options.jobs_cfg:
         found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
         if not found:
-            msg = _("The file configuration %s was not found."
-                    "\nUse the --list option to get the "
-                    "possible files." % config_file)
+            msg = _("""\
+The file configuration %s was not found.
+Use the --list option to get the possible files.""") % config_file
             logger.write("%s\n" % src.printcolors.printcError(msg), 1)
             return 1
         l_conf_files_path.append(file_jobs_cfg)

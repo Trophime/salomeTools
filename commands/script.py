@@ -54,7 +54,7 @@ def get_products_list(options, cfg, logger):
         for p in products:
             if p not in cfg.APPLICATION.products:
                 raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
+                            "not defined in application %(application)s") % \
                         { 'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
@@ -127,9 +127,10 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     logger.flush()
 
     # Do nothing if he product is not compilable or has no compilation script
-    if (("properties" in p_info and "compilation" in p_info.properties and 
-                                  p_info.properties.compilation == "no") or
-                                  (not src.product.product_has_script(p_info))):
+    if ( ("properties" in p_info and 
+          "compilation" in p_info.properties and 
+          p_info.properties.compilation == "no") or
+         (not src.product.product_has_script(p_info)) ):
         log_step(logger, header, "ignored")
         logger.write("\n", 3, False)
         return 0
@@ -155,14 +156,14 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     if res > 0:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in script execution of %(name)s \n" %
+        logger.write("==== %(KO)s in script execution of %(name)s \n" % \
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
         logger.flush()
     else:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
         logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Script execution of %(name)s %(OK)s \n" %
+        logger.write("==== Script execution of %(name)s %(OK)s \n" % \
             { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
         logger.flush()
     logger.write("\n", 3, False)
@@ -175,11 +176,14 @@ def description():
     :return: The text to display for the script command description.
     :rtype: str
     '''
-    return _("The script command executes the script(s) of the the given "
-             "products in the build directory.\nThis is done only for the "
-             "products that are constructed using a script (build_source "
-             ": \"script\").\nOtherwise, nothing is done."
-             "\n\nexample:\nsat script SALOME-master --products Python,numpy")
+    return _("""\
+The script command executes the script(s) of the the given products in the build directory.
+  This is done only for the products that are constructed using a script (build_source : 'script').
+  Otherwise, nothing is done.
+
+  example:
+  >> sat script SALOME-master --products Python,numpy
+""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.
@@ -195,12 +199,11 @@ def run(args, runner, logger):
     products_infos = get_products_list(options, runner.cfg, logger)
     
     # Print some informations
-    logger.write(_('Executing the script in the build '
-                                'directories of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    msg = ('Executing the script in the build directories of the application %s\n') % \
+                src.printcolors.printcLabel(runner.cfg.VARS.application)
+    logger.write(msg, 1)
     
-    info = [(_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    info = [(_("BUILD directory"), os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
     src.print_info(logger, info)
     
     # Call the function that will loop over all the products and execute
@@ -219,10 +222,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nScript: %(status)s "
-                   "(%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nScript: %(status)s (%(1)d/%(2)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     return res 

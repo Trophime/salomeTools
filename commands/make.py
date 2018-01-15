@@ -25,7 +25,7 @@ import src
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+      ' passed several time to configure several products.'))
 parser.add_option('o', 'option', 'string', 'option',
     _('Optional: Option to add to the make command.'), "")
 
@@ -201,9 +201,11 @@ def description():
     :return: The text to display for the make command description.
     :rtype: str
     '''
-    return _("The make command executes the \"make\" command in"
-             " the build directory.\nexample:\nsat make SALOME-master "
-             "--products Python,KERNEL,GUI")
+    return _("""\
+The make command executes the 'make' command in the build directory.
+
+example:
+>> sat make SALOME-master --products Python,KERNEL,GUI""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.
@@ -219,9 +221,9 @@ def run(args, runner, logger):
     products_infos = get_products_list(options, runner.cfg, logger)
     
     # Print some informations
-    logger.write(_('Executing the make command in the build '
-                                'directories of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    logger.write(
+        _('Executing the make command in the build directories of the application %s\n') % 
+        src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     
     info = [(_("BUILD directory"),
              os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
@@ -240,9 +242,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nMake: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nMake: %(status)s (%(1)d/%(2)d)\n") % 
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     return res 

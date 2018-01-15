@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -34,7 +35,6 @@ import string
 import imp
 import subprocess
 
-from . import fork
 import src
 
 # directories not considered as test grids
@@ -98,11 +98,11 @@ class Test:
                             symlinks=True)
 
     def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
-        self.logger.write(_("get test base from dir: %s\n") %
+        self.logger.write(_("get test base from dir: %s\n") % \
                           src.printcolors.printcLabel(testbase_dir), 3)
         if not os.access(testbase_dir, os.X_OK):
             raise src.SatException(
-              _("testbase %(name)s (%(dir)s) does not exist ...\n") % 
+              _("testbase %(name)s (%(dir)s) does not exist ...\n") % \
               { 'name': testbase_name, 'dir': testbase_dir } )
 
         self._copy_dir(testbase_dir,
@@ -113,7 +113,7 @@ class Test:
                                   testbase_base,
                                   testbase_tag):
         self.logger.write(
-            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % 
+            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % \
               { "testbase" : src.printcolors.printcLabel(testbase_name),
                 "tag" : src.printcolors.printcLabel(testbase_tag) },
             3)
@@ -198,7 +198,7 @@ class Test:
 
             if res != 0:
                 raise src.SatException(
-                  _("Error: unable to get test base '%(name)s' from svn '%(repo)s'.") %
+                  _("ERROR: unable to get test base '%(name)s' from svn '%(repo)s'.") % \
                   { 'name': testbase_name, 'repo': testbase_base } )
 
         except OSError:
@@ -231,7 +231,7 @@ class Test:
                 return 0
         
         if not test_base_info:
-            message = (_("ERROR: test base '%s' not found\n") % test_base_name)
+            message = _("ERROR: test base '%s' not found\n") % test_base_name
             self.logger.write("%s\n" % src.printcolors.printcError(message))
             return 1
 
@@ -251,7 +251,7 @@ class Test:
                                        test_base_info.info.base)
         else:
             raise src.SatException(
-              _("unknown source type '%(type)s' for test base '%(base)s' ...\n") % 
+              _("unknown source type '%(type)s' for test base '%(base)s' ...\n") % \
               {'type': test_base_info.get_sources, 'base': test_base_name } )
 
         self.currentTestBase = test_base_name
@@ -448,13 +448,13 @@ class Test:
                             executable='/bin/bash').communicate()
             print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
             for resLine in subproc_res:
-                print "- '#%s#'" %resLine
+                print "- '#%s#'" % resLine
             
             root_dir = subproc_res[0].split()[-1]
 
         # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
         #               de remontee de log des tests
-        print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" %root_dir
+        print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" % root_dir
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
@@ -585,42 +585,34 @@ class Test:
         elapsed = -1
         if self.currentsession.startswith("NOGUI_"):
             # runSalome -t (bash)
-            status, elapsed = fork.batch(binSalome, self.logger,
-                                        os.path.join(self.tmp_working_dir,
-                                                     "WORK"),
-                                        [ "-t",
-                                         "--shutdown-server=1",
-                                         script_path ],
-                                        delai=time_out,
-                                        log=logWay)
+            status, elapsed = src.fork.batch(
+                binSalome, self.logger,
+                os.path.join(self.tmp_working_dir, "WORK"),
+                [ "-t", "--shutdown-server=1", script_path ],
+                delai=time_out, log=logWay )
 
         elif self.currentsession.startswith("PY_"):
             # python script.py
-            status, elapsed = fork.batch(binPython, self.logger,
-                                          os.path.join(self.tmp_working_dir,
-                                                       "WORK"),
-                                          [script_path],
-                                          delai=time_out, log=logWay)
+            status, elapsed = src.fork.batch(
+                binPython, self.logger,
+                os.path.join(self.tmp_working_dir, "WORK"),
+                [script_path],
+                delai=time_out, log=logWay)
 
         else:
             opt = "-z 0"
             if self.show_desktop: opt = "--show-desktop=0"
-            status, elapsed = fork.batch_salome(binSalome,
-                                                 self.logger,
-                                                 os.path.join(
-                                                        self.tmp_working_dir,
-                                                        "WORK"),
-                                                 [ opt,
-                                                  "--shutdown-server=1",
-                                                  script_path ],
-                                                 getTmpDir=tmpDir,
-                                                 fin=killSalome,
-                                                 delai=time_out,
-                                                 log=logWay,
-                                                 delaiapp=time_out_salome)
+            status, elapsed = src.fork.batch_salome(
+                binSalome, self.logger,
+                os.path.join(self.tmp_working_dir, "WORK"),
+                [ opt, "--shutdown-server=1", script_path ],
+                getTmpDir=tmpDir,
+                fin=killSalome,
+                delai=time_out,
+                log=logWay,
+                delaiapp=time_out_salome)
 
-        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed),
-                          5)
+        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed), 5)
 
         # create the test result to add in the config object
         test_info = src.pyconf.Mapping(self.config)
@@ -696,8 +688,8 @@ class Test:
     def run_session_tests(self):
        
         self.logger.write(self.write_test_margin(2), 3)
-        self.logger.write("Session = %s\n" % src.printcolors.printcLabel(
-                                                    self.currentsession), 3, False)
+        self.logger.write("Session = %s\n" % \
+             src.printcolors.printcLabel(self.currentsession), 3, False)
 
         # prepare list of tests to run
         tests = os.listdir(os.path.join(self.currentDir,
@@ -719,8 +711,8 @@ class Test:
     # Runs all tests of a grid.
     def run_grid_tests(self):
         self.logger.write(self.write_test_margin(1), 3)
-        self.logger.write("grid = %s\n" % src.printcolors.printcLabel(
-                                                self.currentgrid), 3, False)
+        self.logger.write("grid = %s\n" % \
+             src.printcolors.printcLabel(self.currentgrid), 3, False)
 
         grid_path = os.path.join(self.currentDir, self.currentgrid)
 
@@ -738,8 +730,8 @@ class Test:
         for session_ in sessions:
             if not os.path.exists(os.path.join(grid_path, session_)):
                 self.logger.write(self.write_test_margin(2), 3)
-                self.logger.write(src.printcolors.printcWarning("Session %s not"
-                                        " found" % session_) + "\n", 3, False)
+                self.logger.write(
+                     src.printcolors.printcWarning("Session %s not found" % session_) + "\n", 3, False)
             else:
                 self.currentsession = session_
                 self.run_session_tests()
@@ -759,11 +751,10 @@ class Test:
         self.logger.write("\n", 4, False)
 
         self.logger.write(self.write_test_margin(0), 3)
-        testbase_label = "Test base = %s\n" % src.printcolors.printcLabel(
-                                                        self.currentTestBase)
+        testbase_label = "Test base = %s\n" % \
+             src.printcolors.printcLabel(self.currentTestBase)
         self.logger.write(testbase_label, 3, False)
-        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)),
-                          3)
+        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)), 3)
         self.logger.write("\n", 3, False)
 
         # load settings
@@ -821,15 +812,15 @@ class Test:
 
             self.logger.write("\n", 2, False)
             if not os.path.exists(script):
-                self.logger.write(src.printcolors.printcWarning("WARNING: scrip"
-                                        "t not found: %s" % script) + "\n", 2)
+                self.logger.write(src.printcolors.printcWarning(
+                     "WARNING: script not found: %s" % script) + "\n", 2)
             else:
-                self.logger.write(src.printcolors.printcHeader("----------- sta"
-                                            "rt %s" % script_name) + "\n", 2)
+                self.logger.write(src.printcolors.printcHeader(
+                     "----------- start %s" % script_name) + "\n", 2)
                 self.logger.write("Run script: %s\n" % script, 2)
                 subprocess.Popen(script, shell=True).wait()
-                self.logger.write(src.printcolors.printcHeader("----------- end"
-                                                " %s" % script_name) + "\n", 2)
+                self.logger.write(src.printcolors.printcHeader(
+                     "----------- end %s" % script_name) + "\n", 2)
 
     def run_all_tests(self):
         initTime = datetime.datetime.now()
@@ -861,11 +852,11 @@ class Test:
         self.logger.write("\n", 2, False)
 
         # evaluate results
-        res_count = "%d / %d" % (self.nb_succeed,
-                                 self.nb_run - self.nb_acknoledge)
+        res_count = "%d / %d" % \
+             (self.nb_succeed, self.nb_run - self.nb_acknoledge)
 
-        res_out = _("Tests Results: %(succeed)d / %(total)d\n") %
-                  { 'succeed': self.nb_succeed, 'total': self.nb_run }
+        res_out = _("Tests Results: %(1)d/%(2)d\n") % \
+                  { '1': self.nb_succeed, '2': self.nb_run }
         if self.nb_succeed == self.nb_run:
             res_out = src.printcolors.printcSuccess(res_out)
         else:
@@ -885,7 +876,7 @@ class Test:
         elif self.nb_acknoledge:
             status = src.KNOWNFAILURE_STATUS
         
-        self.logger.write(_("Status: %s\n" % status), 3)
+        self.logger.write(_("Status: %s\n") % status, 3)
 
         return self.nb_run - self.nb_succeed - self.nb_acknoledge
 

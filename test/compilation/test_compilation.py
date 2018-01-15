@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,28 +17,18 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 import src.product
-
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestCompile(unittest.TestCase):
-    '''Test of the compile command
-    '''
+class TestCase(unittest.TestCase):
+    """Test of the compile command"""
 
-    def test_compile(self):
-        '''Test the compile command with --products option
-        '''
+    def test_010(self):
+        # Test the compile command with '--products' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -57,9 +48,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_fathers(self):
-        '''Test the configure command with --fathers option
-        '''
+    def test_020(self):
+        # Test the configure command with '--fathers' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -82,9 +72,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
         
-    def test_compile_children(self):
-        '''Test the configure command with --children option
-        '''
+    def test_030(self):
+        # Test the configure command with '--children' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -107,9 +96,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_clean_all(self):
-        '''Test the configure command with --clean_all option
-        '''
+    def test_040(self):
+        # Test the configure command with '--clean_all' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -133,9 +121,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_clean_install(self):
-        '''Test the configure command with --clean_install option
-        '''
+    def test_050(self):
+        # Test the configure command with '--clean_install' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -159,9 +146,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_makeflags(self):
-        '''Test the configure command with --make_flags option
-        '''
+    def test_060(self):
+        # Test the configure command with '--make_flags' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -181,9 +167,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_show(self):
-        '''Test the configure command with --show option
-        '''
+    def test_070(self):
+        # Test the configure command with '--show' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -203,9 +188,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_compile_stop_first_fail(self):
-        '''Test the configure command with --stop_first_fail option
-        '''
+    def test_080(self):
+        # Test the configure command with '--stop_first_fail' option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -223,9 +207,8 @@ class TestCompile(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h compile
-        '''        
+    def test_090(self):
+        # Test the 'sat -h compile' command to get description       
 
         OK = "KO"
 
@@ -239,4 +222,6 @@ class TestCompile(unittest.TestCase):
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass
+

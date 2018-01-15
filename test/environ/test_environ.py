@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,26 +17,17 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
 
 class TestSource(unittest.TestCase):
-    '''Test of the source command
-    '''
+    """Test of the environ command"""
     
-    def test_environ_no_option(self):
-        '''Test the environ command without any option
-        '''
+    def test_010(self):
+        # Test the environ command without any option
         OK = 'KO'
         
         appli = 'appli-test'
@@ -54,13 +46,10 @@ class TestSource(unittest.TestCase):
 
         if os.path.exists(expected_file_path):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_environ_option_products(self):
-        '''Test the environ command with option --products
-        '''
+    def test_020(self):
+        # Test the environ command with option '--products'
         OK = 'KO'
         
         appli = 'appli-test'
@@ -80,13 +69,10 @@ class TestSource(unittest.TestCase):
 
         if os.path.exists(expected_file_path):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')        
 
-    def test_environ_option_target(self):
-        '''Test the environ command with option --target
-        '''
+    def test_030(self):
+        # Test the environ command with option --target
         OK = 'KO'
         
         appli = 'appli-test'
@@ -114,9 +100,8 @@ class TestSource(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK') 
 
-    def test_environ_option_prefix(self):
-        '''Test the environ command with option --prefix
-        '''
+    def test_040(self):
+        # Test the environ command with option --prefix
         OK = 'KO'
         
         appli = 'appli-test'
@@ -135,13 +120,10 @@ class TestSource(unittest.TestCase):
 
         if os.path.exists(expected_file_path):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK') 
 
-    def test_environ_option_shell(self):
-        '''Test the environ command with option --shell
-        '''
+    def test_050(self):
+        # Test the environ command with option --shell
         OK = 'KO'
         
         appli = 'appli-test'
@@ -160,10 +142,9 @@ class TestSource(unittest.TestCase):
 
         if os.path.exists(expected_file_path):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK') 
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

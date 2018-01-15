@@ -23,12 +23,15 @@ import src
 
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
+parser.add_option(
+    'p', 'products', 'list2', 'products',
     _('Optional: products to prepare. This option can be'
     ' passed several time to prepare several products.'))
-parser.add_option('f', 'force', 'boolean', 'force', 
+parser.add_option(
+    'f', 'force', 'boolean', 'force', 
     _("Optional: force to prepare the products in development mode."))
-parser.add_option('', 'force_patch', 'boolean', 'force_patch', 
+parser.add_option(
+    '', 'force_patch', 'boolean', 'force_patch', 
     _("Optional: force to apply patch to the products in development mode."))
 
 def get_products_list(options, cfg, logger):
@@ -52,9 +55,9 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                raise src.SatException(
+                    _("Product %(product)s not defined in application %(application)s") %
+                    { 'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
     # the products name and their definition
@@ -118,9 +121,12 @@ def description():
     :return: The text to display for the prepare command description.
     :rtype: str
     '''
-    return _("The prepare command gets the sources of "
-             "the application products and apply the patches if there is any."
-             "\n\nexample:\nsat prepare SALOME-master --products KERNEL,GUI")
+    return _("""\
+The prepare command gets the sources of the application products 
+and apply the patches if there is any.
+
+example:
+>> sat prepare SALOME-master --products KERNEL,GUI""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with prepare parameter.
@@ -149,9 +155,8 @@ def run(args, runner, logger):
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)
         if len(l_products_not_getted) > 0:
-            msg = _("Do not get the source of the following products "
-                    "in development mode\nUse the --force option to"
-                    " overwrite it.\n")
+            msg = _("Do not get the source of the following products in development mode\n"
+                    "  Use the --force option to overwrite it.\n")
             logger.write(src.printcolors.printcWarning(msg), 1)
             args_product_opt_clean = remove_products(args_product_opt_clean,
                                                      l_products_not_getted,
@@ -163,9 +168,8 @@ def run(args, runner, logger):
     if not options.force_patch and len(ldev_products) > 0:
         l_products_with_patchs = find_products_with_patchs(ldev_products)
         if len(l_products_with_patchs) > 0:
-            msg = _("do not patch the following products "
-                    "in development mode\nUse the --force_patch option to"
-                    " overwrite it.\n")
+            msg = _("do not patch the following products in development mode\n"
+                    "  Use the --force_patch option to overwrite it.\n")
             logger.write(src.printcolors.printcWarning(msg), 1)
             args_product_opt_patch = remove_products(args_product_opt_patch,
                                                      l_products_with_patchs,

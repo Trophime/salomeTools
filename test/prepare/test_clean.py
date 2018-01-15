@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,30 +17,20 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
-
-from tools import outRedirection
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
-
 import src.product
 
-class TestClean(unittest.TestCase):
-    '''Test of the clean command
-    '''
+from test.unittestpy.tools import outRedirection
 
-    def test_clean_no_args(self):
-        '''Test the clean command with no arguments (nothing to clean)
-        '''
+class TestCase(unittest.TestCase):
+    """Test of the clean command"""
+
+    def test_010(self):
+        # Test the clean command with no arguments (nothing to clean)
         OK = 'KO'
 
         appli = 'appli-test'
@@ -59,13 +50,10 @@ class TestClean(unittest.TestCase):
         
         if "Nothing to suppress" in res:
             OK = 'OK'
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_clean_sources(self):
-        '''Test the clean of sources
-        '''
+    def test_020(self):
+        # Test the clean of sources
         OK = "KO"
 
         appli = 'appli-test'
@@ -83,13 +71,10 @@ class TestClean(unittest.TestCase):
         
         if not os.path.exists(expected_src_dir):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_clean_build(self):
-        '''Test the clean of build
-        '''
+    def test_030(self):
+        # Test the clean of build
         OK = "KO"
 
         appli = 'appli-test'
@@ -108,13 +93,10 @@ class TestClean(unittest.TestCase):
         
         if not os.path.exists(expected_build_dir):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_clean_install(self):
-        '''Test the clean of install
-        '''
+    def test_040(self):
+        # Test the clean of install
         OK = "KO"
 
         appli = 'appli-test'
@@ -133,13 +115,10 @@ class TestClean(unittest.TestCase):
         
         if not os.path.exists(expected_install_dir):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_clean_all(self):
-        '''Test the clean of all (build, src, install)
-        '''
+    def test_050(self):
+        # Test the clean of all (build, src, install)
         OK = "KO"
 
         appli = 'appli-test'
@@ -160,13 +139,10 @@ class TestClean(unittest.TestCase):
         
         if not os.path.exists(expected_install_dir) and not os.path.exists(expected_build_dir) and not os.path.exists(expected_src_dir):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_clean_sources_without_dev(self):
-        '''Test the clean with sources_without_dev option
-        '''
+    def test_060(self):
+        # Test the clean with sources_without_dev option
         OK = "KO"
 
         appli = 'appli-test'
@@ -186,25 +162,20 @@ class TestClean(unittest.TestCase):
         
         if not os.path.exists(expected_src_dir) and os.path.exists(expected_src_dir2):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 
-    def test_description(self):
-        '''Test the sat -h clean
-        '''        
-
+    def test_070(self):
+        # Test the sat -h clean
         OK = "KO"
 
         import clean
         
         if "The clean command suppress the source, build, or install" in clean.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

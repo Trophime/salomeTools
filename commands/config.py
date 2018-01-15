@@ -42,8 +42,8 @@ parser.add_option('l', 'list', 'boolean', 'list',
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
     _("Optional: synthetic view of all patches used in the application"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
-    _("""Optional: copy a config file to the personal config files directory.
-\tWARNING the included files are not copied.
+    _("""Optional: copy a config file (.pyconf) to the personal config files directory.
+\tWarning: the included files are not copied.
 \tIf a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
     _("Internal use: do not print labels, Works only with --value and --list."))
@@ -302,19 +302,17 @@ class ConfigManager:
         for project_pyconf_path in cfg.PROJECTS.project_file_paths:
             if not os.path.exists(project_pyconf_path):
                 msg = _("WARNING: The project file %s cannot be found. "
-                        "It will be ignored\n" % project_pyconf_path)
+                        "It will be ignored\n") % project_pyconf_path
                 sys.stdout.write(msg)
                 continue
-            project_name = os.path.basename(
-                                    project_pyconf_path)[:-len(".pyconf")]
+            project_name = os.path.basename(project_pyconf_path)[:-len(".pyconf")]
             try:
                 project_pyconf_dir = os.path.dirname(project_pyconf_path)
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
-                msg = _("ERROR: Error in configuration file: "
-                                 "%(file_path)s\n  %(error)s\n") % \
-                            {'file_path' : project_pyconf_path, 'error': str(e) }
+                msg = _("ERROR: Error in configuration file: %(file_path)s\n  %(error)s\n") % \
+                       {'file_path' : project_pyconf_path, 'error': str(e) }
                 sys.stdout.write(msg)
                 continue
             projects_cfg.PROJECTS.projects.addMapping(project_name,
@@ -376,36 +374,31 @@ class ConfigManager:
                 application_cfg = src.pyconf.Config(application + '.pyconf')
             except IOError as e:
                 raise src.SatException(_("%s, use 'config --list' to get the"
-                                         " list of available applications.") %e)
+                                         " list of available applications.") % e)
             except src.pyconf.ConfigError as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                          or ('--edit' in parser.parse_args()[1]) 
                                          and command == 'config'):
-                    raise src.SatException(_("Error in configuration file: "
-                                             "%(application)s.pyconf\n "
-                                             " %(error)s") % \
+                    raise src.SatException(
+                        _("Error in configuration file: (1)s.pyconf\n  %(2)s") % \
                         { 'application': application, 'error': str(e) } )
                 else:
                     sys.stdout.write(src.printcolors.printcWarning(
-                                        "There is an error in the file"
-                                        " %s.pyconf.\n" % cfg.VARS.application))
+                        "There is an error in the file %s.pyconf.\n" % \
+                        cfg.VARS.application))
                     do_merge = False
             except Exception as e:
-                if (not ('-e' in parser.parse_args()[1]) 
-                                        or ('--edit' in parser.parse_args()[1]) 
-                                        and command == 'config'):
+                if ( not('-e' in parser.parse_args()[1]) or
+                     ('--edit' in parser.parse_args()[1]) and
+                     command == 'config' ):
                     sys.stdout.write(src.printcolors.printcWarning("%s\n" % str(e)))
-                    raise src.SatException(_("Error in configuration file:"
-                                             " %(application)s.pyconf\n") % \
-                        { 'application': application} )
+                    raise src.SatException(
+                        _("Error in configuration file: %s.pyconf\n") % application )
                 else:
                     sys.stdout.write(src.printcolors.printcWarning(
-                                "There is an error in the file"
-                                " %s.pyconf. Opening the file with the"
-                                " default viewer\n" % cfg.VARS.application))
-                    sys.stdout.write("The error:"
-                                 " %s\n" % src.printcolors.printcWarning(
-                                                                      str(e)))
+                        "ERROR: in file %s.pyconf. Opening the file with the default viewer\n" % \
+                        cfg.VARS.application))
+                    sys.stdout.write("\n%s\n" % src.printcolors.printcWarning(str(e)))
                     do_merge = False
         
             else:
@@ -433,8 +426,7 @@ class ConfigManager:
                         products_cfg.PRODUCTS[product_name] = prod_cfg
                     except Exception as e:
                         msg = _(
-                            "WARNING: Error in configuration file"
-                            ": %(prod)s\n  %(error)s" % \
+                            "WARNING: Error in configuration file: %(prod)s\n  %(error)s" % \
                             {'prod' :  product_name, 'error': str(e) })
                         sys.stdout.write(msg)
             
@@ -553,8 +545,8 @@ class ConfigManager:
         :rtype: str
         '''
         if not self.user_config_file_path:
-            raise src.SatException(_("Error in get_user_config_file: "
-                                     "missing user config file path"))
+            raise src.SatException(
+                _("Error in get_user_config_file: missing user config file path") )
         return self.user_config_file_path     
 
 def check_path(path, ext=[]):
@@ -569,15 +561,13 @@ def check_path(path, ext=[]):
     '''
     # check if file exists
     if not os.path.exists(path):
-        return "'%s'" % path + " " + src.printcolors.printcError(_(
-                                                            "** not found"))
+        return "'%s' %s" % (path, src.printcolors.printcError(_("** not found")))
 
     # check extension
     if len(ext) > 0:
         fe = os.path.splitext(path)[1].lower()
         if fe not in ext:
-            return "'%s'" % path + " " + src.printcolors.printcError(_(
-                                                        "** bad extension"))
+            return "'%s' %s" % (path, src.printcolors.printcError(_("** bad extension")))
 
     return path
 
@@ -689,9 +679,7 @@ def show_product_info(config, name, logger):
                                         check_path(pinfo.install_dir), 
                                         2)
         else:
-            logger.write("  " + 
-                         src.printcolors.printcWarning(_("no install dir")) + 
-                         "\n", 2)
+            logger.write("  %s\n" % src.printcolors.printcWarning(_("no install dir")) , 2)
     else:
         logger.write("\n", 2)
         msg = _("This product does not compile")
@@ -833,9 +821,11 @@ def description():
     :return: The text to display for the config command description.
     :rtype: str
     '''
-    return _("The config command allows manipulation "
-             "and operation on config files.\n\nexample:\nsat config "
-             "SALOME-master --info ParaView")
+    return _("""\
+The config command allows manipulation and operation on config files.
+
+example:
+>> sat config SALOME-master --info ParaView""")
     
 
 def run(args, runner, logger):
@@ -863,18 +853,16 @@ def run(args, runner, logger):
     elif options.edit:
         editor = runner.cfg.USER.editor
         if ('APPLICATION' not in runner.cfg and
-                       'open_application' not in runner.cfg): # edit user pyconf
-            usercfg = os.path.join(runner.cfg.VARS.personalDir, 
-                                   'SAT.pyconf')
-            logger.write(_("Openning %s\n" % usercfg), 3)
+            'open_application' not in runner.cfg): # edit user pyconf
+            usercfg = os.path.join(runner.cfg.VARS.personalDir, 'SAT.pyconf')
+            logger.write(_("Opening %s\n") % usercfg, 3)
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
             for path in runner.cfg.PATHS.APPLICATIONPATH:
-                pyconf_path = os.path.join(path, 
-                                    runner.cfg.VARS.application + ".pyconf")
+                pyconf_path = os.path.join(path, runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
-                    logger.write(_("Openning %s\n" % pyconf_path), 3)
+                    logger.write(_("Opening %s\n") % pyconf_path, 3)
                     src.system.show_in_editor(editor, pyconf_path, logger)
                     break
     
@@ -884,11 +872,9 @@ def run(args, runner, logger):
         if options.info in runner.cfg.APPLICATION.products:
             show_product_info(runner.cfg, options.info, logger)
             return
-        raise src.SatException(_("%(product_name)s is not a product "
-                                 "of %(application_name)s.") % 
-                               {'product_name' : options.info,
-                                'application_name' : 
-                                runner.cfg.VARS.application})
+        raise src.SatException(
+            _("%(product_name)s is not a product of %(application_name)s.") % \
+            {'product_name' : options.info, 'application_name' : runner.cfg.VARS.application} )
     
     # case : copy an existing <application>.pyconf 
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
@@ -910,8 +896,8 @@ def run(args, runner, logger):
                 break
 
         if len(source_full_path) == 0:
-            raise src.SatException(_(
-                        "Config file for product %s not found\n") % source)
+            raise src.SatException(
+                _("Config file for product %s not found\n") % source )
         else:
             if len(args) > 0:
                 # a name is given as parameter, use it
@@ -925,11 +911,11 @@ def run(args, runner, logger):
                 dest = runner.cfg.VARS.application
                 
             # the full path
-            dest_file = os.path.join(runner.cfg.VARS.personalDir, 
-                                     'Applications', dest + '.pyconf')
+            dest_file = os.path.join(
+                runner.cfg.VARS.personalDir, 'Applications', dest + '.pyconf' )
             if os.path.exists(dest_file):
-                raise src.SatException(_("A personal application"
-                                         " '%s' already exists") % dest)
+                raise src.SatException(
+                    _("A personal application '%s' already exists") % dest )
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
@@ -945,8 +931,8 @@ def run(args, runner, logger):
                 logger.write("------ %s\n" % src.printcolors.printcHeader(path))
 
             if not os.path.exists(path):
-                logger.write(src.printcolors.printcError(_(
-                                            "Directory not found")) + "\n")
+                logger.write(src.printcolors.printcError(
+                    _("Directory not found")) + "\n" )
             else:
                 for f in sorted(os.listdir(path)):
                     # ignore file that does not ends with .pyconf
@@ -967,8 +953,8 @@ def run(args, runner, logger):
     elif options.show_patchs:
         src.check_config_has_application(runner.cfg)
         # Print some informations
-        logger.write(_('Show the patchs of application %s\n') % 
-                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write(_('Show the patchs of application %s\n') % \
+                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
         logger.write("\n", 2, False)
         show_patchs(runner.cfg, logger)
     

@@ -58,8 +58,8 @@ class Environ:
             try:
                 value = zt.substitute(self.environ)
             except KeyError as exc:
-                raise src.SatException(_("Missing definition "
-                                         "in environment: %s") % str(exc))
+                raise src.SatException(
+                    _("Missing definition in environment: %s") % str(exc) )
         return value
 
     def append_value(self, key, value, sep=os.pathsep):
@@ -590,8 +590,8 @@ class SalomeEnviron:
         env_script = product_info.environ.env_script
         # Check that the script exists
         if not os.path.exists(env_script):
-            raise src.SatException(_("Environment script not found: %s") % 
-                                   env_script)
+            raise src.SatException(
+                _("Environment script not found: %s") % env_script)
 
         if not self.silent and logger is not None:
             logger.write("  ** load %s\n" % env_script, 4)
@@ -626,8 +626,8 @@ class SalomeEnviron:
             return
         # Check that the script exists
         if not os.path.exists(script_path):
-            raise src.SatException(_("Environment script not found: %s") % 
-                                   script_path)
+            raise src.SatException(
+                _("Environment script not found: %s") % script_path)
 
         if not self.silent and logger is not None:
             logger.write("  ** load %s\n" % script_path, 4)

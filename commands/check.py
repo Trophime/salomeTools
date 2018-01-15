@@ -23,8 +23,8 @@ import src
 # Define all possible option for the check command :  sat check <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to configure.\n'
+      'This option can be passed several time to configure several products.'))
 
 CHECK_PROPERTY = "has_unit_tests"
 
@@ -50,7 +50,7 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                msg = _("Product %(1)s not defined in application %(2)s") %
+                msg = _("Product %(1)s not defined in application %(2)s") % \
                       { '1': p, '2': cfg.VARS.application}
                 raise src.SatException(msg)
     
@@ -150,7 +150,7 @@ WARNING: The product %(name)s is defined as having tests.
                 
     if ignored or not cmd_found:
         log_step(logger, header, "ignored")
-        logger.write("==== %(name)s %(IGNORED)s\n" %
+        logger.write("==== %(name)s %(IGNORED)s\n" % \
             { "name" : p_name ,
              "IGNORED" : src.printcolors.printcInfo("IGNORED")},
             4)
@@ -180,14 +180,14 @@ WARNING: The product %(name)s is defined as having tests.
     if res > 0:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in check of %(name)s \n" %
+        logger.write("==== %(KO)s in check of %(name)s \n" % \
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
         logger.flush()
     else:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
         logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Check of %(name)s %(OK)s \n" %
+        logger.write("==== Check of %(name)s %(OK)s \n" % \
             { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
         logger.flush()
     logger.write("\n", 3, False)
@@ -200,11 +200,14 @@ def description():
     :return: The text to display for the check command description.
     :rtype: str
     '''
-    return _("The check command executes the \"check\" command in"
-             " the build directory of all the products of the application."
-             "\nIt is possible to reduce the list of products to check by using"
-             " the --products option\n\nexample\nsat check SALOME-master "
-             "--products KERNEL,GUI,GEOM")
+    return _("""\
+The check command executes the 'check' command in the build directory of 
+all the products of the application.
+It is possible to reduce the list of products to check
+by using the --products option
+
+example:
+>> sat check SALOME-master --products KERNEL,GUI,GEOM""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with check parameter.
@@ -221,7 +224,7 @@ def run(args, runner, logger):
     
     # Print some informations
     logger.write(_('Executing the check command in the build '
-                                'directories of the application %s\n') % 
+                   'directories of the application %s\n') % \
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     
     info = [(_("BUILD directory"),
@@ -239,9 +242,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nCheck: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     return res 

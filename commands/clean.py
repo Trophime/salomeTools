@@ -35,8 +35,8 @@ parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: Products to clean. This option can be'
     ' passed several time to clean several products.'))
 parser.add_option('', 'properties', 'string', 'properties',
-    _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--properties <property>:<value>'))
+    _('Optional: Filter the products by their properties.\n'
+      '\tSyntax: --properties <property>:<value>'))
 parser.add_option('s', 'sources', 'boolean', 'sources', 
     _("Optional: Clean the product source directories."))
 parser.add_option('b', 'build', 'boolean', 'build', 
@@ -69,9 +69,9 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                raise src.SatException(
+                    _("Product %(product)s not defined in application %(application)s") % \
+                    {'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
     # the products name and their definition
@@ -163,7 +163,7 @@ def suppress_directories(l_paths, logger):
     for path in l_paths:
         if not path.isdir():
             msg = _("WARNING: the path %s does not "
-                    "exists (or is not a directory)\n" % path.__str__())
+                    "exists (or is not a directory)\n") % path.__str__()
             logger.write(src.printcolors.printcWarning(msg), 1)
         else:
             logger.write(_("Removing %s ...") % path.__str__())
@@ -176,11 +176,14 @@ def description():
     :return: The text to display for the clean command description.
     :rtype: str
     '''
-    return _("The clean command suppress the source, build, or install "
-             "directories of the application products.\nUse the options to"
-             " define what directories you want to suppress and to reduce "
-             "the list of products\n\nexample:\nsat clean SALOME-master "
-             "--build --install --properties is_salome_module:yes")
+    return _("""\
+The clean command suppress the source, build, or install directories 
+of the application products.
+Use the options to define what directories you want to suppress and 
+to reduce the list of products
+
+example:
+>> sat clean SALOME-master --build --install --properties is_salome_module:yes""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with clean parameter.
@@ -229,8 +232,7 @@ def run(args, runner, logger):
         sat_command = (runner.cfg.VARS.salometoolsway +
                        runner.cfg.VARS.sep +
                        "sat -h clean") 
-        logger.write(_("Please specify what you want to suppress: "
-                       "tap \"%s\"\n" % sat_command))
+        logger.write(_("Please specify what you want to suppress: tap '%s'\n") % sat_command)
         return
     
     # Check with the user if he really wants to suppress the directories

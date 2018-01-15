@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,30 +17,19 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
-
-from tools import outRedirection
-
-import src.product
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
+import src.product
+from test.unittestpy.tools import outRedirection
 
-class TestSource(unittest.TestCase):
-    '''Test of the source command
-    '''
+class TestCase(unittest.TestCase):
+    """Test of the source command"""
     
-    def test_source_archive(self):
-        '''Test the source command with archive product
-        '''
+    def test_010(self):
+        # Test the source command with archive product
         appli = 'appli-test'
         product_name = 'PRODUCT_ARCHIVE'
 
@@ -52,13 +42,10 @@ class TestSource(unittest.TestCase):
 
         f = open(expected_file_path, 'r')
         text = f.read()
-
-        # pyunit method to compare 2 str
         self.assertEqual(text, expected_text)
         
-    def test_source_git(self):
-        '''Test the source command with git product
-        '''
+    def test_020(self):
+        # Test the source command with git product
         appli = 'appli-test'
         product_name = 'PRODUCT_GIT'
 
@@ -71,13 +58,10 @@ class TestSource(unittest.TestCase):
 
         f = open(expected_file_path, 'r')
         text = f.read()
-
-        # pyunit method to compare 2 str
         self.assertEqual(text, expected_text)
 
-    def test_source_cvs(self):
-        '''Test the source command with cvs product
-        '''
+    def test_030(self):
+        # Test the source command with cvs product
         appli = 'appli-test'
         product_name = 'PRODUCT_CVS'
 
@@ -95,9 +79,8 @@ class TestSource(unittest.TestCase):
         self.assertEqual(text, expected_text)
     
     """
-    def test_source_svn(self):
-        '''Test the source command with svn product
-        '''
+    def test_040(self):
+        # Test the source command with svn product
         OK = 'KO'
         
         appli = 'appli-test'
@@ -120,9 +103,8 @@ class TestSource(unittest.TestCase):
         self.assertEqual(OK, 'OK')
     """
 
-    def test_source_native(self):
-        '''Test the source command with native product
-        '''
+    def test_050(self):
+        # Test the source command with native product
         OK = 'KO'
         
         appli = 'appli-test'
@@ -134,13 +116,10 @@ class TestSource(unittest.TestCase):
         expected_src_dir = os.path.join(sat.cfg.APPLICATION.workdir, 'SOURCES', product_name)
         if not os.path.exists(expected_src_dir):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_source_fixed(self):
-        '''Test the source command with fixed product
-        '''
+    def test_060(self):
+        # Test the source command with fixed product
         OK = 'KO'
         
         appli = 'appli-test'
@@ -153,13 +132,11 @@ class TestSource(unittest.TestCase):
 
         if os.path.exists(expected_src_dir):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
-    """    
-    def test_source_unknown(self):
-        '''Test the source command with unknown product
-        '''
+
+    """
+    def test_070(self):
+        # Test the source command with unknown product
         OK = 'KO'
 
         # output redirection
@@ -179,25 +156,20 @@ class TestSource(unittest.TestCase):
 
         if "Unknown get source method" in res:
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
     """
 
-    def test_description(self):
-        '''Test the sat -h source
-        '''        
-
+    def test_080(self):
+        # Test the sat -h source
         OK = "KO"
 
         import source
         
         if "gets the sources of the application" in source.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,34 +17,24 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
 import threading
 import time
 import shutil
 import io
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 from salomeTools import Sat
-from tools import check_proc_existence_and_kill_multi
-import HTMLTestRunner
+from test.unittestpy.tools import check_proc_existence_and_kill_multi
 
 sleep_time = 2
 
-class TestLog(unittest.TestCase):
-    '''Test of log command: launch of browser
-    '''
+class TestCase(unittest.TestCase):
+    """Test of log command: launch of browser"""
            
-    def test_write_xmllog(self):
-        '''Test the write of xml log when invoking a command
-        '''
-
+    def test_010(self):
+        # Test the write of xml log when invoking a command
         OK = "KO"
         
         # launch the command that will write a log
@@ -56,14 +47,10 @@ class TestLog(unittest.TestCase):
         
         if os.path.exists(logPath):
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal(self):
-        '''Test the terminal option without application
-        '''
-
+    def test_020(self):
+        # Test the terminal option without application
         OK = "KO"
         
         # launch the command that will write a log
@@ -79,14 +66,10 @@ class TestLog(unittest.TestCase):
             sys.stdin = sys.__stdin__
         except:
             sys.stdin = sys.__stdin__
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal2(self):
-        '''Test the terminal option with application
-        '''
-
+    def test_030(self):
+        # Test the terminal option with application
         OK = "KO"
         
         # launch the command that will write a log
@@ -103,14 +86,10 @@ class TestLog(unittest.TestCase):
             sys.stdin = sys.__stdin__
         except:
             pass
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal3(self):
-        '''Test the terminal option with 0 as input
-        '''
-
+    def test_040(self):
+        # Test the terminal option with 0 as input
         OK = "KO"
         
         # launch the command that will write a log
@@ -126,14 +105,10 @@ class TestLog(unittest.TestCase):
             OK = "OK"
         finally:
             sys.stdin = sys.__stdin__
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal4(self):
-        '''Test the terminal option with input bigger than the number of logs
-        '''
-
+    def test_050(self):
+        # Test the terminal option with input bigger than the number of logs
         OK = "KO"
         
         # launch the command that will write a log
@@ -151,14 +126,10 @@ class TestLog(unittest.TestCase):
             OK = "OK"
         finally:
             sys.stdin = sys.__stdin__
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal5(self):
-        '''Test the terminal option with input return
-        '''
-
+    def test_060(self):
+        # Test the terminal option with input return
         OK = "KO"
         
         # launch the command that will write a log
@@ -174,14 +145,10 @@ class TestLog(unittest.TestCase):
             OK = "OK"
         finally:
             sys.stdin = sys.__stdin__
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal6(self):
-        '''Test the terminal option with input not int
-        '''
-
+    def test_070(self):
+        # Test the terminal option with input not int
         OK = "KO"
         
         # launch the command that will write a log
@@ -197,14 +164,10 @@ class TestLog(unittest.TestCase):
             OK = "OK"
         finally:
             sys.stdin = sys.__stdin__
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_terminal7(self):
-        '''Test the terminal option and option last
-        '''
-
+    def test_080(self):
+        # Test the terminal option and option last
         OK = "KO"
         
         # launch the command that will write a log
@@ -219,10 +182,8 @@ class TestLog(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
     
-    def test_option_last(self):
-        '''Test the option --last
-        '''
-
+    def test_090(self):
+        # Test the option --last
         OK = "KO"
         
         # launch the command that will write a log
@@ -242,14 +203,10 @@ class TestLog(unittest.TestCase):
         
         if pid:
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
     
-    def test_option_clean(self):
-        '''Test the option --clean
-        '''
-
+    def test_100(self):
+        # Test the option --clean
         OK = "KO"
         
         # launch the command that will write a log
@@ -265,14 +222,10 @@ class TestLog(unittest.TestCase):
         
         if nb_logs_t1-nb_logs_t0 == 0:
             OK = "OK"
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_option_clean2(self):
-        '''Test the option --clean with big number of files to clean
-        '''
-
+    def test_120(self):
+        # Test the option --clean with big number of files to clean
         OK = "KO"
         
         # launch the command that will write a log
@@ -284,6 +237,8 @@ class TestLog(unittest.TestCase):
         
         if os.path.exists(sat.cfg.USER.log_dir + "_save"):
             shutil.rmtree(sat.cfg.USER.log_dir + "_save")
+        print("TODO: risky !!!copytree!!!", sat.cfg.USER.log_dir, sat.cfg.USER.log_dir + "_save")
+        """
         shutil.copytree(sat.cfg.USER.log_dir,sat.cfg.USER.log_dir + "_save")
         
         sat.log('--clean ' + str(nb_logs_t0))
@@ -295,15 +250,12 @@ class TestLog(unittest.TestCase):
                 
         if nb_logs_t0-nb_logs_t1 > 10:
             OK = "OK"
-        
-        # pyunit method to compare 2 str
+        """
         self.assertEqual(OK, "OK")
     
     """
-    def test_option_full(self):
-        '''Test the option --full
-        '''
-
+    def test_130(self):
+        # Test the option --full
         OK = "KO"
 
         sat = Sat("-oUSER.browser='konqueror'")
@@ -323,24 +275,20 @@ class TestLog(unittest.TestCase):
             if field.attrib[b'cmd'] == b'log':
                 OK = "OK"
                 break
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
     """
-    def test_description(self):
-        '''Test the sat -h log
-        '''        
 
+    def test_140(self):
+        # Test the sat -h log
         OK = "KO"
 
         import log
         
         if "Gives access to the logs produced" in log.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

@@ -20,22 +20,22 @@ import os
 import shutil
 import errno
 import stat
-
-from . import pyconf
-from . import architecture
-from . import printcolors
-from . import options
-from . import system
-from . import ElementTree
-from . import logger
-from . import product
-from . import environment
-from . import fileEnviron
-from . import compilation
-from . import test_module
-from . import template
-
 import platform
+
+import pyconf
+import architecture
+import printcolors
+import options
+import system
+import ElementTree
+import logger
+import product
+import environment
+import fileEnviron
+import compilation
+import test_module
+import template
+
 if platform.system() == "Windows" :
     import colorama
     colorama.init()
@@ -129,7 +129,7 @@ def get_base_path(config):
         local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
                                       "local.pyconf")
-        msg = _("Please define a base path in the file %s" % local_file_path)
+        msg = _("Please define a base path in the file %s") % local_file_path
         raise SatException(msg)
         
     base_path = os.path.abspath(config.LOCAL.base)
@@ -162,7 +162,7 @@ def get_log_path(config):
         local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
                                       "local.pyconf")
-        msg = _("Please define a log_dir in the file %s" % local_file_path)
+        msg = _("Please define a log_dir in the file %s") % local_file_path
         raise SatException(msg)
       
     log_dir_path = os.path.abspath(config.LOCAL.log_dir)
@@ -196,8 +196,8 @@ def read_config_from_a_file(filePath):
         try:
             cfg_file = pyconf.Config(filePath)
         except pyconf.ConfigError as e:
-            raise SatException(_("Error in configuration file: %(file)s\n  %(error)s") % \
-                { 'file': filePath, 'error': str(e) })
+            raise SatException(_("Error in configuration file: %(file)s\n  %(error)s") %
+                { 'file': filePath, 'error': str(e) } )
         return cfg_file
 
 def get_tmp_filename(cfg, name):

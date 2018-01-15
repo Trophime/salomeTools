@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,29 +17,19 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
 import shutil
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 import src
-
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestPrepare(unittest.TestCase):
-    '''Test of the prepare command
-    '''
+class TestCase(unittest.TestCase):
+    """Test of the prepare command"""
 
-    def test_prepare_dev(self):
-        '''Test the prepare command with a product in dev mode
-        '''
+    def test_010(self):
+        # Test the prepare command with a product in dev mode
         OK = 'KO'
 
         appli = 'appli-test'
@@ -61,13 +52,10 @@ class TestPrepare(unittest.TestCase):
         text = f.readlines()[0]
         if text == expected_text:
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_prepare_all(self):
-        '''Test the prepare command with all products
-        '''
+    def test_020(self):
+        # Test the prepare command with all products
         OK = 'KO'
 
         appli = 'appli-test'
@@ -89,13 +77,10 @@ class TestPrepare(unittest.TestCase):
         text = f.readlines()[0]
         if text == expected_text:
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_prepare_option_sample_and_force(self):
-        '''Test the prepare command with all products
-        '''
+    def test_030(self):
+        # Test the prepare command with all products
         OK = 'KO'
 
         appli = 'appli-test'
@@ -108,24 +93,19 @@ class TestPrepare(unittest.TestCase):
             OK = 'OK'
         except:
             pass
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h prepare
-        '''        
-
+    def test_040(self):
+        # Test the sat -h prepare
         OK = "KO"
 
         import prepare
         
         if "The prepare command gets the sources" in prepare.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

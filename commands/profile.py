@@ -24,22 +24,24 @@ import src
 
 parser = src.options.Options()
 
-parser.add_option( 'p', 'prefix', 'string', 'prefix', _("Where the profile's "
-                                                        "sources will be "
-                                                        "generated.") )
-parser.add_option( 'n', 'name', 'string', 'name', _("Name of the profile's "
-                                                    "sources. [Default: "
-                                                    "${config.PRODUCT.name}"
-                                                    "_PROFILE]") )
-parser.add_option( 'f', 'force', 'boolean', 'force', _("Overwrites "
-                                                       "existing sources.") )
-parser.add_option( 'u', 'no_update', 'boolean', 'no_update', _("Does not update"
-                                                               " pyconf file."))
-parser.add_option( 'v', 'version', 'string', 'version', _("Version of the "
-                                                          "application. [Defa"
-                                                          "ult: 1.0]"), '1.0' )
-parser.add_option( 's', 'slogan', 'string', 'slogan', _("Slogan of the "
-                                                        "application.") )
+parser.add_option(
+    'p', 'prefix', 'string', 'prefix', 
+    _("Where the profile's sources will be generated.") )
+parser.add_option(
+    'n', 'name', 'string', 'name', 
+    _("Name of the profile's sources. [Default: '${config.PRODUCT.name}_PROFILE]") )
+parser.add_option(
+    'f', 'force', 'boolean', 'force',
+    _("Overwrites existing sources.") )
+parser.add_option(
+    'u', 'no_update', 'boolean', 'no_update', 
+    _("Does not update pyconf file.") )
+parser.add_option(
+    'v', 'version', 'string', 'version', 
+    _("Version of the application. [Default: 1.0]"), '1.0' )
+parser.add_option(
+    's', 'slogan', 'string', 'slogan', 
+    _("Slogan of the application.") )
 
 ##################################################
 
@@ -84,9 +86,15 @@ class profileConfigReader( src.pyconf.ConfigReader ) :
 ##
 # Describes the command
 def description():
-    return _("The profile command creates default profile.\nusage: sat profile "
-             "[PRODUCT] [-p|--prefix (string)] [-n|--name (string)] [-f|--force"
-             "] [-v|--version (string)] [-s|--slogan (string)]")
+    return _("""\
+The profile command creates default profile.
+usage: 
+>> sat profile [PRODUCT] 
+               [-p | --prefix (string)] 
+               [-n | --name (string)] 
+               [-f | --force] 
+               [-v | --version (string)] 
+               [-s | --slogan (string)]""")
 
 ##
 # Gets the profile name
@@ -107,8 +115,8 @@ def generate_profile_sources( config, options, logger ):
         raise src.SatException(_("KERNEL is not installed"))
     script = os.path.join(kernel_root_dir,"bin","salome","app-quickstart.py")
     if not os.path.exists( script ):
-        raise src.SatException(_("KERNEL's install has not the script "
-                                 "app-quickstart.py"))
+        raise src.SatException(
+            _("KERNEL's install has not the script app-quickstart.py") )
 
     # Check that GUI is installed
     gui_cfg = src.product.get_product_config(config, "GUI")
@@ -122,7 +130,7 @@ def generate_profile_sources( config, options, logger ):
     if os.path.exists( prefix ) :
         if not options.force :
             raise src.SatException( 
-              _("The path %s already exists, use option --force to remove it.") %             prefix )
+              _("The path %s already exists, use option --force to remove it.") % prefix )
         else :
             shutil.rmtree( prefix )
 
@@ -131,8 +139,8 @@ def generate_profile_sources( config, options, logger ):
         name = name[:-8]
 
     #Write command line that calls app-quickstart.py
-    command = "python %s --prefix=%s --name=%s --modules=_NO_ --version=%s" % (
-                                        script, prefix, name, options.version )
+    command = "python %s --prefix=%s --name=%s --modules=_NO_ --version=%s" % \
+              ( script, prefix, name, options.version )
     if options.force :
         command += " --force"
     if options.slogan :
@@ -149,10 +157,10 @@ def generate_profile_sources( config, options, logger ):
                     stderr=subprocess.STDOUT)
     #Check result of command
     if res != 0:
-        raise src.SatException(_("Cannot create application, code = %d\n")%res)
+        raise src.SatException(_("Cannot create application, code = %d\n") % res)
     else:
-        logger.write(_("Profile sources were generated in directory %s.\n"%prefix),
-                     3)
+        logger.write(
+            _("Profile sources were generated in directory %s.\n" % prefix), 3 )
     return res
 
 ##
@@ -163,7 +171,7 @@ def update_pyconf( config, options, logger ):
     pyconf = config.VARS.product + '.pyconf'
     pyconfBackup = config.VARS.product + '-backup.pyconf'
     logger.write(
-      _("Updating %(new)s (previous version saved as %(old)s)." ) % 
+      _("Updating %(new)s (previous version saved as %(old)s)." ) % \
       { "new": pyconf, "old": pyconfBackup }, 3)
     path = config.getPath( pyconf )
     shutil.copyfile( os.path.join( path, pyconf ),
@@ -199,21 +207,16 @@ def update_pyconf( config, options, logger ):
         prf.addMapping( 'get_source', 'archive', None )
         prf.addMapping( 'build_source', 'cmake', None )
         prf.addMapping( 'archive_info', src.pyconf.Mapping(), None )
-        prf.archive_info.addMapping( 'name',
-                                     os.path.join(os.path.abspath(options.prefix),
-                                                  profile ), None )
-        prf.addMapping( 'source_dir', src.pyconf.Reference(cfg,
-                                                           src.pyconf.DOLLAR,
-                                                           'APPLICATION.workdir'
-                                                           ' + $VARS.sep + "SOU'
-                                                           'RCES" + $VARS.sep +'
-                                                           ' $name' ), None )
-        prf.addMapping( 'build_dir', src.pyconf.Reference(cfg,
-                                                          src.pyconf.DOLLAR,
-                                                          'APPLICATION.workdir '
-                                                          '+ $VARS.sep + "BUILD'
-                                                          '" + $VARS.sep + $nam'
-                                                          'e' ), None )
+        prf.archive_info.addMapping( 
+            'name', os.path.join(os.path.abspath(options.prefix), profile), None )
+        tmp = "APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name"
+        prf.addMapping( 'source_dir', 
+                        src.pyconf.Reference(cfg, src.pyconf.DOLLAR, tmp ),
+                        None )
+        tmp = "APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name"
+        prf.addMapping( 'build_dir', 
+                         src.pyconf.Reference(cfg, src.pyconf.DOLLAR, tmp ),
+                         None )
         prf.addMapping( 'depend', src.pyconf.Sequence(), None )
         prf.depend.append( 'KERNEL', None )
         prf.depend.append( 'GUI', None )

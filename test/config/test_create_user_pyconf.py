@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,26 +17,18 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
 import shutil
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
 
-class TestConfig(unittest.TestCase):
-    '''pyunit class : each method execute one test.
-    '''
+class TestCase(unittest.TestCase):
+    """Test create file .pyconf"""
     
-    def test_user_dir_creation(self):
-        '''Creation of ~/.salomeTools/salomeTools.pyconf
-        '''
+    def test_010(self):
+        # Test creation of ~/.salomeTools/salomeTools.pyconf
         res = "KO"
         user_dir = os.path.expanduser(os.path.join('~','.salomeTools'))
         user_dir_save = os.path.expanduser(os.path.join('~','.salomeTools_save'))
@@ -55,13 +48,10 @@ class TestConfig(unittest.TestCase):
 
         shutil.rmtree(user_dir)
         shutil.move(user_dir_save, user_dir)
-
-        # pyunit method to compare 2 str
         self.assertEqual(res, "OK")
 
-    def test_override_VARS(self):
-        '''override VARS
-        '''
+    def test_020(self):
+        # Test override VARS
         OK = "KO"
         
         # The command to test
@@ -70,13 +60,10 @@ class TestConfig(unittest.TestCase):
 
         if sat.cfg.VARS.user == 'user_test':
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_override_INTERNAL(self):
-        '''override INTERNAL
-        '''
+    def test_030(self):
+        # Test override INTERNAL
         OK = "KO"
         
         # The command to test
@@ -85,14 +72,11 @@ class TestConfig(unittest.TestCase):
 
         if sat.cfg.INTERNAL.sat_version == 'V0':
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
     """
-    def test_override_SITE(self):
-        '''override SITE
-        '''
+    def test_040(self):
+        # Test override SITE
         OK = "KO"
         
         # The command to test
@@ -102,13 +86,11 @@ class TestConfig(unittest.TestCase):
         if sat.cfg.SITE.jobs.config_path == '/tmp':
             OK = "OK"
 
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
     """
 
-    def test_override_APPLICATION(self):
-        '''override APPLICATION
-        '''
+    def test_050(self):
+        # Test override APPLICATION
         OK = "KO"
         
         # The command to test
@@ -117,13 +99,10 @@ class TestConfig(unittest.TestCase):
 
         if sat.cfg.APPLICATION.out_dir == '/tmp':
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_override_PRODUCTS(self):
-        '''override PRODUCTS
-        '''
+    def test_060(self):
+        # Test override PRODUCTS
         OK = "KO"
         
         # The command to test
@@ -132,10 +111,9 @@ class TestConfig(unittest.TestCase):
 
         if sat.cfg.PRODUCTS.PRODUCT_GIT.default.name == 'test':
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

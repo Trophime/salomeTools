@@ -11,6 +11,8 @@ echo "Build strings for French, create and merging salomeTools.po"
 poFile=$I18HOME/fr/LC_MESSAGES/salomeTools.po
 refFile=$I18HOME/fr/LC_MESSAGES/ref.pot
 
+cp ${poFile} ${poFile}_old
+
 xgettext $SRC_DIR/src/i18n/*.py \
          $SRC_DIR/*.py \
          $SRC_DIR/commands/*.py \
@@ -19,7 +21,7 @@ xgettext $SRC_DIR/src/i18n/*.py \
          --no-location \
          --language=Python \
          --omit-header \
-         --output=$refFile
+         --output=${refFile}
 
 msgmerge --quiet --update --previous $poFile $refFile
 
@@ -27,9 +29,12 @@ msgmerge --quiet --update --previous $poFile $refFile
 #msgattrib --no-obsolete -o $poFile $poFile
 
 #ne pas retirer les messages obsolètes « #~ »
-msgattrib --previous --output-file $poFile $poFile
+msgattrib --previous --output-file ${poFile} ${poFile}
 
 rm $refFile
+
+echo "Do translate stuff please..."
+meld ${poFile} ${poFile}_old
 
 echo "Do not forget 'translate.py' or 'translate.sh' to create salomeTools.mo"
 

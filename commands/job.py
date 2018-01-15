@@ -23,11 +23,12 @@ import salomeTools
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
-parser.add_option('j', 'jobs_config', 'string', 'jobs_cfg', 
-                  _('Mandatory: The name of the config file that contains'
-                  ' the jobs configuration'))
-parser.add_option('', 'name', 'string', 'job',
-    _('Mandatory: The job name from which to execute commands.'), "")
+parser.add_option(
+    'j', 'jobs_config', 'string', 'jobs_cfg', 
+    _('Mandatory: The name of the config file that contains the jobs configuration') )
+parser.add_option(
+    '', 'name', 'string', 'job',
+    _('Mandatory: The job name from which to execute commands.'), "" )
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -74,8 +75,8 @@ def run(args, runner, logger):
             break
     
     if not found:
-        msg = _("The file configuration %(name_file)s was not found."
-                "\nUse the --list option to get the possible files.")
+        msg = _("The file configuration %(name_file)s was not found.\n"
+                "Use the --list option to get the possible files.")
         src.printcolors.printcError(msg)
         return 1
     
@@ -96,9 +97,8 @@ def run(args, runner, logger):
             found = True
             break
     if not found:
-        msg = _("Impossible to find the job \"%(job_name)s\" in "
-                "%(jobs_config_file)s" % {"job_name" : options.job,
-                                          "jobs_config_file" : file_jobs_cfg})
+        msg = _("Impossible to find the job '%(job_name)s' in %(jobs_config_file)s" % \
+             {"job_name" : options.job, "jobs_config_file" : file_jobs_cfg})
         logger.write(src.printcolors.printcError(msg) + "\n")
         return 1
     
@@ -156,8 +156,8 @@ def run(args, runner, logger):
         else:
             if sat_command_name != "test":
                 res = 1
-            logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
-                                      error), 3)
+            logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS), error), 3)
+
             if len(stack) > 0:
                 logger.write('stack: %s\n' % stack, 3)
     
@@ -167,9 +167,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nCommands: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nCommands: %(status)s (%(1)d/%(2)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_pass,
-          'nb_products': len(commands) }, 3)
+          '1': nb_pass,
+          '2': len(commands) }, 3)
     
     return res

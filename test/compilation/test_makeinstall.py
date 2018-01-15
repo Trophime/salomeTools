@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,28 +17,18 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
+import unittest
 
 import src.product
-
 from salomeTools import Sat
-import HTMLTestRunner
 
 class TestMakeinstall(unittest.TestCase):
-    '''Test of the makeinstall command
-    '''
+    """Test of the makeinstall command"""
 
-    def test_makeinstall(self):
-        '''Test the configure command without any option
-        '''
+    def test_010(self):
+        # Test the configure-make-makeinstall command without any option
         OK = 'KO'
 
         appli = 'appli-test'
@@ -60,15 +51,13 @@ class TestMakeinstall(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h make
-        '''        
-
+    def test_020(self):
+        # Test the sat -h make
         OK = "KO"
 
         import makeinstall
         
-        if "The makeinstall command executes the \"make install\" command" in makeinstall.description():
+        if "The makeinstall command executes the 'make install' command" in makeinstall.description():
             OK = "OK"
 
         # pyunit method to compare 2 str
@@ -76,4 +65,5 @@ class TestMakeinstall(unittest.TestCase):
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

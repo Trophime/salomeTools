@@ -20,6 +20,8 @@
 '''
 import getopt
 import sys
+import pprint as PP
+
 from . import printcolors
 
 class OptResult(object):
@@ -58,7 +60,11 @@ class OptResult(object):
         :return: Nothing.
         :rtype: N\A
         '''
-        object.__setattr__(self,name,value)
+        object.__setattr__(self, name, value)
+
+    def __repr__(self):
+        res = "%s(%s)" % (self.__class__.__name__, PP.pformat(self.__dict__))
+        return res
 
 class Options:
     '''Class to manage all salomeTools options

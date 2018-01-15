@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,31 +17,20 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import unittest
 import os
 import sys
 import shutil
-
-# get execution path
-testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..'))
-sys.path.append(os.path.join(testdir, '..', '_testTools'))
-sys.path.append(os.path.join(testdir, '..', '..','commands'))
-
-from tools import outRedirection
-
-import src.product
+import unittest
 
 from salomeTools import Sat
-import HTMLTestRunner
+import src.product
+from test.unittestpy.tools import outRedirection
 
-class TestPatch(unittest.TestCase):
-    '''Test of the patch command
-    '''
+class TestCase(unittest.TestCase):
+    """Test of the patch command"""
 
-    def test_patch_dev(self):
-        '''Test the patch command with a product in dev mode
-        '''
+    def test_010(self):
+        # Test the patch command with a product in dev mode
         OK = 'KO'
 
         appli = 'appli-test'
@@ -77,13 +67,10 @@ class TestPatch(unittest.TestCase):
 
         if (OK1, OK2)==('OK', 'OK'):
             OK = 'OK'
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_no_sources_found(self):
-        '''Test the patch command with a product with no sources found
-        '''
+    def test_020(self):
+        # Test the patch command with a product with no sources found
         OK = 'KO'
 
         appli = 'appli-test'
@@ -110,13 +97,10 @@ class TestPatch(unittest.TestCase):
         
         if "No sources found for the " + product_name +" product" in res:
             OK = 'OK'
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_no_patch(self):
-        '''Test the patch command with a product without patch
-        '''
+    def test_030(self):
+        # Test the patch command with a product without patch
         OK = 'KO'
 
         appli = 'appli-test'
@@ -139,13 +123,10 @@ class TestPatch(unittest.TestCase):
         
         if "No patch for the " + product_name +" product" in res:
             OK = 'OK'
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_invalid_patch(self):
-        '''Test the patch command with a product with a not valid patch
-        '''
+    def test_040(self):
+        # Test the patch command with a product with a not valid patch
         OK = 'KO'
 
         appli = 'appli-test'
@@ -168,24 +149,19 @@ class TestPatch(unittest.TestCase):
         
         if "Not a valid patch" in res:
             OK = 'OK'
-        
-        # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_description(self):
-        '''Test the sat -h patch
-        '''        
-
+    def test_050(self):
+        # Test the sat -h patch
         OK = "KO"
 
         import patch
         
         if "The patch command apply the patches on the sources of" in patch.description():
             OK = "OK"
-
-        # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':
-    HTMLTestRunner.main()
+    unittest.main()
+    pass

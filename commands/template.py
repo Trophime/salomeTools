@@ -34,19 +34,20 @@ except NameError:
 
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
-    _("""REQUIRED: the name of the module to create.
-\tThe name must be a single word in upper case with only alphanumeric characters.
-\tWhen generating a c++ component the module's """
-"""name must be suffixed with 'CPP'."""))
+    _("""\
+REQUIRED: the name of the module to create.
+  The name must be a single word in upper case with only alphanumeric characters.
+  When generating a c++ component the module's name must be suffixed with 'CPP'."""))
 parser.add_option('t', 'template', 'string', 'template',
     _('REQUIRED: the template to use.'))
 parser.add_option('', 'target', 'string', 'target',
     _('REQUIRED: where to create the module.'))
 parser.add_option('', 'param', 'string', 'param',
-    _('''Optional: dictionary to generate the configuration for salomeTools.
-\tFormat is: --param param1=value1,param2=value2... without spaces
-\tNote that when using this option you must supply all the '''
-'''values otherwise an error will be raised.'''))
+    _("""\
+Optional: dictionary to generate the configuration for salomeTools.
+  Format is: --param param1=value1,param2=value2... (without spaces).
+  Note that when using this option you must supply all the values,
+       otherwise an error will be raised.""") )
 parser.add_option('', 'info', 'boolean', 'info',
     _('Optional: Get information on the template.'), False)
 
@@ -100,9 +101,9 @@ class TemplateSettings:
         for pp in ["file_subst", "parameters"]:
             if not ldic.has_key(pp): missing.append("'%s'" % pp)
         if len(missing) > 0:
-            raise src.SatException(_(
-                "Bad format in settings file! %s not defined.") % ", ".join(
-                                                                       missing))
+            raise src.SatException(
+                _("Bad format in settings file! %s not defined.") % \
+                ", ".join(missing) )
         
         self.file_subst = ldic["file_subst"]
         self.parameters = ldic['parameters']
@@ -154,8 +155,8 @@ class TemplateSettings:
                 missing.append(p)
         
         if len(missing) > 0:
-            raise src.SatException(_(
-                                 "Missing parameters: %s") % ", ".join(missing))
+            raise src.SatException(
+                _("Missing parameters: %s") % ", ".join(missing) )
 
     def get_parameters(self, conf_values=None):
         if self.dico is not None:
@@ -258,9 +259,9 @@ def prepare_from_template(config,
             ff = fic.replace(tsettings.file_subst, compo_name)
             if ff != fic:
                 if os.path.exists(os.path.join(root, ff)):
-                    raise src.SatException(_(
-                        "Destination file already exists: %s") % os.path.join(
-                                                                      root, ff))
+                    raise src.SatException(
+                        _("Destination file already exists: %s") % \
+                        os.path.join(root, ff) )
                 logger.write("    %s -> %s\n" % (fic, ff), 5)
                 os.rename(os.path.join(root, fic), os.path.join(root, ff))
 
@@ -273,9 +274,9 @@ def prepare_from_template(config,
             dd = rep.replace(tsettings.file_subst, compo_name)
             if dd != rep:
                 if os.path.exists(os.path.join(root, dd)):
-                    raise src.SatException(_(
-                                "Destination directory "
-                                "already exists: %s") % os.path.join(root, dd))
+                    raise src.SatException(
+                        _("Destination directory already exists: %s") % \
+                        os.path.join(root, dd) )
                 logger.write("    %s -> %s\n" % (rep, dd), 5)
                 os.rename(os.path.join(root, rep), os.path.join(root, dd))
 
@@ -411,9 +412,8 @@ def get_template_info(config, template_name, logger):
             zz = list(set(zz)) # reduce
             zz = filter(lambda l: l not in pnames, zz)
             if len(zz) > 0:
-                logger.write("Missing definition in %s: %s" % (
-                    src.printcolors.printcLabel(
-                                            fpath[pathlen:]), ", ".join(zz)), 3)
+                logger.write("Missing definition in %s: %s" % \
+                    ( src.printcolors.printcLabel(fpath[pathlen:]), ", ".join(zz) ), 3)
                 retcode = 1
 
     if retcode == 0:
@@ -431,9 +431,11 @@ def get_template_info(config, template_name, logger):
 ##
 # Describes the command
 def description():
-    return _("The template command creates the sources for a SALOME "
-             "module from a template.\n\nexample\nsat template "
-             "--name my_product_name --template PythonComponent --target /tmp")
+    return _("""\
+The template command creates the sources for a SALOME module from a template.
+
+example:
+>> sat template --name my_product_name --template PythonComponent --target /tmp""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with template parameter.

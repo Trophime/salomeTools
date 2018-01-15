@@ -394,9 +394,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
     # Performs a build with a script.
     def do_python_script_build(self, script, nb_proc):
         # script found
-        self.logger.write(_("Compile %(product)s using script %(script)s\n") % \
+        self.logger.write(_("Compile %(product)s using script %(script)s\n") %
             { 'product': self.product_info.name,
-             'script': src.printcolors.printcLabel(script) }, 4)
+              'script': src.printcolors.printcLabel(script) }, 4)
         try:
             import imp
             product = self.product_info.name
@@ -468,7 +468,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         if extension == "py":
             return self.do_python_script_build(script, nb_proc)
         
-        msg = _("The script %s must have .sh, .bat or .py extension." % script)
+        msg = _("The script %s must have .sh, .bat or .py extension.") % script
         raise src.SatException(msg)
     
     def put_txt_log_in_appli_log_dir(self, file_name):

@@ -87,8 +87,7 @@ class Logger(object):
         try:
             self.logTxtFile = open(str(self.txtFilePath), 'w')
         except IOError:
-            #msg1 = _("WARNING! Trying to write to a file that"
-            #         " is not accessible:")
+            #msg1 = _("WARNING! Trying to write to a file that is not accessible:")
             #msg2 = _("The logs won't be written.")
             #print("%s\n%s\n%s\n" % (src.printcolors.printcWarning(msg1),
             #                        src.printcolors.printcLabel(str(self.txtFilePath)),
@@ -307,7 +306,7 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     try:
         logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
     except Exception as e:
-        msg = _("WARNING: the log file %s cannot be read:" % logFilePath)
+        msg = _("WARNING: the log file %s cannot be read:") % logFilePath
         sys.stdout.write(printcolors.printcWarning("%s\n%s\n" % (msg, e)))
         return False, None, None
 
