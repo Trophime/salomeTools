@@ -23,7 +23,7 @@ import shutil
 import unittest
 
 import src
-from salomeTools import Sat
+from src.salomeTools import Sat
 
 class TestCase(unittest.TestCase):
     """Test of the prepare command"""

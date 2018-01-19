@@ -22,7 +22,7 @@ import sys
 import shutil
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 
 class TestCase(unittest.TestCase):
     """Test create file .pyconf"""

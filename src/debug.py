@@ -24,10 +24,11 @@ warning: only for SAT development phase
 import sys
 import pprint as PP
 
-_debug = [True] #support push/pop for temporary active outputs
+_debug = [False] #support push/pop for temporary active outputs
 
-def write(title, var=""):
-    if _debug[-1]: 
+def write(title, var="", force=None):
+    """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
+    if _debug[-1] or force: 
         sys.stderr.write("\n#### DEBUG: %s:\n%s\n" % (title, PP.pformat(var)))   
     return
 

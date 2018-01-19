@@ -19,7 +19,7 @@
 import os
 
 import src
-import salomeTools
+import src.salomeTools
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()

@@ -25,7 +25,7 @@ import shutil
 import io
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 from test.unittestpy.tools import check_proc_existence_and_kill_multi
 
 sleep_time = 2

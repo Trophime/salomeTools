@@ -20,7 +20,7 @@ import os
 import shutil
 
 import src
-import prepare
+import commands.prepare
 
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
@@ -503,7 +503,7 @@ def run(args, runner, logger):
     logger.write("\n", 2, False)
        
     # Get the products list with products informations regarding the options
-    products_infos = prepare.get_products_list(options, runner.cfg, logger)
+    products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)
     
     # Call to the function that gets all the sources
     good_result, results = get_all_product_sources(runner.cfg, 

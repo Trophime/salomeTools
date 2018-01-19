@@ -21,7 +21,7 @@ import os
 import sys
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 
 class TestSource(unittest.TestCase):
     """Test of the environ command"""

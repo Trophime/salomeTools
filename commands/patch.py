@@ -20,7 +20,7 @@ import os
 import subprocess
 
 import src
-import prepare
+import commands.prepare
 
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()

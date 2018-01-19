@@ -1852,7 +1852,7 @@ Use the --list option to get the possible files.""") % config_file
         traceback.print_tb(exc_traceback, file=fp)
         fp.seek(0)
         stack = fp.read()
-        logger.write("\nTRACEBACK: %s\n" % stack.replace('"',"'"), 1)
+        logger.write("\nTRACEBACK:\n%s\n" % stack.replace('"',"'"), 1)
         
     finally:
         res = 0

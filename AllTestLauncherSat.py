@@ -65,6 +65,9 @@ import pprint as PP #pretty print
 debug = False
 verboseImport = True
 
+# get path to salomeTools sources
+satdir  = os.path.dirname(os.path.realpath(__file__))
+
 def errPrint(aStr):
   """to avoid write in html or xml file log message"""
   sys.stderr.write(aStr + '\n')
@@ -173,11 +176,12 @@ def runOnArgs(args):
         del sys.path[0]
         done = False
         filesForTest[aFile] = (aImport, aModule)
-    except:
+    except Exception as e:
       if done: 
         del sys.path[0] #attention of sys.path appends
         done = False
-      errPrint("ERROR: AllTestLauncher: import '%s'" % aFile)
+      errPrint("ERROR: AllTestLauncher: import '%s':" % aFile)
+      errPrint("       %s\n" % e)
       continue
 
   listfilesForTest = sorted(filesForTest.keys())
@@ -270,7 +274,7 @@ def getParser():
 dir name with absolute or relative path stand for root directory
 of recursive searching unittest python files
 ''',
-    default='.',
+   default=satdir,
    metavar='dirPath'
   )
   parser.add_argument(
@@ -302,11 +306,15 @@ If name = 'stdout' then all-in-one xml output at 'sys.stdout'. For pipe redirect
 
 ###################################################################
 if __name__ == '__main__':
+  # Make the src & command package accessible from all code
+  sys.path.insert(0, satdir)
+
   args = getParser().parse_args(sys.argv[1:])
   debug = args.debug
   directory = os.path.realpath(args.rootPath)
   if debug: print("INFO: args:\n  %s" % PP.pformat(args))
   sys.path.insert(0, directory) #supposed to be root of a package
+  
   runOnArgs(args)
   del sys.path[0]
 

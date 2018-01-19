@@ -22,7 +22,7 @@ import sys
 import platform
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 from test.unittestpy.tools import outRedirection
 
 class TestCase(unittest.TestCase):

@@ -22,7 +22,9 @@ import getopt
 import sys
 import pprint as PP
 
-from . import printcolors
+import src
+import src.debug as DBG # Easy print stderr (for DEBUG only)
+import src.printcolors
 
 class OptResult(object):
     '''An instance of this class will be the object manipulated
@@ -63,10 +65,11 @@ class OptResult(object):
         object.__setattr__(self, name, value)
 
     def __repr__(self):
-        res = "%s(%s)" % (self.__class__.__name__, PP.pformat(self.__dict__))
+        aStr = PP.pformat(self.__dict__)
+        res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
         return res
 
-class Options:
+class Options(object):
     '''Class to manage all salomeTools options
     '''
     def __init__(self):
@@ -76,9 +79,9 @@ class Options:
         # in a list that contains dicts
         self.options = []
         # The list of available option type
-        self.availableOptions = ["boolean", "string", "int", "float",
-                                  "long", "list", "list2"]
+        self.availableOptions = "boolean string int float long list list2".split()
         self.default = None
+        self.results = {}
 
     def add_option(self, shortName, longName,
                     optionType, destName, helpString="", default = None):
@@ -102,7 +105,7 @@ class Options:
 
         if optionType not in self.availableOptions:
             print("error optionType", optionType, "not available.")
-            sys.exit(-1)
+            sys.exit(src.KOSYS)
 
         option['optionType'] = optionType
         option['destName'] = destName
@@ -122,7 +125,7 @@ class Options:
 
         # for all options, print its values. 
         # "shortname" is an optional field of the options 
-        print(printcolors.printcHeader(_("Available options are:")))
+        print(src.printcolors.printcHeader(_("Available options are:")))
         for option in self.options:
             if 'shortName' in option and len(option['shortName']) > 0:
                 print(" -%(shortName)1s, --%(longName)s"
@@ -144,6 +147,8 @@ class Options:
         if argList is None:
             argList = sys.argv[1:]
         
+        DBG.write("parse_args", argList)
+        DBG.write("options", self.options)
         # format shortNameOption and longNameOption 
         # to make right arguments to getopt.getopt function
         shortNameOption = ""
@@ -161,7 +166,10 @@ class Options:
 
         # call to getopt.getopt function to get the option 
         # passed in the command regarding the available options
-        optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
+        try:
+          optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
+        except:
+          DBG.write("ERROR", (shortNameOption, longNameOption), True)
         
         # instantiate and completing the optResult that will be returned
         optResult = OptResult()
@@ -198,5 +206,20 @@ class Options:
             # free the option in order to be able to make 
             # a new free call of options (API case)
             option['result'] = None
+
+        self.results = {"optlist": optlist, "optResult": optResult, "args": args, "argList": argList}
+        DBG.write("options and results", self)
         return optResult, args
+
+    def __repr__(self): 
+        '''repr for only self.options and self.results (if present)
+        '''
+        aDict = {'options': self.options, 'results': self.results}
+        aStr = PP.pformat(aDict)
+        res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
+        return res
+        
+    def debug_write(self):
+        DBG.write("options and results", self, True)
+
 

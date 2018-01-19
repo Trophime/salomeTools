@@ -28,13 +28,26 @@ import unittest
 verbose = False
 
 class TestCase(unittest.TestCase):
+  
+  def test_001(self):
+    # first load resources for internationalization
+    gettext.install('salomeTools', os.path.realpath(os.path.dirname(__file__)))
  
   def test_005(self):
-    # load resources for internationalization
-    gettext.install('salomeTools', os.path.realpath(os.path.dirname(__file__))) 
-    res = _("Georges says '%(1)s' for %(2)s.") % {"1": "hello", "2": "test"}
+    res = _("Harvey writes '%(1)s' for %(2)s.") % {"1": "hello", "2": "test_005"}
     if verbose: print(res)
-    self.assertEqual(res, "pour test Hervé dit 'hello'.")
+    self.assertEqual(res, "pour test_005 Hervé écrit 'hello'.")
+
+  def test_010(self):
+    res = _("Harvey writes '%(1)s' for %(2)s.") % {"1": _("hello"), "2": "test_010"}
+    if verbose: print(res)
+    self.assertEqual(res, "pour test_010 Hervé écrit 'bonjour'.")
+
+  def test_020(self):
+    # keep Ooops inexisting in salomeTools.po as no translation
+    res = _("Harvey writes '%(1)s' for %(2)s.") % {"1": _("Ooops"), "2": "test_020"}
+    if verbose: print(res)
+    self.assertEqual(res, "pour test_020 Hervé écrit 'Ooops'.")
 
 if __name__ == '__main__':
   verbose = False

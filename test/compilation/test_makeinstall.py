@@ -22,7 +22,7 @@ import sys
 import unittest
 
 import src.product
-from salomeTools import Sat
+from src.salomeTools import Sat
 
 class TestMakeinstall(unittest.TestCase):
     """Test of the makeinstall command"""

@@ -21,7 +21,7 @@ import os
 import sys
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 import src.product
 
 from test.unittestpy.tools import outRedirection

@@ -20,14 +20,9 @@ import os
 import platform
 import datetime
 import shutil
-import gettext
 import sys
 
 import src
-
-# internationalization
-satdir  = os.path.dirname(os.path.realpath(__file__))
-gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
 # Define all possible option for config command :  sat config <options>
 parser = src.options.Options()

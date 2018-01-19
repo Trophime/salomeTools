@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -15,10 +16,10 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
 '''This file is the main entry file to salomeTools
 '''
 
-# python imports
 import os
 import sys
 import re
@@ -28,24 +29,31 @@ import types
 import gettext
 import traceback
 
-# salomeTools imports
-import src
 
-# get path to salomeTools sources
-satdir  = os.path.dirname(os.path.realpath(__file__))
-cmdsdir = os.path.join(satdir, 'commands')
+#################################
+# NOT MAIN allowed
+#################################
+if __name__ == "__main__":
+    sys.stderr.write("\nERROR: 'salomeTools.py' is not main command entry for sat: use 'sat' instead.\n\n")
+    KOSYS = 1 # avoid import src
+    sys.exit(KOSYS)
 
-# Make the src package accessible from all code
-sys.path.append(satdir)
-sys.path.append(cmdsdir)
 
-import config
-import src.debug as DBG
+import src.debug as DBG # Easy print stderr (for DEBUG only)
+
+# get path to src
+rootdir = os.path.realpath( os.path.join(os.path.dirname(__file__), "..") )
+DBG.write("sat rootdir", rootdir)  
+srcdir = os.path.join(rootdir, "src")
+cmdsdir = os.path.join(rootdir, "commands")
 
 # load resources for internationalization
-#es = gettext.translation('salomeTools', os.path.join(satdir, 'src', 'i18n'))
-#es.install()
-gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
+# DBG.write("TODO", "fix xxsalomeTools to avoid french", True)  
+gettext.install('salomeTools', os.path.join(srcdir, 'i18n'))
+
+# salomeTools imports
+import src
+import commands.config
 
 # The possible hooks : 
 # pre is for hooks to be executed before commands
@@ -53,8 +61,9 @@ gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 C_PRE_HOOK = "pre"
 C_POST_HOOK = "post"
 
+
 def find_command_list(dirPath):
-    ''' Parse files in dirPath that end with .py : it gives commands list
+    '''Parse files in dirPath that end with .py : it gives commands list
     
     :param dirPath str: The directory path where to search the commands
     :return: cmd_list : the list containing the commands name 
@@ -62,15 +71,22 @@ def find_command_list(dirPath):
     '''
     cmd_list = []
     for item in os.listdir(dirPath):
+        if item in ["__init__.py"]: #avoid theses files
+            continue
         if item.endswith('.py'):
             cmd_list.append(item[:-len('.py')])
     return cmd_list
 
 # The list of valid salomeTools commands
-#lCommand = ['config', 'compile', 'prepare']
+#lCommand = ['config', 'compile', 'prepare',...]
 lCommand = find_command_list(cmdsdir)
 
-# Define all possible option for salomeTools command :  sat <option> <args>
+def getCommandsList():
+    """Gives commands list (as basename of files commands/*.py)
+    """ 
+    return lCommand
+
+# Define all possible option for salomeTools command :  sat <options> <args>
 parser = src.options.Options()
 parser.add_option('h', 'help', 'boolean', 'help', 
                   _("shows global help or help on a specific command."))
@@ -97,18 +113,21 @@ class Sat(object):
         :param: datadir str : the directory that contain all the external 
                               data (like software pyconf and software scripts)
         '''
-        # Read the salomeTools options (the list of possible options is 
-        # at the beginning of this file)
+        # Read the salomeTools prefixes options before the 'commands' tag
+        # sat <options> <args>
+        # (the list of possible options is  at the beginning of this file)
         try:
-            (options, argus) = parser.parse_args(opt)
+            options, args = parser.parse_args(opt)
+            DBG.write("Sat args", args)
+            DBG.write("Sat options", options)    
         except Exception as exc:
             write_exception(exc)
-            sys.exit(-1)
+            sys.exit(src.KOSYS)
 
         # initialization of class attributes       
         self.__dict__ = dict()
         self.cfg = None # the config that will be read using pyconf module
-        self.arguments = opt
+        self.arguments = args # args are postfixes options: args[0] is the 'commands' command
         self.options = options # the options passed to salomeTools
         self.datadir = datadir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
@@ -117,15 +136,16 @@ class Sat(object):
         # if the help option has been called, print help and exit
         if options.help:
             try:
-                self.print_help(argus)
-                sys.exit(0)
+                self.print_help(args)
+                sys.exit(src.OKSYS)
             except Exception as exc:
                 write_exception(exc)
-                sys.exit(1)
+                DBG.write("args", args, True) 
+                sys.exit(src.KOSYS)
 
     def __getattr__(self, name):
-        ''' overwrite of __getattr__ function in order to display 
-            a customized message in case of a wrong call
+        '''overwrite of __getattr__ function in order to display 
+           a customized message in case of a wrong call
         
         :param name str: The name of the attribute 
         '''
@@ -133,6 +153,28 @@ class Sat(object):
             return self.__dict__[name]
         else:
             raise AttributeError(name + _(" is not a valid command"))
+
+    def execute_command(self, opt=None):
+        """select first argument as a command in directory 'commands', and launch on arguments
+        
+        :param opt str, optionnal: The sat options (as sys.argv)
+        """
+        if opt is not None:
+            args = opt
+        else:
+            args = self.arguments 
+
+        if len(args) == 0:
+            print_help()
+            return src.OKSYS
+       
+        # the command called
+        command = args[0]
+        # get dynamically the command function to call
+        fun_command = self.__getattr__(command)
+        # Run the command using the arguments
+        exitCode = fun_command(args[1:])
+        return exitCode 
     
     def _setCommands(self, dirPath):
         '''set class attributes corresponding to all commands that are 
@@ -170,8 +212,8 @@ class Sat(object):
                 :param args str: The arguments of the command 
                 '''
                 # Make sure the internationalization is available
-                gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
-                
+                # gettext.install('salomeTools', os.path.join(srcdir, 'i18n'))
+
                 # Get the arguments in a list and remove the empty elements
                 if type(args) == type(''):
                     # split by spaces without considering spaces in quotes
@@ -205,7 +247,7 @@ class Sat(object):
                     self.options = options  
 
                 # read the configuration from all the pyconf files    
-                cfgManager = config.ConfigManager()
+                cfgManager = commands.config.ConfigManager()
                 self.cfg = cfgManager.get_config(datadir=self.datadir, 
                                                  application=appliToLoad, 
                                                  options=self.options, 
@@ -272,8 +314,8 @@ class Sat(object):
                 except Exception as e:
                     # Get error
                     logger_command.write("\n***** ", 1)
-                    logger_command.write(src.printcolors.printcError(
-                                                       "salomeTools ERROR:"), 1)
+                    logger_command.write(
+                        src.printcolors.printcError("salomeTools ERROR:"), 1)
                     logger_command.write("\n" + str(e) + "\n\n", 1)
                     # get stack
                     __, __, exc_traceback = sys.exc_info()
@@ -284,7 +326,7 @@ class Sat(object):
                     verbosity = 5
                     if self.options.debug_mode:
                         verbosity = 1
-                    logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"),
+                    logger_command.write("TRACEBACK:\n%s" % stack.replace('"',"'"),
                                          verbosity)
                 finally:
                     # set res if it is not set in the command
@@ -335,10 +377,9 @@ class Sat(object):
                     # print the log file path if 
                     # the maximum verbose mode is invoked
                     if not micro_command:
-                        logger_command.write("\nPath to the xml log file:\n",
-                                             5)
-                        logger_command.write("%s\n\n" % src.printcolors.printcInfo(
-                                                logger_command.logFilePath), 5)
+                        logger_command.write("\nPath to the xml log file:\n", 5)
+                        logger_command.write("%s\n\n" % \
+                            src.printcolors.printcInfo(logger_command.logFilePath), 5)
 
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path
@@ -428,7 +469,7 @@ class Sat(object):
         # get command name
         command = opt[0]
         # read the configuration from all the pyconf files
-        cfgManager = config.ConfigManager()
+        cfgManager = commands.config.ConfigManager()
         self.cfg = cfgManager.get_config(datadir=self.datadir)
 
         # Check if this command exists
@@ -483,7 +524,7 @@ def print_version():
     '''prints salomeTools version (in src/internal_config/salomeTools.pyconf)
     '''
     # read the config 
-    cfgManager = config.ConfigManager()
+    cfgManager = commands.config.ConfigManager()
     cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
     print(src.printcolors.printcHeader( _("Version: ") ) + 
@@ -521,35 +562,5 @@ def write_exception(exc):
     sys.stderr.write("\n" + str(exc) + "\n")
 
 
-# ###############################
-# MAIN : terminal command usage #
-# ###############################
-if __name__ == "__main__":  
-    # Initialize the code that will be returned by the terminal command 
-    code = 0
-    (options, args) = parser.parse_args(sys.argv[1:])
-    DBG.push_debug(True)
-    DBG.write("options", options)    
-    DBG.write("args", args)    
 
-    # no arguments : print general help
-    if len(args) == 0:
-        print_help()
-        sys.exit(0)
-    
-    # instantiate the salomeTools class with correct options
-    sat = Sat(sys.argv[1:])
-    # the command called
-    command = args[0]
-    DBG.write("command", command)
-    # get dynamically the command function to call
-    fun_command = sat.__getattr__(command)
-    DBG.write("fun_command", fun_command)
-    # Run the command using the arguments
-    code = fun_command(args[1:])
-    DBG.write("code", code)
 
-    # exit salomeTools with the right code (0 if no errors, else 1)
-    if code is None: code = 0
-    sys.exit(code)
-        

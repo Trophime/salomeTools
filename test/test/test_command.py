@@ -21,7 +21,7 @@ import os
 import sys
 import unittest
 
-from salomeTools import Sat
+from src.salomeTools import Sat
 
 class TestTest(unittest.TestCase):
     """Test of the test command"""

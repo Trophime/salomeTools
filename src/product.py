@@ -147,7 +147,10 @@ def get_product_config(config, product_name, with_install_dir=True):
         if not prod_pyconf_path:
             msg = _("""\
 No definition found for the product %(1)s.
-Please create a %(2)s.pyconf file.""") % {"1": product_name, "2": product_name}
+Please create a %(2)s.pyconf file somewhere in:\n%(3)s""") % {
+  "1": product_name, 
+  "2": product_name,
+  "3": config.PATHS.PRODUCTPATH }
         else:
             msg = _("""\
 No definition corresponding to the version %(1)s was found in the file:
