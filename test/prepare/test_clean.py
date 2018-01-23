@@ -23,8 +23,7 @@ import unittest
 
 from src.salomeTools import Sat
 import src.product
-
-from test.unittestpy.tools import outRedirection
+from unittestpy.tools import outRedirection
 
 class TestCase(unittest.TestCase):
     """Test of the clean command"""

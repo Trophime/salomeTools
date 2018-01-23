@@ -73,7 +73,7 @@ def errPrint(aStr):
   sys.stderr.write(aStr + '\n')
 
 try:
-  import test.unittestpy.HTMLTestRunner as HTST
+  import unittestpy.HTMLTestRunner as HTST
 except:
   HTST = None
   errPrint("""

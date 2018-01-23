@@ -23,7 +23,7 @@ import platform
 import unittest
 
 from src.salomeTools import Sat
-from test.unittestpy.tools import outRedirection
+from unittestpy.tools import outRedirection
 
 class TestCase(unittest.TestCase):
     """sat config --value"""
