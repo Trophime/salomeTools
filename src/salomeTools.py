@@ -28,7 +28,7 @@ import imp
 import types
 import gettext
 import traceback
-
+import subprocess as SP
 
 #################################
 # NOT MAIN allowed
@@ -48,7 +48,6 @@ srcdir = os.path.join(rootdir, "src")
 cmdsdir = os.path.join(rootdir, "commands")
 
 # load resources for internationalization
-# DBG.write("TODO", "fix xxsalomeTools to avoid french", True)  
 gettext.install('salomeTools', os.path.join(srcdir, 'i18n'))
 
 # salomeTools imports
@@ -61,6 +60,7 @@ import commands.config
 C_PRE_HOOK = "pre"
 C_POST_HOOK = "post"
 
+_LANG = os.environ["LANG"] # original locale
 
 def find_command_list(dirPath):
     '''Parse files in dirPath that end with .py : it gives commands list
@@ -86,6 +86,33 @@ def getCommandsList():
     """ 
     return lCommand
 
+def launchSat(command):
+    """launch sat as subprocess popen
+    command as string ('sat --help' for example)
+    used for unittest, or else...
+    returns tuple (stdout, stderr)
+    """
+    if "sat" not in command.split()[0]:
+      raise Exception(_("Not a valid command for launchSat: '%s'") % command)
+    env = dict(os.environ)
+    env["PATH"] = rootdir + ":" + env["PATH"]
+    res =SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE).communicate()
+    return res
+
+def setNotLocale():
+    """force english at any moment"""
+    os.environ["LANG"] = ''
+    gettext.install('salomeTools', os.path.join(srcdir, 'i18n'))
+    DBG.write("setNotLocale", os.environ["LANG"])
+    
+def setLocale():
+    """reset initial locale at any moment 
+    'fr' or else 'TODO' from initial environment var '$LANG'
+    """
+    os.environ["LANG"] = _LANG
+    gettext.install('salomeTools', os.path.join(srcdir, 'i18n'))
+    DBG.write("setLocale", os.environ["LANG"])
+    
 # Define all possible option for salomeTools command :  sat <options> <args>
 parser = src.options.Options()
 parser.add_option('h', 'help', 'boolean', 'help', 
@@ -102,24 +129,28 @@ parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal",
                   _("all traces in the terminal (for example compilation logs)."))
 parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
                   _("put the command result and paths to log files."))
-
+    
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
     '''
     def __init__(self, opt='', datadir=None):
         '''Initialization
         
-        :param opt str: The sat options 
+        :param opt str or list: The sat options 
         :param: datadir str : the directory that contain all the external 
                               data (like software pyconf and software scripts)
         '''
         # Read the salomeTools prefixes options before the 'commands' tag
         # sat <options> <args>
-        # (the list of possible options is  at the beginning of this file)
+        # (the list of possible options is  at the beginning of this file)                
         try:
-            options, args = parser.parse_args(opt)
-            DBG.write("Sat args", args)
-            DBG.write("Sat options", options)    
+            if type(opt) is not list: # as string 'sat --help' for example'
+                opts = opt.split()
+            else:
+                opts = opt
+            options, args = parser.parse_args(opts)
+            # DBG.write("Sat args", args)
+            # DBG.write("Sat options", options)    
         except Exception as exc:
             write_exception(exc)
             sys.exit(src.KOSYS)
@@ -133,6 +164,8 @@ class Sat(object):
         # set the commands by calling the dedicated function
         self._setCommands(cmdsdir)
         
+        '''
+        # done with execute_command, to avoid sys.exit
         # if the help option has been called, print help and exit
         if options.help:
             try:
@@ -142,6 +175,7 @@ class Sat(object):
                 write_exception(exc)
                 DBG.write("args", args, True) 
                 sys.exit(src.KOSYS)
+        '''
 
     def __getattr__(self, name):
         '''overwrite of __getattr__ function in order to display 
@@ -152,7 +186,7 @@ class Sat(object):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError(name + _(" is not a valid command"))
+            raise AttributeError("'%s'" % name + _(" is not a valid command"))
 
     def execute_command(self, opt=None):
         """select first argument as a command in directory 'commands', and launch on arguments
@@ -164,8 +198,14 @@ class Sat(object):
         else:
             args = self.arguments 
 
+        # print general help and returns
         if len(args) == 0:
             print_help()
+            return src.OKSYS
+            
+        # if the help option has been called, print command help and returns
+        if self.options.help:
+            self.print_help(self.arguments)
             return src.OKSYS
        
         # the command called
@@ -375,7 +415,7 @@ class Sat(object):
                         res = 1
                         
                     # print the log file path if 
-                    # the maximum verbose mode is invoked
+                    # the maximum verbose mode is invoked
                     if not micro_command:
                         logger_command.write("\nPath to the xml log file:\n", 5)
                         logger_command.write("%s\n\n" % \
@@ -466,6 +506,7 @@ class Sat(object):
         if len(opt)==0:
             print_help()
             return
+            
         # get command name
         command = opt[0]
         # read the configuration from all the pyconf files
@@ -476,20 +517,35 @@ class Sat(object):
         if not hasattr(self, command):
             raise src.SatException(_("Command '%s' does not exist") % command)
         
-        # Print salomeTools version
-        print_version()
-        
         # load the module
         module = self.get_module(command)
-
+        
+        msg = self.get_module_help(module)
+            
+        if isStdoutPipe():
+            # clean color if the terminal is redirected by user
+            # ex: sat compile appli > log.txt
+            msg = src.printcolors.cleancolor(msg)  
+        print(msg)
+        return 
+            
+    def get_module_help(self, module):
+        """get help for a command
+        as 'sat --help config' for example
+        """
+        # get salomeTools version
+        msg = get_version() + "\n\n"
+        
         # print the description of the command that is done in the command file
-        if hasattr( module, "description" ) :
-            print(src.printcolors.printcHeader( _("Description:") ))
-            print(module.description() + '\n')
+        if hasattr( module, "description" ):
+            msg += src.printcolors.printcHeader( _("Description:") ) + "\n"
+            msg += module.description() + "\n\n"
 
         # print the description of the command options
         if hasattr( module, "parser" ) :
-            module.parser.print_help()
+            msg += module.parser.get_help() + "\n"
+        return msg
+        
 
     def get_module(self, module):
         '''Loads a command. Function called only by print_help
@@ -504,6 +560,7 @@ class Sat(object):
         (file_, pathname, description) = imp.find_module(module, [cmdsdir])
         module = imp.load_module(module, file_, pathname, description)
         return module
+        
 
 def get_text_from_options(options):
     text_options = ""
@@ -518,42 +575,56 @@ def get_text_from_options(options):
                 option_contain = ""
             text_options+= "--%s %s " % (attr, option_contain)
     return text_options
-                
+         
 
-def print_version():
-    '''prints salomeTools version (in src/internal_config/salomeTools.pyconf)
-    '''
-    # read the config 
+def isStdoutPipe():
+    """check if the terminal is redirected by user (elsewhere a tty) 
+    example: 
+    >> sat compile appli > log.txt
+    """
+    return not ('isatty' in dir(sys.stdout) and sys.stdout.isatty())
+     
+def get_version():
+    """get version colored string
+    """
     cfgManager = commands.config.ConfigManager()
     cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
-    print(src.printcolors.printcHeader( _("Version: ") ) + 
-          cfg.INTERNAL.sat_version + '\n')
-
+    msg = src.printcolors.printcHeader( _("Version: ") ) + \
+          cfg.INTERNAL.sat_version
+    return msg
+  
+def get_help():
+    """get general help colored string
+    """
+    # read the config 
+    msg = get_version() + "\n\n"
+    msg += src.printcolors.printcHeader(_("Usage: ")) + \
+          "sat [sat_options] <command> [product] [command_options]\n\n"
+    msg += parser.get_help() + "\n"
+    msg += src.printcolors.printcHeader(_("Available commands are:")) + "\n\n"
+    for command in lCommand:
+        msg += " - %s\n" % (command)
+    msg += "\n"
+    # Explain how to get the help for a specific command
+    msg += src.printcolors.printcHeader(
+           _("Getting the help for a specific command: ")) + \
+           "sat --help <command>\n"
+    return msg
 
 def print_help():
-    '''prints salomeTools general help
-    
-    :param options str: the options
-    '''
-    print_version()
-    
-    print(src.printcolors.printcHeader( _("Usage: ") ) + 
-          "sat [sat_options] <command> [product] [command_options]\n")
-
-    parser.print_help()
-
-    # display all the available commands.
-    print(src.printcolors.printcHeader(_("Available commands are:\n")))
-    for command in lCommand:
-        print(" - %s" % (command))
-        
-    # Explain how to get the help for a specific command
-    print(src.printcolors.printcHeader(_("\nGetting the help for a specific"
-                                    " command: ")) + "sat --help <command>\n")
+    """prints salomeTools general help
+    """
+    msg = get_help() 
+    if isStdoutPipe():
+        # clean color if the terminal is redirected by user
+        # ex: sat compile appli > log.txt
+        msg = src.printcolors.cleancolor(msg)  
+    print(msg)
+    return
 
 def write_exception(exc):
-    '''write exception in case of error in a command
+    '''write in stderr exception in case of error in a command
     
     :param exc exception: the exception to print
     '''

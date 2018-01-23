@@ -25,11 +25,13 @@ import re
 import tempfile
 
 import src
-from . import printcolors
-from . import xmlManager
+
+from src import printcolors
+from src import xmlManager
 
 log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+
 
 class Logger(object):
     '''Class to handle log mechanism.

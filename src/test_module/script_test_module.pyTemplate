@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+# 
+# WARNING: this script is automaticaly generated from 
+# salomeTools-5/src/test_module/script_test_module.pyTemplate
+# by salomeTools-5/src/test_module.py
+# it could be overriden at any time
+# 
+# TODO: change this fucking code
+#
+
 import os, sys, traceback
 import os.path
 import time as THEBIGTIME
@@ -15,10 +24,10 @@ listTest = ${listTest}
 ignore = ${ignore}
 
 sys.path.append(toolsWay)
-from TOOLS import TOOLS_class
-my_tools = TOOLS_class(resourcesWay, tmpDir, toolsWay)
+from utils_test_module import UtilsTest
+my_tools = UtilsTest(resourcesWay, tmpDir, toolsWay)
 
-from TOOLS import SatNotApplicableError
+from utils_test_module import SatNotApplicableError
 
 # on set les variables d'environement
 os.environ['TT_BASE_RESSOURCES'] = resourcesWay

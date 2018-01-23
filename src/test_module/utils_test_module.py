@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-# ToolBox for test framework
-
 import os
 import string
 import subprocess
 
 """
+ToolBox for test framework salome
 Exception class for test errors.
 """
+
 class SatTestError(Exception):
     def __init__(self, value):
         self.value = value
@@ -116,7 +116,7 @@ def compMED(file1, file2, tol=0, diff_flags=""):
     return status
 
 
-class TOOLS_class:
+class UtilsTest:
     def __init__(self, base_ressources_dir, tmp_dir, test_ressources_dir):
         self.base_ressources_dir = base_ressources_dir
         self.tmp_dir = tmp_dir

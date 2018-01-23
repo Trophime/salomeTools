@@ -21,6 +21,7 @@ import subprocess
 
 import src
 
+parser = src.options.Options() # no options yet
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -28,8 +29,11 @@ def description():
     :return: The text to display for the run command description.
     :rtype: str
     '''
-    return _("This command runs the application launcher"
-             " with the given arguments.\n\nexample:\nsat run SALOME-master")
+    return _("""\
+This command runs the application launcher with the given arguments.
+
+example:
+>> sat run SALOME-master""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with run parameter.

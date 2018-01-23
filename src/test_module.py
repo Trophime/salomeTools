@@ -377,15 +377,15 @@ class Test:
     def generate_script(self, listTest, script_path, ignoreList):
         # open template file
         template_file = open(os.path.join(self.config.VARS.srcDir,
-                                          "test",
-                                          "scriptTemplate.py"), 'r')
+                                          "test_module",
+                                          "script_test_module.pyTemplate"), 'r')
         template = string.Template(template_file.read())
         
         # create substitution dictionary
         d = dict()
         d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
         d['tmpDir'] = os.path.join(self.tmp_working_dir, 'WORK')
-        d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test")
+        d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test_module")
         d['sessionDir'] = os.path.join(self.currentDir,
                                     self.currentgrid,
                                     self.currentsession)

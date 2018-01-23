@@ -26,10 +26,18 @@ import pprint as PP
 
 _debug = [False] #support push/pop for temporary active outputs
 
+def indent(text, amount=2, ch=' '):
+    padding = amount * ch
+    return ''.join(padding + line for line in text.splitlines(True))
+
 def write(title, var="", force=None):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
-    if _debug[-1] or force: 
-        sys.stderr.write("\n#### DEBUG: %s:\n%s\n" % (title, PP.pformat(var)))   
+    fmt = "\n#### DEBUG: %s:\n%s\n"
+    if _debug[-1] or force:
+        if type(var) is not str:
+          sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
+        else:
+          sys.stderr.write(fmt % (title, indent(var)))
     return
 
 def push_debug(aBool):
@@ -41,5 +49,5 @@ def pop_debug():
     if len(_debug) > 1:
         return _debug.pop()
     else:
-        sys.stderr.write("\n#### DEBUG: ERROR: too much pop_debug()")
+        sys.stderr.write("\nERROR: pop_debug: too much pop.")
         return None

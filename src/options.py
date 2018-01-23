@@ -113,26 +113,33 @@ class Options(object):
         option['result'] = default
         self.options.append(option)
 
-    def print_help(self):
-        '''Method that display all options stored in self.options and there help
+    def get_help(self):
+        '''Method that returns all options stored in self.options 
+        as help message colored string
         
-        :return: Nothing.
+        :return: colored string
         :rtype: N\A
         '''
+        msg = ""
         # Do nothing if there are no options
         if len(self.options) == 0:
-            return
+            return _("No available options.")
 
-        # for all options, print its values. 
+        # for all options, gets its values. 
         # "shortname" is an optional field of the options 
-        print(src.printcolors.printcHeader(_("Available options are:")))
+        msg += src.printcolors.printcHeader(_("Available options are:")) + "\n"
         for option in self.options:
             if 'shortName' in option and len(option['shortName']) > 0:
-                print(" -%(shortName)1s, --%(longName)s"
-                      " (%(optionType)s)\n\t%(helpString)s\n" % option)
+                msg +=  "\n -%(shortName)1s, --%(longName)s" \
+                        " (%(optionType)s)\n\t%(helpString)s\n" % option
             else:
-                print(" --%(longName)s (%(optionType)s)\n\t%(helpString)s\n"
-                       % option)
+                msg += "\n --%(longName)s (%(optionType)s)\n\t%(helpString)s\n" \
+                       % option
+        return msg
+                       
+    def print_help(self):
+        print(self.get_help())
+
 
     def parse_args(self, argList=None):
         '''Method that instantiates the class OptResult 
@@ -148,7 +155,7 @@ class Options(object):
             argList = sys.argv[1:]
         
         DBG.write("parse_args", argList)
-        DBG.write("options", self.options)
+        # DBG.write("options", self.options)
         # format shortNameOption and longNameOption 
         # to make right arguments to getopt.getopt function
         shortNameOption = ""
@@ -208,7 +215,7 @@ class Options(object):
             option['result'] = None
 
         self.results = {"optlist": optlist, "optResult": optResult, "args": args, "argList": argList}
-        DBG.write("options and results", self)
+        DBG.write("results", self.results)
         return optResult, args
 
     def __repr__(self): 
