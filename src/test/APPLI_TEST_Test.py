@@ -26,7 +26,7 @@ import src
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 class TestCase(unittest.TestCase):
-  "Test the sat --help commands"""
+  "Test the sat commands on APPLI_TEST configuration pyconf etc. files"""
   
   def test_000(self):
     # one shot setUp() for this TestCase
@@ -35,43 +35,15 @@ class TestCase(unittest.TestCase):
     return
 
   def test_010(self):
-    cmd = "sat --help"
-    stdout, stderr = SAT.launchSat(cmd)
-    self.assertEqual(stderr, "")
-    self.assertTrue(" - config" in stdout)
-
-  def test_011(self):
-    cmd = "--help"
+    cmd = "-v 5 config -l"
     s = SAT.Sat(cmd)
+    # DBG.push_debug(True)
+    DBG.write("s.cfg", s.cfg) #none
+    DBG.write("s.__dict__", s.__dict__) # have 
     exitCode = s.execute_command()
+    # DBG.write("s.cfg", s.cfg)
     self.assertEqual(src.okToStr(exitCode), "OK")
-    
-  def test_030(self):
-    cmd = "sat --help config"
-    stdout, stderr = SAT.launchSat(cmd)
-    self.assertEqual(stderr, "")
-    self.assertTrue("--value" in stdout)
-
-  def test_031(self):
-    cmd = "--help config"
-    s = SAT.Sat(cmd)
-    exitCode = s.execute_command()
-    self.assertEqual(src.okToStr(exitCode), "OK")
-      
-  def test_012(self):
-    cmd = "config -l"
-    s = SAT.Sat(cmd)
-    exitCode = s.execute_command()
-    self.assertEqual(src.okToStr(exitCode), "OK")
-  
-  def test_040(self):
-    cmds = SAT.getCommandsList()
-    for c in cmds:
-      cmd = "sat --help %s" % c
-      stdout, stderr = SAT.launchSat(cmd)
-      self.assertEqual(stderr, "")
-      # DBG.write("stdout '%s'" % cmd, stdout)
-      self.assertTrue("vailable options" in stdout)
+    DBG.pop_debug()
       
   def test_999(self):
     # one shot tearDown() for this TestCase

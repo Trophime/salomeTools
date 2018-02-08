@@ -66,7 +66,7 @@ class OptResult(object):
 
     def __repr__(self):
         aStr = PP.pformat(self.__dict__)
-        res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
+        res = "%s(\n %s\n)" % (self.__class__.__name__, aStr[1:-1])
         return res
 
 class Options(object):
@@ -175,9 +175,10 @@ class Options(object):
         # passed in the command regarding the available options
         try:
           optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
-        except:
-          DBG.write("ERROR", (shortNameOption, longNameOption), True)
-        
+        except Exception as e:
+          msg = str(e) + ", expected:\n\n%s" % str(self)
+          raise Exception(msg)
+
         # instantiate and completing the optResult that will be returned
         optResult = OptResult()
         for option in self.options:
@@ -222,6 +223,18 @@ class Options(object):
         '''repr for only self.options and self.results (if present)
         '''
         aDict = {'options': self.options, 'results': self.results}
+        aStr = PP.pformat(aDict)
+        res = "%s(\n %s\n)" % (self.__class__.__name__, aStr[1:-1])
+        return res
+        
+    def __str__(self): 
+        '''str for only resume expected self.options
+        '''
+        #aDict = [(k["longName"], k["shortName", k["helpString"]) for k in self.options}
+        #aList = [(k, self.options[k]) for k in sorted(self.options.keys())]
+        aDict = {}
+        for o in self.options:
+          aDict[o["longName"]] = (o["shortName"], o["helpString"])
         aStr = PP.pformat(aDict)
         res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
         return res

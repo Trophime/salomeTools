@@ -24,8 +24,31 @@ import sys
 
 import src
 import src.debug as DBG
-from src.salomeTools import _BaseCommand
 
+# Define all possible option for config command :  sat config <options>
+parser = src.options.Options()
+parser.add_option('v', 'value', 'string', 'value',
+    _("Optional: print the value of CONFIG_VARIABLE."))
+parser.add_option('d', 'debug', 'string', 'debug',
+    _("Optional: print the debugging value of CONFIG_VARIABLE."))
+parser.add_option('e', 'edit', 'boolean', 'edit',
+    _("Optional: edit the product configuration file."))
+parser.add_option('i', 'info', 'string', 'info',
+    _("Optional: get information on a product."))
+parser.add_option('l', 'list', 'boolean', 'list',
+    _("Optional: list all available applications."))
+parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
+    _("Optional: synthetic view of all patches used in the application"))
+parser.add_option('c', 'copy', 'boolean', 'copy',
+    _("""Optional: copy a config file (.pyconf) to the personal config files directory.
+\tWarning: the included files are not copied.
+\tIf a name is given the new config file takes the given name."""))
+parser.add_option('n', 'no_label', 'boolean', 'no_label',
+    _("Internal use: do not print labels, Works only with --value and --list."))
+parser.add_option('', 'completion', 'boolean', 'completion',
+    _("Internal use: print only keys, works only with --value."))
+parser.add_option('s', 'schema', 'boolean', 'schema',
+    _("Internal use."))
 
 class ConfigOpener:
     '''Class that helps to find an application pyconf 
@@ -807,40 +830,7 @@ def get_config_children(config, args):
     for v in sorted(vals):
         sys.stdout.write("%s\n" % v)
 
-
-########################################################################
-# Command class for command 'sat config etc.'
-########################################################################
-class Command(_BaseCommand):
-  
-  def getParser(self):
-    # Define all possible option for config command :  sat config <options>
-    parser = src.options.Options()
-    parser.add_option('v', 'value', 'string', 'value',
-        _("Optional: print the value of CONFIG_VARIABLE."))
-    parser.add_option('d', 'debug', 'string', 'debug',
-        _("Optional: print the debugging value of CONFIG_VARIABLE."))
-    parser.add_option('e', 'edit', 'boolean', 'edit',
-        _("Optional: edit the product configuration file."))
-    parser.add_option('i', 'info', 'string', 'info',
-        _("Optional: get information on a product."))
-    parser.add_option('l', 'list', 'boolean', 'list',
-        _("Optional: list all available applications."))
-    parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
-        _("Optional: synthetic view of all patches used in the application"))
-    parser.add_option('c', 'copy', 'boolean', 'copy',
-        _("""Optional: copy a config file (.pyconf) to the personal config files directory.
-    \tWarning: the included files are not copied.
-    \tIf a name is given the new config file takes the given name."""))
-    parser.add_option('n', 'no_label', 'boolean', 'no_label',
-        _("Internal use: do not print labels, Works only with --value and --list."))
-    parser.add_option('', 'completion', 'boolean', 'completion',
-        _("Internal use: print only keys, works only with --value."))
-    parser.add_option('s', 'schema', 'boolean', 'schema',
-        _("Internal use."))
-    return parser
-
-  def description(self):
+def description():
     '''method that is called when salomeTools is called with --help option.
     
     :return: The text to display for the config command description.
@@ -851,149 +841,145 @@ The config command allows manipulation and operation on config files.
 
 example:
 >> sat config SALOME-master --info ParaView""")
-        
+    
 
-  def run(self, args):
-      '''method that is called when salomeTools is called with config parameter.
-      '''
-      runner = self.getRunner()
-      logger = self.getLogger()
-      parser = self.getParser()
-      config = self.getConfig()
-      # Parse the options
-      (options, args) = parser.parse_args(args)
-  
-      # Only useful for completion mechanism : print the keys of the config
-      if options.schema:
-          get_config_children(config, args)
-          return
-      
-      # case : print a value of the config
-      if options.value:
-          if options.value == ".":
-              # if argument is ".", print all the config
-              for val in sorted(config.keys()):
-                  print_value(config, val, not options.no_label, logger)
-          else:
-              print_value(config, options.value, not options.no_label, logger, 
-                          level=0, show_full_path=False)
-      
-      if options.debug:
-          print_debug(config, str(options.debug), not options.no_label, logger, 
-                      level=0, show_full_path=False)
-      
-      # case : edit user pyconf file or application file
-      elif options.edit:
-          editor = config.USER.editor
-          if ('APPLICATION' not in config and
-              'open_application' not in config): # edit user pyconf
-              usercfg = os.path.join(config.VARS.personalDir, 'SAT.pyconf')
-              logger.write(_("Opening %s\n") % usercfg, 3)
-              src.system.show_in_editor(editor, usercfg, logger)
-          else:
-              # search for file <application>.pyconf and open it
-              for path in config.PATHS.APPLICATIONPATH:
-                  pyconf_path = os.path.join(path, config.VARS.application + ".pyconf")
-                  if os.path.exists(pyconf_path):
-                      logger.write(_("Opening %s\n") % pyconf_path, 3)
-                      src.system.show_in_editor(editor, pyconf_path, logger)
-                      break
-      
-      # case : give information about the product in parameter
-      elif options.info:
-          src.check_config_has_application(config)
-          if options.info in config.APPLICATION.products:
-              show_product_info(config, options.info, logger)
-              return
-          raise src.SatException(
-              _("%(product_name)s is not a product of %(application_name)s.") % \
-              {'product_name' : options.info, 'application_name' : config.VARS.application} )
-      
-      # case : copy an existing <application>.pyconf 
-      # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
-      elif options.copy:
-          # product is required
-          src.check_config_has_application( config )
-  
-          # get application file path 
-          source = config.VARS.application + '.pyconf'
-          source_full_path = ""
-          for path in config.PATHS.APPLICATIONPATH:
-              # ignore personal directory
-              if path == config.VARS.personalDir:
-                  continue
-              # loop on all directories that can have pyconf applications
-              zz = os.path.join(path, source)
-              if os.path.exists(zz):
-                  source_full_path = zz
-                  break
-  
-          if len(source_full_path) == 0:
-              raise src.SatException(
-                  _("Config file for product %s not found\n") % source )
-          else:
-              if len(args) > 0:
-                  # a name is given as parameter, use it
-                  dest = args[0]
-              elif 'copy_prefix' in config.INTERNAL.config:
-                  # use prefix
-                  dest = (config.INTERNAL.config.copy_prefix 
-                          + config.VARS.application)
-              else:
-                  # use same name as source
-                  dest = config.VARS.application
-                  
-              # the full path
-              dest_file = os.path.join(
-                  config.VARS.personalDir, 'Applications', dest + '.pyconf' )
-              if os.path.exists(dest_file):
-                  raise src.SatException(
-                      _("A personal application '%s' already exists") % dest )
-              
-              # perform the copy
-              shutil.copyfile(source_full_path, dest_file)
-              logger.write(_("%s has been created.\n") % dest_file)
-      
-      # case : display all the available pyconf applications
-      elif options.list:
-          lproduct = list()
-          # search in all directories that can have pyconf applications
-          for path in config.PATHS.APPLICATIONPATH:
-              # print a header
-              if not options.no_label:
-                  logger.write("------ %s\n" % src.printcolors.printcHeader(path))
-  
-              if not os.path.exists(path):
-                  logger.write(src.printcolors.printcError(
-                      _("Directory not found")) + "\n" )
-              else:
-                  for f in sorted(os.listdir(path)):
-                      # ignore file that does not ends with .pyconf
-                      if not f.endswith('.pyconf'):
-                          continue
-  
-                      appliname = f[:-len('.pyconf')]
-                      if appliname not in lproduct:
-                          lproduct.append(appliname)
-                          if path.startswith(config.VARS.personalDir) \
-                                      and not options.no_label:
-                              logger.write("%s*\n" % appliname)
-                          else:
-                              logger.write("%s\n" % appliname)
-                              
-              logger.write("\n")
-      # case : give a synthetic view of all patches used in the application
-      elif options.show_patchs:
-          src.check_config_has_application(config)
-          # Print some informations
-          logger.write(_('Show the patchs of application %s\n') % \
-                       src.printcolors.printcLabel(config.VARS.application), 3)
-          logger.write("\n", 2, False)
-          show_patchs(config, logger)
-      
-      # case: print all the products name of the application (internal use for completion)
-      elif options.completion:
-          for product_name in config.APPLICATION.products.keys():
-              logger.write("%s\n" % product_name)
+def run(args, runner, logger):
+    '''method that is called when salomeTools is called with config parameter.
+    '''
+    # Parse the options
+    (options, args) = parser.parse_args(args)
+
+    # Only useful for completion mechanism : print the keys of the config
+    if options.schema:
+        get_config_children(runner.cfg, args)
+        return
+    
+    # case : print a value of the config
+    if options.value:
+        if options.value == ".":
+            # if argument is ".", print all the config
+            for val in sorted(runner.cfg.keys()):
+                print_value(runner.cfg, val, not options.no_label, logger)
+        else:
+            print_value(runner.cfg, options.value, not options.no_label, logger, 
+                        level=0, show_full_path=False)
+    
+    if options.debug:
+        print_debug(runner.cfg, str(options.debug), not options.no_label, logger, 
+                    level=0, show_full_path=False)
+    
+    # case : edit user pyconf file or application file
+    elif options.edit:
+        editor = runner.cfg.USER.editor
+        if ('APPLICATION' not in runner.cfg and
+            'open_application' not in runner.cfg): # edit user pyconf
+            usercfg = os.path.join(runner.cfg.VARS.personalDir, 'SAT.pyconf')
+            logger.write(_("Opening %s\n") % usercfg, 3)
+            src.system.show_in_editor(editor, usercfg, logger)
+        else:
+            # search for file <application>.pyconf and open it
+            for path in runner.cfg.PATHS.APPLICATIONPATH:
+                pyconf_path = os.path.join(path, runner.cfg.VARS.application + ".pyconf")
+                if os.path.exists(pyconf_path):
+                    logger.write(_("Opening %s\n") % pyconf_path, 3)
+                    src.system.show_in_editor(editor, pyconf_path, logger)
+                    break
+    
+    # case : give information about the product in parameter
+    elif options.info:
+        src.check_config_has_application(runner.cfg)
+        if options.info in runner.cfg.APPLICATION.products:
+            show_product_info(runner.cfg, options.info, logger)
+            return
+        raise src.SatException(
+            _("%(product_name)s is not a product of %(application_name)s.") % \
+            {'product_name' : options.info, 'application_name' : runner.cfg.VARS.application} )
+    
+    # case : copy an existing <application>.pyconf 
+    # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
+    elif options.copy:
+        # product is required
+        src.check_config_has_application( runner.cfg )
+
+        # get application file path 
+        source = runner.cfg.VARS.application + '.pyconf'
+        source_full_path = ""
+        for path in runner.cfg.PATHS.APPLICATIONPATH:
+            # ignore personal directory
+            if path == runner.cfg.VARS.personalDir:
+                continue
+            # loop on all directories that can have pyconf applications
+            zz = os.path.join(path, source)
+            if os.path.exists(zz):
+                source_full_path = zz
+                break
+
+        if len(source_full_path) == 0:
+            raise src.SatException(
+                _("Config file for product %s not found\n") % source )
+        else:
+            if len(args) > 0:
+                # a name is given as parameter, use it
+                dest = args[0]
+            elif 'copy_prefix' in runner.cfg.INTERNAL.config:
+                # use prefix
+                dest = (runner.cfg.INTERNAL.config.copy_prefix 
+                        + runner.cfg.VARS.application)
+            else:
+                # use same name as source
+                dest = runner.cfg.VARS.application
+                
+            # the full path
+            dest_file = os.path.join(
+                runner.cfg.VARS.personalDir, 'Applications', dest + '.pyconf' )
+            if os.path.exists(dest_file):
+                raise src.SatException(
+                    _("A personal application '%s' already exists") % dest )
             
+            # perform the copy
+            shutil.copyfile(source_full_path, dest_file)
+            logger.write(_("%s has been created.\n") % dest_file)
+    
+    # case : display all the available pyconf applications
+    elif options.list:
+        lproduct = list()
+        # search in all directories that can have pyconf applications
+        for path in runner.cfg.PATHS.APPLICATIONPATH:
+            # print a header
+            if not options.no_label:
+                logger.write("------ %s\n" % src.printcolors.printcHeader(path))
+
+            if not os.path.exists(path):
+                logger.write(src.printcolors.printcError(
+                    _("Directory not found")) + "\n" )
+            else:
+                for f in sorted(os.listdir(path)):
+                    # ignore file that does not ends with .pyconf
+                    if not f.endswith('.pyconf'):
+                        continue
+
+                    appliname = f[:-len('.pyconf')]
+                    if appliname not in lproduct:
+                        lproduct.append(appliname)
+                        if path.startswith(runner.cfg.VARS.personalDir) \
+                                    and not options.no_label:
+                            logger.write("%s*\n" % appliname)
+                        else:
+                            logger.write("%s\n" % appliname)
+                            
+            logger.write("\n")
+    # case : give a synthetic view of all patches used in the application
+    elif options.show_patchs:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('Show the patchs of application %s\n') % \
+                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_patchs(runner.cfg, logger)
+    
+    # case: print all the products name of the application (internal use for completion)
+    elif options.completion:
+        for product_name in runner.cfg.APPLICATION.products.keys():
+            logger.write("%s\n" % product_name)
         
+    

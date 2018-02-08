@@ -34,20 +34,24 @@ import src
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('t', 'terminal', 'boolean', 'terminal', "Optional: "
-                  "Terminal log.")
-parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last "
-                  "Optional: launched command.")
-parser.add_option('', 'last_terminal', 'boolean', 'last_terminal', "Show the "
-                  "log of the last compilations"
-                  "Optional: launched command.")
-parser.add_option('f', 'full', 'boolean', 'full', "Optional: Show the logs of "
-                  "ALL the launched commands.")
-parser.add_option('c', 'clean', 'int', 'clean', "Optional: Erase the n most "
-                  "ancient log files.")
-parser.add_option('n', 'no_browser', 'boolean', 'no_browser', "Optional: Do not"
-                  " launch the browser at the end of the command. Only update "
-                  "the hat file.")
+parser.add_option(
+  't', 'terminal', 'boolean', 'terminal', 
+  "Optional: Show sat instances logs, no browser.")
+parser.add_option(
+  'l', 'last', 'boolean', 'last', 
+  "Show the log of the last launched command.")
+parser.add_option(
+  'x', 'last_terminal', 'boolean', 'last_terminal', 
+  """Optional: Show compile log of products, no browser.""")
+parser.add_option(
+  'f', 'full', 'boolean', 'full', 
+  "Optional: Show the logs of ALL the launched commands.")
+parser.add_option(
+  'c', 'clean', 'int', 'clean', 
+  "Optional: Erase the n most ancient log files.")
+parser.add_option(
+  'n', 'no_browser', 'boolean', 'no_browser', 
+  "Optional: Do not launch the browser at the end of the command. Only update the hat file.")
 
 def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.
@@ -71,7 +75,11 @@ def get_last_log_file(logDir, notShownCommands):
                 continue
             if int(datehour) > last[1]:
                 last = (fileName, int(datehour))
-    return os.path.join(logDir, last[0])
+    if last[1] != 0:
+      res = os.path.join(logDir, last[0])
+    else:
+      res = None #no log file
+    return res
 
 def remove_log_file(filePath, logger):
     '''if it exists, print a warning and remove the input file
@@ -110,13 +118,26 @@ def print_log_command_in_terminal(filePath, logger):
                                     _("Here are the command traces :\n")), 1)
         logger.write(command_traces, 1)
         logger.write("\n", 1)
+        
+def getMaxFormat(aListOfStr, offset=1):
+    """returns format for columns width as '%-30s"' for example"""
+    maxLen = max([len(i) for i in aListOfStr]) + offset
+    fmt =  "%-" + str(maxLen) + "s" # "%-30s" for example  
+    return fmt, maxLen
 
 def show_last_logs(logger, config, log_dirs):
     """Show last compilation logs"""
     log_dir = os.path.join(config.APPLICATION.workdir, 'LOGS')
     # list the logs
     nb = len(log_dirs)
-    nb_cols = 4
+    fmt1, maxLen = getMaxFormat(log_dirs, offset=1)
+    fmt2 = "%s: " + fmt1 # "%s: %-30s" for example
+    nb_cols = 5
+    # line ~ no more 100 chars
+    if maxLen > 20: nb_cols = 4
+    if maxLen > 25: nb_cols = 3
+    if maxLen > 33: nb_cols = 2
+    if maxLen > 50: nb_cols = 1
     col_size = (nb / nb_cols) + 1
     for index in range(0, col_size):
         for i in range(0, nb_cols):
@@ -125,7 +146,7 @@ def show_last_logs(logger, config, log_dirs):
                 l = log_dirs[k]
                 str_indice = src.printcolors.printcLabel("%2d" % (k+1))
                 log_name = l
-                logger.write("%s: %-30s" % (str_indice, log_name), 1, False)
+                logger.write(fmt2 % (str_indice, log_name), 1, False)
         logger.write("\n", 1, False)
 
     # loop till exit
@@ -145,7 +166,7 @@ def show_product_last_logs(logger, config, product_log_dir):
         l_time_file.append(
               (datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME]), file_n))
     
-    # display the available logs
+    # display the available logs
     for i, (__, file_name) in enumerate(sorted(l_time_file)):
         str_indice = src.printcolors.printcLabel("%2d" % (i+1))
         opt = []
@@ -268,15 +289,21 @@ def run(args, runner, logger):
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
         src.check_config_has_application(runner.cfg)
-        log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir,
-                                           'LOGS'))
+        rootLogDir = os.path.join(runner.cfg.APPLICATION.workdir, 'LOGS')
+        src.ensure_path_exists(rootLogDir)
+        log_dirs = os.listdir(rootLogDir)
+        if log_dirs == []:
+          raise Exception("log directory empty")
+        log_dirs= sorted(log_dirs)
         show_last_logs(logger, runner.cfg, log_dirs)
         return 0
 
     # If the last option is invoked, just, show the last log file
     if options.last:
-        lastLogFilePath = get_last_log_file(logDir,
-                                            notShownCommands + ["config"])        
+        lastLogFilePath = get_last_log_file(
+            logDir, notShownCommands + ["config"])
+        if lastLogFilePath is None:
+            raise Exception("last log file not found in '%s'" % logDir)
         if options.terminal:
             # Show the log corresponding to the selected command call
             print_log_command_in_terminal(lastLogFilePath, logger)

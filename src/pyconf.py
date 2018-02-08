@@ -756,7 +756,7 @@ class Config(Mapping):
         try:
             return eval(s)
         except Exception as e:
-            raise ConfigError(str(e))
+            raise ConfigError("Config path not found: '%s'" % path)
 
 class Sequence(Container):
     """
@@ -1740,5 +1740,5 @@ class ConfigList(list):
             except ConfigError:
                 pass
         if not found:
-            raise ConfigError("unable to resolve %r" % path)
+            raise ConfigError("ConfigList path not found '%r'" % path)
         return rv

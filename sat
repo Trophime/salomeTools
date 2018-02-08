@@ -43,6 +43,7 @@ if __name__ == "__main__":
 
     # instantiate the salomeTools class with correct options
     sat = Sat(sys.argv[1:])
+    # or sat = Sat("config -l") for example
     exitCode = sat.execute_command()
     DBG.write("sat exit code", src.okToStr(exitCode))
 
