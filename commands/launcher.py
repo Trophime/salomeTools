@@ -84,6 +84,7 @@ def generate_launch_file(config,
     additional_env['APPLI'] = filepath
 
     # Get the launcher template
+    profile_install_dir = profile_install_dir.replace("\\", "\\\\")
     withProfile = src.fileEnviron.withProfile.replace( "PROFILE_INSTALL_DIR",
                                                        profile_install_dir )
     before, after = withProfile.split(
