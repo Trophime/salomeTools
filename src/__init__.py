@@ -40,23 +40,9 @@ if platform.system() == "Windows" :
     import colorama
     colorama.init()
 
-OK_STATUS = "OK"
-KO_STATUS = "KO"
-NA_STATUS = "NA"
-KNOWNFAILURE_STATUS = "KF"
-TIMEOUT_STATUS = "TIMEOUT"
 
 CONFIG_FILENAME = "sat-config.pyconf"
 
-OKSYS = 0  # OKSYS and KOSYS seems equal on linux or windows
-KOSYS = 1
-OKMESS = {0: "OK", 1: "KO"} # etc... if useful
-   
-def okToStr(ok): 
-    try:
-        return OKMESS[ok]
-    except:
-        return "UnknownExitCode"
 
 class SatException(Exception):
     '''rename Exception Class

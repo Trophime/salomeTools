@@ -51,7 +51,7 @@ class OptResult(object):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError(name + _(u" is not a valid option"))
+            raise AttributeError("--" + name + _(u" is not a valid option"))
 
     def __setattr__(self, name, value):
         '''Overwrite of the __setattr__ function 
@@ -151,6 +151,7 @@ class Options(object):
                                    is the full raw list of passed options 
         :rtype: (class 'common.options.OptResult',list)
         '''
+        # see https://pymotw.com/2/getopt/
         if argList is None:
             argList = sys.argv[1:]
         

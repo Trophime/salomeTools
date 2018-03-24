@@ -20,13 +20,9 @@ import os
 import shutil
 
 import src
-import commands.prepare
-
-# Define all possible option for patch command :  sat patch <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products from which to get the sources. This option can be'
-    ' passed several time to get the sources of several products.'))
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode
@@ -338,7 +334,7 @@ def get_product_sources(config,
 
     if product_info.get_source == "native":
         # skip
-        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+        logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
                      3,
                      False)
         msg = _("INFORMATION : do nothing because the product is of type 'native'.\n")
@@ -347,7 +343,7 @@ def get_product_sources(config,
 
     if product_info.get_source == "fixed":
         # skip
-        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+        logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
                      3,
                      False)
         msg = _("INFORMATION : do nothing because the product is of type 'fixed'.\n")
@@ -400,7 +396,7 @@ def get_all_product_sources(config, products, logger):
         # the product is not in development mode
         is_dev = src.product.product_is_dev(product_info)
         if source_dir.exists():
-            logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+            logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
                          3,
                          False)
             msg = _("INFORMATION : Not doing anything because the source"
@@ -439,11 +435,11 @@ def get_all_product_sources(config, products, logger):
         results[product_name] = retcode
         if retcode:
             # The case where it succeed
-            res = src.OK_STATUS
+            res = RCO.OK_STATUS
             good_result = good_result + 1
         else:
             # The case where it failed
-            res = src.KO_STATUS
+            res = RCO.KO_STATUS
         
         # print the result
         if not(src.product.product_is_fixed(product_info) or 
@@ -476,65 +472,81 @@ def check_sources(product_info, logger):
             logger.write(src.printcolors.printcSuccess(" OK\n"), 5)
     return True, ""
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the source command description.
-    :rtype: str
-    '''
-    return _("The source command gets the sources of the application products "
-             "from cvs, git or an archive.\n\nexample:"
-             "\nsat source SALOME-master --products KERNEL,GUI")
+########################################################################
+# Command class for command 'sat config etc.'
+########################################################################
+class Command(_BaseCommand):
   
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with source parameter.
-    '''
-    # Parse the options
-    (options, args) = parser.parse_args(args)
+  def getParser(self):
+    # Define all possible option for patch command :  sat patch <options>
+    parser = src.options.Options()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products from which to get the sources. This option can be'
+        ' passed several time to get the sources of several products.'))
+    return parser
+
+  def description(self):
+      '''method that is called when salomeTools is called with --help option.
+      
+      :return: The text to display for the source command description.
+      :rtype: str
+      '''
+      return _("The source command gets the sources of the application products "
+               "from cvs, git or an archive.\n\nexample:"
+               "\nsat source SALOME-master --products KERNEL,GUI")
     
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
+  def run(self, args):
+      '''method that is called when salomeTools is called with source parameter.
+      '''
+      runner = self.getRunner()
+      config = self.getConfig()
+      logger = self.getLogger()
+  
+      # Parse the options
+      (options, argsc) = self.parse_args(args)
+      
+      # check that the command has been called with an application
+      src.check_config_has_application( config )
 
-    # Print some informations
-    logger.write(_('Getting sources of the application %s\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    src.printcolors.print_value(logger, 'workdir', 
-                                runner.cfg.APPLICATION.workdir, 2)
-    logger.write("\n", 2, False)
-       
-    # Get the products list with products informations regarding the options
-    products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)
-    
-    # Call to the function that gets all the sources
-    good_result, results = get_all_product_sources(runner.cfg, 
-                                                  products_infos,
-                                                  logger)
+      # Print some informations
+      logger.write(_('Getting sources of the application %s\n') % \
+                  src.printcolors.printcLabel(config.VARS.application), 1)
+      src.printcolors.print_value(logger, 'workdir', 
+                                  config.APPLICATION.workdir, 2)
+      logger.write("\n", 2, False)
+         
+      # Get the products list with products informations regarding the options
+      products_infos = self.get_products_list(options, config, logger)
+      
+      # Call to the function that gets all the sources
+      good_result, results = get_all_product_sources(config, 
+                                                    products_infos,
+                                                    logger)
 
-    # Display the results (how much passed, how much failed, etc...)
-    status = src.OK_STATUS
-    details = []
+      # Display the results (how much passed, how much failed, etc...)
+      details = []
 
-    logger.write("\n", 2, False)
-    if good_result == len(products_infos):
-        res_count = "%d / %d" % (good_result, good_result)
-    else:
-        status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(products_infos))
+      logger.write("\n", 2, False)
+      if good_result == len(products_infos):
+          res_count = "%d / %d" % (good_result, good_result)
+          returnCode = RCO.ReturnCode("OK", "source "+res_count)     
+      else:
+          res_count = "%d / %d" % (good_result, len(products_infos))
+          returnCode = RCO.ReturnCode("KO", "source "+res_count)     
+          for product in results:
+              if results[product] == 0 or results[product] is None:
+                  details.append(product)
 
-        for product in results:
-            if results[product] == 0 or results[product] is None:
-                details.append(product)
+      result = len(products_infos) - good_result
 
-    result = len(products_infos) - good_result
+      # write results
+      logger.write(_("Getting sources of the application:"), 1)
+      logger.write(" " + src.printcolors.printc(status), 1, False)
+      logger.write(" (%s)\n" % res_count, 1, False)
 
-    # write results
-    logger.write(_("Getting sources of the application:"), 1)
-    logger.write(" " + src.printcolors.printc(status), 1, False)
-    logger.write(" (%s)\n" % res_count, 1, False)
+      if len(details) > 0:
+          logger.write(_("Following sources haven't been get:\n"), 2)
+          logger.write(" ".join(details), 2)
+          logger.write("\n", 2, False)
 
-    if len(details) > 0:
-        logger.write(_("Following sources haven't been get:\n"), 2)
-        logger.write(" ".join(details), 2)
-        logger.write("\n", 2, False)
-
-    return result
+      return returnCode

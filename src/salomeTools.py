@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
 
 import src.debug as DBG # Easy print stderr (for DEBUG only)
+import src.returnCode as RCO # Easy (ok/ko, why) return methods code
 import src
 
 # get path to src
@@ -125,8 +126,8 @@ class _BaseCommand(object):
     def __init__(self, name):
         self.name = name
         self.runner = None # runner (as caller) usually as Sat instance
+        # self.config = None # config pyconf usually loaded with _getConfig method
         self.logger = None # logger (from caller) usually as Sat instance logger
-        self.config = None # config usually loaded with _getConfig method
         
     def getClassName(self):
         """
@@ -140,17 +141,20 @@ class _BaseCommand(object):
         tmp = PP.pformat(self.__dict__)
         res = "%s(\n %s)\n" % (self.getClassName(), tmp[1:-1])
         return res
-        
+
+    def run(self, args):
+        return RCO.ReturnCode("KO", "_BaseCommand.run() have to be inherited")
+    
     def setRunner(self, runner):
         """set who owns me, and use me whith method run()"""
         self.runner  = runner
         
     def setLogger(self, logger):
         """set logger for run command"""
-        self.logger  = logger
+        self.logger = logger
         
     def getLogger(self):
-        if self.logger is None: # could use owner Sat instance logger
+        if self.logger is None: # could use runner Sat instance logger
           return self.runner.getLogger()
         else:                   # could use local logger
           return self.logger
@@ -163,6 +167,25 @@ class _BaseCommand(object):
                   
     def getParser(self):
         raise Exception("_BaseCmd class have not to be instancied, only for inheritage")
+
+    def parse_args(self, args):
+        """smart parse command arguments skipping first argument name appli to load if present"""
+        parser = self.getParser()
+        if type(args) is list:
+          argList = args
+        else:
+          argList = args.split(' ')
+        DBG.write("%s args" % self.name, args, True)
+        # or if args[0][0] == "-": #as argument name appli without "--"
+        if self.runner.nameAppliLoaded is None:
+          (options, argsc) = parser.parse_args(args)
+        else:
+          (options, argsc) = parser.parse_args(args[1:]) # skip name appli
+        DBG.write("%s options" % self.name, options)
+        DBG.write("%s remainders args" % self.name, argsc)
+        if argsc != []:
+          self.getLogger().error("\n\ncommand '%s' remainders args %s\n\n" % (self.name, argsc))
+        return (options, argsc)
     
     def description(self):
         '''method that is called when salomeTools is called with --help option.
@@ -177,38 +200,35 @@ class _BaseCommand(object):
         '''
         raise Exception("_BaseCmd class have not to be instancied, only for inheritage")
 
-        
     def getConfig(self):
-        if self.config is None:
-          self.config = self._getConfig()
-        return self.config
-
+        if self.runner.config is None:
+          self.runner.config = self._getConfig()
+        #DBG.write("_baseCommand runner", self.runner)
+        DBG.write("_baseCommand runner.config", self.runner.config)
+        return self.runner.config
 
     def _getConfig(self):
         '''The function that will load the configuration (all pyconf)
-        and return the config from files .pyconf
+        and returns the config from files .pyconf
         '''
-        if self.config is not None:
-          raise Exception("config existing yet in 's' instance" % self.getClassName())
+        if self.runner.config is not None:
+          raise Exception("config existing yet in 's' instance" % self.runner.getClassName())
           
         # Get the arguments in a list and remove the empty elements
-        print "command.runner.arguments", self.runner.arguments
+        # DBG.write("%s.runner.arguments" % self.name, self.runner.arguments)
 
         self.parser = self.getParser() 
         try:
             options, args = self.parser.parse_args(self.runner.arguments[1:])
-            DBG.write("%s args", args)
-            DBG.write("%s options", options)    
+            DBG.write("%s args" % self.name, args)
+            DBG.write("%s options" % self.name, options)    
         except Exception as exc:
             write_exception(exc)
-            sys.exit(src.KOSYS)
+            sys.exit(RCO.KOSYS)
 
         self.arguments = args # args are postfixes options: args[0] is the 'commands' command
         self.options = options # the options passed to salomeTools
-        
-        print "command.arguments", self.arguments
-        print "command.options", self.options
-        
+          
         if type(args) == type(''):
             # split by spaces without considering spaces in quotes
             argv_0 = re.findall(r'(?:"[^"]*"|[^\s"])+', args)
@@ -241,13 +261,20 @@ class _BaseCommand(object):
             self.options = options  
 
         # read the configuration from all the pyconf files    
-        cfgManager = commands.config.ConfigManager()
-        config = cfgManager.get_config(datadir=self.datadir, 
-                                         application=appliToLoad, 
-                                         options=self.options, 
-                                         command=__nameCmd__)
+        cfgManager = getConfigManager() # commands.config.ConfigManager()
+        DBG.write("appli to load", appliToLoad, True)
+        config = cfgManager.get_config(datadir=self.runner.datadir, 
+                                       application=appliToLoad, 
+                                       options=self.runner.options, 
+                                       command=self.name) # command=__nameCmd__)
+        self.runner.nameAppliLoaded = appliToLoad
+        # DBG.write("appli loaded", config, True)
                        
         # Set the verbose mode if called
+        DBG.tofix("verbose/batch/logger_add_link -1/False/None", True)
+        verbose = -1
+        batch = False
+        logger_add_link = None
         if verbose > -1:
             verbose_save = self.options.output_verbose_level
             self.options.__setattr__("output_verbose_level", verbose)    
@@ -258,8 +285,8 @@ class _BaseCommand(object):
             self.options.__setattr__("batch", True)
 
         # set output level
-        if self.options.output_verbose_level is not None:
-            config.USER.output_verbose_level = self.options.output_verbose_level
+        if self.runner.options.output_verbose_level is not None:
+            config.USER.output_verbose_level = self.runner.options.output_verbose_level
         if config.USER.output_verbose_level < 1:
             config.USER.output_verbose_level = 0
         silent = (config.USER.output_verbose_level == 0)
@@ -270,12 +297,12 @@ class _BaseCommand(object):
             micro_command = True
         logger_command = src.logger.Logger(config, 
                            silent_sysstd=silent,
-                           all_in_terminal=self.options.all_in_terminal,
+                           all_in_terminal=self.runner.options.all_in_terminal,
                            micro_command=micro_command)
         
         # Check that the path given by the logs_paths_in_file option
         # is a file path that can be written
-        if self.options.logs_paths_in_file and not micro_command:
+        if self.runner.options.logs_paths_in_file and not micro_command:
             try:
                 self.options.logs_paths_in_file = os.path.abspath(
                                         self.options.logs_paths_in_file)
@@ -296,6 +323,38 @@ class _BaseCommand(object):
                 
         return config
 
+    def get_products_list(self, options, cfg, logger):
+        '''method that gives the product list with their informations from 
+           configuration regarding the passed options.
+        
+        :param options Options: The Options instance that stores the commands 
+                                arguments
+        :param config Config: The global configuration
+        :param logger Logger: The logger instance to use for the display and logging
+        :return: The list of (product name, product_informations).
+        :rtype: List
+        '''
+        # Get the products to be prepared, regarding the options
+        if options.products is None:
+            # No options, get all products sources
+            products = cfg.APPLICATION.products
+        else:
+            # if option --products, check that all products of the command line
+            # are present in the application.
+            products = options.products
+            for p in products:
+                if p not in cfg.APPLICATION.products:
+                    raise src.SatException(_("Product %(product)s "
+                                "not defined in application %(application)s") %
+                            { 'product': p, 'application': cfg.VARS.application} )
+        
+        # Construct the list of tuple containing 
+        # the products name and their definition
+        products_infos = src.product.get_products_infos(products, cfg)
+        
+        return products_infos
+
+
 ########################################################################
 # Sat class
 ########################################################################
@@ -312,7 +371,9 @@ class Sat(object):
         # Read the salomeTools prefixes options before the 'commands' tag
         # sat <options> <args>
         # (the list of possible options is  at the beginning of this file)
-        DBG.push_debug(True)
+        
+        # DBG.push_debug(True)
+
         self.parser = self._getParser() 
         try:
             if type(opt) is not list: # as string 'sat --help' for example'
@@ -320,21 +381,22 @@ class Sat(object):
             else:
                 opts = opt
             options, args = self.parser.parse_args(opts)
-            DBG.write("Sat args", args)
-            DBG.write("Sat options", options)    
+            DBG.write("Sat options", options)
+            DBG.write("Sat remainders args", args)
+               
         except Exception as exc:
             write_exception(exc)
-            sys.exit(src.KOSYS)
+            sys.exit(RCO.KOSYS)
 
-        self.logger = None # the logger that will be use
         self.config = None # the config that will be read using pyconf module
+        self.logger = None # the logger that will be use
         self.arguments = args # args are postfixes options: args[0] is the 'commands' command
         self.options = options # the options passed to salomeTools
         self.datadir = datadir # default value will be <salomeTools root>/data
         # contains commands classes needed (think micro commands)
         # if useful 'a la demande'
         self.commands = {}
-
+        self.nameAppliLoaded = None
         
     def __repr__(self):
         aDict = {
@@ -349,7 +411,12 @@ class Sat(object):
 
     
     def getLogger(self):
-        return self.logger
+        if self.logger is None: # could use owner Sat instance logger
+          import src.logger as LOG
+          self.logger=LOG.getDefaultLogger(self.config)
+          return self.logger
+        else:                   # could use local logger
+          return self.logger
 
 
     def _getParser(self):
@@ -375,7 +442,7 @@ class Sat(object):
                           _("put the command result and paths to log files."))
         return parser
 
-        
+
     def _getCommand(self, name):
         """
         create and add Command 'name' as instance of class in dict self.commands
@@ -387,9 +454,14 @@ class Sat(object):
             raise AttributeError(_("command existing yet: '%s', use getCommand") % name)
         file_, pathname, description = imp.find_module(name, [cmdsdir])
         module = imp.load_module(name, file_, pathname, description)
-        cmdInstance = module.Command(name)
+        try:
+          cmdInstance = module.Command(name)
+        except:
+          DBG.tofix("no Command() class in %s" % pathname, dir(module), True)
+          raise Exception("no Command() class in %s" % pathname)
+
         cmdInstance.setRunner(self) # self is runner, owns cmdInstance
-        DBG.write("new command", cmdInstance)
+        DBG.write("Sat load new command", cmdInstance)
         return cmdInstance       
                     
     def getCommand(self, name):
@@ -398,7 +470,7 @@ class Sat(object):
         if not existing as self.commands[name], create it.
         
         example:
-        returns Commamd() from commamd.config 
+        returns Command() from command.config 
         """
         if name not in self.commands.keys():
             self.commands[name] = self._getCommand(name)
@@ -417,20 +489,20 @@ class Sat(object):
         # print general help and returns
         if len(args) == 0:
             print_help()
-            return src.OKSYS
+            return RCO.ReturnCode("OK", "No arguments as --help")
             
         # if the help option has been called, print command help and returns
         if self.options.help:
             self.print_help(self.arguments)
-            return src.OKSYS
+            return RCO.ReturnCode("OK", "Option --help")
        
         # the command called
         cmdName = args[0]
         # create/get dynamically the command instance to call its 'run' method
         cmdInstance = self.getCommand(cmdName)
         # Run the command using the arguments
-        exitCode = cmdInstance.run(args[1:])
-        return exitCode
+        returnCode = cmdInstance.run(args[1:])
+        return returnCode
 
     def print_help(self, opt):
         '''Prints help for a command. Function called when "sat -h <command>"
@@ -443,16 +515,14 @@ class Sat(object):
             return
             
         # get command name
-        command = opt[0]
+        cmdName = opt[0]
         # read the configuration from all the pyconf files
-        cfgManager = commands.config.ConfigManager()
+        cfgManager = getConfigManager()
         self.cfg = cfgManager.get_config(datadir=self.datadir)
 
-        # Check if this command exists
-        if not hasattr(self, command):
-            raise src.SatException(_("Command '%s' does not exist") % command)
-                
-        msg = self.get_command_help(module)
+        cmdInstance = self.getCommand(cmdName)
+                   
+        msg = self.get_command_help(cmdInstance)
             
         if isStdoutPipe():
             # clean color if the terminal is redirected by user
@@ -469,17 +539,25 @@ class Sat(object):
         msg = get_version() + "\n\n"
         
         # print the description of the command that is done in the command file
-        if hasattr( module, "description" ):
+        try:
             msg += src.printcolors.printcHeader( _("Description:") ) + "\n"
             msg += module.description() + "\n\n"
+        except:
+            DBG.tofix("no description() for", module.name, True)
 
         # print the description of the command options
-        if hasattr( module, "parser" ) :
-            msg += module.parser.get_help() + "\n"
+        try:
+            msg += module.getParser().get_help() + "\n"
+        except:
+            DBG.tofix("no getParser() for", module.name, True)
         return msg
       
         
 ###################################################################     
+def getConfigManager():
+    import commands.config 
+    return commands.config.ConfigManager()
+        
 def get_text_from_options(options):
     text_options = ""
     for attr in dir(options):
@@ -505,7 +583,7 @@ def isStdoutPipe():
 def get_version():
     """get version colored string
     """
-    cfgManager = commands.config.ConfigManager()
+    cfgManager = getConfigManager()
     cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
     msg = src.printcolors.printcHeader( _("Version: ") ) + \
@@ -518,10 +596,10 @@ def get_help():
     # read the config 
     msg = get_version() + "\n\n"
     msg += src.printcolors.printcHeader(_("Usage: ")) + \
-          "sat [sat_options] <command> [product] [command_options]\n\n"
-    msg += parser.get_help() + "\n"
+          "sat [generic_options] <command> [product] [command_options]\n\n"
+    msg += Sat()._getParser().get_help() + "\n"
     msg += src.printcolors.printcHeader(_("Available commands are:")) + "\n\n"
-    for command in lCommand:
+    for command in _COMMANDS_NAMES:
         msg += " - %s\n" % (command)
     msg += "\n"
     # Explain how to get the help for a specific command

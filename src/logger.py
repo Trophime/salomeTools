@@ -256,6 +256,18 @@ class Logger(object):
         except IOError:
             pass
 
+_DefaultLogger = [] # o,nly one default logger as common logger on one config
+
+def getDefaultLogger(config):
+    if len(_DefaultLogger) == 1:
+      if config != _DefaultLogger[0].config:
+        raise Exception("config is not unique, unexpected, have to fix that")
+      return _DefaultLogger[0]
+    if config == None:
+      raise Exception("config have to be set for default logger, not None")
+    _DefaultLogger.append(Logger(config))
+    return _DefaultLogger[0]
+
 def date_to_datetime(date):
     '''Little method that gets year, mon, day, hour , 
        minutes and seconds from a str in format YYYYMMDD_HHMMSS

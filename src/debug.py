@@ -19,10 +19,16 @@
 
 """
 This file assume DEBUG functionalities use
-- get debug representation from instances of SAT classes
 - print debug messages in sys.stderr for salomeTools
+- show pretty print debug representation from instances of SAT classes
+  (pretty print src.pyconf.Config)
 
-WARNING: supposed only use in SAT development phase
+WARNING: supposedly show messages in SAT development phase, not production
+
+usage:
+>> import debug as DBG
+>> DBG.write("aTitle", aVariable)        # not shown in production 
+>> DBG.write("aTitle", aVariable, True)  # unconditionaly shown 
 """
 
 import os
@@ -33,12 +39,12 @@ import pprint as PP
 _debug = [False] #support push/pop for temporary activate debug outputs
 
 def indent(text, amount=2, ch=' '):
+    """indent multi lines message"""
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
 
-def write(title, var="", force=None):
+def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
-    fmt = "\n#### DEBUG: %s:\n%s\n"
     if _debug[-1] or force:
         if 'src.pyconf.Config' in str(type(var)): 
             sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
@@ -47,6 +53,14 @@ def write(title, var="", force=None):
         else:
             sys.stderr.write(fmt % (title, indent(var)))
     return
+
+def tofix(title, var="", force=None):
+    """
+    write sys.stderr a message if _debug[-1]==True or optionaly force=True
+    use this only if no logger accessible for classic logger.warning(message)
+    """
+    fmt = "\n#### TOFIX: %s:\n%s\n"
+    write(title, var, force, fmt)
 
 def push_debug(aBool):
     """set debug outputs activated, or not"""
@@ -105,12 +119,12 @@ def getStrConfigDbg(config):
     return outStream.value
 
 def saveConfigDbg(config, aStream, indent=0, path=""):
-    """returns multilines (path expression evaluation) for debug"""
+    """pyconf returns multilines (path expression evaluation) for debug"""
     _saveConfigRecursiveDbg(config, aStream, indent, path)
     aStream.close() # as config.__save__()
 
 def _saveConfigRecursiveDbg(config, aStream, indent, path):
-    """inspired from Mapping.__save__"""
+    """pyconf inspired from Mapping.__save__"""
     debug = False
     if indent <= 0: 
       indentp = 0

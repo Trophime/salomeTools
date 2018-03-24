@@ -24,6 +24,7 @@ import sys
 
 import src
 import src.debug as DBG
+import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
 
 
@@ -174,8 +175,8 @@ class ConfigManager:
         '''get the config from all the configuration files.
         
         :param application str: The application for which salomeTools is called.
-        :param options class Options: The general salomeToos
-                                      options (--overwrite or -l5, for example)
+        :param options class Options: The general salomeTools
+                                      options (--overwrite or -v5, for example)
         :param command str: The command that is called.
         :param datadir str: The repository that contain 
                             external data for salomeTools.
@@ -755,6 +756,13 @@ def print_value(config, path, show_label, logger, level=0, show_full_path=False)
         logger.write("%s\n" % val)
         
 def print_debug(config, aPath, show_label, logger, level=0, show_full_path=False):
+    """
+    logger output for debugging a config/pyconf
+    lines contains:
+       path : expression --> 'evaluation'
+    example:
+      .PROJECTS.projects.salome.project_path : $PWD --> '/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT_SALOME'
+    """
     path = str(aPath)
     if path == "." :
       val = config
@@ -769,7 +777,6 @@ def print_debug(config, aPath, show_label, logger, level=0, show_full_path=False
     res = outStream.value
     logger.write(res)
     return
-    
 
 def get_config_children(config, args):
     '''Gets the names of the children of the given parameter.
@@ -857,16 +864,16 @@ example:
       '''method that is called when salomeTools is called with config parameter.
       '''
       runner = self.getRunner()
-      logger = self.getLogger()
-      parser = self.getParser()
       config = self.getConfig()
-      # Parse the options
-      (options, args) = parser.parse_args(args)
+      logger = self.getLogger()
   
+      # Parse the options
+      (options, argsc) = self.parse_args(args)
+
       # Only useful for completion mechanism : print the keys of the config
       if options.schema:
           get_config_children(config, args)
-          return
+          return RCO.ReturnCode("OK", "completion mechanism")
       
       # case : print a value of the config
       if options.value:
@@ -877,7 +884,7 @@ example:
           else:
               print_value(config, options.value, not options.no_label, logger, 
                           level=0, show_full_path=False)
-      
+
       if options.debug:
           print_debug(config, str(options.debug), not options.no_label, logger, 
                       level=0, show_full_path=False)
@@ -904,7 +911,7 @@ example:
           src.check_config_has_application(config)
           if options.info in config.APPLICATION.products:
               show_product_info(config, options.info, logger)
-              return
+              return RCO.ReturnCode("OK", "options.info")
           raise src.SatException(
               _("%(product_name)s is not a product of %(application_name)s.") % \
               {'product_name' : options.info, 'application_name' : config.VARS.application} )
@@ -982,6 +989,7 @@ example:
                               logger.write("%s\n" % appliname)
                               
               logger.write("\n")
+
       # case : give a synthetic view of all patches used in the application
       elif options.show_patchs:
           src.check_config_has_application(config)
@@ -996,4 +1004,4 @@ example:
           for product_name in config.APPLICATION.products.keys():
               logger.write("%s\n" % product_name)
             
-        
+      return RCO.ReturnCode("OK")
