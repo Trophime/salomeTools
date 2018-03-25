@@ -17,11 +17,17 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-'''This file is the main entry file to use salomeTools
+'''\
+This file is the main entry file to use salomeTools,
+in mode Command Line Argument(s) (CLI)
 '''
 
 import os
 import sys
+
+# OKSYS and KOSYS seems equal on linux or windows
+OKSYS = 0  # OK 
+KOSYS = 1  # KO
 
 # get path to salomeTools sources
 satdir  = os.path.dirname(os.path.realpath(__file__))
@@ -34,18 +40,22 @@ sys.path.insert(0, satdir)
 # MAIN
 #################################
 if __name__ == "__main__":
-    import src
+    import src.loggingSat as LOG
+    import src.debug as DBG # Easy print stderr (for DEBUG only)from src.salomeTools import Sat
     from src.salomeTools import Sat
-    import src.debug as DBG # Easy print stderr (for DEBUG only)
-
-    _debug = False          # Have to be False in production (for DEBUG only)
+    
+    _debug = True # Have to be False in production (for DEBUG only)
     DBG.push_debug(_debug)
 
-    # instantiate the salomeTools class with correct options
-    sat = Sat(sys.argv[1:])
-    # or sat = Sat("config -l") for example
-    returnCode = sat.execute_command()
-    DBG.write("sat exit code", returnCode)
+    logger = LOG.getDefaultLogger()
+    # instantiate the salomeTools class
+    sat = Sat(logger)
+    returnCode = sat.execute_cli(sys.argv[1:])
+    logger.debug("sat exit code: %s" % returnCode)
 
     sys.exit(returnCode.toSys())
-        
+
+else:
+    sys.stderr.write("\nERROR: unexpected mode __name__ '%s'" % __name__)
+    sys.exit(KOSYS)
+            

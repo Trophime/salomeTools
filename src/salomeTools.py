@@ -18,7 +18,16 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 '''This file is the main entry file to salomeTools
+NO __main__ entry allowed, use sat
 '''
+
+########################################################################
+# NO __main__ entry allowed, use sat
+########################################################################
+if __name__ == "__main__":
+    sys.stderr.write("\nERROR: 'salomeTools.py' is not main command entry for sat: use 'sat' instead.\n\n")
+    KOSYS = 1 # avoid import src
+    sys.exit(KOSYS)
 
 import os
 import sys
@@ -30,19 +39,9 @@ import traceback
 import subprocess as SP
 import pprint as PP
 
-
-########################################################################
-# NOT MAIN entry allowed, use sat
-########################################################################
-if __name__ == "__main__":
-    sys.stderr.write("\nERROR: 'salomeTools.py' is not main command entry for sat: use 'sat' instead.\n\n")
-    KOSYS = 1 # avoid import src
-    sys.exit(KOSYS)
-
-
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.returnCode as RCO # Easy (ok/ko, why) return methods code
-import src
+from src.exceptionSat import ExceptionSat
 
 # get path to src
 rootdir = os.path.realpath( os.path.join(os.path.dirname(__file__), "..") )
@@ -120,9 +119,9 @@ def setLocale():
 # _BaseCmd class
 ########################################################################
 class _BaseCommand(object):
-    '''_BaseCmd is the base class for all inherited commands of salomeTools
+    """_BaseCmd is the base class for all inherited commands of salomeTools
     instancied as classes 'Command' in files '.../commands/*.py'
-    '''
+    """
     def __init__(self, name):
         self.name = name
         self.runner = None # runner (as caller) usually as Sat instance
@@ -359,45 +358,37 @@ class _BaseCommand(object):
 # Sat class
 ########################################################################
 class Sat(object):
-    '''The main class that stores all the commands of salomeTools
-    '''
-    def __init__(self, opt='', datadir=None):
-        '''Initialization
+    """The main class that stores all the commands of salomeTools
+    """
+    def __init__(self, logger):
+        """Initialization
         
-        :param opt str or list: The sat options 
-        :param: datadir str : the directory that contain all the external 
-                              data (like software pyconf and software scripts)
-        '''
+        :param logger: The logger to use
+        """
+
         # Read the salomeTools prefixes options before the 'commands' tag
         # sat <options> <args>
-        # (the list of possible options is  at the beginning of this file)
+        # (the list of possible options is at the beginning of this file)
         
-        # DBG.push_debug(True)
 
-        self.parser = self._getParser() 
-        try:
-            if type(opt) is not list: # as string 'sat --help' for example'
-                opts = opt.split()
-            else:
-                opts = opt
-            options, args = self.parser.parse_args(opts)
-            DBG.write("Sat options", options)
-            DBG.write("Sat remainders args", args)
-               
-        except Exception as exc:
-            write_exception(exc)
-            sys.exit(RCO.KOSYS)
-
+        self.CONFIG_FILENAME = "sat-config.pyconf"
+        
         self.config = None # the config that will be read using pyconf module
         self.logger = None # the logger that will be use
-        self.arguments = args # args are postfixes options: args[0] is the 'commands' command
-        self.options = options # the options passed to salomeTools
-        self.datadir = datadir # default value will be <salomeTools root>/data
+        self.arguments = None # args are postfixes options: args[0] is the 'commands' command
+        self.options = None # the options passed to salomeTools
+        
+        # the directory that contain all the external 
+        # data (like software pyconf and software scripts)
+        self.datadir = None # default value will be <salomeTools root>/data
+        
         # contains commands classes needed (think micro commands)
         # if useful 'a la demande'
         self.commands = {}
         self.nameAppliLoaded = None
         
+        self.parser = self._getParser()
+                
     def __repr__(self):
         aDict = {
           "arguments": self.arguments, 
@@ -408,15 +399,23 @@ class Sat(object):
         tmp = PP.pformat(aDict)
         res = "Sat(\n %s\n)\n" % tmp[1:-1]
         return res
-
     
     def getLogger(self):
         if self.logger is None: # could use owner Sat instance logger
-          import src.logger as LOG
-          self.logger=LOG.getDefaultLogger(self.config)
+          import src.loggingSat as LOG
+          self.logger=LOG.getDefaultLogger()
+          self.logger.error("Sat logger not set, fixed as default")
           return self.logger
         else:                   # could use local logger
           return self.logger
+        
+    def assumeAsList(self, strOrList):
+        """return a list as sys.argv if string
+        """
+        if type(strOrList) is list:
+          return list(strOrList) # copy
+        else:
+          return strOrList.split(" ") # supposed string to split for convenience
 
 
     def _getParser(self):
@@ -441,8 +440,16 @@ class Sat(object):
         parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
                           _("put the command result and paths to log files."))
         return parser
-
-
+ 
+     
+    def parseGenericArguments(self, arguments):
+        args = self.assumeAsList(arguments)
+        genericOptions, remaindersArgs = self.parser.parse_args(args)
+        DBG.write("Sat generic arguments", genericArgs)
+        DBG.write("Sat remainders arguments", remaindersArgs)
+        return genericOptions, remaindersArgs
+               
+    
     def _getCommand(self, name):
         """
         create and add Command 'name' as instance of class in dict self.commands
@@ -476,15 +483,12 @@ class Sat(object):
             self.commands[name] = self._getCommand(name)
         return self.commands[name]    
        
-    def execute_command(self, opt=None):
+    def execute_cli(self, cli_arguments):
         """select first argument as a command in directory 'commands', and launch on arguments
         
-        :param opt str, optionnal: The sat options (as sys.argv)
+        :param args str or list, The sat cli arguments (as sys.argv)
         """
-        if opt is not None:
-            args = opt
-        else:
-            args = self.arguments 
+        args = self.assumeAsList(cli_arguments)
 
         # print general help and returns
         if len(args) == 0:

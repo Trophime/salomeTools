@@ -185,7 +185,7 @@ class ConfigManager:
         '''        
         
         # create a ConfigMerger to handle merge
-        merger = src.pyconf.ConfigMerger()#MergeHandler())
+        merger = src.pyconf.ConfigMerger() #MergeHandler())
         
         # create the configuration instance
         cfg = src.pyconf.Config()
