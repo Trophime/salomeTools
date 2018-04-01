@@ -15,26 +15,29 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-'''The Options class that manages the access to all options passed as 
-   parameters in salomeTools command lines
-'''
+
+"""\
+The Options class that manages the access to all options passed as 
+parameters in salomeTools command lines
+"""
+
 import getopt
 import sys
 import pprint as PP
 
 import src
 import src.debug as DBG # Easy print stderr (for DEBUG only)
-import src.printcolors
 
 class OptResult(object):
-    '''An instance of this class will be the object manipulated
-       in code of all salomeTools commands
-       The aim of this class is to have an elegant syntax 
-       to manipulate the options. 
-       ex: 
-       print(options.level)
-       5
-    '''
+    """
+    An instance of this class will be the object manipulated
+    in code of all salomeTools commands
+    The aim of this class is to have an elegant syntax to manipulate the options.
+    
+    example: 
+      >> print(options.level)
+      >> 5
+    """
     def __init__(self):
         '''Initialization
         '''
@@ -99,6 +102,13 @@ class Options(object):
         :return: Nothing.
         :rtype: N\A
         '''
+        tmp = [o['shortName'] for o in self.options if o['shortName'] != '']
+        if shortName in tmp: 
+          raise Exception("option '-%s' existing yet" % shortName)
+        tmp = [o['longName'] for o in self.options if o['longName'] != '']
+        if longName in tmp: 
+          raise Exception("option '--%s' existing yet" % longName)
+
         option = dict()
         option['shortName'] = shortName
         option['longName'] = longName
@@ -111,6 +121,7 @@ class Options(object):
         option['destName'] = destName
         option['helpString'] = helpString
         option['result'] = default
+        
         self.options.append(option)
 
     def get_help(self):
@@ -127,7 +138,7 @@ class Options(object):
 
         # for all options, gets its values. 
         # "shortname" is an optional field of the options 
-        msg += src.printcolors.printcHeader(_("Available options are:")) + "\n"
+        msg += "<header>" + _("Available options are:") + "<reset>\n"
         for option in self.options:
             if 'shortName' in option and len(option['shortName']) > 0:
                 msg +=  "\n -%(shortName)1s, --%(longName)s" \
@@ -137,9 +148,6 @@ class Options(object):
                        % option
         return msg
                        
-    def print_help(self):
-        print(self.get_help())
-
 
     def parse_args(self, argList=None):
         '''Method that instantiates the class OptResult 
@@ -177,7 +185,7 @@ class Options(object):
         try:
           optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
         except Exception as e:
-          msg = str(e) + ", expected:\n\n%s" % str(self)
+          msg = str(e) + "\n\n" + self.get_help()
           raise Exception(msg)
 
         # instantiate and completing the optResult that will be returned

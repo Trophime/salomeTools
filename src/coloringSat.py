@@ -51,10 +51,9 @@ import colorama as CLRM
 from colorama import Fore as FG
 from colorama import Style as ST
 #from colorama import AnsiToWin32
-from ansitowin32 import AnsiToWin32 # debug is os.name == 'nt' ?
+from colorama import AnsiToWin32 # debug is os.name == 'nt' ?
 
 CLRM.init(wrap=False) # choose NO wrapping
-
 
 """
 from colorama:
@@ -65,8 +64,10 @@ Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
 n.b. DIM is not assumed in win32
 """
-dir(ST)
-# order matters for replace
+
+# dir(ST)
+
+# order matters for items replaces forward to color
 _tags = (
   ("<black>", FG.BLACK),
   ("<red>", FG.RED),
@@ -79,12 +80,14 @@ _tags = (
   ("<bright>", ST.BRIGHT),
   ("<normal>", ST.NORMAL),
   ("<reset>", ST.RESET_ALL),
+  ("<header>", FG.BLUE),
   ("<OK>", FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL),
   ("<KO>", FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL),
 )
 
 # _tagsNone = ((i, "") for i,j in _tags) # to clean tags when log not tty
-_tagsNone = (
+# reversed order matters for item replaces backward to no color
+_tagsNone = reversed( (
   ("<black>", ""),
   ("<red>", ""),
   ("<green>", ""),
@@ -96,9 +99,10 @@ _tagsNone = (
   ("<bright>", ""),
   ("<normal>", ""),
   ("<reset>", ""),
+  ("<header>", ""),
   ("<OK>", "OK"),
   ("<KO>", "KO"),
-)
+) )
 
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
@@ -176,7 +180,7 @@ if __name__ == "__main__":
   log("import <green>colorama in <blue>%s" % __file__)
   log("set <green>green and not reset...")
   log("...and here is not green because appended reset at end of message")
-  log("dir(FG):\n<blue>%s" % dir(FG))
-  log("dir(ST):\n<blue>%s" % dir(ST))
+  log("dir(FG):\n<blue>%s ... <OK> or <KO> ??" % dir(FG))
+  log("dir(ST):\n<blue>%s ... <OK> or <KO> ??" % dir(ST))
 
   

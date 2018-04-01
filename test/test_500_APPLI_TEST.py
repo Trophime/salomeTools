@@ -22,64 +22,42 @@ import sys
 import unittest
 
 import src.salomeTools as SAT
-import src
 import src.debug as DBG # Easy print stderr (for DEBUG only)
+import src.loggingSat as LOG
 
 class TestCase(unittest.TestCase):
-  "Test the sat --help commands"""
+  "Test the sat commands on APPLI_TEST configuration pyconf etc. files"""
   
+  logger = LOG.getUnittestLogger()
+  debug = False
+  
+  def tearDown(self):
+    # print "tearDown", __file__
+    # assure self.logger clear for next test
+    logs = self.logger.getLogsAndClear()
+    # using assertNotIn() is too much verbose
+    self.assertFalse("ERROR" in logs)
+    self.assertFalse("CRITICAL" in logs)
+
   def test_000(self):
     # one shot setUp() for this TestCase
-    # DBG.push_debug(True)
+    if self.debug: DBG.push_debug(True)
     SAT.setNotLocale() # test english
     return
 
-  def test_010(self):
-    cmd = "sat --help"
-    stdout, stderr = SAT.launchSat(cmd)
-    print stdout, stderr
-    self.assertEqual(stderr, "")
-    self.assertTrue(" - config" in stdout)
-
-  def xtest_011(self):
-    cmd = "--help"
-    s = SAT.Sat(cmd)
-    exitCode = s.execute_command()
-    self.assertEqual(src.okToStr(exitCode), "OK")
-    
-  def xtest_030(self):
-    cmd = "sat --help config"
-    stdout, stderr = SAT.launchSat(cmd)
-    self.assertEqual(stderr, "")
-    self.assertTrue("--value" in stdout)
-
-  def xtest_031(self):
-    cmd = "--help config"
-    s = SAT.Sat(cmd)
-    exitCode = s.execute_command()
-    self.assertEqual(src.okToStr(exitCode), "OK")
-      
-  def xtest_032(self):
-    cmd = "config -l"
-    s = SAT.Sat(cmd)
-    exitCode = s.execute_command()
-    self.assertEqual(src.okToStr(exitCode), "OK")
-  
-  def xtest_040(self):
-    cmds = SAT.getCommandsList()
-    for c in cmds:
-      cmd = "sat --help %s" % c
-      stdout, stderr = SAT.launchSat(cmd)
-      self.assertEqual(stderr, "")
-      # DBG.write("stdout '%s'" % cmd, stdout)
-      self.assertTrue("vailable options" in stdout)
-      
   def test_999(self):
     # one shot tearDown() for this TestCase
     SAT.setLocale() # end test english
-    # DBG.pop_debug()
-    return
-      
+    if self.debug: DBG.pop_debug()
+
+  def test_010(self):
+    cmd = "-v 5 config -l"
+    s = SAT.Sat(self.logger)
+    DBG.write("s.getConfig()", s.getConfig()) #none
+    DBG.write("s.__dict__", s.__dict__) # have 
+    returnCode = s.execute_cli(cmd)
+    self.assertTrue(returnCode.isOk())
+
 if __name__ == '__main__':
     unittest.main(exit=False)
     pass

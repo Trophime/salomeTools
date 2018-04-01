@@ -42,46 +42,38 @@ msgid "batch mode (no question)."
 msgstr "mode batch (pas de question)."
 
 msgid "all traces in the terminal (for example compilation logs)."
-msgstr "toutes traces dans le terminal (par exemple: log de compilation)"
+msgstr "toutes traces dans le terminal (par exemple: log de compilation)."
 
-msgid "put the command result and paths to log files."
+msgid "put the command result and paths to log files"
 msgstr "redirige resultats de commandes vers log files"
 
 msgid " is not a valid command"
 msgstr " n'est pas une commande valide"
 
-msgid ""
-"WARNING: the logs_paths_in_file option will not be taken into account.\n"
-"Here is the error:"
-msgstr ""
+msgid "the 'logs_paths_in_file' option will not be taken into account:"
+msgstr "l'option 'logs_paths_in_file' ne sera pas prise en compte:"
 
-msgid "Usage: "
-msgstr "Utilisation : "
+msgid "Usage:"
+msgstr "Utilisation:"
 
-msgid "Available commands are:\n"
-msgstr "Les commandes disponibles sont:\n"
+msgid "Available commands are:"
+msgstr "Les commandes disponibles sont:"
 
-msgid ""
-"\n"
-"Getting the help for a specific command: "
-msgstr ""
-"\n"
-"Obtenir l'aide d'une commande spécifique : "
+msgid "Getting help for a specific command: "
+msgstr "Obtenir l'aide d'une commande spécifique: "
 
-msgid "lsb_release not installed\n"
-msgstr "lsb_release n'est pas installé\n"
+msgid "'lsb_release' is not installed"
+msgstr "'lsb_release' n'est pas installé"
 
-msgid "You can define $LSB_PATH to give the path to lsb_release\n"
-msgstr "Vous pouvez définir $LSB_PATH pour donner le chemin vers lsb_release\n"
+msgid "You can define $LSB_PATH to give the path to lsb_release"
+msgstr "Vous pouvez définir $LSB_PATH pour donner le chemin vers lsb_release"
 
 #, python-format
-msgid "Unknown distribution: '%s'\n"
-msgstr "Distribution inconnue : '%s'\n"
+msgid "Unknown distribution: '%s'"
+msgstr "Distribution inconnue : '%s'"
 
-msgid "Please add your distribution to src/internal_config/distrib.pyconf\n"
-msgstr ""
-"SVP ajoutez votre distribution au fichier src/internal_config/distrib."
-"pyconf\n"
+msgid "Add your distribution to src/internal_config/distrib.pyconf"
+msgstr "Ajoutez votre distribution au fichier src/internal_config/distrib.pyconf"
 
 msgid " is not a valid option"
 msgstr " n'est pas une option valide"

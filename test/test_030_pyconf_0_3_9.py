@@ -21,7 +21,8 @@
 Test harness for the configuration module 'config' for Python.
 
 from test_config 0.3.9 modified to test 0.3.7.1
-this test obviously have FAILED (errors=6), TODO, fix upgrading 0.3.9, or not.
+this test obviously have FAILED (errors=6), 
+TODO, fix upgrading 0.3.9, or not.
 """
 
 import unittest
@@ -444,7 +445,11 @@ if __name__ == "__main__":
     unittest.main(exit=False)
     import sys
     sys.stderr.write("""
-WARNING: this test obviously have FAILED (errors=6), 
-TODO:    fix upgrading 0.3.9, (or not).\n\n""")
+                     
+###########################################################
+WARNING: this test obviously have 'FAILED  (errors=6)', 
+TODO:    fix upgrading 0.3.9, (or not).
+###########################################################
+""")
     pass
   

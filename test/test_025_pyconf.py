@@ -21,10 +21,9 @@ import os
 import sys
 import unittest
 
-import src
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.pyconf as PYF # 0.3.7
-import src.test.config_0_3_9.config as PYF9 # TODO 0.3.9
+import config_0_3_9.config as PYF9 # TODO 0.3.9
 
 _EXAMPLES = {
 1 : """\
@@ -32,16 +31,16 @@ _EXAMPLES = {
   [
     {
       stream : "sys.stderr" # modified
-      message: 111 # modified
+      message: 'Welcome'
       name: 'Harry'
     }
     {
-      stream : $messages[0].stream
-      message: 1.23e4 # modified do not work 0.3.7
+      stream : "sys.stdout" # modified
+      message: 'Welkom'
       name: 'Ruud'
     }
     {
-      stream : "HELLO " + $messages[0].stream
+      stream : $messages[0].stream
       message: 'Bienvenue'
       name: "Yves"
     }
@@ -68,52 +67,78 @@ _EXAMPLES = {
 
 
 class TestCase(unittest.TestCase):
-  "Test the debug.py"""
+  "Test the pyconf.py"""
   
   def test_000(self):
     # one shot setUp() for this TestCase
     # DBG.push_debug(True)
     # SAT.setNotLocale() # test english
     return
-    
-  def test_005(self):
-    res = DBG.getLocalEnv()
-    self.assertTrue(len(res.split()) > 0)
-    self.assertTrue("USER :" in res)
-    self.assertTrue("LANG :" in res)
-       
+
   def test_010(self):
+    # pyconf.py doc example 0.3.7
+    # https://www.red-dove.com/config-doc/ is 0.3.9 !
+    # which, when run, would yield the console output:
+
+    expected = """\
+Welcome, Harry
+Welkom, Ruud
+Bienvenue, Yves
+"""
     inStream = DBG.InStream(_EXAMPLES[1])
-    self.assertEqual(inStream.getvalue(), _EXAMPLES[1])
     cfg = PYF.Config(inStream)
-    self.assertEqual(len(cfg.messages), 3)
+    res = ''
+    for m in cfg.messages:
+        res += '%s, %s\n' % (m.message, m.name)
+    self.assertEqual(res, expected)
     outStream = DBG.OutStream()
-    DBG.saveConfigStd(cfg, outStream)
+    cfg.__save__(outStream) # sat renamed save() in __save__()
     res = outStream.value
-    DBG.write("test_010 cfg std", res)
-    self.assertTrue("messages :" in res)
-    self.assertTrue("'sys.stderr'" in res)
-    
+    DBG.write("test_010 cfg", res)
+    self.assertTrue("name : 'Harry'" in res)
+    self.assertTrue("name : 'Ruud'" in res)
+    self.assertTrue("name : 'Yves'" in res)
+        
   def test_020(self):
+    cfg = PYF.Config()
+    self.assertEqual(str(cfg), '{}')
+    self.assertEqual(cfg.__repr__(), '{}')
+    cfg.aa = "1111"
+    self.assertEqual(str(cfg), "{'aa': '1111'}")
+    cfg.bb = 2222
+    self.assertTrue("'bb': 2222" in str(cfg))
+    self.assertTrue("'aa': '1111'" in str(cfg))
+    cfg.cc = 3333.
+    self.assertTrue("'cc': 3333." in str(cfg))
+    
+  def test_030(self):
     inStream = DBG.InStream(_EXAMPLES[2])
     cfg = PYF.Config(inStream)
-    res = DBG.getStrConfigDbg(cfg)
-    DBG.write("test_020 cfg dbg", res)
-    ress = res.split("\n")
-    self.assertTrue(".aa : '111'" in ress[0])
-    self.assertTrue(".bb : $aa + 222 --> '333'" in ress[1])
-    
-  def test_025(self):
-    inStream = DBG.InStream(_EXAMPLES[1])
+    self.assertEqual(str(cfg),  "{'aa': 111, 'bb': $aa + 222}")
+    self.assertEqual(cfg.aa, 111)
+    self.assertEqual(cfg.bb, 333)
+      
+  def test_040(self):
+    inStream = DBG.InStream(_EXAMPLES[3])
     cfg = PYF.Config(inStream)
+    self.assertEqual(cfg.aa, "Yves")
+    self.assertEqual(cfg.bb, "Herve")
+    self.assertEqual(type(cfg.bb), str)
+    cfg.bb = "Hervé" # try this
+    self.assertEqual(type(cfg.bb), str)
+    self.assertEqual(cfg.bb, "Hervé")
+    
+  def test_045(self):
+    """TODO: make Hervé valid with pyconf.py as 0.3.9"""
+    inStream = DBG.InStream(_EXAMPLES[4])
+    cfg = PYF9.Config(inStream)
     outStream = DBG.OutStream()
-    DBG.saveConfigDbg(cfg, outStream)
+    cfg.save(outStream) # sat renamed save() in __save__()
     res = outStream.value
-    DBG.write("test_025 cfg dbg", res)
-    for i in range(len(cfg.messages)):
-      self.assertTrue("messages[%i].name" % i in res)
-    self.assertTrue("--> 'HELLO sys.stderr'" in res)
-
+    DBG.write("test_045 cfg", res)
+    self.assertTrue("aa : 'Yves'" in res)
+    self.assertTrue(r"bb : 'Herv\xc3\xa9'" in res)
+    self.assertEqual(cfg.bb, "Hervé")
       
   def test_999(self):
     # one shot tearDown() for this TestCase
@@ -124,4 +149,3 @@ class TestCase(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(exit=False)
     pass
-

@@ -38,6 +38,10 @@ import pprint as PP
 
 _debug = [False] #support push/pop for temporary activate debug outputs
 
+_user = os.environ['USER']
+_developpers = ["christian", "wambeke", ] # crouzet, kloss ...
+
+
 def indent(text, amount=2, ch=' '):
     """indent multi lines message"""
     padding = amount * ch
@@ -46,8 +50,10 @@ def indent(text, amount=2, ch=' '):
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-        if 'src.pyconf.Config' in str(type(var)): 
+        if 'pyconf.Config' in str(type(var)): 
             sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
+        if 'loggingSat.UnittestStream' in str(type(var)): 
+            sys.stderr.write(fmt % (title, indent(var.getLogs())))
         elif type(var) is not str:
             sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
         else:

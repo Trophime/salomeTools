@@ -16,6 +16,7 @@ import os
 import sys
 import logging
 import pprint as PP
+import src.coloringSat as COLS
 
 _verbose = False
 _name = "loggingSat"
@@ -37,6 +38,7 @@ log("import logging on %s" % logging.__file__)
 _loggerDefaultName = 'SatDefaultLogger'
 _loggerUnittestName = 'SatUnittestLogger'
 
+
 def getDefaultLogger():
   log("getDefaultLogger %s" % _loggerDefaultName)
   return logging.getLogger(_loggerDefaultName)
@@ -53,18 +55,34 @@ _loggerUnittest = getUnittestLogger()
 
 
 class DefaultFormatter(logging.Formatter):
+  
+  # to set color prefix, problem with indent format
+  _ColorLevelname = {
+    "DEBUG": "<blue>",
+    "INFO": "<green>",
+    "WARNING": "<red>",
+    "ERROR": "<yellow>",
+    "CRITICAL": "<yellow>",
+  }
+  
   def format(self, record):
-    # print "", record.levelname #type(record), dir(record)
-    if record.levelname == "INFO": 
-      return str(record.msg)
+    if record.levelname == "INFO":
+      res = str(record.msg)
     else:
-      return indent(super(DefaultFormatter, self).format(record), 12)
+      #record.levelname = self.setColorLevelname(record.levelname)
+      res = indent(super(DefaultFormatter, self).format(record), 12)
+    return COLS.toColor(res)
+  
+  def setColorLevelname(self, levelname):
+    return self._ColorLevelname[levelname] + levelname + "<reset>"
+
 
 class UnittestFormatter(logging.Formatter):
   def format(self, record):
     # print "", record.levelname #type(record), dir(record)
     nb = len("2018-03-17 12:15:41 :: INFO     :: ")
-    return indent(super(UnittestFormatter, self).format(record), nb)
+    res = indent(super(UnittestFormatter, self).format(record), nb)
+    return COLS.toColor(res)
 
 
 class UnittestStream(object):
@@ -75,17 +93,25 @@ class UnittestStream(object):
   https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
   """
   def __init__(self):
-    self.logs = ''
+    self._logs = ''
+    
+  def getLogs(self):
+    return self._logs
+  
+  def getLogsAndClear(self):
+    res = self._logs
+    self._logs = ''
+    return res
 
   def write(self, astr):
     # log("UnittestStream.write('%s')" % astr)
-    self.logs += astr
+    self._logs += astr
 
   def flush(self):
     pass
 
   def __str__(self):
-    return self.logs
+    return self._logs
 
 
 def initLoggerAsDefault(logger, fmt=None, level=None):
@@ -94,7 +120,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   exept info() outed 'as it' without any format
   """
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
-  handler = logging.StreamHandler() # Logging vers console
+  handler = logging.StreamHandler(sys.stdout) # Logging vers console
   if fmt is not None:
     # formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = DefaultFormatter(fmt, "%y-%m-%d %H:%M:%S")
@@ -120,7 +146,9 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
     formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
     handler.setFormatter(formatter)
   logger.addHandler(handler)
-  logger.streamUnittest = stream
+  logger.stream = stream
+  logger.getLogs = stream.getLogs
+  logger.getLogsAndClear = stream.getLogsAndClear
   if level is not None:
     logger.setLevel(level)
   else:
@@ -135,16 +163,17 @@ def testLogger_1(logger):
   logger.warning('test logger warning')
   logger.error('test logger error')
   logger.critical('test logger critical')
-  logger.info('test logger info:\n- second line\n- third line')
+  logger.info('\ntest logger info: no indent\n- second line\n- third line\n')
   logger.warning('test logger warning:\n- second line\n- third line')
 
   
 if __name__ == "__main__":
-  print("\n**** DEFAULT")
+  print("\n**** DEFAULT logger")
   logdef = getDefaultLogger()
+  # problem if add +2? if append 2 setColorLevelname <color><reset>, not fixed
   initLoggerAsDefault(logdef, '%(levelname)-8s :: %(message)s', level=logging.INFO)
   testLogger_1(logdef)
-  print("\n**** UNITTEST")
+  print("\n**** UNITTEST logger")
   loguni = getUnittestLogger()
   initLoggerAsUnittest(loguni, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=logging.DEBUG)
   testLogger_1(loguni) # is silent
@@ -153,5 +182,10 @@ if __name__ == "__main__":
   
   from colorama import Fore as FG
   from colorama import Style as ST
-  print("this is %scolored%s!" % (FG.G))
+  print("this is %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))
   
+else:  
+  _loggerDefault = getDefaultLogger()
+  _loggerUnittest = getUnittestLogger()
+  initLoggerAsDefault(_loggerDefault, '%(levelname)-8s :: %(message)s', level=logging.INFO)
+  initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=logging.DEBUG)

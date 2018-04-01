@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # %% LICENSE_SALOME_CEA_BEGIN
-# Copyright (C) 2008-2016  CEA/DEN
+# Copyright (C) 2008-2018  CEA/DEN
 # 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -69,7 +69,7 @@ verboseImport = True
 satdir  = os.path.dirname(os.path.realpath(__file__))
 
 def errPrint(aStr):
-  """to avoid write in html or xml file log message"""
+  """stderr to avoid write in html or xml file log message"""
   sys.stderr.write(aStr + '\n')
 
 try:
@@ -87,7 +87,7 @@ try:
 except:
   XTST = None
   errPrint("""
-WARNING: no XML output available.
+WARNING: no XML output available for unittest.
          try 'pip install unittest-xml-reporting'.
 """)
 
@@ -180,8 +180,9 @@ def runOnArgs(args):
       if done: 
         del sys.path[0] #attention of sys.path appends
         done = False
-      errPrint("ERROR: AllTestLauncher: import '%s':" % aFile)
-      errPrint("       %s\n" % e)
+      errPrint("""\
+ERROR: AllTestLauncher: import '%s':
+       %s\n""" % (aFile, e))
       continue
 
   listfilesForTest = sorted(filesForTest.keys())
@@ -255,7 +256,7 @@ def runFromEnvVar(envVar, fileTestPattern="*Test.py"):
 
 ###################################################################
 def getParser():
-  parser = AP.ArgumentParser(description='launch All SAT python tests', argument_default=None)
+  parser = AP.ArgumentParser(description='launch All salomeTools python tests', argument_default=None)
 
   parser.add_argument(
     '-d', '--debug', 
@@ -280,7 +281,7 @@ of recursive searching unittest python files
   parser.add_argument(
     '-p', '--pattern', 
     help="file pattern for unittest files ['test_*.py'|'*Test.py'...]",
-    default="test_*.py",
+    default="test_???_*.py", # as alphabetical ordered test site
     metavar='filePattern'
   )
   parser.add_argument(
@@ -302,12 +303,14 @@ If name = 'stdout' then all-in-one xml output at 'sys.stdout'. For pipe redirect
   )
   return parser
 
-#export PATH=/volatile/wambeke/SAT5/SAT5_S840_MATIX24/salomeTools-5-cvw:${PATH}
+#export PATH=satdir:${PATH}
 
 ###################################################################
 if __name__ == '__main__':
   # Make the src & command package accessible from all code
+  # as export PATH=satdir:${PATH}
   sys.path.insert(0, satdir)
+  errPrint("WARNING: export PATH=%s:${PATH}\n" % satdir)
 
   args = getParser().parse_args(sys.argv[1:])
   debug = args.debug
