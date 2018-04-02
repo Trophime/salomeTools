@@ -21,7 +21,8 @@ import subprocess
 import sys
 import shutil
 
-import src
+from src.options import OptResult
+
 
 C_COMPILE_ENV_LIST = ["CC",
                       "CXX",
@@ -38,7 +39,7 @@ class Builder:
                  config,
                  logger,
                  product_info,
-                 options = src.options.OptResult(),
+                 options = OptResult(),
                  check_src=True):
         self.config = config
         self.logger = logger

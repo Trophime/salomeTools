@@ -27,7 +27,7 @@ import src.loggingSat as LOG
 import src.returnCode as RCO
 import src.architecture as ARCH
 import src.utilsSat as UTS
-
+import src.pyconf as PYCONF
 
 class ConfigOpener:
     '''Class that helps to find an application pyconf 
@@ -42,9 +42,9 @@ class ConfigOpener:
 
     def __call__(self, name):
         if os.path.isabs(name):
-            return src.pyconf.ConfigInputStream(open(name, 'rb'))
+            return PYCONF.ConfigInputStream(open(name, 'rb'))
         else:
-            return src.pyconf.ConfigInputStream( 
+            return PYCONF.ConfigInputStream( 
                         open(os.path.join( self.get_path(name), name ), 'rb') )
         raise IOError(_("Configuration file '%s' not found") % name)
 
@@ -113,7 +113,7 @@ class ConfigManager:
         UTS.ensure_path_exists(var['personal_machines_dir'])
 
         # read linux distributions dictionary
-        distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'],
+        distrib_cfg = PYCONF.Config(os.path.join(var['srcDir'],
                                                       'internal_config',
                                                       'distrib.pyconf'))
         
@@ -182,21 +182,21 @@ class ConfigManager:
         :param datadir str: The repository that contain 
                             external data for salomeTools.
         :return: The final config.
-        :rtype: class 'src.pyconf.Config'
+        :rtype: class 'PYCONF.Config'
         '''        
         
         # create a ConfigMerger to handle merge
-        merger = src.pyconf.ConfigMerger() #MergeHandler())
+        merger = PYCONF.ConfigMerger() #MergeHandler())
         
         # create the configuration instance
-        cfg = src.pyconf.Config()
+        cfg = PYCONF.Config()
         
         # =====================================================================
         # create VARS section
         var = self._create_vars(application=application, command=command, 
                                 datadir=datadir)
         # add VARS to config
-        cfg.VARS = src.pyconf.Mapping(cfg)
+        cfg.VARS = PYCONF.Mapping(cfg)
         for variable in var:
             cfg.VARS[variable] = var[variable]
         
@@ -207,12 +207,12 @@ class ConfigManager:
         # =====================================================================
         # Load INTERNAL config
         # read src/internal_config/salomeTools.pyconf
-        src.pyconf.streamOpener = ConfigOpener([
+        PYCONF.streamOpener = ConfigOpener([
                             os.path.join(cfg.VARS.srcDir, 'internal_config')])
         try:
-            internal_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.srcDir, 
+            internal_cfg = PYCONF.Config(open(os.path.join(cfg.VARS.srcDir, 
                                     'internal_config', 'salomeTools.pyconf')))
-        except src.pyconf.ConfigError as e:
+        except PYCONF.ConfigError as e:
             raise src.SatException(_("Error in configuration file:"
                                      " salomeTools.pyconf\n  %(error)s") % \
                                    {'error': str(e) })
@@ -226,12 +226,12 @@ class ConfigManager:
         # =====================================================================
         # Load LOCAL config file
         # search only in the data directory
-        src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
+        PYCONF.streamOpener = ConfigOpener([cfg.VARS.datadir])
         try:
-            local_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
+            local_cfg = PYCONF.Config(open(os.path.join(cfg.VARS.datadir, 
                                                            'local.pyconf')),
                                          PWD = ('LOCAL', cfg.VARS.datadir) )
-        except src.pyconf.ConfigError as e:
+        except PYCONF.ConfigError as e:
             raise src.SatException(_("Error in configuration file: "
                                      "local.pyconf\n  %(error)s") % \
                 {'error': str(e) })
@@ -268,12 +268,12 @@ class ConfigManager:
         
         # =====================================================================
         # Load the PROJECTS
-        projects_cfg = src.pyconf.Config()
+        projects_cfg = PYCONF.Config()
         projects_cfg.addMapping("PROJECTS",
-                                src.pyconf.Mapping(projects_cfg),
+                                PYCONF.Mapping(projects_cfg),
                                 "The projects\n")
         projects_cfg.PROJECTS.addMapping("projects",
-                                src.pyconf.Mapping(cfg.PROJECTS),
+                                PYCONF.Mapping(cfg.PROJECTS),
                                 "The projects definition\n")
         
         for project_pyconf_path in cfg.PROJECTS.project_file_paths:
@@ -284,7 +284,7 @@ class ConfigManager:
             project_name = os.path.basename(project_pyconf_path)[:-len(".pyconf")]
             try:
                 project_pyconf_dir = os.path.dirname(project_pyconf_path)
-                project_cfg = src.pyconf.Config(open(project_pyconf_path),
+                project_cfg = PYCONF.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
                 msg = _("ERROR: Error in configuration file: %(file_path)s\n  %(error)s\n") % \
@@ -292,7 +292,7 @@ class ConfigManager:
                 sys.stdout.write(msg)
                 continue
             projects_cfg.PROJECTS.projects.addMapping(project_name,
-                             src.pyconf.Mapping(projects_cfg.PROJECTS.projects),
+                             PYCONF.Mapping(projects_cfg.PROJECTS.projects),
                              "The %s project\n" % project_name)
             projects_cfg.PROJECTS.projects[project_name]=project_cfg
             projects_cfg.PROJECTS.projects[project_name]["file_path"] = \
@@ -308,17 +308,17 @@ class ConfigManager:
         # Create the paths where to search the application configurations, 
         # the product configurations, the products archives, 
         # the jobs configurations and the machines configurations
-        cfg.addMapping("PATHS", src.pyconf.Mapping(cfg), "The paths\n")
-        cfg.PATHS["APPLICATIONPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.addMapping("PATHS", PYCONF.Mapping(cfg), "The paths\n")
+        cfg.PATHS["APPLICATIONPATH"] = PYCONF.Sequence(cfg.PATHS)
         cfg.PATHS.APPLICATIONPATH.append(cfg.VARS.personal_applications_dir, "")
         
-        cfg.PATHS["PRODUCTPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS["PRODUCTPATH"] = PYCONF.Sequence(cfg.PATHS)
         cfg.PATHS.PRODUCTPATH.append(cfg.VARS.personal_products_dir, "")
-        cfg.PATHS["ARCHIVEPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS["ARCHIVEPATH"] = PYCONF.Sequence(cfg.PATHS)
         cfg.PATHS.ARCHIVEPATH.append(cfg.VARS.personal_archives_dir, "")
-        cfg.PATHS["JOBPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS["JOBPATH"] = PYCONF.Sequence(cfg.PATHS)
         cfg.PATHS.JOBPATH.append(cfg.VARS.personal_jobs_dir, "")
-        cfg.PATHS["MACHINEPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS["MACHINEPATH"] = PYCONF.Sequence(cfg.PATHS)
         cfg.PATHS.MACHINEPATH.append(cfg.VARS.personal_machines_dir, "")
 
         # initialise the path with local directory
@@ -344,14 +344,14 @@ class ConfigManager:
         if application is not None:
             # search APPLICATION file in all directories in configPath
             cp = cfg.PATHS.APPLICATIONPATH
-            src.pyconf.streamOpener = ConfigOpener(cp)
+            PYCONF.streamOpener = ConfigOpener(cp)
             do_merge = True
             try:
-                application_cfg = src.pyconf.Config(application + '.pyconf')
+                application_cfg = PYCONF.Config(application + '.pyconf')
             except IOError as e:
                 raise src.SatException(_("%s, use 'config --list' to get the"
                                          " list of available applications.") % e)
-            except src.pyconf.ConfigError as e:
+            except PYCONF.ConfigError as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                          or ('--edit' in parser.parse_args()[1]) 
                                          and command == 'config'):
@@ -382,12 +382,12 @@ class ConfigManager:
 
         # =====================================================================
         # Load product config files in PRODUCTS section
-        products_cfg = src.pyconf.Config()
+        products_cfg = PYCONF.Config()
         products_cfg.addMapping("PRODUCTS",
-                                src.pyconf.Mapping(products_cfg),
+                                PYCONF.Mapping(products_cfg),
                                 "The products\n")
         if application is not None:
-            src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
+            PYCONF.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
             for product_name in application_cfg.APPLICATION.products.keys():
                 # Loop on all files that are in softsDir directory
                 # and read their config
@@ -396,7 +396,7 @@ class ConfigManager:
                 if product_file_path:
                     products_dir = os.path.dirname(product_file_path)
                     try:
-                        prod_cfg = src.pyconf.Config(open(product_file_path),
+                        prod_cfg = PYCONF.Config(open(product_file_path),
                                                      PWD=("", products_dir))
                         prod_cfg.from_file = product_file_path
                         products_cfg.PRODUCTS[product_name] = prod_cfg
@@ -430,7 +430,7 @@ class ConfigManager:
         # load USER config
         self.set_user_config_file(cfg)
         user_cfg_file = self.get_user_config_file()
-        user_cfg = src.pyconf.Config(open(user_cfg_file))
+        user_cfg = PYCONF.Config(open(user_cfg_file))
         merger.merge(cfg, user_cfg)
 
         # apply overwrite from command line if needed
@@ -443,7 +443,7 @@ class ConfigManager:
         '''Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
         
-        :param config class 'src.pyconf.Config': The global config 
+        :param config class 'PYCONF.Config': The global config 
                                                  (containing all pyconf).
         '''
         # get the expected name and path of the file
@@ -459,16 +459,16 @@ class ConfigManager:
         '''This method is called when there are no user config file. 
            It build it from scratch.
         
-        :param config class 'src.pyconf.Config': The global config.
+        :param config class 'PYCONF.Config': The global config.
         :return: the config corresponding to the file created.
-        :rtype: config class 'src.pyconf.Config'
+        :rtype: config class 'PYCONF.Config'
         '''
         
         cfg_name = self.get_user_config_file()
 
-        user_cfg = src.pyconf.Config()
+        user_cfg = PYCONF.Config()
         #
-        user_cfg.addMapping('USER', src.pyconf.Mapping(user_cfg), "")
+        user_cfg.addMapping('USER', PYCONF.Mapping(user_cfg), "")
 
         user_cfg.USER.addMapping('cvs_user', config.VARS.user,
             "This is the user name used to access salome cvs base.\n")
@@ -496,9 +496,9 @@ class ConfigManager:
                                  "to read pdf documentation\n")
 # CNC 25/10/17 : plus nécessaire a priori
 #        user_cfg.USER.addMapping("base",
-#                                 src.pyconf.Reference(
+#                                 PYCONF.Reference(
 #                                            user_cfg,
-#                                            src.pyconf.DOLLAR,
+#                                            PYCONF.DOLLAR,
 #                                            'workdir  + $VARS.sep + "BASE"'),
 #                                 "The products installation base (could be "
 #                                 "ignored if this key exists in the local.pyconf"
@@ -703,7 +703,7 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
     get a colored representation value from a config pyconf instance.
     used recursively from the initial path.
     
-    :param config class 'src.pyconf.Config': The configuration 
+    :param config class 'PYCONF.Config': The configuration 
                                              from which the value is displayed.
     :param path str : the path in the configuration of the value to print.
     :param show_label boolean: if True, do a basic display. 
@@ -745,7 +745,7 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
         if show_label: strean.write("\n")
         for v in sorted(val.keys()):
             print_value(config, path + '.' + v, stream, show_label, level + 1)
-    elif val.__class__ == src.pyconf.Sequence or isinstance(val, list): 
+    elif val.__class__ == PYCONF.Sequence or isinstance(val, list): 
         # in this case, value is a list (or a Sequence)
         if show_label: stream.write("\n")
         index = 0

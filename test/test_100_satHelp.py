@@ -101,7 +101,8 @@ class TestCase(unittest.TestCase):
       cmd = "sat %s --help" % c
       stdout, stderr = SAT.launchSat(cmd)
       self.assertEqual(stderr, "")
-      self.assertTrue(c in stdout)
+      DBG.write("test_050 %s stdout" % c, stdout)
+      self.assertTrue("The %s command" % c in stdout)
       self.assertTrue("Available options" in stdout)
       
   def test_051(self):
@@ -112,7 +113,8 @@ class TestCase(unittest.TestCase):
       returnCode = s.execute_cli(cmd)
       self.assertTrue(returnCode.isOk())
       logs = self.logger.getLogsAndClear()
-      DBG.write(cmd, logs, True)
+      DBG.write(cmd, logs)
+      self.assertTrue("The %s command" % c in logs)
       self.assertTrue("Available options" in logs)
                 
 if __name__ == '__main__':

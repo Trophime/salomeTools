@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -26,10 +27,14 @@ import csv
 import shutil
 import itertools
 import re
-import paramiko
 
-import src
+# import paramiko later
+  
 import src.ElementTree as etree
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+import src.pyconf as PYCONF
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -37,33 +42,270 @@ STYLESHEET_BOARD = "jobs_board_report.xsl"
 DAYS_SEPARATOR = ","
 CSV_DELIMITER = ";"
 
-parser = src.options.Options()
+_PARAMIKO = []
 
-parser.add_option(
-    'n', 'name', 'list2', 'jobs_cfg', 
-    _('Mandatory: The name of the config file that contains the jobs configuration. Can be a list.') )
-parser.add_option(
-    'o', 'only_jobs', 'list2', 'only_jobs',
-    _('Optional: the list of jobs to launch, by their name. ') )
-parser.add_option(
-    'l', 'list', 'boolean', 'list', 
-                  _('Optional: list all available config files.') )
-parser.add_option(
-    't', 'test_connection', 'boolean', 'test_connection',
-    _("Optional: try to connect to the machines. Not executing the jobs."),
-    False )
-parser.add_option(
-    'p', 'publish', 'boolean', 'publish',
-    _("Optional: generate an xml file that can be read in a browser to display the jobs status."),
-    False )
-parser.add_option(
-    'i', 'input_boards', 'string', 'input_boards', _("Optional: "
-    "the path to csv file that contain the expected boards."),
-    "" )
-parser.add_option(
-    '', 'completion', 'boolean', 'no_label',
-    _("Optional (internal use): do not print labels, Works only with --list."),
-    False )
+def getParamiko(logger=None):
+  if len(_PARAMIKO) == 0:
+    try:
+      import paramiko as PARAMIKO
+      _PARAMIKO.append(PARAMIKO)
+      return PARAMIKO
+    except Exception as e:
+      if logger is not None:
+        logger.critical("Problem import paramiko. No jobs if not 'pip install paramiko'")
+      return None
+  else:
+    return _PARAMIKO[0]
+    
+
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The jobs command command launches maintenances that are described in 
+  the dedicated jobs configuration file.
+
+  examples:
+    >> sat jobs --name my_jobs --publish
+  """
+  
+  name = "jobs"
+  
+  def getParser(self):
+    """Define all options for command 'sat jobs <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option(
+        'n', 'name', 'list2', 'jobs_cfg', 
+        _('Mandatory: The name of the config file that contains the jobs configuration. Can be a list.') )
+    parser.add_option(
+        'o', 'only_jobs', 'list2', 'only_jobs',
+        _('Optional: the list of jobs to launch, by their name. ') )
+    parser.add_option(
+        'l', 'list', 'boolean', 'list', 
+                      _('Optional: list all available config files.') )
+    parser.add_option(
+        't', 'test_connection', 'boolean', 'test_connection',
+        _("Optional: try to connect to the machines. Not executing the jobs."),
+        False )
+    parser.add_option(
+        'p', 'publish', 'boolean', 'publish',
+        _("Optional: generate an xml file that can be read in a browser to display the jobs status."),
+        False )
+    parser.add_option(
+        'i', 'input_boards', 'string', 'input_boards', _("Optional: "
+        "the path to csv file that contain the expected boards."),
+        "" )
+    parser.add_option(
+        '', 'completion', 'boolean', 'no_label',
+        _("Optional (internal use): do not print labels, Works only with --list."),
+        False )
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat jobs <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+       
+    l_cfg_dir = runner.cfg.PATHS.JOBPATH
+    
+    # list option : display all the available config files
+    if options.list:
+        for cfg_dir in l_cfg_dir:
+            if not options.no_label:
+                logger.write("------ %s\n" % 
+                                 src.printcolors.printcHeader(cfg_dir))
+            if not os.path.exists(cfg_dir):
+                continue
+            for f in sorted(os.listdir(cfg_dir)):
+                if not f.endswith('.pyconf'):
+                    continue
+                cfilename = f[:-7]
+                logger.write("%s\n" % cfilename)
+        return 0
+
+    # Make sure the jobs_config option has been called
+    if not options.jobs_cfg:
+        message = _("The option --jobs_config is required\n")      
+        src.printcolors.printcError(message)
+        return 1
+    
+    # Find the file in the directories, unless it is a full path
+    # merge all in a config
+    merger = PYCONF.ConfigMerger()
+    config_jobs = PYCONF.Config()
+    l_conf_files_path = []
+    for config_file in options.jobs_cfg:
+        found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
+        if not found:
+            msg = _("""\
+The file configuration %s was not found.
+Use the --list option to get the possible files.""") % config_file
+            logger.write("%s\n" % src.printcolors.printcError(msg), 1)
+            return 1
+        l_conf_files_path.append(file_jobs_cfg)
+        # Read the config that is in the file
+        one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
+        merger.merge(config_jobs, one_config_jobs)
+    
+    info = [
+        (_("Platform"), runner.cfg.VARS.dist),
+        (_("Files containing the jobs configuration"), l_conf_files_path)
+    ]    
+    src.print_info(logger, info)
+
+    if options.only_jobs:
+        l_jb = PYCONF.Sequence()
+        for jb in config_jobs.jobs:
+            if jb.name in options.only_jobs:
+                l_jb.append(jb,
+                "Job that was given in only_jobs option parameters\n")
+        config_jobs.jobs = l_jb
+    
+    # Parse the config jobs in order to develop all the factorized jobs
+    develop_factorized_jobs(config_jobs)
+    
+    # Make a unique file that contain all the jobs in order to use it 
+    # on every machine
+    name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
+                            for path in l_conf_files_path]) + ".pyconf"
+    path_pyconf = src.get_tmp_filename(runner.cfg, name_pyconf)
+    #Save config
+    f = file( path_pyconf , 'w')
+    config_jobs.__save__(f)
+    
+    # log the paramiko problems
+    log_dir = src.get_log_path(runner.cfg)
+    paramiko_log_dir_path = os.path.join(log_dir, "JOBS")
+    src.ensure_path_exists(paramiko_log_dir_path)
+    paramiko = getParamiko(logger)
+    paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
+                                           logger.txtFileName))
+    
+    # Initialization
+    today_jobs = Jobs(runner,
+                      logger,
+                      path_pyconf,
+                      config_jobs)
+    
+    # SSH connection to all machines
+    today_jobs.ssh_connection_all_machines()
+    if options.test_connection:
+        return 0
+    
+    gui = None
+    if options.publish:
+        logger.write(src.printcolors.printcInfo(
+                                        _("Initialize the xml boards : ")), 5)
+        logger.flush()
+        
+        # Copy the stylesheets in the log directory 
+        log_dir = log_dir
+        xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
+        files_to_copy = []
+        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
+        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_BOARD))
+        files_to_copy.append(os.path.join(xsl_dir, "command.xsl"))
+        files_to_copy.append(os.path.join(xsl_dir, "running.gif"))
+        for file_path in files_to_copy:
+            # OP We use copy instead of copy2 to update the creation date
+            #    So we can clean the LOGS directories easily
+            shutil.copy(file_path, log_dir)
+        
+        # Instanciate the Gui in order to produce the xml files that contain all
+        # the boards
+        gui = Gui(log_dir,
+                  today_jobs.ljobs,
+                  today_jobs.ljobs_not_today,
+                  runner.cfg.VARS.datehour,
+                  logger,
+                  file_boards = options.input_boards)
+        
+        logger.write(src.printcolors.printcSuccess("OK"), 5)
+        logger.write("\n\n", 5)
+        logger.flush()
+        
+        # Display the list of the xml files
+        logger.write(src.printcolors.printcInfo(("Here is the list of published"
+                                                 " files :\n")), 4)
+        logger.write("%s\n" % gui.xml_global_file.logFile, 4)
+        for board in gui.d_xml_board_files.keys():
+            file_path = gui.d_xml_board_files[board].logFile
+            file_name = os.path.basename(file_path)
+            logger.write("%s\n" % file_path, 4)
+            logger.add_link(file_name, "board", 0, board)
+              
+        logger.write("\n", 4)
+        
+    today_jobs.gui = gui
+    
+    interruped = False
+    try:
+        # Run all the jobs contained in config_jobs
+        today_jobs.run_jobs()
+    except KeyboardInterrupt:
+        interruped = True
+        logger.write("\n\n%s\n\n" % 
+                (src.printcolors.printcWarning(_("Forced interruption"))), 1)
+    except Exception as e:
+        msg = _("CRITICAL ERROR: The jobs loop has been interrupted\n")
+        logger.write("\n\n%s\n" % src.printcolors.printcError(msg) )
+        logger.write("%s\n" % str(e))
+        # get stack
+        __, __, exc_traceback = sys.exc_info()
+        fp = tempfile.TemporaryFile()
+        traceback.print_tb(exc_traceback, file=fp)
+        fp.seek(0)
+        stack = fp.read()
+        logger.write("\nTRACEBACK:\n%s\n" % stack.replace('"',"'"), 1)
+        
+    finally:
+        res = 0
+        if interruped:
+            res = 1
+            msg = _("Killing the running jobs and trying to get the corresponding logs\n")
+            logger.write(src.printcolors.printcWarning(msg))
+            
+        # find the potential not finished jobs and kill them
+        for jb in today_jobs.ljobs:
+            if not jb.has_finished():
+                res = 1
+                try:
+                    jb.kill_remote_process()
+                except Exception as e:
+                    msg = _("Failed to kill job %(1)s: %(2)s\n") % {"1": jb.name, "2": e}
+                    logger.write(src.printcolors.printcWarning(msg))
+            if jb.res_job != "0":
+                res = 1
+        if interruped:
+            if today_jobs.gui:
+                today_jobs.gui.last_update(_("Forced interruption"))
+        else:
+            if today_jobs.gui:
+                today_jobs.gui.last_update()
+        # Output the results
+        today_jobs.write_all_results()
+        # Remove the temporary pyconf file
+        if os.path.exists(path_pyconf):
+            os.remove(path_pyconf)
+        return res
+  
 
 class Machine(object):
     '''Class to manage a ssh connection on a machine
@@ -82,7 +324,8 @@ class Machine(object):
         self.user = user
         self.password = passwd
         self.sat_path = sat_path
-        self.ssh = paramiko.SSHClient()
+        self.paramiko = getParamiko()
+        self.ssh = self.paramiko.SSHClient()
         self._connection_successful = None
     
     def connect(self, logger):
@@ -95,18 +338,18 @@ class Machine(object):
 
         self._connection_successful = False
         self.ssh.load_system_host_keys()
-        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh.set_missing_host_key_policy(self.paramiko.AutoAddPolicy())
         try:
             self.ssh.connect(self.host,
                              port=self.port,
                              username=self.user,
                              password = self.password)
-        except paramiko.AuthenticationException:
+        except self.paramiko.AuthenticationException:
             message = src.KO_STATUS + _("Authentication failed")
-        except paramiko.BadHostKeyException:
+        except self.paramiko.BadHostKeyException:
             message = (src.KO_STATUS + 
                        _("The server's host key could not be verified"))
-        except paramiko.SSHException:
+        except self.paramiko.SSHException:
             message = ( _("SSHException error connecting or "
                           "establishing an SSH session"))            
         except:
@@ -205,7 +448,7 @@ WARNING : trying to ask if the connection to
         try:        
             # Does not wait the end of the command
             (stdin, stdout, stderr) = self.ssh.exec_command(command)
-        except paramiko.SSHException:
+        except self.paramiko.SSHException:
             message = src.KO_STATUS + _(
                             ": the server failed to execute the command\n")
             logger.write( src.printcolors.printcError(message))
@@ -1671,7 +1914,7 @@ def develop_factorized_jobs(config_jobs):
         # machine : ["CO7.2 physique", ["CO6.4 physique", $MONDAY, $TUESDAY ], "FD22"]
         name_job = jb.name
         for machine in jb.machine:
-            new_job = src.pyconf.deepCopyMapping(jb)
+            new_job = PYCONF.deepCopyMapping(jb)
             # case where there is a jobs on the machine corresponding to all
             # days in when variable. 
             if type(machine) == type(""):
@@ -1686,201 +1929,3 @@ def develop_factorized_jobs(config_jobs):
     
     config_jobs.jobs = developed_jobs_list
             
-
-##
-# Describes the command
-def description():
-    return _("""\
-The jobs command launches maintenances that are described in 
-the dedicated jobs configuration file.
-
-example:
->> sat jobs --name my_jobs --publish""")
-
-##
-# Runs the command.
-def run(args, runner, logger):
-       
-    (options, args) = parser.parse_args(args)
-       
-    l_cfg_dir = runner.cfg.PATHS.JOBPATH
-    
-    # list option : display all the available config files
-    if options.list:
-        for cfg_dir in l_cfg_dir:
-            if not options.no_label:
-                logger.write("------ %s\n" % 
-                                 src.printcolors.printcHeader(cfg_dir))
-            if not os.path.exists(cfg_dir):
-                continue
-            for f in sorted(os.listdir(cfg_dir)):
-                if not f.endswith('.pyconf'):
-                    continue
-                cfilename = f[:-7]
-                logger.write("%s\n" % cfilename)
-        return 0
-
-    # Make sure the jobs_config option has been called
-    if not options.jobs_cfg:
-        message = _("The option --jobs_config is required\n")      
-        src.printcolors.printcError(message)
-        return 1
-    
-    # Find the file in the directories, unless it is a full path
-    # merge all in a config
-    merger = src.pyconf.ConfigMerger()
-    config_jobs = src.pyconf.Config()
-    l_conf_files_path = []
-    for config_file in options.jobs_cfg:
-        found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
-        if not found:
-            msg = _("""\
-The file configuration %s was not found.
-Use the --list option to get the possible files.""") % config_file
-            logger.write("%s\n" % src.printcolors.printcError(msg), 1)
-            return 1
-        l_conf_files_path.append(file_jobs_cfg)
-        # Read the config that is in the file
-        one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
-        merger.merge(config_jobs, one_config_jobs)
-    
-    info = [
-        (_("Platform"), runner.cfg.VARS.dist),
-        (_("Files containing the jobs configuration"), l_conf_files_path)
-    ]    
-    src.print_info(logger, info)
-
-    if options.only_jobs:
-        l_jb = src.pyconf.Sequence()
-        for jb in config_jobs.jobs:
-            if jb.name in options.only_jobs:
-                l_jb.append(jb,
-                "Job that was given in only_jobs option parameters\n")
-        config_jobs.jobs = l_jb
-    
-    # Parse the config jobs in order to develop all the factorized jobs
-    develop_factorized_jobs(config_jobs)
-    
-    # Make a unique file that contain all the jobs in order to use it 
-    # on every machine
-    name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
-                            for path in l_conf_files_path]) + ".pyconf"
-    path_pyconf = src.get_tmp_filename(runner.cfg, name_pyconf)
-    #Save config
-    f = file( path_pyconf , 'w')
-    config_jobs.__save__(f)
-    
-    # log the paramiko problems
-    log_dir = src.get_log_path(runner.cfg)
-    paramiko_log_dir_path = os.path.join(log_dir, "JOBS")
-    src.ensure_path_exists(paramiko_log_dir_path)
-    paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
-                                           logger.txtFileName))
-    
-    # Initialization
-    today_jobs = Jobs(runner,
-                      logger,
-                      path_pyconf,
-                      config_jobs)
-    
-    # SSH connection to all machines
-    today_jobs.ssh_connection_all_machines()
-    if options.test_connection:
-        return 0
-    
-    gui = None
-    if options.publish:
-        logger.write(src.printcolors.printcInfo(
-                                        _("Initialize the xml boards : ")), 5)
-        logger.flush()
-        
-        # Copy the stylesheets in the log directory 
-        log_dir = log_dir
-        xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
-        files_to_copy = []
-        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
-        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_BOARD))
-        files_to_copy.append(os.path.join(xsl_dir, "command.xsl"))
-        files_to_copy.append(os.path.join(xsl_dir, "running.gif"))
-        for file_path in files_to_copy:
-            # OP We use copy instead of copy2 to update the creation date
-            #    So we can clean the LOGS directories easily
-            shutil.copy(file_path, log_dir)
-        
-        # Instanciate the Gui in order to produce the xml files that contain all
-        # the boards
-        gui = Gui(log_dir,
-                  today_jobs.ljobs,
-                  today_jobs.ljobs_not_today,
-                  runner.cfg.VARS.datehour,
-                  logger,
-                  file_boards = options.input_boards)
-        
-        logger.write(src.printcolors.printcSuccess("OK"), 5)
-        logger.write("\n\n", 5)
-        logger.flush()
-        
-        # Display the list of the xml files
-        logger.write(src.printcolors.printcInfo(("Here is the list of published"
-                                                 " files :\n")), 4)
-        logger.write("%s\n" % gui.xml_global_file.logFile, 4)
-        for board in gui.d_xml_board_files.keys():
-            file_path = gui.d_xml_board_files[board].logFile
-            file_name = os.path.basename(file_path)
-            logger.write("%s\n" % file_path, 4)
-            logger.add_link(file_name, "board", 0, board)
-              
-        logger.write("\n", 4)
-        
-    today_jobs.gui = gui
-    
-    interruped = False
-    try:
-        # Run all the jobs contained in config_jobs
-        today_jobs.run_jobs()
-    except KeyboardInterrupt:
-        interruped = True
-        logger.write("\n\n%s\n\n" % 
-                (src.printcolors.printcWarning(_("Forced interruption"))), 1)
-    except Exception as e:
-        msg = _("CRITICAL ERROR: The jobs loop has been interrupted\n")
-        logger.write("\n\n%s\n" % src.printcolors.printcError(msg) )
-        logger.write("%s\n" % str(e))
-        # get stack
-        __, __, exc_traceback = sys.exc_info()
-        fp = tempfile.TemporaryFile()
-        traceback.print_tb(exc_traceback, file=fp)
-        fp.seek(0)
-        stack = fp.read()
-        logger.write("\nTRACEBACK:\n%s\n" % stack.replace('"',"'"), 1)
-        
-    finally:
-        res = 0
-        if interruped:
-            res = 1
-            msg = _("Killing the running jobs and trying to get the corresponding logs\n")
-            logger.write(src.printcolors.printcWarning(msg))
-            
-        # find the potential not finished jobs and kill them
-        for jb in today_jobs.ljobs:
-            if not jb.has_finished():
-                res = 1
-                try:
-                    jb.kill_remote_process()
-                except Exception as e:
-                    msg = _("Failed to kill job %(1)s: %(2)s\n") % {"1": jb.name, "2": e}
-                    logger.write(src.printcolors.printcWarning(msg))
-            if jb.res_job != "0":
-                res = 1
-        if interruped:
-            if today_jobs.gui:
-                today_jobs.gui.last_update(_("Forced interruption"))
-        else:
-            if today_jobs.gui:
-                today_jobs.gui.last_update()
-        # Output the results
-        today_jobs.write_all_results()
-        # Remove the temporary pyconf file
-        if os.path.exists(path_pyconf):
-            os.remove(path_pyconf)
-        return res

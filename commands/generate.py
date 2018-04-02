@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,19 +17,129 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
-import sys
-import shutil
-import imp
-import subprocess
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+import src.pyconf as PYCONF
 
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-                  _("Optional: the list of products to generate"))
-parser.add_option('', 'yacsgen', 'string', 'yacsgen',
-                  _("Optional: path to YACSGEN's module_generator package"))
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The generate command generates SALOME modules from 'pure cpp' products.
+  WARNING: this command NEEDS YACSGEN to run.
+  
+  examples:
+    >> sat generate SALOME --products FLICACPP
+  """
+  
+  name = "generate"
+  
+  def getParser(self):
+    """Define all options for command 'sat generate <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+                      _("Optional: the list of products to generate"))
+    parser.add_option('', 'yacsgen', 'string', 'yacsgen',
+                      _("Optional: path to YACSGEN's module_generator package"))
+    return parser
+  
+  def run(self, cmd_arguments):
+    """method called for command 'sat generate <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+    
+    # Check that the command has been called with an application
+    src.check_config_has_application(runner.cfg)
+    
+    logger.write(_('Generation of SALOME modules for application %s\n') % \
+        src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+
+    status = src.KO_STATUS
+
+    # verify that YACSGEN is available
+    yacsgen_dir = check_yacsgen(runner.cfg, options.yacsgen, logger)
+    
+    if isinstance(yacsgen_dir, tuple):
+        # The check failed
+        __, error = yacsgen_dir
+        msg = _("Error: %s") % error
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+    
+    # Make the generator module visible by python
+    sys.path.insert(0, yacsgen_dir)
+
+    src.printcolors.print_value(logger, _("YACSGEN dir"), yacsgen_dir, 3)
+    logger.write("\n", 2)
+    products = runner.cfg.APPLICATION.products
+    if options.products:
+        products = options.products
+
+    details = []
+    nbgen = 0
+
+    context = build_context(runner.cfg, logger)
+    for product in products:
+        header = _("Generating %s") % src.printcolors.printcLabel(product)
+        header += " %s " % ("." * (20 - len(product)))
+        logger.write(header, 3)
+        logger.flush()
+
+        if product not in runner.cfg.PRODUCTS:
+            logger.write(_("Unknown product\n"), 3, False)
+            continue
+
+        pi = src.product.get_product_config(runner.cfg, product)
+        if not src.product.product_is_generated(pi):
+            logger.write(_("not a generated product\n"), 3, False)
+            continue
+
+        nbgen += 1
+        try:
+            result = generate_component_list(runner.cfg,
+                                             pi,
+                                             context,
+                                             logger)
+        except Exception as exc:
+            result = str(exc)
+
+        if result != src.OK_STATUS:
+            result = _("ERROR: %s") % result
+            details.append([product, result])
+
+    if len(details) == 0:
+        status = src.OK_STATUS
+    else: #if config.USER.output_level != 3:
+        logger.write("\n", 2, False)
+        logger.write(_("The following modules were not generated correctly:\n"), 2)
+        for d in details:
+            logger.write("  %s: %s\n" % (d[0], d[1]), 2, False)
+    logger.write("\n", 2, False)
+
+    if status == src.OK_STATUS:
+        return 0
+    return len(details)
+  
 
 def generate_component_list(config, product_info, context, logger):
     res = "?"
@@ -66,7 +177,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     src.printcolors.print_value(logger, "cpp_path", cpp_path, 4)
 
     # create a product_info at runtime
-    compo_info = src.pyconf.Mapping(config)
+    compo_info = PYCONF.Mapping(config)
     compo_info.name = compo
     compo_info.nb_proc = 1
     generate_dir = os.path.join(config.APPLICATION.workdir, "GENERATED")
@@ -79,7 +190,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     compo_info.depend.append(product_info.name, "") # add cpp module
     compo_info.opt_depend = product_info.opt_depend
 
-    config.PRODUCTS.addMapping(compo, src.pyconf.Mapping(config), "")
+    config.PRODUCTS.addMapping(compo, PYCONF.Mapping(config), "")
     config.PRODUCTS[compo].default = compo_info
 
     builder = src.compilation.Builder(config, logger, compo_info, check_src=False)
@@ -299,98 +410,4 @@ def check_yacsgen(config, directory, logger):
 
     return (False,
             _("The python module module_generator was not found in YACSGEN"))
-
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the generate command description.
-    :rtype: str
-    '''
-    return _("""\
-The generate command generates SALOME modules from 'pure cpp' products.
-WARNING: this command NEEDS YACSGEN to run.
-
-example:
->> sat generate SALOME-master --products FLICACPP""")
-
-
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with generate parameter.
-    '''
-    
-    # Check that the command has been called with an application
-    src.check_config_has_application(runner.cfg)
-    
-    logger.write(_('Generation of SALOME modules for application %s\n') % \
-        src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-
-    (options, args) = parser.parse_args(args)
-
-    status = src.KO_STATUS
-
-    # verify that YACSGEN is available
-    yacsgen_dir = check_yacsgen(runner.cfg, options.yacsgen, logger)
-    
-    if isinstance(yacsgen_dir, tuple):
-        # The check failed
-        __, error = yacsgen_dir
-        msg = _("Error: %s") % error
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-    
-    # Make the generator module visible by python
-    sys.path.insert(0, yacsgen_dir)
-
-    src.printcolors.print_value(logger, _("YACSGEN dir"), yacsgen_dir, 3)
-    logger.write("\n", 2)
-    products = runner.cfg.APPLICATION.products
-    if options.products:
-        products = options.products
-
-    details = []
-    nbgen = 0
-
-    context = build_context(runner.cfg, logger)
-    for product in products:
-        header = _("Generating %s") % src.printcolors.printcLabel(product)
-        header += " %s " % ("." * (20 - len(product)))
-        logger.write(header, 3)
-        logger.flush()
-
-        if product not in runner.cfg.PRODUCTS:
-            logger.write(_("Unknown product\n"), 3, False)
-            continue
-
-        pi = src.product.get_product_config(runner.cfg, product)
-        if not src.product.product_is_generated(pi):
-            logger.write(_("not a generated product\n"), 3, False)
-            continue
-
-        nbgen += 1
-        try:
-            result = generate_component_list(runner.cfg,
-                                             pi,
-                                             context,
-                                             logger)
-        except Exception as exc:
-            result = str(exc)
-
-        if result != src.OK_STATUS:
-            result = _("ERROR: %s") % result
-            details.append([product, result])
-
-    if len(details) == 0:
-        status = src.OK_STATUS
-    else: #if config.USER.output_level != 3:
-        logger.write("\n", 2, False)
-        logger.write(_("The following modules were not generated correctly:\n"), 2)
-        for d in details:
-            logger.write("  %s: %s\n" % (d[0], d[1]), 2, False)
-    logger.write("\n", 2, False)
-
-    if status == src.OK_STATUS:
-        return 0
-    return len(details)
 

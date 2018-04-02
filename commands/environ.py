@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,27 +17,92 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
-
-parser = src.options.Options()
-parser.add_option('', 'shell', 'list2', 'shell',
-    _("Optional: Generates the environment files for the given format: "
-      "bash (default), bat (for windows), cfg (salome context file) or all."), [])
-parser.add_option('p', 'products', 'list2', 'products',
-    _("Optional: Includes only the specified products."))
-parser.add_option('', 'prefix', 'string', 'prefix',
-    _("Optional: Specifies the prefix for the environment files."), "env")
-parser.add_option('t', 'target', 'string', 'out_dir',
-    _("Optional: Specifies the directory path where to put the environment "
-      "files."),
-    None)
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
 # list of available shells with extensions
 C_SHELLS = { "bash": "sh", "bat": "bat", "cfg" : "cfg" }
 C_ALL_SHELL = [ "bash", "bat", "cfg" ]
 
+
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The environ command generates the environment files of your application.
+
+  examples:
+    >> sat environ SALOME
+  """
+  
+  name = "environ"
+  
+  def getParser(self):
+    """Define all options for command 'sat environ <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('', 'shell', 'list2', 'shell',
+        _("Optional: Generates the environment files for the given format: "
+          "bash (default), bat (for windows), cfg (salome context file) or all."), [])
+    parser.add_option('p', 'products', 'list2', 'products',
+        _("Optional: Includes only the specified products."))
+    parser.add_option('', 'prefix', 'string', 'prefix',
+        _("Optional: Specifies the prefix for the environment files."), "env")
+    parser.add_option('t', 'target', 'string', 'out_dir',
+        _("Optional: Specifies the directory path where to put the environment files."),
+        None)
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat environ <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # check that the command was called with an application
+    src.check_config_has_application( runner.cfg )
+    
+    if options.products is None:
+        environ_info = None
+    else:
+        # add products specified by user (only products 
+        # included in the application)
+        environ_info = filter(lambda l:
+                              l in runner.cfg.APPLICATION.products.keys(),
+                              options.products)
+    
+    if options.shell == []:
+        shell = ["bash"]
+        if src.architecture.is_windows():
+            shell = ["bat"]
+    else:
+        shell = options.shell
+    
+    out_dir = options.out_dir
+    if out_dir:
+        out_dir = os.path.abspath(out_dir)
+    
+    write_all_source_files(runner.cfg, logger, out_dir=out_dir, shells=shell,
+                           prefix=options.prefix, env_info=environ_info)
+    logger.write("\n", 3, False)
+    #TODO return code
 
 ##
 # Writes all the environment files
@@ -110,46 +176,3 @@ def write_all_source_files(config,
                                            shell.name))
 
     return files
-
-##################################################
-
-##
-# Describes the command
-def description():
-    return _("""\
-The environ command generates the environment files of your application.
-
-example:
->> sat environ SALOME-master""")
-
-##
-# Runs the command.
-def run(args, runner, logger):
-    (options, args) = parser.parse_args(args)
-
-    # check that the command was called with an application
-    src.check_config_has_application( runner.cfg )
-    
-    if options.products is None:
-        environ_info = None
-    else:
-        # add products specified by user (only products 
-        # included in the application)
-        environ_info = filter(lambda l:
-                              l in runner.cfg.APPLICATION.products.keys(),
-                              options.products)
-    
-    if options.shell == []:
-        shell = ["bash"]
-        if src.architecture.is_windows():
-            shell = ["bat"]
-    else:
-        shell = options.shell
-    
-    out_dir = options.out_dir
-    if out_dir:
-        out_dir = os.path.abspath(out_dir)
-    
-    write_all_source_files(runner.cfg, logger, out_dir=out_dir, shells=shell,
-                           prefix=options.prefix, env_info=environ_info)
-    logger.write("\n", 3, False)

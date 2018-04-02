@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,85 +17,127 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 import shutil
 import subprocess
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+import src.pyconf as PYCONF
+from src.salomeTools import _BaseCommand
 
-parser = src.options.Options()
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The profile command creates default profile.
+  
+  examples: 
+  >> sat profile [PRODUCT] 
+                 [-p | --prefix (string)] 
+                 [-n | --name (string)] 
+                 [-f | --force] 
+                 [-v | --version (string)] 
+                 [-s | --slogan (string)] 
+  """
+  
+  name = "profile"
+  
+  def getParser(self):
+    """Define all options for command 'sat profile <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option(
+        'p', 'prefix', 'string', 'prefix', 
+        _("Where the profile's sources will be generated.") )
+    parser.add_option(
+        'n', 'name', 'string', 'name', 
+        _("Name of the profile's sources. [Default: '${config.PRODUCT.name}_PROFILE]") )
+    parser.add_option(
+        'f', 'force', 'boolean', 'force',
+        _("Overwrites existing sources.") )
+    parser.add_option(
+        'u', 'no_update', 'boolean', 'no_update', 
+        _("Does not update pyconf file.") )
+    parser.add_option(
+        'v', 'version', 'string', 'version', 
+        _("Version of the application. [Default: 1.0]"), '1.0' )
+    parser.add_option(
+        's', 'slogan', 'string', 'slogan', 
+        _("Slogan of the application.") )
+    return parser
 
-parser.add_option(
-    'p', 'prefix', 'string', 'prefix', 
-    _("Where the profile's sources will be generated.") )
-parser.add_option(
-    'n', 'name', 'string', 'name', 
-    _("Name of the profile's sources. [Default: '${config.PRODUCT.name}_PROFILE]") )
-parser.add_option(
-    'f', 'force', 'boolean', 'force',
-    _("Overwrites existing sources.") )
-parser.add_option(
-    'u', 'no_update', 'boolean', 'no_update', 
-    _("Does not update pyconf file.") )
-parser.add_option(
-    'v', 'version', 'string', 'version', 
-    _("Version of the application. [Default: 1.0]"), '1.0' )
-parser.add_option(
-    's', 'slogan', 'string', 'slogan', 
-    _("Slogan of the application.") )
+  def run(self, cmd_arguments):
+    """method called for command 'sat profile <options>'""" 
+    argList = self.assumeAsList(cmd_arguments)
 
-##################################################
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+  
+    src.check_config_has_application(runner.cfg)
 
-##
+    if options.prefix is None:
+        msg = _("The --%s argument is required\n") % "prefix"
+        logger.write(src.printcolors.printcWarning(msg), 1)
+        return 1
+    
+    retcode = generate_profile_sources( runner.cfg, options, logger )
+
+    if not options.no_update :
+        update_pyconf( runner.cfg, options )
+
+    return retcode
+
+
 # Class that overrides common.Reference
 # in order to manipulate fields starting with '@'
-class profileReference( src.pyconf.Reference ) :
+class profileReference( PYCONF.Reference ):
     def __str__(self):
         s = self.elements[0]
         for tt, tv in self.elements[1:]:
-            if tt == src.pyconf.DOT:
+            if tt == PYCONF.DOT:
                 s += '.%s' % tv
             else:
                 s += '[%r]' % tv
-        if self.type == src.pyconf.BACKTICK:
-            return src.pyconf.BACKTICK + s + src.pyconf.BACKTICK
-        elif self.type == src.pyconf.AT:
-            return src.pyconf.AT + s
+        if self.type == PYCONF.BACKTICK:
+            return PYCONF.BACKTICK + s + PYCONF.BACKTICK
+        elif self.type == PYCONF.AT:
+            return PYCONF.AT + s
         else:
-            return src.pyconf.DOLLAR + s
+            return PYCONF.DOLLAR + s
 
 ##
 # Class that overrides how fields starting with '@' are read.
-class profileConfigReader( src.pyconf.ConfigReader ) :
+class profileConfigReader( PYCONF.ConfigReader ) :
     def parseMapping(self, parent, suffix):
-        if self.token[0] == src.pyconf.LCURLY:
-            self.match(src.pyconf.LCURLY)
-            rv = src.pyconf.Mapping(parent)
+        if self.token[0] == PYCONF.LCURLY:
+            self.match(PYCONF.LCURLY)
+            rv = PYCONF.Mapping(parent)
             rv.setPath(
-               src.pyconf.makePath(object.__getattribute__(parent, 'path'),
+               PYCONF.makePath(object.__getattribute__(parent, 'path'),
                                    suffix))
             self.parseMappingBody(rv)
-            self.match(src.pyconf.RCURLY)
+            self.match(PYCONF.RCURLY)
         else:
-            self.match(src.pyconf.AT)
+            self.match(PYCONF.AT)
             __, fn = self.match('"')
-            rv = profileReference(self, src.pyconf.AT, fn)
+            rv = profileReference(self, PYCONF.AT, fn)
         return rv
 
-##################################################
 
-##
-# Describes the command
-def description():
-    return _("""\
-The profile command creates default profile.
-usage: 
->> sat profile [PRODUCT] 
-               [-p | --prefix (string)] 
-               [-n | --name (string)] 
-               [-f | --force] 
-               [-v | --version (string)] 
-               [-s | --slogan (string)]""")
 
 ##
 # Gets the profile name
@@ -178,9 +221,9 @@ def update_pyconf( config, options, logger ):
                      os.path.join( path, pyconfBackup ) )
 
     #Load config
-    cfg = src.pyconf.Config( )
+    cfg = PYCONF.Config( )
     object.__setattr__( cfg, 'reader', profileConfigReader( cfg ) )
-    cfg.load( src.pyconf.defaultStreamOpener( os.path.join( path, pyconf ) ) )
+    cfg.load( PYCONF.defaultStreamOpener( os.path.join( path, pyconf ) ) )
 
     #Check if profile is in APPLICATION.products
     profile = get_profile_name ( options, config )
@@ -189,64 +232,42 @@ def update_pyconf( config, options, logger ):
 
     #Check if profile is in APPLICATION
     if not 'profile' in cfg.APPLICATION:
-        cfg.APPLICATION.addMapping( 'profile', src.pyconf.Mapping(), None )
+        cfg.APPLICATION.addMapping( 'profile', PYCONF.Mapping(), None )
         cfg.APPLICATION.profile.addMapping( 'module', profile, None )
         cfg.APPLICATION.profile.addMapping( 'launcher_name',
                                             config.VARS.product.lower(), None )
 
     #Check if profile info is in PRODUCTS
     if not 'PRODUCTS' in cfg:
-        cfg.addMapping( 'PRODUCTS', src.pyconf.Mapping(), None )
+        cfg.addMapping( 'PRODUCTS', PYCONF.Mapping(), None )
         
     if not profile in cfg.PRODUCTS:
-        cfg.PRODUCTS.addMapping( profile, src.pyconf.Mapping(), None )
-        cfg.PRODUCTS[profile].addMapping( 'default', src.pyconf.Mapping(),
+        cfg.PRODUCTS.addMapping( profile, PYCONF.Mapping(), None )
+        cfg.PRODUCTS[profile].addMapping( 'default', PYCONF.Mapping(),
                                           None )
         prf = cfg.TOOLS.common.module_info[profile].default
         prf.addMapping( 'name', profile, None )
         prf.addMapping( 'get_source', 'archive', None )
         prf.addMapping( 'build_source', 'cmake', None )
-        prf.addMapping( 'archive_info', src.pyconf.Mapping(), None )
+        prf.addMapping( 'archive_info', PYCONF.Mapping(), None )
         prf.archive_info.addMapping( 
             'name', os.path.join(os.path.abspath(options.prefix), profile), None )
         tmp = "APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name"
         prf.addMapping( 'source_dir', 
-                        src.pyconf.Reference(cfg, src.pyconf.DOLLAR, tmp ),
+                        PYCONF.Reference(cfg, PYCONF.DOLLAR, tmp ),
                         None )
         tmp = "APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name"
         prf.addMapping( 'build_dir', 
-                         src.pyconf.Reference(cfg, src.pyconf.DOLLAR, tmp ),
+                         PYCONF.Reference(cfg, PYCONF.DOLLAR, tmp ),
                          None )
-        prf.addMapping( 'depend', src.pyconf.Sequence(), None )
+        prf.addMapping( 'depend', PYCONF.Sequence(), None )
         prf.depend.append( 'KERNEL', None )
         prf.depend.append( 'GUI', None )
         prf.depend.append( 'Python', None )
         prf.depend.append( 'Sphinx', None )
         prf.depend.append( 'qt', None )
-        prf.addMapping( 'opt_depend', src.pyconf.Sequence(), None )
+        prf.addMapping( 'opt_depend', PYCONF.Sequence(), None )
 
     #Save config
     f = file( os.path.join( path, pyconf ) , 'w')
     cfg.__save__(f)
-
-
-##
-# Runs the command.
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with profile parameter.
-    '''
-    (options, args) = parser.parse_args(args)
-    
-    src.check_config_has_application(runner.cfg)
-
-    if options.prefix is None:
-        msg = _("The --%s argument is required\n") % "prefix"
-        logger.write(src.printcolors.printcWarning(msg), 1)
-        return 1
-    
-    retcode = generate_profile_sources( runner.cfg, options, logger )
-
-    if not options.no_update :
-        update_pyconf( runner.cfg, options )
-
-    return retcode

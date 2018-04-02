@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,36 +17,56 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
-import src.salomeTools
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-# Define all possible option for the make command :  sat make <options>
-parser = src.options.Options()
-parser.add_option(
-    'j', 'jobs_config', 'string', 'jobs_cfg', 
-    _('Mandatory: The name of the config file that contains the jobs configuration') )
-parser.add_option(
-    '', 'name', 'string', 'job',
-    _('Mandatory: The job name from which to execute commands.'), "" )
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the job command description.
-    :rtype: str
-    '''
-    return _("Executes the commands of the job defined"
-             " in the jobs configuration file\n\nexample:\nsat job "
-             "--jobs_config my_jobs --name my_job")
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The job command executes the commands of the job defined
+  in the jobs configuration file\
   
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with job parameter.
-    '''
+  examples:
+    >> sat job --jobs_config my_jobs --name my_job"
+  """
+  
+  name = "job"
+  
+  def getParser(self):
+    """Define all options for command 'sat job <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option(
+        'j', 'jobs_config', 'string', 'jobs_cfg', 
+        _('Mandatory: The name of the config file that contains the jobs configuration') )
+    parser.add_option(
+        '', 'name', 'string', 'job',
+        _('Mandatory: The job name from which to execute commands.'), "" )
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat job <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
     
-    # Parse the options
-    (options, args) = parser.parse_args(args)
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
          
     l_cfg_dir = runner.cfg.PATHS.JOBPATH
     

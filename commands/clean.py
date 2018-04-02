@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -18,7 +19,6 @@
 
 import re
 
-import src
 import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
@@ -32,6 +32,122 @@ except NameError:
 
 PROPERTY_EXPRESSION = "^.+:.+$"
 
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The clean command suppresses the source, build, or install directories 
+  of the application products.
+  Use the options to define what directories you want to suppress and 
+  to reduce the list of products
+
+  examples:
+    >> sat clean SALOME --build --install --properties is_salome_module:yes
+  """
+  
+  name = "clean"
+  
+  def getParser(self):
+    """Define all options for the command 'sat clean <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: Products to clean. This option can be'
+        ' passed several time to clean several products.'))
+    parser.add_option('', 'properties', 'string', 'properties',
+        _('Optional: Filter the products by their properties.\n'
+          '\tSyntax: --properties <property>:<value>'))
+    parser.add_option('s', 'sources', 'boolean', 'sources', 
+        _("Optional: Clean the product source directories."))
+    parser.add_option('b', 'build', 'boolean', 'build', 
+        _("Optional: Clean the product build directories."))
+    parser.add_option('i', 'install', 'boolean', 'install', 
+        _("Optional: Clean the product install directories."))
+    parser.add_option('a', 'all', 'boolean', 'all', 
+        _("Optional: Clean the product source, build and install directories."))
+    parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
+        _("Optional: do not clean the products in development mode."))
+    return parser    
+
+  
+  def run(self, cmd_arguments):
+    """method called for command 'sat clean <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # check that the command has been called with an application
+    src.check_config_has_application( config )
+
+    # Verify the --properties option
+    if options.properties:
+        oExpr = re.compile(PROPERTY_EXPRESSION)
+        if not oExpr.search(options.properties):
+            msg = _('WARNING: the "--properties" options must have the '
+                    'following syntax:\n--properties <property>:<value>')
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write("\n", 1)
+            options.properties = None
+            
+
+    # Get the list of products to threat
+    products_infos = self.get_products_list(options, config, logger)
+
+    # Construct the list of directories to suppress
+    l_dir_to_suppress = []
+    if options.all:
+        l_dir_to_suppress += (get_source_directories(products_infos, 
+                                            options.sources_without_dev) +
+                             get_build_directories(products_infos) + 
+                             get_install_directories(products_infos))
+    else:
+        if options.install:
+            l_dir_to_suppress += get_install_directories(products_infos)
+        
+        if options.build:
+            l_dir_to_suppress += get_build_directories(products_infos)
+            
+        if options.sources or options.sources_without_dev:
+            l_dir_to_suppress += get_source_directories(products_infos, 
+                                                options.sources_without_dev)
+    
+    if len(l_dir_to_suppress) == 0:
+        logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
+        sat_command = (config.VARS.salometoolsway +
+                       config.VARS.sep +
+                       "sat -h clean")
+        logger.write(_("Please specify what you want to suppress: tap '%s'\n") % sat_command)
+        return RCO.ReturnCode("KO", "specify what you want to suppress")
+    
+    # Check with the user if he really wants to suppress the directories
+    if not runner.options.batch:
+        logger.write(_("Remove the following directories ?\n"), 1)
+        for directory in l_dir_to_suppress:
+            logger.write("  %s\n" % directory, 1)
+        rep = input(_("Are you sure you want to continue? [Yes/No] "))
+        if rep.upper() != _("YES"):
+            return RCO.ReturnCode("OK", "user do not want to continue")
+    
+    # Suppress the list of paths
+    suppress_directories(l_dir_to_suppress, logger)
+    
+    return RCO.ReturnCode("OK", "clean done")
+    
 
 def get_source_directories(products_infos, without_dev):
     '''Returns the list of directory source paths corresponding to the list of 
@@ -115,111 +231,3 @@ def suppress_directories(l_paths, logger):
             path.rm()
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
 
-
-########################################################################
-# Command class for command 'sat config etc.'
-########################################################################
-class Command(_BaseCommand):
-  
-  def getParser(self):
-    # Define all possible option for the clean command :  sat clean <options>
-    parser = src.options.Options()
-    parser.add_option('p', 'products', 'list2', 'products',
-        _('Optional: Products to clean. This option can be'
-        ' passed several time to clean several products.'))
-    parser.add_option('', 'properties', 'string', 'properties',
-        _('Optional: Filter the products by their properties.\n'
-          '\tSyntax: --properties <property>:<value>'))
-    parser.add_option('s', 'sources', 'boolean', 'sources', 
-        _("Optional: Clean the product source directories."))
-    parser.add_option('b', 'build', 'boolean', 'build', 
-        _("Optional: Clean the product build directories."))
-    parser.add_option('i', 'install', 'boolean', 'install', 
-        _("Optional: Clean the product install directories."))
-    parser.add_option('a', 'all', 'boolean', 'all', 
-        _("Optional: Clean the product source, build and install directories."))
-    parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
-        _("Optional: do not clean the products in development mode."))
-    return parser
-
-  def description(self):
-      '''method that is called when salomeTools is called with --help option.
-      
-      :return: The text to display for the clean command description.
-      :rtype: str
-      '''
-      return _("""\
-  The clean command suppress the source, build, or install directories 
-  of the application products.
-  Use the options to define what directories you want to suppress and 
-  to reduce the list of products
-
-  example:
-  >> sat clean SALOME-master --build --install --properties is_salome_module:yes""")
-  
-  def run(self, args):
-      '''method that is called when salomeTools is called with clean parameter.
-      '''
-      runner = self.getRunner()
-      config = self.getConfig()
-      logger = self.getLogger()
-  
-      # Parse the options
-      (options, argsc) = self.parse_args(args)
-
-      # check that the command has been called with an application
-      src.check_config_has_application( config )
-
-      # Verify the --properties option
-      if options.properties:
-          oExpr = re.compile(PROPERTY_EXPRESSION)
-          if not oExpr.search(options.properties):
-              msg = _('WARNING: the "--properties" options must have the '
-                      'following syntax:\n--properties <property>:<value>')
-              logger.write(src.printcolors.printcWarning(msg), 1)
-              logger.write("\n", 1)
-              options.properties = None
-              
-
-      # Get the list of products to threat
-      products_infos = self.get_products_list(options, config, logger)
-
-      # Construct the list of directories to suppress
-      l_dir_to_suppress = []
-      if options.all:
-          l_dir_to_suppress += (get_source_directories(products_infos, 
-                                              options.sources_without_dev) +
-                               get_build_directories(products_infos) + 
-                               get_install_directories(products_infos))
-      else:
-          if options.install:
-              l_dir_to_suppress += get_install_directories(products_infos)
-          
-          if options.build:
-              l_dir_to_suppress += get_build_directories(products_infos)
-              
-          if options.sources or options.sources_without_dev:
-              l_dir_to_suppress += get_source_directories(products_infos, 
-                                                  options.sources_without_dev)
-      
-      if len(l_dir_to_suppress) == 0:
-          logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
-          sat_command = (config.VARS.salometoolsway +
-                         config.VARS.sep +
-                         "sat -h clean")
-          logger.write(_("Please specify what you want to suppress: tap '%s'\n") % sat_command)
-          return RCO.ReturnCode("KO", "specify what you want to suppress")
-      
-      # Check with the user if he really wants to suppress the directories
-      if not runner.options.batch:
-          logger.write(_("Remove the following directories ?\n"), 1)
-          for directory in l_dir_to_suppress:
-              logger.write("  %s\n" % directory, 1)
-          rep = input(_("Are you sure you want to continue? [Yes/No] "))
-          if rep.upper() != _("YES"):
-              return RCO.ReturnCode("OK", "user do not want to continue")
-      
-      # Suppress the list of paths
-      suppress_directories(l_dir_to_suppress, logger)
-      
-      return RCO.ReturnCode("OK", "clean done")

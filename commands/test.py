@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,55 +24,58 @@ import subprocess
 import datetime
 import gzip
 
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+import src.ElementTree as etree
+from src.xmlManager import add_simple_node
+
 try:
     from hashlib import sha1
 except ImportError:
     from sha import sha as sha1
 
-import src
-import src.ElementTree as etree
-from src.xmlManager import add_simple_node
 
-# Define all possible option for the test command :  sat test <options>
-parser = src.options.Options()
-parser.add_option('b', 'base', 'string', 'base',
-    _("""\
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The test command runs a test base on a SALOME installation.
+  
+  examples:
+    >> sat test SALOME --grid GEOM --session light
+  """
+  
+  name = "test"
+  
+  def getParser(self):
+    """Define all options for command 'sat test <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('b', 'base', 'string', 'base',
+        _("""\
 Optional: Indicate the name of the test base to use.
   This name has to be registered in your application and in a project.
   A path to a test base can also be used."""))
-parser.add_option('l', 'launcher', 'string', 'launcher',
-    _("Optional: Use this option to specify the path to a SALOME launcher to "
-      "use to launch the test scripts of the test base."))
-parser.add_option('g', 'grid', 'list', 'grids',
-    _('Optional: Indicate which grid(s) to test (subdirectory of the test base).'))
-parser.add_option('s', 'session', 'list', 'sessions',
-    _('Optional: indicate which session(s) to test (subdirectory of the grid).'))
-parser.add_option('', 'display', 'string', 'display',
-    _("""\
+    parser.add_option('l', 'launcher', 'string', 'launcher',
+        _("Optional: Use this option to specify the path to a SALOME launcher to "
+          "use to launch the test scripts of the test base."))
+    parser.add_option('g', 'grid', 'list', 'grids',
+        _('Optional: Indicate which grid(s) to test (subdirectory of the test base).'))
+    parser.add_option('s', 'session', 'list', 'sessions',
+        _('Optional: indicate which session(s) to test (subdirectory of the grid).'))
+    parser.add_option('', 'display', 'string', 'display',
+        _("""\
 Optional: set the display where to launch SALOME.
   If value is NO then option --show-desktop=0 will be used to launch SALOME."""))
+    return parser
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
+  def check_option(self, options):
+    """Check the options
     
-    :return: The text to display for the test command description.
-    :rtype: str
-    '''
-    return _("""\
-The test command runs a test base on a SALOME installation.
-example:
->> sat test SALOME-master --grid GEOM --session light""")     
-
-def parse_option(args, config):
-    """ Parse the options and do some verifications about it
-    
-    :param args List: The list of arguments of the command
-    :param config Config: The global configuration
-    :return: the options of the current command launch and the full arguments
-    :rtype: Tuple (options, args)
+    :param options: The options
+    :return: None
     """
-    (options, args) = parser.parse_args(args)
-
     if not options.launcher:
         options.launcher = ""
     elif not os.path.isabs(options.launcher):
@@ -83,8 +87,209 @@ def parse_option(args, config):
         if not os.path.exists(options.launcher):
             raise src.SatException(
                 _("Launcher not found: %s") % options.launcher )
+    return
 
-    return (options, args)
+  def run(self, cmd_arguments):
+    """method called for command 'sat test <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    self.check_option(options)
+
+    # the test base is specified either by the application, or by the --base option
+    with_application = False
+    if runner.cfg.VARS.application != 'None':
+        logger.write(
+            _('Running tests on application %s\n') % 
+            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+        with_application = True
+    elif not options.base:
+        raise src.SatException(
+          _('A test base is required. Use the --base option') )
+
+    # the launcher is specified either by the application, or by the --launcher option
+    if with_application:
+        # check if environment is loaded
+        if 'KERNEL_ROOT_DIR' in os.environ:
+            logger.write( src.printcolors.printcWarning(
+               _("WARNING: SALOME environment already sourced")) + "\n", 1 )
+            
+        
+    elif options.launcher:
+        logger.write(src.printcolors.printcWarning(
+           _("Running SALOME application.")) + "\n\n", 1)
+    else:
+        msg = _("Impossible to find any launcher.\n"
+                "Please specify an application or a launcher")
+        logger.write(src.printcolors.printcError(msg))
+        logger.write("\n")
+        return 1
+
+    # set the display
+    show_desktop = (options.display and options.display.upper() == "NO")
+    if options.display and options.display != "NO":
+        remote_name = options.display.split(':')[0]
+        if remote_name != "":
+            check_remote_machine(remote_name, logger)
+        # if explicitly set use user choice
+        os.environ['DISPLAY'] = options.display
+    elif 'DISPLAY' not in os.environ:
+        # if no display set
+        if ('test' in runner.cfg.LOCAL and
+                'display' in runner.cfg.LOCAL.test and 
+                len(runner.cfg.LOCAL.test.display) > 0):
+            # use default value for test tool
+            os.environ['DISPLAY'] = runner.cfg.LOCAL.test.display
+        else:
+            os.environ['DISPLAY'] = "localhost:0.0"
+
+    # initialization
+    #################
+    if with_application:
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               runner.cfg.APPLICATION.name,
+                               "test")
+    else:
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               "test")
+
+    # remove previous tmp dir
+    if os.access(tmp_dir, os.F_OK):
+        try:
+            shutil.rmtree(tmp_dir)
+        except:
+            logger.error(
+                _("error removing TT_TMP_RESULT %s\n") % tmp_dir)
+
+    lines = []
+    lines.append("date = '%s'" % runner.cfg.VARS.date)
+    lines.append("hour = '%s'" % runner.cfg.VARS.hour)
+    lines.append("node = '%s'" % runner.cfg.VARS.node)
+    lines.append("arch = '%s'" % runner.cfg.VARS.dist)
+
+    if 'APPLICATION' in runner.cfg:
+        lines.append("application_info = {}")
+        lines.append("application_info['name'] = '%s'" % 
+                     runner.cfg.APPLICATION.name)
+        lines.append("application_info['tag'] = '%s'" % 
+                     runner.cfg.APPLICATION.tag)
+        lines.append("application_info['products'] = %s" % 
+                     str(runner.cfg.APPLICATION.products))
+
+    content = "\n".join(lines)
+
+    # create hash from context information
+    dirname = sha1(content.encode()).hexdigest()
+    base_dir = os.path.join(tmp_dir, dirname)
+    os.makedirs(base_dir)
+    os.environ['TT_TMP_RESULT'] = base_dir
+
+    # create env_info file
+    f = open(os.path.join(base_dir, 'env_info.py'), "w")
+    f.write(content)
+    f.close()
+
+    # create working dir and bases dir
+    working_dir = os.path.join(base_dir, 'WORK')
+    os.makedirs(working_dir)
+    os.makedirs(os.path.join(base_dir, 'BASES'))
+    os.chdir(working_dir)
+
+    if 'PYTHONPATH' not in os.environ:
+        os.environ['PYTHONPATH'] = ''
+    else:
+        for var in os.environ['PYTHONPATH'].split(':'):
+            if var not in sys.path:
+                sys.path.append(var)
+
+    # launch of the tests
+    #####################
+    test_base = ""
+    if options.base:
+        test_base = options.base
+    elif with_application and "test_base" in runner.cfg.APPLICATION:
+        test_base = runner.cfg.APPLICATION.test_base.name
+
+    src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
+    src.printcolors.print_value(logger, _('Timeout'),
+                                src.test_module.DEFAULT_TIMEOUT, 2)
+    src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
+
+    # create the test object
+    test_runner = src.test_module.Test(runner.cfg,
+                                  logger,
+                                  base_dir,
+                                  testbase=test_base,
+                                  grids=options.grids,
+                                  sessions=options.sessions,
+                                  launcher=options.launcher,
+                                  show_desktop=show_desktop)
+    
+    if not test_runner.test_base_found:
+        # Fail 
+        return 1
+        
+    # run the test
+    logger.allowPrintLevel = False
+    retcode = test_runner.run_all_tests()
+    logger.allowPrintLevel = True
+
+    logger.write(_("Tests finished"), 1)
+    logger.write("\n", 2, False)
+    
+    logger.write(_("\nGenerate the specific test log\n"), 5)
+    log_dir = src.get_log_path(runner.cfg)
+    out_dir = os.path.join(log_dir, "TEST")
+    src.ensure_path_exists(out_dir)
+    name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
+    historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
+    
+    create_test_report(runner.cfg,
+                       historic_xml_path,
+                       out_dir,
+                       retcode,
+                       xmlname = name_xml_board)
+    xml_board_path = os.path.join(out_dir, name_xml_board)
+
+    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
+    #               de remontee de log des tests
+    print "TRACES OP - test.py/run() : historic_xml_path = '#%s#'" %historic_xml_path
+    print "TRACES OP - test.py/run() : log_dir           = '#%s#'" %log_dir
+    print "TRACES OP - test.py/run() : name_xml_board    = '#%s#'" %name_xml_board
+
+    logger.l_logFiles.append(xml_board_path)
+    logger.add_link(os.path.join("TEST", name_xml_board),
+                    "board",
+                    retcode,
+                    "Click on the link to get the detailed test results")
+    
+    # Add the historic files into the log files list of the command
+    logger.l_logFiles.append(historic_xml_path)
+    
+    logger.write(
+        _("Removing the temporary directory: %s\n" % 
+        test_runner.tmp_working_dir), 5 )
+    if os.path.exists(test_runner.tmp_working_dir):
+        shutil.rmtree(test_runner.tmp_working_dir)
+
+    return retcode
+   
 
 def ask_a_path():
     """ 
@@ -499,7 +704,7 @@ def create_test_report(config,
             gn.attrib['not_run'] = str(nb_not_run)
             
             # Remove the res attribute of all tests that were not launched 
-            # this time
+            # this time
             for mn in gn.findall("grid"):
                 if mn.attrib["executed_last_time"] == "no":
                     for tyn in mn.findall("session"):
@@ -543,187 +748,3 @@ def generate_history_xml_path(config, test_base):
     history_xml_name += ".xml"
     log_dir = src.get_log_path(config)
     return os.path.join(log_dir, "TEST", history_xml_name)
-
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with test parameter.
-    '''
-    (options, args) = parse_option(args, runner.cfg)
-
-    # the test base is specified either by the application, or by the --base option
-    with_application = False
-    if runner.cfg.VARS.application != 'None':
-        logger.write(
-            _('Running tests on application %s\n') % 
-            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-        with_application = True
-    elif not options.base:
-        raise src.SatException(
-          _('A test base is required. Use the --base option') )
-
-    # the launcher is specified either by the application, or by the --launcher option
-    if with_application:
-        # check if environment is loaded
-        if 'KERNEL_ROOT_DIR' in os.environ:
-            logger.write( src.printcolors.printcWarning(
-               _("WARNING: SALOME environment already sourced")) + "\n", 1 )
-            
-        
-    elif options.launcher:
-        logger.write(src.printcolors.printcWarning(
-           _("Running SALOME application.")) + "\n\n", 1)
-    else:
-        msg = _("Impossible to find any launcher.\n"
-                "Please specify an application or a launcher")
-        logger.write(src.printcolors.printcError(msg))
-        logger.write("\n")
-        return 1
-
-    # set the display
-    show_desktop = (options.display and options.display.upper() == "NO")
-    if options.display and options.display != "NO":
-        remote_name = options.display.split(':')[0]
-        if remote_name != "":
-            check_remote_machine(remote_name, logger)
-        # if explicitly set use user choice
-        os.environ['DISPLAY'] = options.display
-    elif 'DISPLAY' not in os.environ:
-        # if no display set
-        if ('test' in runner.cfg.LOCAL and
-                'display' in runner.cfg.LOCAL.test and 
-                len(runner.cfg.LOCAL.test.display) > 0):
-            # use default value for test tool
-            os.environ['DISPLAY'] = runner.cfg.LOCAL.test.display
-        else:
-            os.environ['DISPLAY'] = "localhost:0.0"
-
-    # initialization
-    #################
-    if with_application:
-        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                               runner.cfg.APPLICATION.name,
-                               "test")
-    else:
-        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                               "test")
-
-    # remove previous tmp dir
-    if os.access(tmp_dir, os.F_OK):
-        try:
-            shutil.rmtree(tmp_dir)
-        except:
-            logger.error(
-                _("error removing TT_TMP_RESULT %s\n") % tmp_dir)
-
-    lines = []
-    lines.append("date = '%s'" % runner.cfg.VARS.date)
-    lines.append("hour = '%s'" % runner.cfg.VARS.hour)
-    lines.append("node = '%s'" % runner.cfg.VARS.node)
-    lines.append("arch = '%s'" % runner.cfg.VARS.dist)
-
-    if 'APPLICATION' in runner.cfg:
-        lines.append("application_info = {}")
-        lines.append("application_info['name'] = '%s'" % 
-                     runner.cfg.APPLICATION.name)
-        lines.append("application_info['tag'] = '%s'" % 
-                     runner.cfg.APPLICATION.tag)
-        lines.append("application_info['products'] = %s" % 
-                     str(runner.cfg.APPLICATION.products))
-
-    content = "\n".join(lines)
-
-    # create hash from context information
-    dirname = sha1(content.encode()).hexdigest()
-    base_dir = os.path.join(tmp_dir, dirname)
-    os.makedirs(base_dir)
-    os.environ['TT_TMP_RESULT'] = base_dir
-
-    # create env_info file
-    f = open(os.path.join(base_dir, 'env_info.py'), "w")
-    f.write(content)
-    f.close()
-
-    # create working dir and bases dir
-    working_dir = os.path.join(base_dir, 'WORK')
-    os.makedirs(working_dir)
-    os.makedirs(os.path.join(base_dir, 'BASES'))
-    os.chdir(working_dir)
-
-    if 'PYTHONPATH' not in os.environ:
-        os.environ['PYTHONPATH'] = ''
-    else:
-        for var in os.environ['PYTHONPATH'].split(':'):
-            if var not in sys.path:
-                sys.path.append(var)
-
-    # launch of the tests
-    #####################
-    test_base = ""
-    if options.base:
-        test_base = options.base
-    elif with_application and "test_base" in runner.cfg.APPLICATION:
-        test_base = runner.cfg.APPLICATION.test_base.name
-
-    src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
-    src.printcolors.print_value(logger, _('Timeout'),
-                                src.test_module.DEFAULT_TIMEOUT, 2)
-    src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
-
-    # create the test object
-    test_runner = src.test_module.Test(runner.cfg,
-                                  logger,
-                                  base_dir,
-                                  testbase=test_base,
-                                  grids=options.grids,
-                                  sessions=options.sessions,
-                                  launcher=options.launcher,
-                                  show_desktop=show_desktop)
-    
-    if not test_runner.test_base_found:
-        # Fail 
-        return 1
-        
-    # run the test
-    logger.allowPrintLevel = False
-    retcode = test_runner.run_all_tests()
-    logger.allowPrintLevel = True
-
-    logger.write(_("Tests finished"), 1)
-    logger.write("\n", 2, False)
-    
-    logger.write(_("\nGenerate the specific test log\n"), 5)
-    log_dir = src.get_log_path(runner.cfg)
-    out_dir = os.path.join(log_dir, "TEST")
-    src.ensure_path_exists(out_dir)
-    name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
-    historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
-    
-    create_test_report(runner.cfg,
-                       historic_xml_path,
-                       out_dir,
-                       retcode,
-                       xmlname = name_xml_board)
-    xml_board_path = os.path.join(out_dir, name_xml_board)
-
-    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
-    print "TRACES OP - test.py/run() : historic_xml_path = '#%s#'" %historic_xml_path
-    print "TRACES OP - test.py/run() : log_dir           = '#%s#'" %log_dir
-    print "TRACES OP - test.py/run() : name_xml_board    = '#%s#'" %name_xml_board
-
-    logger.l_logFiles.append(xml_board_path)
-    logger.add_link(os.path.join("TEST", name_xml_board),
-                    "board",
-                    retcode,
-                    "Click on the link to get the detailed test results")
-    
-    # Add the historic files into the log files list of the command
-    logger.l_logFiles.append(historic_xml_path)
-    
-    logger.write(
-        _("Removing the temporary directory: %s\n" % 
-        test_runner.tmp_working_dir), 5 )
-    if os.path.exists(test_runner.tmp_working_dir):
-        shutil.rmtree(test_runner.tmp_working_dir)
-
-    return retcode
-

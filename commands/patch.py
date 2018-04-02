@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -19,14 +20,102 @@
 import os
 import subprocess
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 import commands.prepare
 
-# Define all possible option for patch command :  sat patch <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to get the sources. This option can be'
-    ' passed several time to get the sources of several products.'))
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The patch command apply the patches on the sources of the application products
+  if there is any.
+
+  examples:
+    >> sat patch SALOME --products qt,boost
+  """
+  
+  name = "patch"
+  
+  def getParser(self):
+    """Define all options for command 'sat patch <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products to get the sources. This option can be'
+        ' passed several time to get the sources of several products.'))
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat patch <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Print some informations
+    logger.write('Patching sources of the application %s\n' % 
+                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+
+    src.printcolors.print_value(logger, 'workdir', 
+                                runner.cfg.APPLICATION.workdir, 2)
+    logger.write("\n", 2, False)
+
+    # Get the products list with products informations regarding the options
+    products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)
+    
+    # Get the maximum name length in order to format the terminal display
+    max_product_name_len = 1
+    if len(products_infos) > 0:
+        max_product_name_len = max(map(lambda l: len(l), products_infos[0])) + 4
+    
+    # The loop on all the products on which to apply the patches
+    good_result = 0
+    for __, product_info in products_infos:
+        # Apply the patch
+        return_code, patch_res = apply_patch(runner.cfg,
+                                             product_info,
+                                             max_product_name_len,
+                                             logger)
+        logger.write(patch_res, 1, False)
+        if return_code:
+            good_result += 1
+    
+    # Display the results (how much passed, how much failed, etc...)
+
+    logger.write("\n", 2, False)
+    if good_result == len(products_infos):
+        status = src.OK_STATUS
+        res_count = "%d / %d" % (good_result, good_result)
+    else:
+        status = src.KO_STATUS
+        res_count = "%d / %d" % (good_result, len(products_infos))
+    
+    # write results
+    logger.write("Patching sources of the application:", 1)
+    logger.write(" " + src.printcolors.printc(status), 1, False)
+    logger.write(" (%s)\n" % res_count, 1, False)
+    
+    return len(products_infos) - good_result
+     
 
 def apply_patch(config, product_info, max_product_name_len, logger):
     '''The method called to apply patches on a product
@@ -119,70 +208,3 @@ def apply_patch(config, product_info, max_product_name_len, logger):
     res = not (False in res)
     
     return res, "\n".join(retcode) + "\n"
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the patch command description.
-    :rtype: str
-    '''
-    return _("""\
-The patch command apply the patches on the sources of the application products
-if there is any.
-
-example:
->> sat patch SALOME-master --products qt,boost""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with patch parameter.
-    '''
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-    
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Print some informations
-    logger.write('Patching sources of the application %s\n' % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-
-    src.printcolors.print_value(logger, 'workdir', 
-                                runner.cfg.APPLICATION.workdir, 2)
-    logger.write("\n", 2, False)
-
-    # Get the products list with products informations regarding the options
-    products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)
-    
-    # Get the maximum name length in order to format the terminal display
-    max_product_name_len = 1
-    if len(products_infos) > 0:
-        max_product_name_len = max(map(lambda l: len(l), products_infos[0])) + 4
-    
-    # The loop on all the products on which to apply the patches
-    good_result = 0
-    for __, product_info in products_infos:
-        # Apply the patch
-        return_code, patch_res = apply_patch(runner.cfg,
-                                             product_info,
-                                             max_product_name_len,
-                                             logger)
-        logger.write(patch_res, 1, False)
-        if return_code:
-            good_result += 1
-    
-    # Display the results (how much passed, how much failed, etc...)
-
-    logger.write("\n", 2, False)
-    if good_result == len(products_infos):
-        status = src.OK_STATUS
-        res_count = "%d / %d" % (good_result, good_result)
-    else:
-        status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(products_infos))
-    
-    # write results
-    logger.write("Patching sources of the application:", 1)
-    logger.write(" " + src.printcolors.printc(status), 1, False)
-    logger.write(" (%s)\n" % res_count, 1, False)
-    
-    return len(products_infos) - good_result

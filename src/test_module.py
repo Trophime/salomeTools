@@ -35,7 +35,7 @@ import string
 import imp
 import subprocess
 
-import src
+import src.pyconf as PYCONF
 
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
@@ -80,7 +80,7 @@ class Test:
         self.known_errors = None
 
         # create section for results
-        self.config.TESTS = src.pyconf.Sequence(self.config)
+        self.config.TESTS = PYCONF.Sequence(self.config)
 
         self.nb_run = 0
         self.nb_succeed = 0
@@ -615,18 +615,18 @@ class Test:
         self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed), 5)
 
         # create the test result to add in the config object
-        test_info = src.pyconf.Mapping(self.config)
+        test_info = PYCONF.Mapping(self.config)
         test_info.testbase = self.currentTestBase
         test_info.grid = self.currentgrid
         test_info.session = self.currentsession
-        test_info.script = src.pyconf.Sequence(self.config)
+        test_info.script = PYCONF.Sequence(self.config)
 
         script_results = self.read_results(listTest, elapsed == time_out)
         for sr in sorted(script_results.keys()):
             self.nb_run += 1
 
             # create script result
-            script_info = src.pyconf.Mapping(self.config)
+            script_info = PYCONF.Mapping(self.config)
             script_info.name = sr
             script_info.res = script_results[sr][0]
             script_info.time = script_results[sr][1]
@@ -640,7 +640,7 @@ class Test:
 
             kfres = script_results[sr][3]
             if len(kfres) > 0:
-                script_info.known_error = src.pyconf.Mapping(self.config)
+                script_info.known_error = PYCONF.Mapping(self.config)
                 script_info.known_error.date = kfres[0]
                 script_info.known_error.expected = kfres[1]
                 script_info.known_error.comment = kfres[2]

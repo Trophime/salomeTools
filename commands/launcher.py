@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,27 +17,88 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 import platform
 import shutil
 import getpass
 import subprocess
 import stat
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-parser = src.options.Options()
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The launcher command generates a SALOME launcher.
+  
+  examples:
+    >> sat launcher SALOME 
+  """
+  
+  name = "launcher"
+  
+  def getParser(self):
+    """Define all possible options for command 'sat launcher <options>'"""
+    parser = self.getParserWithHelp()
+    return parser
 
-parser.add_option(
-    'n', 'name', 'string', 'name', 
-    _('Optional: The name of the launcher (default is APPLICATION.profile.launcher_name)') )
-parser.add_option(
-    'c', 'catalog', 'string', 'catalog',
-    _('Optional: The resources catalog to use') )
-parser.add_option(
-    '', 'gencat', 'string', 'gencat',
-    _("Optional: Create a resources catalog for the specified machines (separated with ',')\n"
-      "  NOTICE: this command will ssh to retrieve information to each machine in the list") )
+  def run(self, cmd_arguments):
+    """method called for command 'sat launcher <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # Verify that the command was called with an application
+    src.check_config_has_application( runner.cfg )
+    
+    # Determine the launcher name (from option, profile section or by default "salome")
+    if options.name:
+        launcher_name = options.name
+    else:
+        launcher_name = src.get_launcher_name(runner.cfg)
+
+    # set the launcher path
+    launcher_path = runner.cfg.APPLICATION.workdir
+
+    # Copy a catalog if the option is called
+    additional_environ = {}
+    if options.catalog:
+        additional_environ = copy_catalog(runner.cfg, options.catalog)
+
+    # Generate a catalog of resources if the corresponding option was called
+    if options.gencat:
+        catalog_path  = generate_catalog(options.gencat.split(","),
+                                         runner.cfg,
+                                         logger)
+        additional_environ = copy_catalog(runner.cfg, catalog_path)
+
+    # Generate the launcher
+    launcherPath = generate_launch_file( runner.cfg,
+                                         logger,
+                                         launcher_name,
+                                         launcher_path,
+                                         additional_env = additional_environ )
+
+    return 0
+
 
 def generate_launch_file(config,
                          logger,
@@ -215,56 +277,3 @@ def copy_catalog(config, catalog_path):
     shutil.copy(catalog_path, new_catalog_path)
     additional_environ = {'USER_CATALOG_RESOURCES_FILE' : new_catalog_path}
     return additional_environ
-
-
-
-##################################################
-
-##
-# Describes the command
-def description():
-    return _("""\
-The launcher command generates a SALOME launcher.
-
-example:
->> sat launcher SALOME-master""")
-
-##
-# Runs the command.
-def run(args, runner, logger):
-
-    # check for product
-    (options, args) = parser.parse_args(args)
-
-    # Verify that the command was called with an application
-    src.check_config_has_application( runner.cfg )
-    
-    # Determine the launcher name (from option, profile section or by default "salome")
-    if options.name:
-        launcher_name = options.name
-    else:
-        launcher_name = src.get_launcher_name(runner.cfg)
-
-    # set the launcher path
-    launcher_path = runner.cfg.APPLICATION.workdir
-
-    # Copy a catalog if the option is called
-    additional_environ = {}
-    if options.catalog:
-        additional_environ = copy_catalog(runner.cfg, options.catalog)
-
-    # Generate a catalog of resources if the corresponding option was called
-    if options.gencat:
-        catalog_path  = generate_catalog(options.gencat.split(","),
-                                         runner.cfg,
-                                         logger)
-        additional_environ = copy_catalog(runner.cfg, catalog_path)
-
-    # Generate the launcher
-    launcherPath = generate_launch_file( runner.cfg,
-                                         logger,
-                                         launcher_name,
-                                         launcher_path,
-                                         additional_env = additional_environ )
-
-    return 0

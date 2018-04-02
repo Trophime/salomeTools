@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -19,25 +20,48 @@
 import os
 import subprocess
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-parser = src.options.Options() # no options yet
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The run command runs the application launcher with the given arguments.
+  
+  examples:
+    >> sat run SALOME
+  """
+  
+  name = "run"
+  
+  def getParser(self):
+    """Define all options for command 'sat run <options>'"""
+    parser = self.getParserWithHelp() # no options yet
+    return parser
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
+  def run(self, cmd_arguments):
+    """method called for command 'sat run <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
     
-    :return: The text to display for the run command description.
-    :rtype: str
-    '''
-    return _("""\
-This command runs the application launcher with the given arguments.
-
-example:
->> sat run SALOME-master""")
-
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with run parameter.
-    '''
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
 
     # check for product
     src.check_config_has_application(runner.cfg)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,20 +17,97 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-# Define all possible option for the script command :  sat script <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
-parser.add_option('', 'nb_proc', 'int', 'nb_proc',
-    _('Optional: The number of processors to use in the script if the make '
-      'command is used in it.\n\tWarning: the script has to be correctly written '
-      'if you want this option to work.\n\tThe $MAKE_OPTIONS has to be '
-      'used.'), 0)
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The script command executes the script(s) of the the given products in the build directory.
+  This is done only for the products that are constructed using a script (build_source : 'script').
+  Otherwise, nothing is done.
+
+  examples:
+    >> sat script SALOME --products Python,numpy
+  """
+  
+  name = "script"
+  
+  def getParser(self):
+    """Define all options for the command 'sat script <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products to configure. This option can be'
+        ' passed several time to configure several products.'))
+    parser.add_option('', 'nb_proc', 'int', 'nb_proc',
+        _('Optional: The number of processors to use in the script if the make '
+          'command is used in it.\n\tWarning: the script has to be correctly written '
+          'if you want this option to work.\n\tThe $MAKE_OPTIONS has to be '
+          'used.'), 0)
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat script <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Get the list of products to treat
+    products_infos = get_products_list(options, runner.cfg, logger)
+    
+    # Print some informations
+    msg = ('Executing the script in the build directories of the application %s\n') % \
+                src.printcolors.printcLabel(runner.cfg.VARS.application)
+    logger.write(msg, 1)
+    
+    info = [(_("BUILD directory"), os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    src.print_info(logger, info)
+    
+    # Call the function that will loop over all the products and execute
+    # the right command(s)
+    if options.nb_proc is None:
+        options.nb_proc = 0
+    res = run_script_all_products(runner.cfg,
+                                  products_infos,
+                                  options.nb_proc,
+                                  logger)
+    
+    # Print the final state
+    nb_products = len(products_infos)
+    if res == 0:
+        final_status = "OK"
+    else:
+        final_status = "KO"
+   
+    logger.write(_("\nScript: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': src.printcolors.printc(final_status), 
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
+    
+    return res 
+    
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -169,62 +247,3 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     logger.write("\n", 3, False)
 
     return res
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the script command description.
-    :rtype: str
-    '''
-    return _("""\
-The script command executes the script(s) of the the given products in the build directory.
-  This is done only for the products that are constructed using a script (build_source : 'script').
-  Otherwise, nothing is done.
-
-  example:
-  >> sat script SALOME-master --products Python,numpy
-""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with make parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
-    
-    # Print some informations
-    msg = ('Executing the script in the build directories of the application %s\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.application)
-    logger.write(msg, 1)
-    
-    info = [(_("BUILD directory"), os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
-    
-    # Call the function that will loop over all the products and execute
-    # the right command(s)
-    if options.nb_proc is None:
-        options.nb_proc = 0
-    res = run_script_all_products(runner.cfg,
-                                  products_infos,
-                                  options.nb_proc,
-                                  logger)
-    
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
-   
-    logger.write(_("\nScript: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
-    
-    return res 

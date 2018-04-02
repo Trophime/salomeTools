@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,17 +17,97 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-# Define all possible option for configure command :  sat configure <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
-parser.add_option('o', 'option', 'string', 'option',
-    _('Optional: Option to add to the configure or cmake command.'), "")
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The configure command executes in the build directory commands
+  corresponding to the compilation mode of the application products.
+  The possible compilation modes are 'cmake', 'autotools', or 'script'.
+
+  Here are the commands to be run:
+    autotools: >> build_configure and configure
+    cmake:     >> cmake
+    script:    (do nothing)
+  
+  examples:
+    >> sat configure SALOME --products KERNEL,GUI,PARAVIS
+  """
+  
+  name = "configure"
+  
+  def getParser(self):
+    """Define all options for command 'sat configure <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products to configure. This option can be'
+        ' passed several time to configure several products.'))
+    parser.add_option('o', 'option', 'string', 'option',
+        _('Optional: Option to add to the configure or cmake command.'), "")
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat configure <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+    
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Get the list of products to treat
+    products_infos = get_products_list(options, runner.cfg, logger)
+    
+    # Print some informations
+    logger.write(_('Configuring the sources of the application %s\n') % 
+                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    
+    info = [(_("BUILD directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    src.print_info(logger, info)
+    
+    # Call the function that will loop over all the products and execute
+    # the right command(s)
+    if options.option is None:
+        options.option = ""
+    res = configure_all_products(runner.cfg, products_infos, options.option, logger)
+    
+    # Print the final state
+    nb_products = len(products_infos)
+    if res == 0:
+        final_status = "OK"
+    else:
+        final_status = "KO"
+   
+    logger.write(_("\nConfiguration: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+        { 'status': src.printcolors.printc(final_status), 
+          'valid_result': nb_products - res,
+          'nb_products': nb_products }, 1)    
+    
+    return res 
+
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -169,63 +250,3 @@ def configure_product(p_name_info, conf_option, config, logger):
     logger.write("\n", 3, False)
 
     return res
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the configure command description.
-    :rtype: str
-    '''
-    return _("""\
-The configure command executes in the build directory commands
-corresponding to the compilation mode of the application products.
-The possible compilation modes are 'cmake', 'autotools', or 'script'.
-
-Here are the commands to be run:
-  autotools: >> build_configure and configure
-  cmake:     >> cmake
-  script:    (do nothing)
-
-example:
->> sat configure SALOME-master --products KERNEL,GUI,PARAVIS""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with make parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
-    
-    # Print some informations
-    logger.write(_('Configuring the sources of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
-    info = [(_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
-    
-    # Call the function that will loop over all the products and execute
-    # the right command(s)
-    if options.option is None:
-        options.option = ""
-    res = configure_all_products(runner.cfg, products_infos, options.option, logger)
-    
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
-   
-    logger.write(_("\nConfiguration: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
-    
-    return res 

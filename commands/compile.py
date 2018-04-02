@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,9 +17,12 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
+import os
+import src.debug as DBG
+import src.returnCode as RCO
+import src.pyconf as PYCONF
+from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -27,46 +31,145 @@ try:
 except NameError: 
     pass
 
-# Define all possible option for the compile command :  sat compile <options>
-parser = src.options.Options()
-parser.add_option(
-    'p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be passed several time to configure several products.'))
-parser.add_option(
-    '', 'with_fathers', 'boolean', 'fathers',
-    _("Optional: build all necessary products to the given product (KERNEL is build before building GUI)."), 
-    False)
-parser.add_option(
-    '', 'with_children', 'boolean', 'children',
-    _("Optional: build all products using the given product (all SMESH plugins  are build after SMESH)."),
-    False)
-parser.add_option(
-    '', 'clean_all', 'boolean', 'clean_all',
-    _("Optional: clean BUILD dir and INSTALL dir before building product."),
-    False)
-parser.add_option(
-    '', 'clean_install', 'boolean', 'clean_install',
-    _("Optional: clean INSTALL dir before building product."), False)
-parser.add_option(
-    '', 'make_flags', 'string', 'makeflags',
-    _("Optional: add extra options to the 'make' command."))
-parser.add_option(
-    '', 'show', 'boolean', 'no_compile',
-    _("Optional: DO NOT COMPILE just show if products are installed or not."),
-    False)
-parser.add_option(
-    '', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
-    "Optional: Stops the command at first product compilation fail."), 
-    False)
-parser.add_option(
-    '', 'check', 'boolean', 'check', 
-    _("Optional: execute the unit tests after compilation"), 
-   False)
-parser.add_option(
-    '', 'clean_build_after', 'boolean', 'clean_build_after', 
-    _('Optional: remove the build directory after successful compilation'), 
-    False)
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The compile command constructs the products of the application
+  
+  examples:
+    >> sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all
+  """
+  
+  name = "compile"
+  
+  def getParser(self):
+    """Define all options for the command 'sat compile <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option(
+        'p', 'products', 'list2', 'products',
+        _('Optional: products to configure. This option can be passed several time to configure several products.'))
+    parser.add_option(
+        '', 'with_fathers', 'boolean', 'fathers',
+        _("Optional: build all necessary products to the given product (KERNEL is build before building GUI)."), 
+        False)
+    parser.add_option(
+        '', 'with_children', 'boolean', 'children',
+        _("Optional: build all products using the given product (all SMESH plugins  are build after SMESH)."),
+        False)
+    parser.add_option(
+        '', 'clean_all', 'boolean', 'clean_all',
+        _("Optional: clean BUILD dir and INSTALL dir before building product."),
+        False)
+    parser.add_option(
+        '', 'clean_install', 'boolean', 'clean_install',
+        _("Optional: clean INSTALL dir before building product."), False)
+    parser.add_option(
+        '', 'make_flags', 'string', 'makeflags',
+        _("Optional: add extra options to the 'make' command."))
+    parser.add_option(
+        '', 'show', 'boolean', 'no_compile',
+        _("Optional: DO NOT COMPILE just show if products are installed or not."),
+        False)
+    parser.add_option(
+        '', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
+        "Optional: Stops the command at first product compilation fail."), 
+        False)
+    parser.add_option(
+        '', 'check', 'boolean', 'check', 
+        _("Optional: execute the unit tests after compilation"), 
+       False)
+    parser.add_option(
+        '', 'clean_build_after', 'boolean', 'clean_build_after', 
+        _('Optional: remove the build directory after successful compilation'), 
+        False)
+    return parser
 
+  def run(self, cmd_arguments):
+    """method called for command 'sat compile <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # Warn the user if he invoked the clean_all option 
+    # without --products option
+    if (options.clean_all and 
+        options.products is None and 
+        not runner.options.batch):
+        rep = input(_("You used --clean_all without specifying a product"
+                      " are you sure you want to continue? [Yes/No] "))
+        if rep.upper() != _("YES").upper():
+            return 0
+        
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Print some informations
+    logger.write(_('Executing the compile commands in the build '
+                   'directories of the products of the application %s\n') % 
+                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    
+    info = [
+            (_("SOURCE directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),
+            (_("BUILD directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))
+            ]
+    src.print_info(logger, info)
+
+    # Get the list of products to treat
+    products_infos = get_products_list(options, runner.cfg, logger)
+
+    if options.fathers:
+        # Extend the list with all recursive dependencies of the given products
+        products_infos = extend_with_fathers(runner.cfg, products_infos)
+
+    if options.children:
+        # Extend the list with all products that use the given products
+        products_infos = extend_with_children(runner.cfg, products_infos)
+
+    # Sort the list regarding the dependencies of the products
+    products_infos = sort_products(runner.cfg, products_infos)
+
+    
+    # Call the function that will loop over all the products and execute
+    # the right command(s)
+    res = compile_all_products(runner, runner.cfg, options, products_infos, logger)
+    
+    # Print the final state
+    nb_products = len(products_infos)
+    if res == 0:
+        final_status = "OK"
+    else:
+        final_status = "KO"
+   
+    logger.write(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") %
+        { 'status': src.printcolors.printc(final_status), 
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
+    
+    code = res
+    if code != 0:
+        code = 1
+    return code
+      
+      
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
        configuration regarding the passed options.
@@ -444,7 +547,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     
     p_name, p_info = p_name_info
           
-    # Get the build procedure from the product configuration.
+    # Get the build procedure from the product configuration.
     # It can be :
     # build_sources : autotools -> build_configure, configure, make, make install
     # build_sources : cmake     -> cmake, make, make install
@@ -618,11 +721,11 @@ def add_compile_config_file(p_info, config):
     :param config Config: The global configuration
     '''
     # Create the compile config
-    compile_cfg = src.pyconf.Config()
+    compile_cfg = PYCONF.Config()
     for prod_name in p_info.depend:
         if prod_name not in compile_cfg:
             compile_cfg.addMapping(prod_name,
-                                   src.pyconf.Mapping(compile_cfg),
+                                   PYCONF.Mapping(compile_cfg),
                                    "")
         prod_dep_info = src.product.get_product_config(config, prod_name, False)
         compile_cfg[prod_name] = prod_dep_info.version
@@ -632,83 +735,3 @@ def add_compile_config_file(p_info, config):
     compile_cfg.__save__(f)
     f.close()
     
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the compile command description.
-    :rtype: str
-    '''
-    return _("""\
-The compile command constructs the products of the application
-
-example:
->> sat compile SALOME-master --products KERNEL,GUI,MEDCOUPLING --clean_all""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with compile parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-
-    # Warn the user if he invoked the clean_all option 
-    # without --products option
-    if (options.clean_all and 
-        options.products is None and 
-        not runner.options.batch):
-        rep = input(_("You used --clean_all without specifying a product"
-                      " are you sure you want to continue? [Yes/No] "))
-        if rep.upper() != _("YES").upper():
-            return 0
-        
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Print some informations
-    logger.write(_('Executing the compile commands in the build '
-                   'directories of the products of the application %s\n') % 
-                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
-    info = [
-            (_("SOURCE directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),
-            (_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))
-            ]
-    src.print_info(logger, info)
-
-    # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
-
-    if options.fathers:
-        # Extend the list with all recursive dependencies of the given products
-        products_infos = extend_with_fathers(runner.cfg, products_infos)
-
-    if options.children:
-        # Extend the list with all products that use the given products
-        products_infos = extend_with_children(runner.cfg, products_infos)
-
-    # Sort the list regarding the dependencies of the products
-    products_infos = sort_products(runner.cfg, products_infos)
-
-    
-    # Call the function that will loop over all the products and execute
-    # the right command(s)
-    res = compile_all_products(runner, runner.cfg, options, products_infos, logger)
-    
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
-   
-    logger.write(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") %
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
-    
-    code = res
-    if code != 0:
-        code = 1
-    return code

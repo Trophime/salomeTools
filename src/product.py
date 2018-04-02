@@ -22,7 +22,7 @@
 import os
 import re
 
-import src
+import src.pyconf as PYCONF
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
@@ -53,7 +53,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     dev = 'no'
     base = 'maybe'
     section = None
-    if isinstance(version, src.pyconf.Mapping):
+    if isinstance(version, PYCONF.Mapping):
         dic_version = version
         # Get the version/tag
         if not 'tag' in dic_version:
@@ -126,17 +126,17 @@ def get_product_config(config, product_name, with_install_dir=True):
     # If there is no definition but the product is declared as native,
     # construct a new definition containing only the get_source key
     if prod_info is None and version == "native":
-        prod_info = src.pyconf.Config()
+        prod_info = PYCONF.Config()
         prod_info.name = product_name
         prod_info.get_source = "native"
 
     # If there is no definition but the product is fixed,
     # construct a new definition containing only the product name
     if prod_info is None and os.path.isdir(version):
-        prod_info = src.pyconf.Config()
+        prod_info = PYCONF.Config()
         prod_info.name = product_name
         prod_info.get_source = "fixed"
-        prod_info.addMapping("environ", src.pyconf.Mapping(prod_info), "")
+        prod_info.addMapping("environ", PYCONF.Mapping(prod_info), "")
 
 
     # If prod_info is still None, it means that there is no product definition
@@ -167,7 +167,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     if prod_info.get_source == "archive":
         if not "archive_info" in prod_info:
             prod_info.addMapping("archive_info",
-                                 src.pyconf.Mapping(prod_info),
+                                 PYCONF.Mapping(prod_info),
                                  "")
         if "archive_name" not in prod_info.archive_info: 
             arch_name = product_name + "-" + version + ".tar.gz"
@@ -431,7 +431,7 @@ def check_config_exists(config, prod_dir, prod_info):
         
         # If there is no dependency, it is the right path
         if len(prod_info.depend)==0:
-            compile_cfg = src.pyconf.Config(config_file)
+            compile_cfg = PYCONF.Config(config_file)
             if len(compile_cfg) == 0:
                 return True, os.path.join(prod_dir, dir_or_file)
             continue
@@ -439,7 +439,7 @@ def check_config_exists(config, prod_dir, prod_info):
         # check if there is the config described in the file corresponds the 
         # dependencies of the product
         config_corresponds = True    
-        compile_cfg = src.pyconf.Config(config_file)
+        compile_cfg = PYCONF.Config(config_file)
         for prod_dep in prod_info.depend:
             # if the dependency is not in the config, 
             # the config does not correspond

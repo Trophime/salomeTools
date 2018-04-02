@@ -42,6 +42,7 @@ import pprint as PP
 import src # for __version__
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.returnCode as RCO # Easy (ok/ko, why) return methods code
+from src.options import Options
 
 # get path to src
 rootdir = os.path.realpath( os.path.join(os.path.dirname(__file__), "..") )
@@ -163,7 +164,7 @@ class _BaseCommand(object):
         res = "%s(\n %s)\n" % (self.getClassName(), tmp[1:-1])
         return res
 
-    def run(self, args):
+    def run(self, cmd_arguments):
         """
         virtual example method for Command instance
         have to return RCO.ReturnCode()
@@ -188,6 +189,12 @@ class _BaseCommand(object):
           raise Exception("%s instance needs self._option not None, fix it." % self.getClassName())
         else:
           return self._options
+    
+    def getParserWithHelp(self):
+        """returns elementary parser with help option set"""
+        parser = Options()
+        parser.add_option('h', 'help', 'boolean', 'help', _("shows help on command."))
+        return parser
 
     def getRunner(self):
         if self._runner is None:
@@ -330,8 +337,7 @@ class Sat(object):
         Define all possible <options> for salomeTools/sat command: 'sat <options> <args>'
         (internal use only)
         """
-        import src.options
-        parser = src.options.Options()
+        parser = Options()
         parser.add_option('h', 'help', 'boolean', 'help', 
                           _("shows global help or help on a specific command."))
         parser.add_option('o', 'overwrite', 'list', "overwrite", 

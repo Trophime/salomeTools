@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +24,9 @@ import subprocess
 import fnmatch
 import re
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -32,24 +35,161 @@ try:
 except NameError: 
     pass
 
-parser = src.options.Options()
-parser.add_option('n', 'name', 'string', 'name',
-    _("""\
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The template command creates the sources for a SALOME module from a template.
+
+  examples:
+    >> sat template --name my_product_name --template PythonComponent --target /tmp
+  """
+  
+  name = "template"
+  
+  def getParser(self):
+    """Define all options for command 'sat template <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('n', 'name', 'string', 'name',
+        _("""\
 REQUIRED: the name of the module to create.
   The name must be a single word in upper case with only alphanumeric characters.
   When generating a c++ component the module's name must be suffixed with 'CPP'."""))
-parser.add_option('t', 'template', 'string', 'template',
-    _('REQUIRED: the template to use.'))
-parser.add_option('', 'target', 'string', 'target',
-    _('REQUIRED: where to create the module.'))
-parser.add_option('', 'param', 'string', 'param',
-    _("""\
+    parser.add_option('t', 'template', 'string', 'template',
+        _('REQUIRED: the template to use.'))
+    parser.add_option('', 'target', 'string', 'target',
+        _('REQUIRED: where to create the module.'))
+    parser.add_option('', 'param', 'string', 'param',
+        _("""\
 Optional: dictionary to generate the configuration for salomeTools.
   Format is: --param param1=value1,param2=value2... (without spaces).
   Note that when using this option you must supply all the values,
        otherwise an error will be raised.""") )
-parser.add_option('', 'info', 'boolean', 'info',
-    _('Optional: Get information on the template.'), False)
+    parser.add_option('', 'info', 'boolean', 'info',
+        _('Optional: Get information on the template.'), False)
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat template <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    if options.template is None:
+        msg = _("Error: the --%s argument is required\n") % "template"
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    if options.target is None and options.info is None:
+        msg = _("Error: the --%s argument is required\n") % "target"
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    if "APPLICATION" in runner.cfg:
+        msg = _("Error: this command does not use a product.")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    if options.info:
+        return get_template_info(runner.cfg, options.template, logger)
+
+    if options.name is None:
+        msg = _("Error: the --%s argument is required\n") % "name"
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    if not options.name.replace('_', '').isalnum():
+        msg = _("Error: component name must contains only alphanumeric "
+                "characters and no spaces\n")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    # CNC inutile
+    # Ask user confirmation if a module of the same name already exists
+    #if options.name in runner.cfg.PRODUCTS and not runner.options.batch:
+    #    logger.write(src.printcolors.printcWarning(
+    #                _("A module named '%s' already exists." % options.name)), 1)
+    #    logger.write("\n", 1)
+    #    rep = input(_("Are you sure you want to continue? [Yes/No] "))
+    #    if rep.upper() != _("YES"):
+    #        return 1
+
+    if options.target is None:
+        msg = _("Error: the --%s argument is required\n") % "target"
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    target_dir = os.path.join(options.target, options.name)
+    if os.path.exists(target_dir):
+        msg = _("Error: the target already exists: %s") % target_dir
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    # CNC inutile
+    #if options.template == "Application":
+    #    if "_APPLI" not in options.name and not runner.options.batch:
+    #        msg = _("An Application module named '..._APPLI' "
+    #                "is usually recommended.")
+    #        logger.write(src.printcolors.printcWarning(msg), 1)
+    #        logger.write("\n", 1)
+    #        rep = input(_("Are you sure you want to continue? [Yes/No] "))
+    #        if rep.upper() != _("YES"):
+    #            return 1
+
+    logger.write(_('Create sources from template\n'), 1)
+    src.printcolors.print_value(logger, 'destination', target_dir, 2)
+    src.printcolors.print_value(logger, 'name', options.name, 2)
+    src.printcolors.print_value(logger, 'template', options.template, 2)
+    logger.write("\n", 3, False)
+    
+    conf_values = None
+    if options.param is not None:
+        conf_values = {}
+        for elt in options.param.split(","):
+            param_def = elt.strip().split('=')
+            if len(param_def) != 2:
+                msg = _("Error: bad parameter definition")
+                logger.write(src.printcolors.printcError(msg), 1)
+                logger.write("\n", 1)
+                return 1
+            conf_values[param_def[0].strip()] = param_def[1].strip()
+    
+    retcode = prepare_from_template(runner.cfg, options.name, options.template,
+        target_dir, conf_values, logger)
+
+    if retcode == 0:
+        logger.write(_(
+                 "The sources were created in %s") % src.printcolors.printcInfo(
+                                                                 target_dir), 3)
+        logger.write(src.printcolors.printcWarning(_("\nDo not forget to put "
+                                   "them in your version control system.")), 3)
+        
+    logger.write("\n", 3)
+    
+    return retcode
 
 class TParam:
     def __init__(self, param_def, compo_name, dico=None):
@@ -426,118 +566,4 @@ def get_template_info(config, template_name, logger):
     # clean up tmp file
     shutil.rmtree(tmpdir)
 
-    return retcode
-
-##
-# Describes the command
-def description():
-    return _("""\
-The template command creates the sources for a SALOME module from a template.
-
-example:
->> sat template --name my_product_name --template PythonComponent --target /tmp""")
-
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with template parameter.
-    '''
-    (options, args) = parser.parse_args(args)
-
-    if options.template is None:
-        msg = _("Error: the --%s argument is required\n") % "template"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    if options.target is None and options.info is None:
-        msg = _("Error: the --%s argument is required\n") % "target"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    if "APPLICATION" in runner.cfg:
-        msg = _("Error: this command does not use a product.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    if options.info:
-        return get_template_info(runner.cfg, options.template, logger)
-
-    if options.name is None:
-        msg = _("Error: the --%s argument is required\n") % "name"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    if not options.name.replace('_', '').isalnum():
-        msg = _("Error: component name must contains only alphanumeric "
-                "characters and no spaces\n")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    # CNC inutile
-    # Ask user confirmation if a module of the same name already exists
-    #if options.name in runner.cfg.PRODUCTS and not runner.options.batch:
-    #    logger.write(src.printcolors.printcWarning(
-    #                _("A module named '%s' already exists." % options.name)), 1)
-    #    logger.write("\n", 1)
-    #    rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #    if rep.upper() != _("YES"):
-    #        return 1
-
-    if options.target is None:
-        msg = _("Error: the --%s argument is required\n") % "target"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    target_dir = os.path.join(options.target, options.name)
-    if os.path.exists(target_dir):
-        msg = _("Error: the target already exists: %s") % target_dir
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    # CNC inutile
-    #if options.template == "Application":
-    #    if "_APPLI" not in options.name and not runner.options.batch:
-    #        msg = _("An Application module named '..._APPLI' "
-    #                "is usually recommended.")
-    #        logger.write(src.printcolors.printcWarning(msg), 1)
-    #        logger.write("\n", 1)
-    #        rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #        if rep.upper() != _("YES"):
-    #            return 1
-
-    logger.write(_('Create sources from template\n'), 1)
-    src.printcolors.print_value(logger, 'destination', target_dir, 2)
-    src.printcolors.print_value(logger, 'name', options.name, 2)
-    src.printcolors.print_value(logger, 'template', options.template, 2)
-    logger.write("\n", 3, False)
-    
-    conf_values = None
-    if options.param is not None:
-        conf_values = {}
-        for elt in options.param.split(","):
-            param_def = elt.strip().split('=')
-            if len(param_def) != 2:
-                msg = _("Error: bad parameter definition")
-                logger.write(src.printcolors.printcError(msg), 1)
-                logger.write("\n", 1)
-                return 1
-            conf_values[param_def[0].strip()] = param_def[1].strip()
-    
-    retcode = prepare_from_template(runner.cfg, options.name, options.template,
-        target_dir, conf_values, logger)
-
-    if retcode == 0:
-        logger.write(_(
-                 "The sources were created in %s") % src.printcolors.printcInfo(
-                                                                 target_dir), 3)
-        logger.write(src.printcolors.printcWarning(_("\nDo not forget to put "
-                                   "them in your version control system.")), 3)
-        
-    logger.write("\n", 3)
-    
     return retcode

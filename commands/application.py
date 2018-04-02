@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2013  CEA/DEN
+
+#  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,40 +17,183 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""
 import os
 import stat
 import sys
 import shutil
 import subprocess
 import getpass
+"""
 
 from src import ElementTree as etree
-import src
 
-parser = src.options.Options()
-parser.add_option(
-    'n', 'name', 'string', 'name',
-    _('Optional: The name of the application (default is APPLICATION.virtual_app.name or '
-      'runAppli)') )
-parser.add_option(
-    'c', 'catalog', 'string', 'catalog',
-    _('Optional: The resources catalog to use') )
-parser.add_option(
-    't', 'target', 'string', 'target',
-    _('Optional: The directory where to create the application (default is '
-      'APPLICATION.workdir)') )
-parser.add_option(
-    '', 'gencat', 'string', 'gencat',
-    _("""\
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The application command creates a SALOME application. 
+
+  WARNING: 
+    It works only for SALOME 6.
+    Use the 'launcher' command for newer versions of SALOME
+
+  examples:
+    >> sat application SALOME-6.6.0
+  """
+  
+  name = "application"
+  
+  def getParser(self):
+    """Define all options for command 'sat application <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('n', 'name', 'string', 'name',
+        _("""\
+Optional: The name of the application 
+          (default is APPLICATION.virtual_app.name or runAppli)""") )
+    parser.add_option('c', 'catalog', 'string', 'catalog',
+        _('Optional: The resources catalog to use') )
+    parser.add_option('t', 'target', 'string', 'target',
+        _("""\
+Optional: The directory where to create the application
+          (default is APPLICATION.workdir)""") )
+    parser.add_option('', 'gencat', 'string', 'gencat',
+        _("""\
 Optional: Create a resources catalog for the specified machines (separated with ',')
+NOTICE:   this command will ssh to retrieve information to each machine in the list""") )
+    parser.add_option('m', 'module', 'list2', 'modules',
+        _("Optional: the restricted list of module(s) to include in the application") )
+    return parser
 
-  NOTICE: this command will ssh to retrieve information to each machine in the list""") )
-parser.add_option(
-    'm', 'module', 'list2', 'modules',
-    _("Optional: the restricted list of module(s) to include in the "
-      "application") )
+  def run(self, cmd_arguments):
+    """method called for command 'sat application <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
 
-##
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+    
+    # check for product
+    src.check_config_has_application( runner.cfg )
+
+    application = src.printcolors.printcLabel(runner.cfg.VARS.application)
+    logger.write(_("Building application for %s\n") % application, 1)
+
+    # if section APPLICATION.virtual_app does not exists create one
+    if "virtual_app" not in runner.cfg.APPLICATION:
+        msg = _("The section APPLICATION.virtual_app is not defined in the product.")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    # get application dir
+    target_dir = runner.cfg.APPLICATION.workdir
+    if options.target:
+        target_dir = options.target
+
+    # set list of modules
+    if options.modules:
+        runner.cfg.APPLICATION.virtual_app['modules'] = options.modules
+
+    # set name and application_name
+    if options.name:
+        runner.cfg.APPLICATION.virtual_app['name'] = options.name
+        runner.cfg.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
+    
+    application_name = src.get_cfg_param(runner.cfg.APPLICATION.virtual_app,
+                                         "application_name",
+                                         runner.cfg.APPLICATION.virtual_app.name + "_appdir")
+    appli_dir = os.path.join(target_dir, application_name)
+
+    src.printcolors.print_value(logger,
+                                _("Application directory"),
+                                appli_dir,
+                                3)
+
+    # get catalog
+    catalog, catalog_src = "", ""
+    if options.catalog:
+        # use catalog specified in the command line
+        catalog = options.catalog
+    elif options.gencat:
+        # generate catalog for given list of computers
+        catalog_src = options.gencat
+        catalog = generate_catalog(options.gencat.split(","),
+                                   runner.cfg,logger)
+    elif 'catalog' in runner.cfg.APPLICATION.virtual_app:
+        # use catalog specified in the product
+        if runner.cfg.APPLICATION.virtual_app.catalog.endswith(".xml"):
+            # catalog as a file
+            catalog = runner.cfg.APPLICATION.virtual_app.catalog
+        else:
+            # catalog as a list of computers
+            catalog_src = runner.cfg.APPLICATION.virtual_app.catalog
+            mlist = filter(lambda l: len(l.strip()) > 0,
+                           runner.cfg.APPLICATION.virtual_app.catalog.split(","))
+            if len(mlist) > 0:
+                catalog = generate_catalog(runner.cfg.APPLICATION.virtual_app.catalog.split(","),
+                                           runner.cfg, logger)
+
+    # display which catalog is used
+    if len(catalog) > 0:
+        catalog = os.path.realpath(catalog)
+        if len(catalog_src) > 0:
+            src.printcolors.print_value(logger,
+                                        _("Resources Catalog"),
+                                        catalog_src,
+                                        3)
+        else:
+            src.printcolors.print_value(logger,
+                                        _("Resources Catalog"),
+                                        catalog,
+                                        3)
+
+    logger.write("\n", 3, False)
+
+    details = []
+
+    # remove previous application
+    if os.path.exists(appli_dir):
+        write_step(logger, _("Removing previous application directory"))
+        rres = src.KO_STATUS
+        try:
+            shutil.rmtree(appli_dir)
+            rres = src.OK_STATUS
+        finally:
+            logger.write(src.printcolors.printc(rres) + "\n", 3, False)
+
+    # generate the application
+    try:
+        try: # try/except/finally not supported in all version of python
+            retcode = create_application(runner.cfg, appli_dir, catalog, logger)
+        except Exception as exc:
+            details.append(str(exc))
+            raise
+    finally:
+        logger.write("\n", 3, False)
+
+    return RCO.ReturnCode("OK")
+
+
+
 # Creates an alias for runAppli.
 def make_alias(appli_path, alias_path, force=False):
     assert len(alias_path) > 0, "Bad name for alias"
@@ -375,134 +519,4 @@ def generate_catalog(machines, config, logger):
     catalog.write("</resources>\n")
     catalog.close()
     return catfile
-
-##################################################
-
-##
-# Describes the command
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the application command description.
-    :rtype: str
-    '''
-    return _("""\
-The application command creates a SALOME application.
-
-WARNING: 
-  It works only for SALOME 6.
-  Use the 'launcher' command for newer versions of SALOME
-
-example:
->> sat application SALOME-6.6.0""")
-
-##
-# Runs the command.
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with application
-       parameter.
-    '''
-    
-    (options, args) = parser.parse_args(args)
-
-    # check for product
-    src.check_config_has_application( runner.cfg )
-
-    application = src.printcolors.printcLabel(runner.cfg.VARS.application)
-    logger.write(_("Building application for %s\n") % application, 1)
-
-    # if section APPLICATION.virtual_app does not exists create one
-    if "virtual_app" not in runner.cfg.APPLICATION:
-        msg = _("The section APPLICATION.virtual_app is not defined in the product.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    # get application dir
-    target_dir = runner.cfg.APPLICATION.workdir
-    if options.target:
-        target_dir = options.target
-
-    # set list of modules
-    if options.modules:
-        runner.cfg.APPLICATION.virtual_app['modules'] = options.modules
-
-    # set name and application_name
-    if options.name:
-        runner.cfg.APPLICATION.virtual_app['name'] = options.name
-        runner.cfg.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
-    
-    application_name = src.get_cfg_param(runner.cfg.APPLICATION.virtual_app,
-                                         "application_name",
-                                         runner.cfg.APPLICATION.virtual_app.name + "_appdir")
-    appli_dir = os.path.join(target_dir, application_name)
-
-    src.printcolors.print_value(logger,
-                                _("Application directory"),
-                                appli_dir,
-                                3)
-
-    # get catalog
-    catalog, catalog_src = "", ""
-    if options.catalog:
-        # use catalog specified in the command line
-        catalog = options.catalog
-    elif options.gencat:
-        # generate catalog for given list of computers
-        catalog_src = options.gencat
-        catalog = generate_catalog(options.gencat.split(","),
-                                   runner.cfg,logger)
-    elif 'catalog' in runner.cfg.APPLICATION.virtual_app:
-        # use catalog specified in the product
-        if runner.cfg.APPLICATION.virtual_app.catalog.endswith(".xml"):
-            # catalog as a file
-            catalog = runner.cfg.APPLICATION.virtual_app.catalog
-        else:
-            # catalog as a list of computers
-            catalog_src = runner.cfg.APPLICATION.virtual_app.catalog
-            mlist = filter(lambda l: len(l.strip()) > 0,
-                           runner.cfg.APPLICATION.virtual_app.catalog.split(","))
-            if len(mlist) > 0:
-                catalog = generate_catalog(runner.cfg.APPLICATION.virtual_app.catalog.split(","),
-                                           runner.cfg, logger)
-
-    # display which catalog is used
-    if len(catalog) > 0:
-        catalog = os.path.realpath(catalog)
-        if len(catalog_src) > 0:
-            src.printcolors.print_value(logger,
-                                        _("Resources Catalog"),
-                                        catalog_src,
-                                        3)
-        else:
-            src.printcolors.print_value(logger,
-                                        _("Resources Catalog"),
-                                        catalog,
-                                        3)
-
-    logger.write("\n", 3, False)
-
-    details = []
-
-    # remove previous application
-    if os.path.exists(appli_dir):
-        write_step(logger, _("Removing previous application directory"))
-        rres = src.KO_STATUS
-        try:
-            shutil.rmtree(appli_dir)
-            rres = src.OK_STATUS
-        finally:
-            logger.write(src.printcolors.printc(rres) + "\n", 3, False)
-
-    # generate the application
-    try:
-        try: # try/except/finally not supported in all version of python
-            retcode = create_application(runner.cfg, appli_dir, catalog, logger)
-        except Exception as exc:
-            details.append(str(exc))
-            raise
-    finally:
-        logger.write("\n", 3, False)
-
-    return retcode
 

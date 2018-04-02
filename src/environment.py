@@ -21,7 +21,7 @@ import subprocess
 import string
 import sys
 
-import src
+import src.pyconf as PYCONF
 
 class Environ:
     '''Class to manage the environment context
@@ -475,11 +475,11 @@ class SalomeEnviron:
                 continue
             
             # if it is a dict, do not do anything
-            if isinstance(val, src.pyconf.Mapping):
+            if isinstance(val, PYCONF.Mapping):
                 continue
 
             # if it is a list, loop on its values
-            if isinstance(val, src.pyconf.Sequence):
+            if isinstance(val, PYCONF.Sequence):
                 # transform into list of strings
                 l_val = []
                 for item in val:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+
 #-*- coding:utf-8 -*-
-#  Copyright (C) 2010-2012  CEA/DEN
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,17 +17,92 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
-
-import src
-
-# Define all possible option for the check command :  sat check <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure.\n'
-      'This option can be passed several time to configure several products.'))
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
 CHECK_PROPERTY = "has_unit_tests"
+
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The check command executes the 'check' command in the build directory of 
+  all the products of the application.
+  It is possible to reduce the list of products to check
+  by using the --products option
+
+  examples:
+    >> sat check SALOME --products KERNEL,GUI,GEOM
+  """
+  
+  name = "check"
+  
+  def getParser(self):
+    """Define all options for the check command 'sat check <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _("""\
+Optional: products to configure.
+          This option can be passed several time to configure several products."""))
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat check <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Get the list of products to treat
+    products_infos = get_products_list(options, runner.cfg, logger)
+    
+    # Print some informations
+    logger.write(_('Executing the check command in the build '
+                   'directories of the application %s\n') % \
+                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    
+    info = [(_("BUILD directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    src.print_info(logger, info)
+    
+    # Call the function that will loop over all the products and execute
+    # the right command(s)
+    res = check_all_products(runner.cfg, products_infos, logger)
+    
+    # Print the final state
+    nb_products = len(products_infos)
+    if res == 0:
+        final_status = "OK"
+    else:
+        final_status = "KO"
+   
+    logger.write(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': src.printcolors.printc(final_status), 
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
+    
+    return res 
+
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -194,57 +270,3 @@ WARNING: The product %(name)s is defined as having tests.
 
     return res
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the check command description.
-    :rtype: str
-    '''
-    return _("""\
-The check command executes the 'check' command in the build directory of 
-all the products of the application.
-It is possible to reduce the list of products to check
-by using the --products option
-
-example:
->> sat check SALOME-master --products KERNEL,GUI,GEOM""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with check parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
-    
-    # Print some informations
-    logger.write(_('Executing the check command in the build '
-                   'directories of the application %s\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
-    info = [(_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
-    
-    # Call the function that will loop over all the products and execute
-    # the right command(s)
-    res = check_all_products(runner.cfg, products_infos, logger)
-    
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
-   
-    logger.write(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
-    
-    return res 

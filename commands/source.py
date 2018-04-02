@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -19,10 +20,99 @@
 import os
 import shutil
 
-import src
 import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
+
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The source command gets the sources of the application products
+  from cvs, git or an archive.
+  
+  examples:
+    >> sat source SALOME --products KERNEL,GUI
+  """
+  
+  name = "sourcre"
+  
+  def getParser(self):
+    """Define all options for command 'sat source <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products from which to get the sources. This option can be'
+        ' passed several time to get the sources of several products.'))
+    return parser
+    
+  def run(self, cmd_arguments):
+    """method called for command 'sat source <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+    
+    # check that the command has been called with an application
+    src.check_config_has_application( config )
+
+    # Print some informations
+    logger.write(_('Getting sources of the application %s\n') % \
+                src.printcolors.printcLabel(config.VARS.application), 1)
+    src.printcolors.print_value(logger, 'workdir', 
+                                config.APPLICATION.workdir, 2)
+    logger.write("\n", 2, False)
+       
+    # Get the products list with products informations regarding the options
+    products_infos = self.get_products_list(options, config, logger)
+    
+    # Call to the function that gets all the sources
+    good_result, results = get_all_product_sources(config, 
+                                                  products_infos,
+                                                  logger)
+
+    # Display the results (how much passed, how much failed, etc...)
+    details = []
+
+    logger.write("\n", 2, False)
+    if good_result == len(products_infos):
+        res_count = "%d / %d" % (good_result, good_result)
+        returnCode = RCO.ReturnCode("OK", "source "+res_count)     
+    else:
+        res_count = "%d / %d" % (good_result, len(products_infos))
+        returnCode = RCO.ReturnCode("KO", "source "+res_count)     
+        for product in results:
+            if results[product] == 0 or results[product] is None:
+                details.append(product)
+
+    result = len(products_infos) - good_result
+
+    # write results
+    logger.write(_("Getting sources of the application:"), 1)
+    logger.write(" " + src.printcolors.printc(status), 1, False)
+    logger.write(" (%s)\n" % res_count, 1, False)
+
+    if len(details) > 0:
+        logger.write(_("Following sources haven't been get:\n"), 2)
+        logger.write(" ".join(details), 2)
+        logger.write("\n", 2, False)
+
+    return returnCode
+
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode
@@ -471,82 +561,3 @@ def check_sources(product_info, logger):
                 return False, path_to_test
             logger.write(src.printcolors.printcSuccess(" OK\n"), 5)
     return True, ""
-
-########################################################################
-# Command class for command 'sat config etc.'
-########################################################################
-class Command(_BaseCommand):
-  
-  def getParser(self):
-    # Define all possible option for patch command :  sat patch <options>
-    parser = src.options.Options()
-    parser.add_option('p', 'products', 'list2', 'products',
-        _('Optional: products from which to get the sources. This option can be'
-        ' passed several time to get the sources of several products.'))
-    return parser
-
-  def description(self):
-      '''method that is called when salomeTools is called with --help option.
-      
-      :return: The text to display for the source command description.
-      :rtype: str
-      '''
-      return _("The source command gets the sources of the application products "
-               "from cvs, git or an archive.\n\nexample:"
-               "\nsat source SALOME-master --products KERNEL,GUI")
-    
-  def run(self, args):
-      '''method that is called when salomeTools is called with source parameter.
-      '''
-      runner = self.getRunner()
-      config = self.getConfig()
-      logger = self.getLogger()
-  
-      # Parse the options
-      (options, argsc) = self.parse_args(args)
-      
-      # check that the command has been called with an application
-      src.check_config_has_application( config )
-
-      # Print some informations
-      logger.write(_('Getting sources of the application %s\n') % \
-                  src.printcolors.printcLabel(config.VARS.application), 1)
-      src.printcolors.print_value(logger, 'workdir', 
-                                  config.APPLICATION.workdir, 2)
-      logger.write("\n", 2, False)
-         
-      # Get the products list with products informations regarding the options
-      products_infos = self.get_products_list(options, config, logger)
-      
-      # Call to the function that gets all the sources
-      good_result, results = get_all_product_sources(config, 
-                                                    products_infos,
-                                                    logger)
-
-      # Display the results (how much passed, how much failed, etc...)
-      details = []
-
-      logger.write("\n", 2, False)
-      if good_result == len(products_infos):
-          res_count = "%d / %d" % (good_result, good_result)
-          returnCode = RCO.ReturnCode("OK", "source "+res_count)     
-      else:
-          res_count = "%d / %d" % (good_result, len(products_infos))
-          returnCode = RCO.ReturnCode("KO", "source "+res_count)     
-          for product in results:
-              if results[product] == 0 or results[product] is None:
-                  details.append(product)
-
-      result = len(products_infos) - good_result
-
-      # write results
-      logger.write(_("Getting sources of the application:"), 1)
-      logger.write(" " + src.printcolors.printc(status), 1, False)
-      logger.write(" (%s)\n" % res_count, 1, False)
-
-      if len(details) > 0:
-          logger.write(_("Following sources haven't been get:\n"), 2)
-          logger.write(" ".join(details), 2)
-          logger.write("\n", 2, False)
-
-      return returnCode

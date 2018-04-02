@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,27 +17,92 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+import src.pyconf as PYCONF
 
-# Define all possible option for the init command :  sat init <options>
-parser = src.options.Options()
-parser.add_option('b', 'base', 'string', 'base', 
-                  _('Optional: The path to the products base'))
-parser.add_option('w', 'workdir', 'string', 'workdir', 
-                  _('Optional: The path to the working directory '
-                    '(where to install the applications'))
-parser.add_option('a', 'archive_dir', 'string', 'archive_dir', 
-                  _('Optional: The path to the local archive directory '
-                    '(where to install local source archives'))
-parser.add_option('v', 'VCS', 'string', 'VCS', 
-                  _('Optional: The address of the repository of SAT '
-                    '(only informative)'))
-parser.add_option('t', 'tag', 'string', 'tag', 
-                  _('Optional: The tag of SAT (only informative)'))
-parser.add_option('l', 'log_dir', 'string', 'log_dir', 
-                  _('Optional: The directory where to put all the logs of SAT'))
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The init command Changes the local settings of SAT
+  """
+  
+  name = "init"
+  
+  def getParser(self):
+    """Define all options for command 'sat init <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('b', 'base', 'string', 'base', 
+                      _('Optional: The path to the products base'))
+    parser.add_option('w', 'workdir', 'string', 'workdir', 
+                      _('Optional: The path to the working directory '
+                        '(where to install the applications'))
+    parser.add_option('a', 'archive_dir', 'string', 'archive_dir', 
+                      _('Optional: The path to the local archive directory '
+                        '(where to install local source archives'))
+    parser.add_option('v', 'VCS', 'string', 'VCS', 
+                      _('Optional: The address of the repository of SAT '
+                        '(only informative)'))
+    parser.add_option('t', 'tag', 'string', 'tag', 
+                      _('Optional: The tag of SAT (only informative)'))
+    parser.add_option('l', 'log_dir', 'string', 'log_dir', 
+                      _('Optional: The directory where to put all the logs of SAT'))
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat init <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+   
+    # Print some informations
+    logger.write(_('Local Settings of SAT %s\n\n') % \
+                src.printcolors.printcLabel(runner.cfg.VARS.salometoolsway), 1)
+
+    res = 0
+    
+    # Set the options corresponding to a directory
+    for opt in [("base" , options.base),
+                ("workdir", options.workdir),
+                ("log_dir", options.log_dir),
+                ("archive_dir", options.archive_dir)]:
+        key, value = opt
+        if value:
+            res_check = check_path(value, logger)
+            res += res_check
+            if res_check == 0:
+                res_set = set_local_value(runner.cfg, key, value, logger)
+                res += res_set
+
+    # Set the options corresponding to an informative value            
+    for opt in [("VCS", options.VCS), ("tag", options.tag)]:
+        key, value = opt
+        res_set = set_local_value(runner.cfg, key, value, logger)
+        res += res_set
+    
+    display_local_values(runner.cfg, logger)
+    
+    return res
+
 
 def set_local_value(config, key, value, logger):
     """ Edit the site.pyconf file and change a value.
@@ -51,7 +117,7 @@ def set_local_value(config, key, value, logger):
     local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
     # Update the local.pyconf file
     try:
-        local_cfg = src.pyconf.Config(local_file_path)
+        local_cfg = PYCONF.Config(local_file_path)
         local_cfg.LOCAL[key] = value
         ff = open(local_file_path, 'w')
         local_cfg.__save__(ff, 1)
@@ -112,47 +178,3 @@ def check_path(path_to_check, logger):
         return 1
     
     return 0
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the init command description.
-    :rtype: str
-    '''
-    return _("Changes the local settings of SAT.")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with init parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-    
-    # Print some informations
-    logger.write(_('Local Settings of SAT %s\n\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.salometoolsway), 1)
-
-    res = 0
-    
-    # Set the options corresponding to a directory
-    for opt in [("base" , options.base),
-                ("workdir", options.workdir),
-                ("log_dir", options.log_dir),
-                ("archive_dir", options.archive_dir)]:
-        key, value = opt
-        if value:
-            res_check = check_path(value, logger)
-            res += res_check
-            if res_check == 0:
-                res_set = set_local_value(runner.cfg, key, value, logger)
-                res += res_set
-
-    # Set the options corresponding to an informative value            
-    for opt in [("VCS", options.VCS), ("tag", options.tag)]:
-        key, value = opt
-        res_set = set_local_value(runner.cfg, key, value, logger)
-        res += res_set
-    
-    display_local_values(runner.cfg, logger)
-    
-    return res

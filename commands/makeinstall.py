@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,15 +17,87 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-# Define all possible option for the makeinstall command : sat makeinstall <options>
-parser = src.options.Options()
-parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to install. This option can be'
-    ' passed several time to install several products.'))
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The makeinstall command executes the 'make install' command in the build directory.
+  In case of product constructed using a script (build_source : 'script'), 
+  then the makeinstall command do nothing.
+  
+  examples:
+    >> sat makeinstall SALOME --products KERNEL,GUI
+  """
+  
+  name = "makeinstall"
+  
+  def getParser(self):
+    """Define all options for the command 'sat makeinstall <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('p', 'products', 'list2', 'products',
+        _('Optional: products to install. This option can be'
+        ' passed several time to install several products.'))
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat makeinstall <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+
+    # Get the list of products to treat
+    products_infos = get_products_list(options, runner.cfg, logger)
+
+    # Print some informations
+    logger.write(_('Executing the make install command in the build directories of the application %s\n') % 
+                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    
+    info = [(_("BUILD directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    src.print_info(logger, info)
+    
+    # Call the function that will loop over all the products and execute
+    # the right command(s)
+    res = makeinstall_all_products(runner.cfg, products_infos, logger)
+    
+    # Print the final state
+    nb_products = len(products_infos)
+    if res == 0:
+        final_status = "OK"
+    else:
+        final_status = "KO"
+   
+    logger.write(_("\nMake install: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': src.printcolors.printc(final_status), 
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
+    
+    return res 
+   
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -156,56 +229,3 @@ def makeinstall_product(p_name_info, config, logger):
     logger.write("\n", 3, False)
 
     return res
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the makeinstall command description.
-    :rtype: str
-    '''
-    return _("""\
-The makeinstall command executes the 'make install' command in the build directory.
-In case of product constructed using a script (build_source : 'script'), 
-then the makeinstall command do nothing.
-
-example:
->> sat makeinstall SALOME-master --products KERNEL,GUI""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with makeinstall parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-
-    # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
-
-    # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
-
-    # Print some informations
-    logger.write(_('Executing the make install command in the build directories of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
-    info = [(_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
-    
-    # Call the function that will loop over all the products and execute
-    # the right command(s)
-    res = makeinstall_all_products(runner.cfg, products_infos, logger)
-    
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
-   
-    logger.write(_("\nMake install: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
-    
-    return res 

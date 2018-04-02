@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -24,9 +25,12 @@ import tarfile
 import codecs
 import string
 
-import src
+from commands.application import get_SALOME_modules
 
-from application import get_SALOME_modules
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
+import src.pyconf as PYCONF
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -39,7 +43,8 @@ PROJECT_DIR = "PROJECT"
 IGNORED_DIRS = [".git", ".svn"]
 IGNORED_EXTENSIONS = []
 
-PROJECT_TEMPLATE = """#!/usr/bin/env python
+PROJECT_TEMPLATE = """\
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
 # The path to the archive root directory
@@ -59,7 +64,8 @@ JOBPATH : $project_path + "jobs/"
 MACHINEPATH : $project_path + "machines/"
 """
 
-LOCAL_TEMPLATE = ("""#!/usr/bin/env python
+LOCAL_TEMPLATE = ("""\
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
   LOCAL :
@@ -78,33 +84,296 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 """ + \"""" + PROJECT_DIR + """\" + $VARS.sep + "project.pyconf"]
 }
 """)
+  
 
-# Define all possible option for the package command :  sat package <options>
-parser = src.options.Options()
-parser.add_option('b', 'binaries', 'boolean', 'binaries',
-    _('Optional: Produce a binary package.'), False)
-parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
-    _('Optional: Only binary package: produce the archive even if '
-      'there are some missing products.'), False)
-parser.add_option('s', 'sources', 'boolean', 'sources',
-    _('Optional: Produce a compilable archive of the sources of the '
-      'application.'), False)
-parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
-    _('Optional: Only source package: do not make archive of vcs products.'),
-    False)
-parser.add_option('p', 'project', 'string', 'project',
-    _('Optional: Produce an archive that contains a project.'), "")
-parser.add_option('t', 'salometools', 'boolean', 'sat',
-    _('Optional: Produce an archive that contains salomeTools.'), False)
-parser.add_option('n', 'name', 'string', 'name',
-    _('Optional: The name or full path of the archive.'), None)
-parser.add_option('', 'add_files', 'list2', 'add_files',
-    _('Optional: The list of additional files to add to the archive.'), [])
-parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
-    _('Optional: do not add commercial licence.'), False)
-parser.add_option('', 'without_property', 'string', 'without_property',
-    _('Optional: Filter the products by their properties.\n'
-      '\tSyntax: --without_property <property>:<value>'))
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The package command creates an archive.
+  There are 4 kinds of archive, which can be mixed:
+    1- The binary archive. It contains all the product installation directories and a launcher.
+    2- The sources archive. It contains the products archives, 
+       a project corresponding to the application and salomeTools.
+    3- The project archive. It contains a project (give the project file path as argument).
+    4- The salomeTools archive. It contains salomeTools.
+  
+  examples:
+    >> sat package SALOME --binaries --sources
+  """
+  
+  name = "package"
+  
+  def getParser(self):
+    """Define all options for command 'sat package <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('b', 'binaries', 'boolean', 'binaries',
+        _('Optional: Produce a binary package.'), False)
+    parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
+        _('Optional: Only binary package: produce the archive even if '
+          'there are some missing products.'), False)
+    parser.add_option('s', 'sources', 'boolean', 'sources',
+        _('Optional: Produce a compilable archive of the sources of the '
+          'application.'), False)
+    parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
+        _('Optional: Only source package: do not make archive of vcs products.'),
+        False)
+    parser.add_option('p', 'project', 'string', 'project',
+        _('Optional: Produce an archive that contains a project.'), "")
+    parser.add_option('t', 'salometools', 'boolean', 'sat',
+        _('Optional: Produce an archive that contains salomeTools.'), False)
+    parser.add_option('n', 'name', 'string', 'name',
+        _('Optional: The name or full path of the archive.'), None)
+    parser.add_option('', 'add_files', 'list2', 'add_files',
+        _('Optional: The list of additional files to add to the archive.'), [])
+    parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
+        _('Optional: do not add commercial licence.'), False)
+    parser.add_option('', 'without_property', 'string', 'without_property',
+        _('Optional: Filter the products by their properties.\n'
+          '\tSyntax: --without_property <property>:<value>'))
+    return parser
+
+  def run(self, cmd_arguments):
+    """method called for command 'sat package <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+       
+    # Check that a type of package is called, and only one
+    all_option_types = (options.binaries,
+                        options.sources,
+                        options.project not in ["", None],
+                        options.sat)
+
+    # Check if no option for package type
+    if all_option_types.count(True) == 0:
+        msg = _("ERROR: needs a type for the package\n"
+                "       Use one of the following options:\n"
+                "       --binaries, --sources, --project or --salometools")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+    
+    # The repository where to put the package if not Binary or Source
+    package_default_path = runner.cfg.LOCAL.workdir
+    
+    # if the package contains binaries or sources:
+    if options.binaries or options.sources:
+        # Check that the command has been called with an application
+        src.check_config_has_application(runner.cfg)
+
+        # Display information
+        logger.write(_("Packaging application %s\n") % \
+            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+        
+        # Get the default directory where to put the packages
+        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
+        src.ensure_path_exists(package_default_path)
+        
+    # if the package contains a project:
+    if options.project:
+        # check that the project is visible by SAT
+        if options.project not in runner.cfg.PROJECTS.project_file_paths:
+            local_path = os.path.join(runner.cfg.VARS.salometoolsway,
+                                     "data",
+                                     "local.pyconf")
+            msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
+                    "\nPlease add it in the %(local)s file.") % \
+                  {"proj" : options.project, "local" : local_path}
+            logger.write(src.printcolors.printcError(msg), 1)
+            logger.write("\n", 1)
+            return 1
+    
+    # Remove the products that are filtered by the --without_property option
+    if options.without_property:
+        [prop, value] = options.without_property.split(":")
+        update_config(runner.cfg, prop, value)
+    
+    # get the name of the archive or build it
+    if options.name:
+        if os.path.basename(options.name) == options.name:
+            # only a name (not a path)
+            archive_name = options.name           
+            dir_name = package_default_path
+        else:
+            archive_name = os.path.basename(options.name)
+            dir_name = os.path.dirname(options.name)
+        
+        # suppress extension
+        if archive_name[-len(".tgz"):] == ".tgz":
+            archive_name = archive_name[:-len(".tgz")]
+        if archive_name[-len(".tar.gz"):] == ".tar.gz":
+            archive_name = archive_name[:-len(".tar.gz")]
+        
+    else:
+        archive_name=""
+        dir_name = package_default_path
+        if options.binaries or options.sources:
+            archive_name = runner.cfg.APPLICATION.name
+
+        if options.binaries:
+            archive_name += "-"+runner.cfg.VARS.dist
+            
+        if options.sources:
+            archive_name += "-SRC"
+            if options.with_vcs:
+                archive_name += "-VCS"
+
+        if options.project:
+            project_name, __ = os.path.splitext(
+                                            os.path.basename(options.project))
+            archive_name += ("PROJECT-" + project_name)
+ 
+        if options.sat:
+            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
+        if len(archive_name)==0: # no option worked 
+            msg = _("Error: Cannot name the archive\n"
+                    "  check if at least one of the following options was "
+                    "selected: --binaries, --sources, --project or"
+                    " --salometools")
+            logger.write(src.printcolors.printcError(msg), 1)
+            logger.write("\n", 1)
+            return 1
+ 
+    path_targz = os.path.join(dir_name, archive_name + ".tgz")
+    
+    src.printcolors.print_value(logger, "Package path", path_targz, 2)
+
+    # Create a working directory for all files that are produced during the
+    # package creation and that will be removed at the end of the command
+    tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                                   runner.cfg.VARS.datehour)
+    src.ensure_path_exists(tmp_working_dir)
+    logger.write("\n", 5)
+    logger.write(_("The temporary working directory: %s\n") % tmp_working_dir, 5)
+    
+    logger.write("\n", 3)
+
+    msg = _("Preparation of files to add to the archive")
+    logger.write(src.printcolors.printcLabel(msg), 2)
+    logger.write("\n", 2)
+
+    d_files_to_add={}  # content of the archive
+
+    # a dict to hold paths that will need to be substitute for users recompilations
+    d_paths_to_substitute={}  
+
+    if options.binaries:
+        d_bin_files_to_add = binary_package(runner.cfg,
+                                            logger,
+                                            options,
+                                            tmp_working_dir)
+        # for all binaries dir, store the substitution that will be required 
+        # for extra compilations
+        for key in d_bin_files_to_add:
+            if key.endswith("(bin)"):
+                source_dir = d_bin_files_to_add[key][0]
+                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + runner.cfg.VARS.dist,"INSTALL")
+                if os.path.basename(source_dir)==os.path.basename(path_in_archive):
+                    # if basename is the same we will just substitute the dirname 
+                    d_paths_to_substitute[os.path.dirname(source_dir)]=\
+                        os.path.dirname(path_in_archive)
+                else:
+                    d_paths_to_substitute[source_dir]=path_in_archive
+
+        d_files_to_add.update(d_bin_files_to_add)
+
+    if options.sources:
+        d_files_to_add.update(source_package(runner,
+                                        runner.cfg,
+                                        logger, 
+                                        options,
+                                        tmp_working_dir))
+        if options.binaries:
+            # for archives with bin and sources we provide a shell script able to 
+            # install binaries for compilation
+            file_install_bin=produce_install_bin_file(runner.cfg,logger,
+                                                      tmp_working_dir,
+                                                      d_paths_to_substitute,
+                                                      "install_bin.sh")
+            d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
+            logger.write("substitutions that need to be done later : \n", 5)
+            logger.write(str(d_paths_to_substitute), 5)
+            logger.write("\n", 5)
+    else:
+        # --salomeTool option is not considered when --sources is selected, as this option
+        # already brings salomeTool!
+        if options.sat:
+            d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
+        
+    
+    if options.project:
+        d_files_to_add.update(project_package(options.project, tmp_working_dir))
+
+    if not(d_files_to_add):
+        msg = _("Error: Empty dictionnary to build the archive!\n")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
+    # Add the README file in the package
+    local_readme_tmp_path = add_readme(runner.cfg,
+                                       options,
+                                       tmp_working_dir)
+    d_files_to_add["README"] = (local_readme_tmp_path, "README")
+
+    # Add the additional files of option add_files
+    if options.add_files:
+        for file_path in options.add_files:
+            if not os.path.exists(file_path):
+                msg = _("WARNING: the file %s is not accessible.\n") % file_path
+                continue
+            file_name = os.path.basename(file_path)
+            d_files_to_add[file_name] = (file_path, file_name)
+
+    logger.write("\n", 2)
+
+    logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
+    logger.write("\n", 2)
+    
+    try:
+        # Creating the object tarfile
+        tar = tarfile.open(path_targz, mode='w:gz')
+        
+        # get the filtering function if needed
+        filter_function = exclude_VCS_and_extensions
+
+        # Add the files to the tarfile object
+        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
+        tar.close()
+    except KeyboardInterrupt:
+        logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
+        logger.write(_("Removing the temporary working directory ... "), 1)
+        # remove the working directory
+        shutil.rmtree(tmp_working_dir)
+        logger.write(_("OK"), 1)
+        logger.write(_("\n"), 1)
+        return 1
+    
+    # remove the working directory    
+    shutil.rmtree(tmp_working_dir)
+    
+    # Print again the path of the package
+    logger.write("\n", 2)
+    src.printcolors.print_value(logger, "Package path", path_targz, 2)
+    
+    return res
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
@@ -875,7 +1144,7 @@ def find_product_scripts_and_pyconf(p_name,
     # read the pyconf of the product
     product_pyconf_path = src.find_file_in_lpath(p_name + ".pyconf",
                                            config.PATHS.PRODUCTPATH)
-    product_pyconf_cfg = src.pyconf.Config(product_pyconf_path)
+    product_pyconf_cfg = PYCONF.Config(product_pyconf_path)
 
     # find the compilation script if any
     if src.product.product_has_script(p_info):
@@ -891,7 +1160,7 @@ def find_product_scripts_and_pyconf(p_name,
                                                 p_info.environ.env_script)
     # find the patches if any
     if src.product.product_has_patches(p_info):
-        patches = src.pyconf.Sequence()
+        patches = PYCONF.Sequence()
         for patch_path in p_info.patches:
             p_path = src.Path(patch_path)
             p_path.copy(patches_tmp_dir)
@@ -912,7 +1181,7 @@ def find_product_scripts_and_pyconf(p_name,
             product_pyconf_cfg[p_info.section].get_source = "archive"
             if not "archive_info" in product_pyconf_cfg[p_info.section]:
                 product_pyconf_cfg[p_info.section].addMapping("archive_info",
-                                        src.pyconf.Mapping(product_pyconf_cfg),
+                                        PYCONF.Mapping(product_pyconf_cfg),
                                         "")
             product_pyconf_cfg[p_info.section
                               ].archive_info.archive_name = p_info.name + ".tgz"
@@ -938,12 +1207,12 @@ def find_application_pyconf(config, application_tmp_dir):
     application_pyconf_path = src.find_file_in_lpath(
                                             application_name + ".pyconf",
                                             config.PATHS.APPLICATIONPATH)
-    application_pyconf_cfg = src.pyconf.Config(application_pyconf_path)
+    application_pyconf_cfg = PYCONF.Config(application_pyconf_path)
     
     # Change the workdir
-    application_pyconf_cfg.APPLICATION.workdir = src.pyconf.Reference(
+    application_pyconf_cfg.APPLICATION.workdir = PYCONF.Reference(
                                     application_pyconf_cfg,
-                                    src.pyconf.DOLLAR,
+                                    PYCONF.DOLLAR,
                                     'VARS.salometoolsway + $VARS.sep + ".."')
 
     # Prevent from compilation in base
@@ -972,7 +1241,7 @@ def project_package(project_file_path, tmp_working_dir):
     '''
     d_project = {}
     # Read the project file and get the directories to add to the package
-    project_pyconf_cfg = src.pyconf.Config(project_file_path)
+    project_pyconf_cfg = PYCONF.Config(project_file_path)
     paths = {"ARCHIVEPATH" : "archives",
              "APPLICATIONPATH" : "applications",
              "PRODUCTPATH" : "products",
@@ -985,18 +1254,18 @@ def project_package(project_file_path, tmp_working_dir):
         # Add the directory to the files to add in the package
         d_project[path] = (project_pyconf_cfg[path], paths[path])
         # Modify the value of the path in the package
-        project_pyconf_cfg[path] = src.pyconf.Reference(
+        project_pyconf_cfg[path] = PYCONF.Reference(
                                     project_pyconf_cfg,
-                                    src.pyconf.DOLLAR,
+                                    PYCONF.DOLLAR,
                                     'project_path + "/' + paths[path] + '"')
     
     # Modify some values
     if "project_path" not in project_pyconf_cfg:
         project_pyconf_cfg.addMapping("project_path",
-                                      src.pyconf.Mapping(project_pyconf_cfg),
+                                      PYCONF.Mapping(project_pyconf_cfg),
                                       "")
-    project_pyconf_cfg.project_path = src.pyconf.Reference(project_pyconf_cfg,
-                                                           src.pyconf.DOLLAR,
+    project_pyconf_cfg.project_path = PYCONF.Reference(project_pyconf_cfg,
+                                                           PYCONF.DOLLAR,
                                                            'PWD')
     
     # Write the project pyconf file
@@ -1115,248 +1384,3 @@ def update_config(config, prop, value):
             l_product_to_remove.append(product_name)
     for product_name in l_product_to_remove:
         config.APPLICATION.products.__delitem__(product_name)
-
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the package command description.
-    :rtype: str
-    '''
-    return _("""\
-The package command creates an archive.
-There are 4 kinds of archive, which can be mixed:
-  1- The binary archive. It contains all the product installation directories and a launcher.
-  2- The sources archive. It contains the products archives, 
-     a project corresponding to the application and salomeTools.
-  3- The project archive. It contains a project (give the project file path as argument).
-  4- The salomeTools archive. It contains salomeTools.
-
-example:
->> sat package SALOME-master --bineries --sources""")
-  
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with package parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
-       
-    # Check that a type of package is called, and only one
-    all_option_types = (options.binaries,
-                        options.sources,
-                        options.project not in ["", None],
-                        options.sat)
-
-    # Check if no option for package type
-    if all_option_types.count(True) == 0:
-        msg = _("ERROR: needs a type for the package\n"
-                "       Use one of the following options:\n"
-                "       --binaries, --sources, --project or --salometools")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-    
-    # The repository where to put the package if not Binary or Source
-    package_default_path = runner.cfg.LOCAL.workdir
-    
-    # if the package contains binaries or sources:
-    if options.binaries or options.sources:
-        # Check that the command has been called with an application
-        src.check_config_has_application(runner.cfg)
-
-        # Display information
-        logger.write(_("Packaging application %s\n") % \
-            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-        
-        # Get the default directory where to put the packages
-        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
-        src.ensure_path_exists(package_default_path)
-        
-    # if the package contains a project:
-    if options.project:
-        # check that the project is visible by SAT
-        if options.project not in runner.cfg.PROJECTS.project_file_paths:
-            local_path = os.path.join(runner.cfg.VARS.salometoolsway,
-                                     "data",
-                                     "local.pyconf")
-            msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
-                    "\nPlease add it in the %(local)s file.") % \
-                  {"proj" : options.project, "local" : local_path}
-            logger.write(src.printcolors.printcError(msg), 1)
-            logger.write("\n", 1)
-            return 1
-    
-    # Remove the products that are filtered by the --without_property option
-    if options.without_property:
-        [prop, value] = options.without_property.split(":")
-        update_config(runner.cfg, prop, value)
-    
-    # get the name of the archive or build it
-    if options.name:
-        if os.path.basename(options.name) == options.name:
-            # only a name (not a path)
-            archive_name = options.name           
-            dir_name = package_default_path
-        else:
-            archive_name = os.path.basename(options.name)
-            dir_name = os.path.dirname(options.name)
-        
-        # suppress extension
-        if archive_name[-len(".tgz"):] == ".tgz":
-            archive_name = archive_name[:-len(".tgz")]
-        if archive_name[-len(".tar.gz"):] == ".tar.gz":
-            archive_name = archive_name[:-len(".tar.gz")]
-        
-    else:
-        archive_name=""
-        dir_name = package_default_path
-        if options.binaries or options.sources:
-            archive_name = runner.cfg.APPLICATION.name
-
-        if options.binaries:
-            archive_name += "-"+runner.cfg.VARS.dist
-            
-        if options.sources:
-            archive_name += "-SRC"
-            if options.with_vcs:
-                archive_name += "-VCS"
-
-        if options.project:
-            project_name, __ = os.path.splitext(
-                                            os.path.basename(options.project))
-            archive_name += ("PROJECT-" + project_name)
- 
-        if options.sat:
-            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
-        if len(archive_name)==0: # no option worked 
-            msg = _("Error: Cannot name the archive\n"
-                    "  check if at least one of the following options was "
-                    "selected: --binaries, --sources, --project or"
-                    " --salometools")
-            logger.write(src.printcolors.printcError(msg), 1)
-            logger.write("\n", 1)
-            return 1
- 
-    path_targz = os.path.join(dir_name, archive_name + ".tgz")
-    
-    src.printcolors.print_value(logger, "Package path", path_targz, 2)
-
-    # Create a working directory for all files that are produced during the
-    # package creation and that will be removed at the end of the command
-    tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                                   runner.cfg.VARS.datehour)
-    src.ensure_path_exists(tmp_working_dir)
-    logger.write("\n", 5)
-    logger.write(_("The temporary working directory: %s\n") % tmp_working_dir, 5)
-    
-    logger.write("\n", 3)
-
-    msg = _("Preparation of files to add to the archive")
-    logger.write(src.printcolors.printcLabel(msg), 2)
-    logger.write("\n", 2)
-
-    d_files_to_add={}  # content of the archive
-
-    # a dict to hold paths that will need to be substitute for users recompilations
-    d_paths_to_substitute={}  
-
-    if options.binaries:
-        d_bin_files_to_add = binary_package(runner.cfg,
-                                            logger,
-                                            options,
-                                            tmp_working_dir)
-        # for all binaries dir, store the substitution that will be required 
-        # for extra compilations
-        for key in d_bin_files_to_add:
-            if key.endswith("(bin)"):
-                source_dir = d_bin_files_to_add[key][0]
-                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + runner.cfg.VARS.dist,"INSTALL")
-                if os.path.basename(source_dir)==os.path.basename(path_in_archive):
-                    # if basename is the same we will just substitute the dirname 
-                    d_paths_to_substitute[os.path.dirname(source_dir)]=\
-                        os.path.dirname(path_in_archive)
-                else:
-                    d_paths_to_substitute[source_dir]=path_in_archive
-
-        d_files_to_add.update(d_bin_files_to_add)
-
-    if options.sources:
-        d_files_to_add.update(source_package(runner,
-                                        runner.cfg,
-                                        logger, 
-                                        options,
-                                        tmp_working_dir))
-        if options.binaries:
-            # for archives with bin and sources we provide a shell script able to 
-            # install binaries for compilation
-            file_install_bin=produce_install_bin_file(runner.cfg,logger,
-                                                      tmp_working_dir,
-                                                      d_paths_to_substitute,
-                                                      "install_bin.sh")
-            d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
-            logger.write("substitutions that need to be done later : \n", 5)
-            logger.write(str(d_paths_to_substitute), 5)
-            logger.write("\n", 5)
-    else:
-        # --salomeTool option is not considered when --sources is selected, as this option
-        # already brings salomeTool!
-        if options.sat:
-            d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
-        
-    
-    if options.project:
-        d_files_to_add.update(project_package(options.project, tmp_working_dir))
-
-    if not(d_files_to_add):
-        msg = _("Error: Empty dictionnary to build the archive!\n")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-
-    # Add the README file in the package
-    local_readme_tmp_path = add_readme(runner.cfg,
-                                       options,
-                                       tmp_working_dir)
-    d_files_to_add["README"] = (local_readme_tmp_path, "README")
-
-    # Add the additional files of option add_files
-    if options.add_files:
-        for file_path in options.add_files:
-            if not os.path.exists(file_path):
-                msg = _("WARNING: the file %s is not accessible.\n") % file_path
-                continue
-            file_name = os.path.basename(file_path)
-            d_files_to_add[file_name] = (file_path, file_name)
-
-    logger.write("\n", 2)
-
-    logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
-    logger.write("\n", 2)
-    
-    try:
-        # Creating the object tarfile
-        tar = tarfile.open(path_targz, mode='w:gz')
-        
-        # get the filtering function if needed
-        filter_function = exclude_VCS_and_extensions
-
-        # Add the files to the tarfile object
-        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
-        tar.close()
-    except KeyboardInterrupt:
-        logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
-        logger.write(_("Removing the temporary working directory ... "), 1)
-        # remove the working directory
-        shutil.rmtree(tmp_working_dir)
-        logger.write(_("OK"), 1)
-        logger.write(_("\n"), 1)
-        return 1
-    
-    # remove the working directory    
-    shutil.rmtree(tmp_working_dir)
-    
-    # Print again the path of the package
-    logger.write("\n", 2)
-    src.printcolors.print_value(logger, "Package path", path_targz, 2)
-    
-    return res

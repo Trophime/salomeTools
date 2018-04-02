@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 #  Copyright (C) 2010-2012  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
@@ -16,33 +17,54 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+
 import subprocess
 
-import src
+import src.debug as DBG
+import src.returnCode as RCO
+from src.salomeTools import _BaseCommand
 
-# Define all possible option for the shell command :  sat shell <options>
-parser = src.options.Options()
-parser.add_option('c', 'command', 'string', 'command',
-    _('Mandatory: The shell command to execute.'), "")
+########################################################################
+# Command class
+########################################################################
+class Command(_BaseCommand):
+  """\
+  The shell command executes the shell command passed as argument.
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
-    
-    :return: The text to display for the shell command description.
-    :rtype: str
-    '''
-    return _("""\
-Executes the shell command passed as argument.
-example:
->> sat shell --command 'ls -l /tmp'""")
+  examples:
+    >> sat shell --command 'ls -lt /tmp'
+  """
   
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with shell parameter.
-    '''
-    
-    # Parse the options
-    (options, args) = parser.parse_args(args)
+  name = "shell"
+  
+  def getParser(self):
+    """Define all options for the command 'sat shell <options>'"""
+    parser = self.getParserWithHelp()
+    parser.add_option('c', 'command', 'string', 'command',
+                      _('Mandatory: The shell command to execute.'), "")
+    return parser
 
+  def run(self, cmd_arguments):
+    """method called for command 'sat shell <options>'"""
+    argList = self.assumeAsList(cmd_arguments)
+  
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+  
     # Make sure the command option has been called
     if not options.command:
         message = _("The option --command is required\n")      
@@ -58,7 +80,7 @@ def run(args, runner, logger):
                           shell=True,
                           stdout=logger.logTxtFile,
                           stderr=subprocess.STDOUT)
- 
+   
     # Format the result to be 0 (success) or 1 (fail)
     if res != 0:
         res = 1
