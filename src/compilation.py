@@ -470,7 +470,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             return self.do_python_script_build(script, nb_proc)
         
         msg = _("The script %s must have .sh, .bat or .py extension.") % script
-        raise src.SatException(msg)
+        raise Exception(msg)
     
     def put_txt_log_in_appli_log_dir(self, file_name):
         '''Put the txt log (that contain the system logs, like make command

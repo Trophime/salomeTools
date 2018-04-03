@@ -207,7 +207,7 @@ class TParam:
             if len(param_def) > 2: self.prompt = param_def[2]
             if len(param_def) > 3: self.check_method = param_def[3]
         else:
-            raise src.SatException(_("ERROR in template parameter definition"))
+            raise Exception(_("ERROR in template parameter definition"))
 
         self.raw_prompt = self.prompt
         if len(self.prompt) == 0:
@@ -241,7 +241,7 @@ class TemplateSettings:
         for pp in ["file_subst", "parameters"]:
             if not ldic.has_key(pp): missing.append("'%s'" % pp)
         if len(missing) > 0:
-            raise src.SatException(
+            raise Exception(
                 _("Bad format in settings file! %s not defined.") % \
                 ", ".join(missing) )
         
@@ -295,7 +295,7 @@ class TemplateSettings:
                 missing.append(p)
         
         if len(missing) > 0:
-            raise src.SatException(
+            raise Exception(
                 _("Missing parameters: %s") % ", ".join(missing) )
 
     def get_parameters(self, conf_values=None):
@@ -355,7 +355,7 @@ def search_template(config, template):
                 break
 
     if len(template_src_dir) == 0:
-        raise src.SatException(_("Template not found: %s") % template)
+        raise Exception(_("Template not found: %s") % template)
 
     return template_src_dir
 ##
@@ -389,7 +389,7 @@ def prepare_from_template(config,
     # read settings
     settings_file = os.path.join(target_dir, "template.info")
     if not os.path.exists(settings_file):
-        raise src.SatException(_("Settings file not found"))
+        raise Exception(_("Settings file not found"))
     tsettings = TemplateSettings(compo_name, settings_file, target_dir)
 
     # first rename the files
@@ -399,7 +399,7 @@ def prepare_from_template(config,
             ff = fic.replace(tsettings.file_subst, compo_name)
             if ff != fic:
                 if os.path.exists(os.path.join(root, ff)):
-                    raise src.SatException(
+                    raise Exception(
                         _("Destination file already exists: %s") % \
                         os.path.join(root, ff) )
                 logger.write("    %s -> %s\n" % (fic, ff), 5)
@@ -414,7 +414,7 @@ def prepare_from_template(config,
             dd = rep.replace(tsettings.file_subst, compo_name)
             if dd != rep:
                 if os.path.exists(os.path.join(root, dd)):
-                    raise src.SatException(
+                    raise Exception(
                         _("Destination directory already exists: %s") % \
                         os.path.join(root, dd) )
                 logger.write("    %s -> %s\n" % (rep, dd), 5)
@@ -497,7 +497,7 @@ def get_template_info(config, template_name, logger):
         settings_file = os.path.join(tmpdir, "template.info")
 
     if not os.path.exists(settings_file):
-        raise src.SatException(_("Settings file not found"))
+        raise Exception(_("Settings file not found"))
     tsettings = TemplateSettings("NAME", settings_file, "target")
     
     logger.write("\n", 3)

@@ -155,24 +155,24 @@ def generate_profile_sources( config, options, logger ):
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
     kernel_root_dir = kernel_cfg.install_dir
     if not src.product.check_installation(kernel_cfg):
-        raise src.SatException(_("KERNEL is not installed"))
+        raise Exception(_("KERNEL is not installed"))
     script = os.path.join(kernel_root_dir,"bin","salome","app-quickstart.py")
     if not os.path.exists( script ):
-        raise src.SatException(
+        raise Exception(
             _("KERNEL's install has not the script app-quickstart.py") )
 
     # Check that GUI is installed
     gui_cfg = src.product.get_product_config(config, "GUI")
     gui_root_dir = gui_cfg.install_dir
     if not src.product.check_installation(gui_cfg):
-        raise src.SatException(_("GUI is not installed"))
+        raise Exception(_("GUI is not installed"))
 
     #Set prefix option passed to app-quickstart.py
     name = get_profile_name ( options, config )
     prefix = os.path.join( options.prefix, name )
     if os.path.exists( prefix ) :
         if not options.force :
-            raise src.SatException( 
+            raise Exception( 
               _("The path %s already exists, use option --force to remove it.") % prefix )
         else :
             shutil.rmtree( prefix )
@@ -200,7 +200,7 @@ def generate_profile_sources( config, options, logger ):
                     stderr=subprocess.STDOUT)
     #Check result of command
     if res != 0:
-        raise src.SatException(_("Cannot create application, code = %d\n") % res)
+        raise Exception(_("Cannot create application, code = %d\n") % res)
     else:
         logger.write(
             _("Profile sources were generated in directory %s.\n" % prefix), 3 )

@@ -43,6 +43,7 @@ import src # for __version__
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.returnCode as RCO # Easy (ok/ko, why) return methods code
 from src.options import Options
+import configManager as CFGMGR
 
 # get path to src
 rootdir = os.path.realpath( os.path.join(os.path.dirname(__file__), "..") )
@@ -81,7 +82,7 @@ def find_command_list(dirPath):
     return sorted(cmd_list)
 
 # The list of valid salomeTools commands from cmdsdir
-#_COMMANDS_NAMES = ['config', 'compile', 'prepare',...]
+# ['config', 'compile', 'prepare', ...]
 _COMMANDS_NAMES = find_command_list(cmdsdir)
 
 def getCommandsList():
@@ -97,10 +98,18 @@ def launchSat(command):
     """
     if "sat" not in command.split()[0]:
       raise Exception(_("Not a valid command for launchSat: '%s'") % command)
-    env = dict(os.environ) #copy
-    # theorically useless
-    # env["PATH"] = rootdir + ":" + env["PATH"]
-    res =SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE).communicate()
+    env = dict(os.environ) # copy
+    # theorically useless, in user environ $PATH,
+    # on ne sait jamais
+    # https://docs.python.org/2/library/os.html
+    # On some platforms, including FreeBSD and Mac OS X, 
+    # setting environ may cause memory leaks.
+    # see test/initializeTest.py
+    if rootdir not in env["PATH"].split(":"):
+      env["PATH"] = rootdir + ":" + env["PATH"]
+    # TODO setLocale not 'fr' on subprocesses, why not?
+    # env["LANG"] == ''
+    res = SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE).communicate()
     return res
 
 def setNotLocale():
@@ -302,8 +311,11 @@ class Sat(object):
         # contains commands classes needed (think micro commands)
         # if useful 'a la demande'
         self.commands = {}
+        self.nameCommandToLoad = None
+        self.nameAppliToLoad = None
+        self.commandArguments = None
         self.nameAppliLoaded = None
-        
+      
         self.parser = self._getParser()
                 
     def __repr__(self):
@@ -414,20 +426,47 @@ class Sat(object):
             self.print_help()
             return RCO.ReturnCode("OK", "No arguments, as 'sat --help'")
         
-        self.options, remaindersArgs = self.parseArguments(args)
+        self.options, remainderArgs = self.parseArguments(args)
         
         # if the help option has been called, print command help and returns
         if self.options.help:
             self.print_help()
             return RCO.ReturnCode("OK", "Option --help")
        
-        # the command called
-        cmdName = remaindersArgs[0]
+        self.nameCommandToLoad, self.nameAppliToLoad, self.commandArguments = \
+             self.getCommandAndAppli(remainderArgs)
+             
+        cfgManager = CFGMGR.ConfigManager(self)
+        self.config = cfgManager.get_config(
+                        application=self.nameAppliToLoad,
+                        options=self.options,
+                        command=self.nameCommandToLoad,
+                        datadir=None)
+        
         # create/get dynamically the command instance to call its 'run' method
-        cmdInstance = self.getCommandInstance(cmdName)
+        cmdInstance = self.getCommandInstance(self.nameCommandToLoad)
+        
         # Run the command using the arguments
-        returnCode = cmdInstance.run(remaindersArgs[1:])
+        returnCode = cmdInstance.run(self.commandArguments)
         return returnCode
+        
+    def getCommandAndAppli(self, arguments):
+        args = self.assumeAsList(arguments)
+        namecmd, nameAppli, remainderArgs = None, None, []
+        iremain = 0
+        if len(args) > 0:
+          if "-" != args[0][0]: 
+            namecmd = args[0]
+            iremain = 1
+        if len(args) > 1:
+          if "-" != args[1][0]: 
+            nameAppli = args[1]
+            iremain = 2
+        remainderArgs = args[iremain:]
+        res = (namecmd, nameAppli, remainderArgs)
+        DBG.write("getCommandAndAppli", res)
+        return res
+        
       
     def get_help(self):
         """get general help colored string"""

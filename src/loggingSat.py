@@ -27,6 +27,16 @@ def indent(msg, nb, car=" "):
   res = ("\n"+car*nb).join(s)
   return res
 
+def indentUnittest(msg, prefix=" | "):
+  """
+  indent car multi lines message except first one
+  car default is less spaces for size logs files
+  keep human readable
+  """
+  s = msg.split("\n")
+  res = ("\n" + prefix).join(s)
+  return res
+
 def log(msg):
   """elementary log when no logger yet"""
   prefix = "%s.log: " % _name
@@ -80,8 +90,8 @@ class DefaultFormatter(logging.Formatter):
 class UnittestFormatter(logging.Formatter):
   def format(self, record):
     # print "", record.levelname #type(record), dir(record)
-    nb = len("2018-03-17 12:15:41 :: INFO     :: ")
-    res = indent(super(UnittestFormatter, self).format(record), nb)
+    # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
+    res = indentUnittest(super(UnittestFormatter, self).format(record), " | ")
     return COLS.toColor(res)
 
 

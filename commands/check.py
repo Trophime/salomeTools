@@ -128,7 +128,7 @@ def get_products_list(options, cfg, logger):
             if p not in cfg.APPLICATION.products:
                 msg = _("Product %(1)s not defined in application %(2)s") % \
                       { '1': p, '2': cfg.VARS.application}
-                raise src.SatException(msg)
+                raise Exception(msg)
     
     # Construct the list of tuple containing 
     # the products name and their definition

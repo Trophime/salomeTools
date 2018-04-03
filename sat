@@ -30,7 +30,7 @@ OKSYS = 0  # OK
 KOSYS = 1  # KO
 
 # get path to salomeTools sources
-satdir  = os.path.dirname(os.path.realpath(__file__))
+satdir = os.path.dirname(os.path.realpath(__file__))
 
 # Make the src & commands package accessible from all code
 sys.path.insert(0, satdir)
@@ -40,7 +40,7 @@ import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 logger = LOG.getDefaultLogger()
 
-    
+
 #################################
 # MAIN
 #################################

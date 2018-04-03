@@ -21,6 +21,8 @@ import os
 import sys
 import unittest
 
+import initializeTest # set PATH etc for test
+
 import src.salomeTools as SAT
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.loggingSat as LOG

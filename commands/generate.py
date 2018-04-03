@@ -220,7 +220,7 @@ def generate_component(config, compo, product_info, context, header, logger):
             ier = subprocess.call(command, shell=True, cwd=source_dir,
                                   stdout=log_file, stderr=subprocess.STDOUT)
             if ier != 0:
-                raise src.SatException("bootstrap has ended in error")
+                raise Exception("bootstrap has ended in error")
 
     
     # determine salome version

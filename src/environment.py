@@ -58,7 +58,7 @@ class Environ:
             try:
                 value = zt.substitute(self.environ)
             except KeyError as exc:
-                raise src.SatException(
+                raise Exception(
                     _("Missing definition in environment: %s") % str(exc) )
         return value
 
@@ -590,7 +590,7 @@ class SalomeEnviron:
         env_script = product_info.environ.env_script
         # Check that the script exists
         if not os.path.exists(env_script):
-            raise src.SatException(
+            raise Exception(
                 _("Environment script not found: %s") % env_script)
 
         if not self.silent and logger is not None:
@@ -626,7 +626,7 @@ class SalomeEnviron:
             return
         # Check that the script exists
         if not os.path.exists(script_path):
-            raise src.SatException(
+            raise Exception(
                 _("Environment script not found: %s") % script_path)
 
         if not self.silent and logger is not None:

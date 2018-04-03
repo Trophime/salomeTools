@@ -120,7 +120,7 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
+                raise Exception(_("Product %(product)s "
                             "not defined in application %(application)s") %
                         { 'product': p, 'application': cfg.VARS.application} )
     

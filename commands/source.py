@@ -208,7 +208,7 @@ def get_source_from_archive(product_info, source_dir, logger):
     '''
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
-        raise src.SatException(_("Archive not found: '%s'") % \
+        raise Exception(_("Archive not found: '%s'") % \
                                product_info.archive_info.archive_name)
 
     logger.write('arc:%s ... ' % \

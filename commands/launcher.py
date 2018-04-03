@@ -136,7 +136,7 @@ def generate_launch_file(config,
     # (in order for the launcher to get python salomeContext API)
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
     if not src.product.check_installation(kernel_cfg):
-        raise src.SatException(_("KERNEL is not installed"))
+        raise Exception(_("KERNEL is not installed"))
     kernel_root_dir = kernel_cfg.install_dir
 
     # set kernel bin dir (considering fhs property)

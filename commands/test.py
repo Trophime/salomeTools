@@ -80,12 +80,12 @@ Optional: set the display where to launch SALOME.
         options.launcher = ""
     elif not os.path.isabs(options.launcher):
         if not src.config_has_application(config):
-            raise src.SatException(
+            raise Exception(
                 _("An application is required to use a relative path with option --appli") )
         options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
 
         if not os.path.exists(options.launcher):
-            raise src.SatException(
+            raise Exception(
                 _("Launcher not found: %s") % options.launcher )
     return
 
@@ -120,7 +120,7 @@ Optional: set the display where to launch SALOME.
             src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
         with_application = True
     elif not options.base:
-        raise src.SatException(
+        raise Exception(
           _('A test base is required. Use the --base option') )
 
     # the launcher is specified either by the application, or by the --launcher option

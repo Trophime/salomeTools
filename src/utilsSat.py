@@ -47,7 +47,7 @@ def check_config_has_application( config, details = None ):
                     " the list of available applications.\n")
         if details :
             details.append(message)
-        raise SatException( message )
+        raise Exception( message )
 
 def check_config_has_profile( config, details = None ):
     '''check that the config has the key APPLICATION.profile.
@@ -60,7 +60,7 @@ def check_config_has_profile( config, details = None ):
         message = _("A profile section is required in your application.\n")
         if details :
             details.append(message)
-        raise SatException( message )
+        raise Exception( message )
 
 def config_has_application( config ):
     return 'APPLICATION' in config
@@ -106,7 +106,7 @@ def get_base_path(config):
                                       "data",
                                       "local.pyconf")
         msg = _("Please define a base path in the file %s") % local_file_path
-        raise SatException(msg)
+        raise Exception(msg)
         
     base_path = os.path.abspath(config.LOCAL.base)
     
@@ -139,7 +139,7 @@ def get_log_path(config):
                                       "data",
                                       "local.pyconf")
         msg = _("Please define a log_dir in the file %s") % local_file_path
-        raise SatException(msg)
+        raise Exception(msg)
       
     log_dir_path = os.path.abspath(config.LOCAL.log_dir)
     
@@ -172,7 +172,7 @@ def read_config_from_a_file(filePath):
         try:
             cfg_file = pyconf.Config(filePath)
         except pyconf.ConfigError as e:
-            raise SatException(_("Error in configuration file: %(file)s\n  %(error)s") %
+            raise Exception(_("Error in configuration file: %(file)s\n  %(error)s") %
                 { 'file': filePath, 'error': str(e) } )
         return cfg_file
 

@@ -58,14 +58,16 @@ class ConfigOpener:
         raise IOError(_("Configuration file '%s' not found") % name)
 
 class ConfigManager:
-    '''Class that manages the read of all the configuration files of salomeTools
-    '''
-    def __init__(self, datadir=None):
-        self.logger = LOG.getDefaultLogger()
-
+    """\
+    Class that manages the read of all the config .pyconf files of salomeTools
+    """
+    def __init__(self, runner):
+        self.runner = runner
+        self.logger = runner.getLogger()
+        self.datadir = None
 
     def _create_vars(self, application=None, command=None, datadir=None):
-        '''Create a dictionary that stores all information about machine,
+        """Create a dictionary that stores all information about machine,
            user, date, repositories, etc...
         
         :param application str: The application for which salomeTools is called.
@@ -74,7 +76,7 @@ class ConfigManager:
                             for salomeTools.
         :return: The dictionary that stores all information.
         :rtype: dict
-        '''
+        """
         var = {}      
         var['user'] = ARCH.get_user()
         var['salometoolsway'] = os.path.dirname(
@@ -213,7 +215,7 @@ class ConfigManager:
             internal_cfg = PYCONF.Config(open(os.path.join(cfg.VARS.srcDir, 
                                     'internal_config', 'salomeTools.pyconf')))
         except PYCONF.ConfigError as e:
-            raise src.SatException(_("Error in configuration file:"
+            raise Exception(_("Error in configuration file:"
                                      " salomeTools.pyconf\n  %(error)s") % \
                                    {'error': str(e) })
         
@@ -232,12 +234,12 @@ class ConfigManager:
                                                            'local.pyconf')),
                                          PWD = ('LOCAL', cfg.VARS.datadir) )
         except PYCONF.ConfigError as e:
-            raise src.SatException(_("Error in configuration file: "
+            raise Exception(_("Error in configuration file: "
                                      "local.pyconf\n  %(error)s") % \
                 {'error': str(e) })
         except IOError as error:
             e = str(error)
-            raise src.SatException( e );
+            raise Exception( e );
         merger.merge(cfg, local_cfg)
 
         # When the key is "default", put the default value
@@ -349,13 +351,13 @@ class ConfigManager:
             try:
                 application_cfg = PYCONF.Config(application + '.pyconf')
             except IOError as e:
-                raise src.SatException(_("%s, use 'config --list' to get the"
+                raise Exception(_("%s, use 'config --list' to get the"
                                          " list of available applications.") % e)
             except PYCONF.ConfigError as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                          or ('--edit' in parser.parse_args()[1]) 
                                          and command == 'config'):
-                    raise src.SatException(
+                    raise Exception(
                         _("Error in configuration file: (1)s.pyconf\n  %(2)s") % \
                         { 'application': application, 'error': str(e) } )
                 else:
@@ -368,7 +370,7 @@ class ConfigManager:
                      ('--edit' in parser.parse_args()[1]) and
                      command == 'config' ):
                     sys.stdout.write(src.printcolors.printcWarning("%s\n" % str(e)))
-                    raise src.SatException(
+                    raise Exception(
                         _("Error in configuration file: %s.pyconf\n") % application )
                 else:
                     sys.stdout.write(src.printcolors.printcWarning(
@@ -521,7 +523,7 @@ class ConfigManager:
         :rtype: str
         '''
         if not self.user_config_file_path:
-            raise src.SatException(
+            raise Exception(
                 _("Error in get_user_config_file: missing user config file path") )
         return self.user_config_file_path     
 

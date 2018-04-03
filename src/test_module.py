@@ -101,7 +101,7 @@ class Test:
         self.logger.write(_("get test base from dir: %s\n") % \
                           src.printcolors.printcLabel(testbase_dir), 3)
         if not os.access(testbase_dir, os.X_OK):
-            raise src.SatException(
+            raise Exception(
               _("testbase %(name)s (%(dir)s) does not exist ...\n") % \
               { 'name': testbase_name, 'dir': testbase_dir } )
 
@@ -150,7 +150,7 @@ class Test:
                                 stdout=self.logger.logTxtFile,
                                 stderr=subprocess.PIPE)
             if res != 0:
-                raise src.SatException(_("Error: unable to get test base "
+                raise Exception(_("Error: unable to get test base "
                                          "'%(name)s' from git '%(repo)s'.") % \
                                        { 'name': testbase_name,
                                         'repo': testbase_base })
@@ -197,7 +197,7 @@ class Test:
                                 env=env_appli.environ.environ,)
 
             if res != 0:
-                raise src.SatException(
+                raise Exception(
                   _("ERROR: unable to get test base '%(name)s' from svn '%(repo)s'.") % \
                   { 'name': testbase_name, 'repo': testbase_base } )
 
@@ -250,7 +250,7 @@ class Test:
                                        test_base_name,
                                        test_base_info.info.base)
         else:
-            raise src.SatException(
+            raise Exception(
               _("unknown source type '%(type)s' for test base '%(base)s' ...\n") % \
               {'type': test_base_info.get_sources, 'base': test_base_name } )
 

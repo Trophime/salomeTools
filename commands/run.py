@@ -75,7 +75,7 @@ class Command(_BaseCommand):
         message = _("""\
 The launcher %(1)s was not found in directory '%(2)s'.
 Did you run the command 'sat launcher' ?\n""") % {"1": launcher_name, "2": launcher_dir}
-        raise src.SatException(message)
+        raise Exception(message)
           
     launcher_path = os.path.join(launcher_dir, launcher_name)
 
@@ -83,7 +83,7 @@ Did you run the command 'sat launcher' ?\n""") % {"1": launcher_name, "2": launc
         message = _("""\
 The launcher at path '%s' is missing.
 Did you run the command 'sat launcher' ?\n""") % launcher_path
-        raise src.SatException(message)
+        raise Exception(message)
 
     # Determine the command to launch (add the additional arguments)
     command = launcher_path + " " + " ".join(args)

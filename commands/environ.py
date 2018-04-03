@@ -133,7 +133,7 @@ def write_all_source_files(config,
         out_dir = config.APPLICATION.workdir
 
     if not os.path.exists(out_dir):
-        raise src.SatException(_("Target directory not found: %s") % out_dir)
+        raise Exception(_("Target directory not found: %s") % out_dir)
 
     if not silent:
         logger.write(_("Creating environment files for %s\n") % 

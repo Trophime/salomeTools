@@ -198,7 +198,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
 def make_alias(appli_path, alias_path, force=False):
     assert len(alias_path) > 0, "Bad name for alias"
     if os.path.exists(alias_path) and not force:
-        raise src.SatException(_("Cannot create the alias '%s'\n") % alias_path)
+        raise Exception(_("Cannot create the alias '%s'\n") % alias_path)
     else: # find relative path
         os.symlink(appli_path, alias_path)
 
@@ -330,7 +330,7 @@ def generate_application(config, appli_dir, config_file, logger):
                                                         'KERNEL').install_dir
     script = os.path.join(install_KERNEL_dir, "bin", "salome", "appli_gen.py")
     if not os.path.exists(script):
-        raise src.SatException(_("KERNEL is not installed"))
+        raise Exception(_("KERNEL is not installed"))
     
     # Add SALOME python in the environment in order to avoid python version 
     # problems at appli_gen.py call
@@ -353,7 +353,7 @@ def generate_application(config, appli_dir, config_file, logger):
                     stderr=subprocess.STDOUT)
     
     if res != 0:
-        raise src.SatException(_("Cannot create application, code = %d\n") % res)
+        raise Exception(_("Cannot create application, code = %d\n") % res)
 
     return res
 

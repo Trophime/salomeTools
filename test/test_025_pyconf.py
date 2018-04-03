@@ -21,6 +21,8 @@ import os
 import sys
 import unittest
 
+import initializeTest # set PATH etc for test
+
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.pyconf as PYF # 0.3.7
 import config_0_3_9.config as PYF9 # TODO 0.3.9

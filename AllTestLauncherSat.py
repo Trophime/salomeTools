@@ -65,6 +65,7 @@ import pprint as PP #pretty print
 debug = False
 verboseImport = True
 
+
 # get path to salomeTools sources
 satdir  = os.path.dirname(os.path.realpath(__file__))
 
@@ -308,9 +309,15 @@ If name = 'stdout' then all-in-one xml output at 'sys.stdout'. For pipe redirect
 ###################################################################
 if __name__ == '__main__':
   # Make the src & command package accessible from all code
-  # as export PATH=satdir:${PATH}
-  sys.path.insert(0, satdir)
-  errPrint("WARNING: export PATH=%s:${PATH}\n" % satdir)
+  # as export PYTHONPATH=satdir:${PYTHONPATH}
+  # https://docs.python.org/2/library/os.html
+  # On some platforms, including FreeBSD and Mac OS X, 
+  # setting environ may cause memory leak
+  # so use sys.path
+  # errPrint("INFO    : AllTestLauncherSat sys.path:\n'%s'" % PP.pformat(sys.path)
+  if sys.path[0] != satdir:
+    sys.path.insert(0, satdir)
+    errPrint("WARNING : sys.path prepend '%s'\n" % satdir)
 
   args = getParser().parse_args(sys.argv[1:])
   debug = args.debug
@@ -319,7 +326,7 @@ if __name__ == '__main__':
   sys.path.insert(0, directory) #supposed to be root of a package
   
   runOnArgs(args)
-  del sys.path[0]
+
 
 
 

@@ -90,6 +90,9 @@ class Command(_BaseCommand):
     logger = self.getLogger()
     options = self.getOptions()
 
+    if config is None:
+      return RCO.ReturnCode("KO", "config is None")
+      
     # Only useful for completion mechanism : print the keys of the config
     if options.schema:
         get_config_children(config, args)
@@ -132,7 +135,7 @@ class Command(_BaseCommand):
         if options.info in config.APPLICATION.products:
             show_product_info(config, options.info, logger)
             return RCO.ReturnCode("OK", "options.info")
-        raise src.SatException(
+        raise Exception(
             _("%(product_name)s is not a product of %(application_name)s.") % \
             {'product_name' : options.info, 'application_name' : config.VARS.application} )
     
@@ -156,7 +159,7 @@ class Command(_BaseCommand):
                 break
 
         if len(source_full_path) == 0:
-            raise src.SatException(
+            raise Exception(
                 _("Config file for product %s not found\n") % source )
         else:
             if len(args) > 0:
@@ -174,7 +177,7 @@ class Command(_BaseCommand):
             dest_file = os.path.join(
                 config.VARS.personalDir, 'Applications', dest + '.pyconf' )
             if os.path.exists(dest_file):
-                raise src.SatException(
+                raise Exception(
                     _("A personal application '%s' already exists") % dest )
             
             # perform the copy

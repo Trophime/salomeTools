@@ -12,7 +12,7 @@ import src
 def compil(config, builder, logger):
     builder.prepare()
     if not builder.source_dir.smartcopy(builder.install_dir):
-        raise src.SatException(_("Error when copying %s sources to install dir") % builder.product_info.name)
+        raise Exception(_("Error when copying %s sources to install dir") % builder.product_info.name)
     
     # test lrelease #.pyconf needs in ..._APPLI pre_depend : ['qt']
     command = "which lrelease" 

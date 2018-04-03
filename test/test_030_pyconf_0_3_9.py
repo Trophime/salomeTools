@@ -27,6 +27,9 @@ TODO, fix upgrading 0.3.9, or not.
 
 import unittest
 # import test_support
+
+import initializeTest # set PATH etc for test
+
 import src.pyconf as config
 from src.pyconf import Config, ConfigMerger, ConfigList
 from src.pyconf import ConfigError, ConfigFormatError, ConfigResolutionError

@@ -192,7 +192,7 @@ def get_products_list(options, cfg, logger):
         products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
-                raise src.SatException(
+                raise Exception(
                     _("Product %(product)s not defined in application %(application)s") %
                     { 'product': p, 'application': cfg.VARS.application} )
     
@@ -249,7 +249,7 @@ is not present in application %(appli_name)s.""" %
                      {"child_name" : child_name, 
                       "product_name" : p_name.name, 
                       "appli_name" : config.VARS.application} )
-                raise src.SatException(msg)
+                raise Exception(msg)
             prod_info_child = src.product.get_product_config(config,
                                                               child_name)
             pname_pinfo_child = (prod_info_child.name, prod_info_child)
@@ -296,7 +296,7 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
                         "%(appli_name)s" % {"father_name" : father_name, 
                                     "product_name" : p_name, 
                                     "appli_name" : config.VARS.application})
-                raise src.SatException(msg)
+                raise Exception(msg)
             prod_info_father = src.product.get_product_config(config,
                                                               father_name)
             pname_pinfo_father = (prod_info_father.name, prod_info_father)

@@ -121,7 +121,7 @@ def get_product_config(config, product_name, with_install_dir=True):
                 msg = _("The product %(prod)s has version %(ver)s but is "
                         "declared as native in its definition") % \
                       {'prod': prod_info.name, 'ver': version}
-                raise src.SatException(msg)
+                raise Exception(msg)
 
     # If there is no definition but the product is declared as native,
     # construct a new definition containing only the get_source key
@@ -156,7 +156,7 @@ Please create a %(2)s.pyconf file somewhere in:\n%(3)s""") % {
 No definition corresponding to the version %(1)s was found in the file:
   %(2)s.
 Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
-        raise src.SatException(msg)
+        raise Exception(msg)
     
     # Set the debug, dev and version keys
     prod_info.debug = debug
@@ -176,7 +176,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             if not arch_path:
                 msg = _("Archive %(1)s for %(2)s not found.\n") % \
                        {"1" : arch_name, "2" : prod_info.name}
-                raise src.SatException(msg)
+                raise Exception(msg)
             prod_info.archive_info.archive_name = arch_path
         else:
             if (os.path.basename(prod_info.archive_info.archive_name) == 
@@ -188,7 +188,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                 if not arch_path:
                     msg = _("Archive %(1)s for %(2)s not found:\n") % \
                            {"1" : arch_name, "2" : prod_info.name}
-                    raise src.SatException(msg)
+                    raise Exception(msg)
                 prod_info.archive_info.archive_name = arch_path
         
     # If the product compiles with a script, check the script existence
@@ -199,7 +199,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             msg = _("""\
 No compilation script found for the product %s.
 Please provide a 'compil_script' key in its definition.""") % product_name
-            raise src.SatException(msg)
+            raise Exception(msg)
         
         # Get the path of the script
         script = prod_info.compil_script
@@ -210,7 +210,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                                                  config.PATHS.PRODUCTPATH,
                                                  "compil_scripts")
             if not script_path:
-                raise src.SatException(
+                raise Exception(
                     _("Compilation script not found: %s") % script_name)
             prod_info.compil_script = script_path
             if src.architecture.is_windows():
@@ -218,7 +218,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
        
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
-            #raise src.SatException(
+            #raise Exception(
             #        _("Compilation script cannot be executed: %s") % 
             #        prod_info.compil_script)
             print("Compilation script cannot be executed: %s" % prod_info.compil_script)
@@ -237,7 +237,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 if not patch_path:
                     msg = _("Patch %(1)s for %(2)s not found:\n") % \
                            {"1" : patch, "2" : prod_info.name} 
-                    raise src.SatException(msg)
+                    raise Exception(msg)
             patches.append(patch_path)
         prod_info.patches = patches
 
@@ -255,7 +255,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             if not env_script_path:
                 msg = _("Environment script %(1)s for %(2)s not found.\n") % \
                        {"1" : env_script_path, "2" : prod_info.name} 
-                raise src.SatException(msg)
+                raise Exception(msg)
 
         prod_info.environ.env_script = env_script_path
     
@@ -485,7 +485,7 @@ def get_products_infos(lproducts, config):
         else:
             msg = _("The %s product has no definition "
                     "in the configuration.") % prod
-            raise src.SatException(msg)
+            raise Exception(msg)
     return products_infos
 
 def get_product_dependencies(config, product_info):
