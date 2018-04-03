@@ -59,13 +59,14 @@ if __name__ == "__main__":
       sys.exit(returnCode.toSys())
       
     except Exception as e:
-      msg = "Exception raised for execute_cli('%s'):\n\n<yellow>%s<reset>"
       if (_debug) or (DBG._user in DBG._developpers):
         # verbose debug message with traceback
+        msg = "Exception raised for execute_cli(%s):\n\n<yellow>%s<reset>"
         import traceback
         logger.critical( msg % (args, traceback.format_exc()) )
       else:
         # short production message
+        msg = "Exception raised for execute_cli(%s):\n\n<red>%s<reset>\n"
         logger.critical( msg % (args, e) )
       sys.exit(KOSYS)
 

@@ -49,7 +49,7 @@ class OptResult(object):
         
         :param name str: The attribute to get the value.
         :return: the value corresponding to the attribute.
-        :rtype: str,int,list,boolean
+        :rtype: str,int,list,boolean,level
         '''
         if name in self.__dict__:
             return self.__dict__[name]
@@ -82,7 +82,7 @@ class Options(object):
         # in a list that contains dicts
         self.options = []
         # The list of available option type
-        self.availableOptions = "boolean string int float long list list2".split()
+        self.availableOptions = "boolean string int float long list list2, level".split()
         self.default = None
         self.results = {}
 
@@ -123,6 +123,17 @@ class Options(object):
         option['result'] = default
         
         self.options.append(option)
+        
+    def getDetailOption(self, option):
+        """for convenience 
+        returns (shortName, longName, optionType, helpString')
+        """
+        oos = option['shortName']
+        ool = option['longName']
+        oot = option['optionType']
+        ooh = option['helpString']
+        return (oos, ool, oot, ooh)
+
 
     def get_help(self):
         '''Method that returns all options stored in self.options 
@@ -137,17 +148,23 @@ class Options(object):
             return _("No available options.")
 
         # for all options, gets its values. 
-        # "shortname" is an optional field of the options 
-        msg += "<header>" + _("Available options are:") + "<reset>\n"
+        # "shortname" is an mandatory field of the options, could be '' 
+        msg += "<header>" + _("Available options are:") + "<reset>"
         for option in self.options:
-            if 'shortName' in option and len(option['shortName']) > 0:
-                msg +=  "\n -%(shortName)1s, --%(longName)s" \
-                        " (%(optionType)s)\n\t%(helpString)s\n" % option
+            oos, ool, oot, ooh = self.getDetailOption(option)
+            if len(oos) > 0:
+                msg += "\n -%1s, --%s (%s)\n" % (oos, ool, oot)
             else:
-                msg += "\n --%(longName)s (%(optionType)s)\n\t%(helpString)s\n" \
-                       % option
+                msg += "\n --%s (%s)\n" % (ool, oot)
+                
+            msg += "%s\n" % self.indent(ooh, 10)
         return msg
-                       
+        
+    def indent(self, text, amount, car=" "):
+        """indent multi lines message"""
+        padding = amount * car
+        return ''.join(padding + line for line in text.splitlines(True))
+               
 
     def parse_args(self, argList=None):
         '''Method that instantiates the class OptResult 
@@ -210,6 +227,9 @@ class Options(object):
                         if option['result'] is None:
                             option['result'] = list()
                         option['result'].append(opt[1])
+                    elif optionType == "level": #logger logging levels
+                        option['result'] = opt[1]
+                        # TODO test in (lowercase) debug info warning error critical
                     elif optionType == "list2":
                         if option['result'] is None:
                             option['result'] = list()

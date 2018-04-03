@@ -31,6 +31,7 @@ import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
+import src.utilsSat as UTS
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -1142,7 +1143,7 @@ def find_product_scripts_and_pyconf(p_name,
     '''
     
     # read the pyconf of the product
-    product_pyconf_path = src.find_file_in_lpath(p_name + ".pyconf",
+    product_pyconf_path = UTS.find_file_in_lpath(p_name + ".pyconf",
                                            config.PATHS.PRODUCTPATH)
     product_pyconf_cfg = PYCONF.Config(product_pyconf_path)
 
@@ -1204,7 +1205,7 @@ def find_application_pyconf(config, application_tmp_dir):
     '''
     # read the pyconf of the application
     application_name = config.VARS.application
-    application_pyconf_path = src.find_file_in_lpath(
+    application_pyconf_path = UTS.find_file_in_lpath(
                                             application_name + ".pyconf",
                                             config.PATHS.APPLICATIONPATH)
     application_pyconf_cfg = PYCONF.Config(application_pyconf_path)

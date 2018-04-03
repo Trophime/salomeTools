@@ -94,15 +94,14 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     # check for product
     src.check_config_has_application( runner.cfg )
 
-    application = src.printcolors.printcLabel(runner.cfg.VARS.application)
-    logger.write(_("Building application for %s\n") % application, 1)
+    application = runner.cfg.VARS.application
+    logger.info(_("Building application for <header>%s<reset>\n") % application)
 
     # if section APPLICATION.virtual_app does not exists create one
     if "virtual_app" not in runner.cfg.APPLICATION:
         msg = _("The section APPLICATION.virtual_app is not defined in the product.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
+        logger.info("red>" + msg + "<reset>" )
+        return RCO.ReturnCode("KO", msg)
 
     # get application dir
     target_dir = runner.cfg.APPLICATION.workdir

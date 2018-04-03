@@ -351,8 +351,8 @@ class ConfigManager:
             try:
                 application_cfg = PYCONF.Config(application + '.pyconf')
             except IOError as e:
-                raise Exception(_("%s, use 'config --list' to get the"
-                                         " list of available applications.") % e)
+                raise Exception(_("%s\n(use 'config --list' to get the"
+                                         " list of available applications)") % e)
             except PYCONF.ConfigError as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                          or ('--edit' in parser.parse_args()[1]) 
@@ -394,7 +394,7 @@ class ConfigManager:
                 # Loop on all files that are in softsDir directory
                 # and read their config
                 product_file_name = product_name + ".pyconf"
-                product_file_path = src.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
+                product_file_path = UTS.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
                 if product_file_path:
                     products_dir = os.path.dirname(product_file_path)
                     try:
@@ -732,28 +732,26 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
     try:
         val = config.getByPath(path)
     except Exception as e:
-        stream.write(tab_level)
-        stream.write("<header>%s: <red>ERROR %s<reset>\n" % (vname, str(e)))
+        stream.write(tab_level + "<header>%s: <red>ERROR %s<reset>\n" % (vname, str(e)))
         return
 
     # in this case, display only the value
     if show_label:
-        stream.write(tab_level)
-        stream.write("<header%s: <reset>" % vname)
+        stream.write(tab_level + "<header>%s: <reset>" % vname)
 
     # The case where the value has under values, 
     # do a recursive call to the function
     if dir(val).__contains__('keys'):
-        if show_label: strean.write("\n")
+        if show_label: stream.write("\n")
         for v in sorted(val.keys()):
-            print_value(config, path + '.' + v, stream, show_label, level + 1)
+            getConfigColored(config, path + '.' + v, stream, show_label, level + 1)
     elif val.__class__ == PYCONF.Sequence or isinstance(val, list): 
         # in this case, value is a list (or a Sequence)
         if show_label: stream.write("\n")
         index = 0
         for v in val:
             p = path + "[" + str(index) + "]"
-            print_value(config, p, stream, show_label, level + 1)
+            getConfigColored(config, p, stream, show_label, level + 1)
             index += 1
     else: # case where val is just a str
         stream.write("%s\n" % val)
@@ -764,10 +762,10 @@ def print_value(config, path, logger, show_label=False, level=0, show_full_path=
     used recursively from the initial path.
     
     :param see getConfigColored
-    """           
+    """ 
     outStream = DBG.OutStream()
     getConfigColored(config, path, outStream, show_label, level, show_full_path)
-    res = outStream.value
+    res = outStream.getvalue() # stream not closed
     logger.info(res)
     return
 

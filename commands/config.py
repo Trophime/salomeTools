@@ -17,10 +17,12 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
+import src.configManager as CFGMGR
 
 
 ########################################################################
@@ -58,9 +60,10 @@ class Command(_BaseCommand):
     parser.add_option('p', 'show_patchs', 'boolean', 'show_patchs',
         _("Optional: synthetic view of all patches used in the application"))
     parser.add_option('c', 'copy', 'boolean', 'copy',
-        _("""Optional: copy a config file (.pyconf) to the personal config files directory.
-      Warning: the included files are not copied.
-      If a name is given the new config file takes the given name."""))
+        _("""\
+Optional: copy a config file (.pyconf) to the personal config files directory.
+Warning: the included files are not copied.
+If a name is given the new config file takes the given name."""))
     parser.add_option('n', 'no_label', 'boolean', 'no_label',
         _("Internal use: do not print labels, Works only with --value and --list."))
     parser.add_option('o', 'completion', 'boolean', 'completion',
@@ -103,9 +106,9 @@ class Command(_BaseCommand):
         if options.value == ".":
             # if argument is ".", print all the config
             for val in sorted(config.keys()):
-                print_value(config, val, not options.no_label, logger)
+                CFGMGR.print_value(config, val, logger, not options.no_label)
         else:
-            print_value(config, options.value, not options.no_label, logger, 
+            CFGMGR.print_value(config, options.value, logger, not options.no_label, 
                         level=0, show_full_path=False)
 
     if options.debug:
@@ -191,11 +194,10 @@ class Command(_BaseCommand):
         for path in config.PATHS.APPLICATIONPATH:
             # print a header
             if not options.no_label:
-                logger.write("------ %s\n" % src.printcolors.printcHeader(path))
-
+                logger.info("<header>------ %s<reset>" % path)
+            msg = "" # only one multiline info
             if not os.path.exists(path):
-                logger.write(src.printcolors.printcError(
-                    _("Directory not found")) + "\n" )
+                msg += ("<red>" +  _("Directory not found") + "<reset>\n" )
             else:
                 for f in sorted(os.listdir(path)):
                     # ignore file that does not ends with .pyconf
@@ -207,11 +209,11 @@ class Command(_BaseCommand):
                         lproduct.append(appliname)
                         if path.startswith(config.VARS.personalDir) \
                                     and not options.no_label:
-                            logger.write("%s*\n" % appliname)
+                            msg += "%s*\n" % appliname
                         else:
-                            logger.write("%s\n" % appliname)
+                            msg += "%s\n" % appliname
                             
-            logger.write("\n")
+            logger.info(msg)
 
     # case : give a synthetic view of all patches used in the application
     elif options.show_patchs:

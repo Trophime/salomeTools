@@ -23,6 +23,7 @@ import os
 import re
 
 import src.pyconf as PYCONF
+import src.utilsSat as UTS
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
@@ -142,7 +143,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     # If prod_info is still None, it means that there is no product definition
     # in the config. The user has to provide it.
     if prod_info is None:
-        prod_pyconf_path = src.find_file_in_lpath(product_name + ".pyconf",
+        prod_pyconf_path = UTS.find_file_in_lpath(product_name + ".pyconf",
                                                   config.PATHS.PRODUCTPATH)
         if not prod_pyconf_path:
             msg = _("""\
@@ -171,7 +172,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                                  "")
         if "archive_name" not in prod_info.archive_info: 
             arch_name = product_name + "-" + version + ".tar.gz"
-            arch_path = src.find_file_in_lpath(arch_name,
+            arch_path = UTS.find_file_in_lpath(arch_name,
                                                config.PATHS.ARCHIVEPATH)
             if not arch_path:
                 msg = _("Archive %(1)s for %(2)s not found.\n") % \
@@ -182,7 +183,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             if (os.path.basename(prod_info.archive_info.archive_name) == 
                                         prod_info.archive_info.archive_name):
                 arch_name = prod_info.archive_info.archive_name
-                arch_path = src.find_file_in_lpath(
+                arch_path = UTS.find_file_in_lpath(
                                             arch_name,
                                             config.PATHS.ARCHIVEPATH)
                 if not arch_path:
@@ -206,7 +207,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
         script_name = os.path.basename(script)
         if script == script_name:
             # Only a name is given. Search in the default directory
-            script_path = src.find_file_in_lpath(script_name,
+            script_path = UTS.find_file_in_lpath(script_name,
                                                  config.PATHS.PRODUCTPATH,
                                                  "compil_scripts")
             if not script_path:
@@ -231,7 +232,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             # If only a filename, then search for the patch in the PRODUCTPATH
             if os.path.basename(patch_path) == patch_path:
                 # Search in the PRODUCTPATH/patches
-                patch_path = src.find_file_in_lpath(patch,
+                patch_path = UTS.find_file_in_lpath(patch,
                                                     config.PATHS.PRODUCTPATH,
                                                     "patches")
                 if not patch_path:
@@ -248,7 +249,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
         # in the PRODUCTPATH/env_scripts
         if os.path.basename(env_script_path) == env_script_path:
             # Search in the PRODUCTPATH/env_scripts
-            env_script_path = src.find_file_in_lpath(
+            env_script_path = UTS.find_file_in_lpath(
                                             prod_info.environ.env_script,
                                             config.PATHS.PRODUCTPATH,
                                             "env_scripts")
