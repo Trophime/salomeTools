@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 # list of available shells with extensions
@@ -104,8 +105,6 @@ class Command(_BaseCommand):
     logger.write("\n", 3, False)
     #TODO return code
 
-##
-# Writes all the environment files
 def write_all_source_files(config,
                            logger,
                            out_dir=None,
@@ -136,12 +135,9 @@ def write_all_source_files(config,
         raise Exception(_("Target directory not found: %s") % out_dir)
 
     if not silent:
-        logger.write(_("Creating environment files for %s\n") % 
-                     src.printcolors.printcLabel(config.APPLICATION.name), 2)
-        src.printcolors.print_value(logger,
-                                    _("Target"),
-                                    src.printcolors.printcInfo(out_dir), 3)
-        logger.write("\n", 3, False)
+        logger.info(_("Creating environment files for %s\n") % \
+                     UTS.header(config.APPLICATION.name))
+        logger.info("  %s = %s\n\n" % (_("Target"), out_dir))
     
     shells_list = []
     all_shells = C_ALL_SHELL

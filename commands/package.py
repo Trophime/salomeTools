@@ -29,6 +29,7 @@ from commands.application import get_SALOME_modules
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
 import src.utilsSat as UTS
@@ -254,7 +255,7 @@ class Command(_BaseCommand):
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
     
-    src.printcolors.print_value(logger, "Package path", path_targz, 2)
+    logger.info("  Package path = %s\n" UTS.blue(path_targz))
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
@@ -371,8 +372,7 @@ class Command(_BaseCommand):
     shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package
-    logger.write("\n", 2)
-    src.printcolors.print_value(logger, "Package path", path_targz, 2)
+    logger.info("  Package path = %s\n" UTS.blue(path_targz))
     
     return res
 

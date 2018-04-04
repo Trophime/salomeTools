@@ -26,6 +26,7 @@ import re
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
@@ -159,11 +160,12 @@ Optional: dictionary to generate the configuration for salomeTools.
     #        if rep.upper() != _("YES"):
     #            return 1
 
-    logger.write(_('Create sources from template\n'), 1)
-    src.printcolors.print_value(logger, 'destination', target_dir, 2)
-    src.printcolors.print_value(logger, 'name', options.name, 2)
-    src.printcolors.print_value(logger, 'template', options.template, 2)
-    logger.write("\n", 3, False)
+    msg = ""
+    msg += _('Create sources from template\n')
+    msg += '  destination = %s\n' % target_dir
+    msg += '  name = %\ns' % options.name
+    msg += '  template = %s\n' % options.template
+    logger.write(msg)
     
     conf_values = None
     if options.param is not None:
@@ -483,7 +485,7 @@ def prepare_from_template(config,
 
 def get_template_info(config, template_name, logger):
     sources = search_template(config, template_name)
-    src.printcolors.print_value(logger, _("Template"), sources)
+    logger.info("  Template = %s\n" %  sources)
 
     # read settings
     tmpdir = os.path.join(config.VARS.tmp_root, "tmp_template")
@@ -500,45 +502,45 @@ def get_template_info(config, template_name, logger):
         raise Exception(_("Settings file not found"))
     tsettings = TemplateSettings("NAME", settings_file, "target")
     
-    logger.write("\n", 3)
+    skip = "\n"*3
+    msg = skip
     if len(tsettings.info) == 0:
-        logger.write(src.printcolors.printcWarning(_(
-                                       "No information for this template.")), 3)
+        msg += UTS.red("No information for this template.")
     else:
-        logger.write(tsettings.info, 3)
+        msg += tsettings.info
 
-    logger.write("\n", 3)
-    logger.write("= Configuration", 3)
-    src.printcolors.print_value(logger,
-                                "file substitution key",
-                                tsettings.file_subst)
-    src.printcolors.print_value(logger,
-                                "subsitution key",
-                                tsettings.delimiter_char)
+    msg += "\n= Configuration\n"
+    msg += "  file substitution key = %s\n" % tsettings.file_subst
+    msg += "  substitution key = '%s'\n" % tsettings.delimiter_char)
     if len(tsettings.ignore_filters) > 0:
-        src.printcolors.print_value(logger,
-                                    "Ignore Filter",
-                                    ', '.join(tsettings.ignore_filters))
+        msg += " Ignore Filter = %s\n" % ', '.join(tsettings.ignore_filters)
 
-    logger.write("\n", 3)
-    logger.write("= Parameters", 3)
+    logger.info(msg)
+    
+    msg = skip
+    msg += "= Parameters\n"
     pnames = []
     for pp in tsettings.parameters:
         tt = TParam(pp, "NAME")
         pnames.append(tt.name)
-        src.printcolors.print_value(logger, "Name", tt.name)
-        src.printcolors.print_value(logger, "Prompt", tt.raw_prompt)
-        src.printcolors.print_value(logger, "Default value", tt.default)
-        logger.write("\n", 3)
+        msg += "  Name = %s\n" % tt.name
+        msg += "  Prompt = %s\n" % tt.raw_prompt
+        msg += "  Default value = %s\n" % tt.default
 
+    logger.info(msg)
+    
     retcode = 0
-    logger.write("= Verification\n", 3)
+    
+    msg = skip
+    msg += "= Verification\n",)
     if tsettings.file_subst not in pnames:
-        logger.write(
-                     "file substitution key not defined as a "
-                     "parameter: %s" % tsettings.file_subst, 3)
+        msg += "file substitution key not defined as a parameter: %s\n" % \
+                tsettings.file_subst
         retcode = 1
     
+    logger.info(msg)
+    
+    msg = ""
     reexp = tsettings.delimiter_char.replace("$", "\$") + "{(?P<name>\S[^}]*)"
     pathlen = len(tmpdir) + 1
     for root, __, files in os.walk(tmpdir):
@@ -552,16 +554,17 @@ def get_template_info(config, template_name, logger):
             zz = list(set(zz)) # reduce
             zz = filter(lambda l: l not in pnames, zz)
             if len(zz) > 0:
-                logger.write("Missing definition in %s: %s" % \
-                    ( src.printcolors.printcLabel(fpath[pathlen:]), ", ".join(zz) ), 3)
+                msg += "Missing definition in %s: %s\n" % \
+                      ( fpath[pathlen:], ", ".join(zz) )
                 retcode = 1
 
+    logger.info(msg)
+    
     if retcode == 0:
-        logger.write(src.printcolors.printc("OK"), 3)
+        logger.info("<OK>" + skip)
     else:
-        logger.write(src.printcolors.printc("KO"), 3)
+        logger.info("<KO>" + skip)
 
-    logger.write("\n", 3)
 
     # clean up tmp file
     shutil.rmtree(tmpdir)

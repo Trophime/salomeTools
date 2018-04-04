@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
 
@@ -89,8 +90,9 @@ class Command(_BaseCommand):
     # Make the generator module visible by python
     sys.path.insert(0, yacsgen_dir)
 
-    src.printcolors.print_value(logger, _("YACSGEN dir"), yacsgen_dir, 3)
-    logger.write("\n", 2)
+    logger.info(" insert directory PATH %s = %s\n" % \
+                ("YACSGEN", UTS.blue(yacsgen_dir)
+
     products = runner.cfg.APPLICATION.products
     if options.products:
         products = options.products
@@ -171,11 +173,13 @@ def generate_component(config, compo, product_info, context, header, logger):
         cpplib = "lib" + compo + "CXX.so"
     cpp_path = product_info.install_dir
 
-    logger.write("%s\n" % header, 4, False)
-    src.printcolors.print_value(logger, "hxxfile", hxxfile, 4)
-    src.printcolors.print_value(logger, "cpplib", cpplib, 4)
-    src.printcolors.print_value(logger, "cpp_path", cpp_path, 4)
-
+    msg = ""
+    msg += "%s\n" % UTS.blue(header)
+    msg += "hxxfile  = %s\n" % hxxfile
+    msg += "cpplib   = %s\n" % cpplib
+    msg += "cpp_path = %s\n" % cpp_path
+    logger.debug(msg)
+    
     # create a product_info at runtime
     compo_info = PYCONF.Mapping(config)
     compo_info.name = compo

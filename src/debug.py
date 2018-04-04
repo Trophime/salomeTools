@@ -19,7 +19,7 @@
 
 """
 This file assume DEBUG functionalities use
-- print debug messages in sys.stderr for salomeTools
+- print salomeTools debug messages in sys.stderr
 - show pretty print debug representation from instances of SAT classes
   (pretty print src.pyconf.Config)
 
@@ -39,7 +39,8 @@ import pprint as PP
 _debug = [False] #support push/pop for temporary activate debug outputs
 
 _user = os.environ['USER']
-_developpers = ["christian", "wambeke", ] # crouzet, kloss ...
+# wambeke is christian at home
+_developpers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
 
 
 def indent(text, amount=2, ch=' '):

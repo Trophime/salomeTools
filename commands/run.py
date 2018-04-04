@@ -22,6 +22,7 @@ import subprocess
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -89,9 +90,7 @@ Did you run the command 'sat launcher' ?\n""") % launcher_path
     command = launcher_path + " " + " ".join(args)
 
     # Print the command
-    src.printcolors.print_value(logger, _("Executed command"), command, 2)
-    logger.write(_("Launching ...\n"))
-    logger.flush()
+    logger.info(_("Executed command <blue>%s<reset> Launching ...\n") % command)
     
     # Run the launcher
     subprocess.call(command,

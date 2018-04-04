@@ -73,9 +73,7 @@ class Command(_BaseCommand):
     # Print some informations
     logger.write(_('Getting sources of the application %s\n') % \
                 src.printcolors.printcLabel(config.VARS.application), 1)
-    src.printcolors.print_value(logger, 'workdir', 
-                                config.APPLICATION.workdir, 2)
-    logger.write("\n", 2, False)
+    logger.info("  workdir = %s\n" % config.APPLICATION.workdir)
        
     # Get the products list with products informations regarding the options
     products_infos = self.get_products_list(options, config, logger)

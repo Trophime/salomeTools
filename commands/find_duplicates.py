@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 
@@ -266,23 +267,6 @@ def format_list_of_str(l_str):
     if not isinstance(l_str, list):
         return l_str
     return ",".join(l_str)
-
-def print_info(logger, info, level=2):
-    '''Format a display
-    
-    :param logger Logger: The logger instance
-    :param info List: the list of tuple to display
-    :param valMax float: the maximum value of the variable
-    :param level int: the verbose level that will be used
-    '''
-    smax = max(map(lambda l: len(l[0]), info))
-    for i in info:
-        sp = " " * (smax - len(i[0]))
-        src.printcolors.print_value(logger,
-                                    sp + i[0],
-                                    format_list_of_str(i[1]),
-                                    2)
-    logger.write("\n", level)
 
 class Progress_bar:
     "Create a progress bar in the terminal"

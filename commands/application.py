@@ -18,18 +18,18 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """
-import os
-import stat
-import sys
-import shutil
-import subprocess
-import getpass
+Is a salomeTools command module
+see Command class docstring, also used for help
 """
 
-from src import ElementTree as etree
+import os
+import getpass
+import subprocess
 
+import src.ElementTree as ET
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -100,7 +100,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     # if section APPLICATION.virtual_app does not exists create one
     if "virtual_app" not in runner.cfg.APPLICATION:
         msg = _("The section APPLICATION.virtual_app is not defined in the product.")
-        logger.info("red>" + msg + "<reset>" )
+        logger.error(UTS.red(msg)
         return RCO.ReturnCode("KO", msg)
 
     # get application dir
@@ -122,11 +122,9 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
                                          runner.cfg.APPLICATION.virtual_app.name + "_appdir")
     appli_dir = os.path.join(target_dir, application_name)
 
-    src.printcolors.print_value(logger,
-                                _("Application directory"),
-                                appli_dir,
-                                3)
-
+    fmt = "  %s = %s\n" # as "  label = value\n"
+    logger.info(fmt % (_("Application directory"), appli_dir))
+    
     # get catalog
     catalog, catalog_src = "", ""
     if options.catalog:
@@ -155,17 +153,9 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     if len(catalog) > 0:
         catalog = os.path.realpath(catalog)
         if len(catalog_src) > 0:
-            src.printcolors.print_value(logger,
-                                        _("Resources Catalog"),
-                                        catalog_src,
-                                        3)
+            logger.info(fmt % (_("Resources Catalog"), catalog_src))
         else:
-            src.printcolors.print_value(logger,
-                                        _("Resources Catalog"),
-                                        catalog,
-                                        3)
-
-    logger.write("\n", 3, False)
+            logger.info(fmt % (_("Resources Catalog"), catalog))
 
     details = []
 
@@ -401,10 +391,11 @@ def get_SALOME_modules(config):
             l_modules.append(product)
     return l_modules
 
-##
-# Obsolescent way of creating the application.
-# This method will use appli_gen to create the application directory.
 def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
+    """
+    Obsolescent way of creating the application.
+    This method will use appli_gen to create the application directory.
+    """
     retcode = -1
 
     if len(catalog) > 0 and not os.path.exists(catalog):
@@ -459,19 +450,14 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
 
     return retcode
 
-
-
-##
-# Generates the catalog from a list of machines.
 def generate_catalog(machines, config, logger):
+    """Generates the catalog from a list of machines."""
     # remove empty machines
     machines = map(lambda l: l.strip(), machines)
     machines = filter(lambda l: len(l) > 0, machines)
 
-    src.printcolors.print_value(logger,
-                                _("Generate Resources Catalog"),
-                                ", ".join(machines),
-                                4)
+    logger.debug("  %s = %s" % _("Generate Resources Catalog"), ", ".join(machines))
+    
     cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
     user = getpass.getuser()
 

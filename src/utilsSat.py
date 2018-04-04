@@ -19,7 +19,12 @@
 
 """
 utilities for sat
-general useful simple methods 
+general useful simple methods
+all-in-one import srs.utilsSat as UTS
+
+usage:
+  >> import srs.utilsSat as UTS
+  >> UTS.ensure_path_exists(path)
 """
 
 import os
@@ -28,7 +33,9 @@ import errno
 import stat
 
 
-
+##############################################################################
+# file system utilities
+##############################################################################
 def ensure_path_exists(p):
     '''Create a path if not existing
     
@@ -37,153 +44,20 @@ def ensure_path_exists(p):
     if not os.path.exists(p):
         os.makedirs(p)
         
-def check_config_has_application( config, details = None ):
-    '''check that the config has the key APPLICATION. Else raise an exception.
-    
-    :param config class 'common.pyconf.Config': The config.
+def replace_in_file(filein, strin, strout):
+    '''Replace <strin> by <strout> in file <filein>
     '''
-    if 'APPLICATION' not in config:
-        message = _("An APPLICATION is required. Use 'config --list' to get"
-                    " the list of available applications.\n")
-        if details :
-            details.append(message)
-        raise Exception( message )
+    shutil.move(filein, filein + "_old")
+    fileout= filein
+    filein = filein + "_old"
+    fin = open(filein, "r")
+    fout = open(fileout, "w")
+    for line in fin:
+        fout.write(line.replace(strin, strout))
 
-def check_config_has_profile( config, details = None ):
-    '''check that the config has the key APPLICATION.profile.
-       Else, raise an exception.
-    
-    :param config class 'common.pyconf.Config': The config.
-    '''
-    check_config_has_application(config)
-    if 'profile' not in config.APPLICATION:
-        message = _("A profile section is required in your application.\n")
-        if details :
-            details.append(message)
-        raise Exception( message )
-
-def config_has_application( config ):
-    return 'APPLICATION' in config
-
-def get_cfg_param(config, param_name, default):
-    '''Search for param_name value in config.
-       If param_name is not in config, then return default,
-       else, return the found value
-       
-    :param config class 'common.pyconf.Config': The config.
-    :param param_name str: the name of the parameter to get the value
-    :param default str: The value to return if param_name is not in config
-    :return: see initial description of the function
-    :rtype: str
-    '''
-    if param_name in config:
-        return config[param_name]
-    return default
-
-def print_info(logger, info):
-    '''Prints the tuples that are in info variable in a formatted way.
-    
-    :param logger Logger: The logging instance to use for the prints.
-    :param info list: The list of tuples to display
-    '''
-    # find the maximum length of the first value of the tuples in info
-    smax = max(map(lambda l: len(l[0]), info))
-    # Print each item of info with good indentation
-    for i in info:
-        sp = " " * (smax - len(i[0]))
-        printcolors.print_value(logger, sp + i[0], i[1], 2)
-    logger.write("\n", 2)
-
-def get_base_path(config):
-    '''Returns the path of the products base.
-    
-    :param config Config: The global Config instance.
-    :return: The path of the products base.
-    :rtype: str
-    '''
-    if "base" not in config.LOCAL:
-        local_file_path = os.path.join(config.VARS.salometoolsway,
-                                      "data",
-                                      "local.pyconf")
-        msg = _("Please define a base path in the file %s") % local_file_path
-        raise Exception(msg)
-        
-    base_path = os.path.abspath(config.LOCAL.base)
-    
-    return base_path
-
-def get_launcher_name(config):
-    '''Returns the name of salome launcher.
-    
-    :param config Config: The global Config instance.
-    :return: The name of salome launcher.
-    :rtype: str
-    '''
-    check_config_has_application(config)
-    if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
-        launcher_name = config.APPLICATION.profile.launcher_name
-    else:
-        launcher_name = 'salome'
-
-    return launcher_name
-
-def get_log_path(config):
-    '''Returns the path of the logs.
-    
-    :param config Config: The global Config instance.
-    :return: The path of the logs.
-    :rtype: str
-    '''
-    if "log_dir" not in config.LOCAL:
-        local_file_path = os.path.join(config.VARS.salometoolsway,
-                                      "data",
-                                      "local.pyconf")
-        msg = _("Please define a log_dir in the file %s") % local_file_path
-        raise Exception(msg)
-      
-    log_dir_path = os.path.abspath(config.LOCAL.log_dir)
-    
-    return log_dir_path
-
-def get_salome_version(config):
-    if hasattr(config.APPLICATION, 'version_salome'):
-        Version = config.APPLICATION.version_salome
-    else:
-        KERNEL_info = product.get_product_config(config, "KERNEL")
-        VERSION = os.path.join(
-                            KERNEL_info.install_dir,
-                            "bin",
-                            "salome",
-                            "VERSION")
-        if not os.path.isfile(VERSION):
-            return None
-            
-        fVERSION = open(VERSION)
-        Version = fVERSION.readline()
-        fVERSION.close()
-        
-    VersionSalome = int(only_numbers(Version))    
-    return VersionSalome
-
-def only_numbers(str_num):
-    return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
-
-def read_config_from_a_file(filePath):
-        try:
-            cfg_file = pyconf.Config(filePath)
-        except pyconf.ConfigError as e:
-            raise Exception(_("Error in configuration file: %(file)s\n  %(error)s") %
-                { 'file': filePath, 'error': str(e) } )
-        return cfg_file
-
-def get_tmp_filename(cfg, name):
-    if not os.path.exists(cfg.VARS.tmp_root):
-        os.makedirs(cfg.VARS.tmp_root)
-
-    return os.path.join(cfg.VARS.tmp_root, name)
-
-##
+##############################################################################
 # Utils class to simplify path manipulations.
+##############################################################################
 class Path:
     def __init__(self, path):
         self.path = str(path)
@@ -325,7 +199,216 @@ def handleRemoveReadonly(func, path, exc):
         func(path)
     else:
         raise
+        
+##############################################################################
+# pyconf config utilities
+##############################################################################
+def check_config_has_application( config, details = None ):
+    '''check that the config has the key APPLICATION. Else raise an exception.
+    
+    :param config class 'common.pyconf.Config': The config.
+    '''
+    if 'APPLICATION' not in config:
+        message = _("An APPLICATION is required. Use 'config --list' to get"
+                    " the list of available applications.\n")
+        if details :
+            details.append(message)
+        raise Exception( message )
 
+def check_config_has_profile( config, details = None ):
+    '''check that the config has the key APPLICATION.profile.
+       Else, raise an exception.
+    
+    :param config class 'common.pyconf.Config': The config.
+    '''
+    check_config_has_application(config)
+    if 'profile' not in config.APPLICATION:
+        message = _("A profile section is required in your application.\n")
+        if details :
+            details.append(message)
+        raise Exception( message )
+
+def config_has_application( config ):
+    return 'APPLICATION' in config
+
+def get_cfg_param(config, param_name, default):
+    '''Search for param_name value in config.
+       If param_name is not in config, then return default,
+       else, return the found value
+       
+    :param config class 'common.pyconf.Config': The config.
+    :param param_name str: the name of the parameter to get the value
+    :param default str: The value to return if param_name is not in config
+    :return: see initial description of the function
+    :rtype: str
+    '''
+    if param_name in config:
+        return config[param_name]
+    return default
+
+def get_base_path(config):
+    '''Returns the path of the products base.
+    
+    :param config Config: The global Config instance.
+    :return: The path of the products base.
+    :rtype: str
+    '''
+    if "base" not in config.LOCAL:
+        local_file_path = os.path.join(config.VARS.salometoolsway,
+                                      "data",
+                                      "local.pyconf")
+        msg = _("Please define a base path in the file %s") % local_file_path
+        raise Exception(msg)
+        
+    base_path = os.path.abspath(config.LOCAL.base)
+    
+    return base_path
+
+def get_launcher_name(config):
+    '''Returns the name of salome launcher.
+    
+    :param config Config: The global Config instance.
+    :return: The name of salome launcher.
+    :rtype: str
+    '''
+    check_config_has_application(config)
+    if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
+        launcher_name = config.APPLICATION.profile.launcher_name
+    else:
+        launcher_name = 'salome'
+
+    return launcher_name
+
+def get_log_path(config):
+    '''Returns the path of the logs.
+    
+    :param config Config: The global Config instance.
+    :return: The path of the logs.
+    :rtype: str
+    '''
+    if "log_dir" not in config.LOCAL:
+        local_file_path = os.path.join(config.VARS.salometoolsway,
+                                      "data",
+                                      "local.pyconf")
+        msg = _("Please define a log_dir in the file %s") % local_file_path
+        raise Exception(msg)
+      
+    log_dir_path = os.path.abspath(config.LOCAL.log_dir)
+    
+    return log_dir_path
+
+def get_salome_version(config):
+    if hasattr(config.APPLICATION, 'version_salome'):
+        Version = config.APPLICATION.version_salome
+    else:
+        KERNEL_info = product.get_product_config(config, "KERNEL")
+        VERSION = os.path.join(
+                            KERNEL_info.install_dir,
+                            "bin",
+                            "salome",
+                            "VERSION")
+        if not os.path.isfile(VERSION):
+            return None
+            
+        fVERSION = open(VERSION)
+        Version = fVERSION.readline()
+        fVERSION.close()
+        
+    VersionSalome = int(only_numbers(Version))    
+    return VersionSalome
+
+def only_numbers(str_num):
+    return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
+
+def read_config_from_a_file(filePath):
+    try:
+        cfg_file = pyconf.Config(filePath)
+    except pyconf.ConfigError as e:
+        raise Exception(_("Error in configuration file: %(file)s\n  %(error)s") %
+            { 'file': filePath, 'error': str(e) } )
+    return cfg_file
+
+def get_tmp_filename(config, name):
+    if not os.path.exists(config.VARS.tmp_root):
+        os.makedirs(config.VARS.tmp_root)
+
+    return os.path.join(config.VARS.tmp_root, name)
+
+def get_property_in_product_cfg(product_cfg, pprty):
+    if not "properties" in product_cfg:
+        return None
+    if not pprty in product_cfg.properties:
+        return None
+    return product_cfg.properties[pprty]
+
+##############################################################################
+# logger and color utilities
+##############################################################################
+def formatTuples(tuples):
+    '''format the tuples variable in a tabulated way.
+    
+    :param tuples list: The list of tuples to format
+    :return: The tabulated text. (lines '   label = value')
+    '''
+    # find the maximum length of the first value of the tuples in info
+    smax = max(map(lambda l: len(l[0]), tuples))
+    # Print each item of tuples with good indentation
+    msg = ""
+    for i in info:
+        sp = " " * (smax - len(i[0]))
+        msg += sp + "%s = %s\n" % i[0:1] # tuples, may be longer
+    if len(info) > 1: msg += "\n" # for long list
+    return msg
+    
+def formatValue(label, value, suffix=""):
+    """format 'label = value' with the info color
+    
+    :param label int: the label to print.
+    :param value str: the value to print.
+    :param suffix str: the suffix to add at the end.
+    """
+    msg = "  %s = %s %s" % (label, value, suffix)
+    return msg
+    
+def print_info(logger, tuples):
+    '''format the tuples variable in a tabulated way.
+    
+    :param logger Logger: The logging instance to use for the prints.
+    :param tuples list: The list of tuples to display
+    '''
+    msg = formatTuples(tuples)
+    logger.info(msg)
+    
+_colors = "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE".lower().split(" ")
+
+def black(msg):
+    return "<black>"+msg+"<reset>"
+
+def red(msg):
+    return "<red>"+msg+"<reset>"
+
+def greem(msg):
+    return "<green>"+msg+"<reset>"
+
+def yellow(msg):
+    return "<yellow>"+msg+"<reset>"
+
+def blue(msg):
+    return "<blue>"+msg+"<reset>"
+
+def magenta(msg):
+    return "<magenta>"+msg+"<reset>"
+
+def cyan(msg):
+    return "<cyan>"+msg+"<reset>"
+
+def white(msg):
+    return "<white>"+msg+"<reset>"
+
+
+##############################################################################
+# list and dict utilities
+##############################################################################
 def deepcopy_list(input_list):
     """ Do a deep copy of a list
     
@@ -352,6 +435,20 @@ def remove_item_from_list(input_list, item):
         res.append(elem)
     return res
 
+def merge_dicts(*dict_args):
+    '''
+    Given any number of dicts, shallow copy and merge into a new dict,
+    precedence goes to key value pairs in latter dicts.
+    '''
+    result = {}
+    for dictionary in dict_args:
+        result.update(dictionary)
+    return result
+    
+    
+##############################################################################
+# date utilities
+##############################################################################
 def parse_date(date):
     """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
     
@@ -369,30 +466,5 @@ def parse_date(date):
                                  date[13:])
     return res
 
-def merge_dicts(*dict_args):
-    '''
-    Given any number of dicts, shallow copy and merge into a new dict,
-    precedence goes to key value pairs in latter dicts.
-    '''
-    result = {}
-    for dictionary in dict_args:
-        result.update(dictionary)
-    return result
 
-def replace_in_file(filein, strin, strout):
-    '''Replace <strin> by <strout> in file <filein>
-    '''
-    shutil.move(filein, filein + "_old")
-    fileout= filein
-    filein = filein + "_old"
-    fin = open(filein, "r")
-    fout = open(fileout, "w")
-    for line in fin:
-        fout.write(line.replace(strin, strout))
 
-def get_property_in_product_cfg(product_cfg, pprty):
-    if not "properties" in product_cfg:
-        return None
-    if not pprty in product_cfg.properties:
-        return None
-    return product_cfg.properties[pprty]

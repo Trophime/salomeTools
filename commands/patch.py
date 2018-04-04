@@ -22,6 +22,7 @@ import subprocess
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import commands.prepare
 
@@ -69,15 +70,13 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
 
     # Print some informations
-    logger.write('Patching sources of the application %s\n' % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    logger.info("Patching sources of the application %s\n" % \
+                UTS.blue(config.VARS.application))
 
-    src.printcolors.print_value(logger, 'workdir', 
-                                runner.cfg.APPLICATION.workdir, 2)
-    logger.write("\n", 2, False)
+    logger.info('  workdir = %s\n\n"', UTS.blue(config.APPLICATION.workdir))
 
     # Get the products list with products informations regarding the options
     products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)

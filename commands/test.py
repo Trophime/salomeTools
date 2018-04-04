@@ -26,6 +26,7 @@ import gzip
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.ElementTree as etree
 from src.xmlManager import add_simple_node
@@ -226,10 +227,11 @@ Optional: set the display where to launch SALOME.
     elif with_application and "test_base" in runner.cfg.APPLICATION:
         test_base = runner.cfg.APPLICATION.test_base.name
 
-    src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
-    src.printcolors.print_value(logger, _('Timeout'),
-                                src.test_module.DEFAULT_TIMEOUT, 2)
-    src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
+    fmt = "  %s = %s\n"
+    msg  = fmt % (_('Display'), os.environ['DISPLAY'])
+    msg += fmt % (_('Timeout'), src.test_module.DEFAULT_TIMEOUT)
+    msg += fmt % (_("Working dir"), base_dir)
+    logger.info(msg)
 
     # create the test object
     test_runner = src.test_module.Test(runner.cfg,

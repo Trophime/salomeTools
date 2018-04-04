@@ -202,8 +202,8 @@ def generate_catalog(machines, config, logger):
     machines = filter(lambda l: len(l) > 0, machines)
     
     # log something
-    src.printcolors.print_value(logger, _("Generate Resources Catalog"),
-                                ", ".join(machines), 4)
+    logger.debug("  %s = %s\n" % \
+                 (_("Generate Resources Catalog"),", ".join(machines))
     
     # The command to execute on each machine in order to get some information
     cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'

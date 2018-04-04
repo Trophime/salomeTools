@@ -557,126 +557,99 @@ def show_product_info(config, name, logger):
     :param logger Logger: The logger instance to use for the display
     '''
     
-    logger.write(_("%s is a product\n") % src.printcolors.printcLabel(name), 2)
-    pinfo = src.product.get_product_config(config, name)
+    def msgAdd(label, value):
+        """
+        local short named macro 
+        appending show_product_info.msg variable
+        """
+        msg += "  %s = %s\n" % (label, value)
+        return
     
+    msg = "" # used msgAdd()
+    msg += _("%s is a product\n") % UTS.blue(name)
+    pinfo = src.product.get_product_config(config, name)
+
     if "depend" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "depends on", 
-                                    ', '.join(pinfo.depend), 2)
+        msgAdd("depends on", ', '.join(pinfo.depend))
 
     if "opt_depend" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "optional", 
-                                    ', '.join(pinfo.opt_depend), 2)
+        msgAdd("optional", ', '.join(pinfo.opt_depend))
 
     # information on pyconf
-    logger.write("\n", 2)
-    logger.write(src.printcolors.printcLabel("configuration:") + "\n", 2)
+    msg += UTS.label("configuration:\n")
     if "from_file" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "pyconf file path", 
-                                    pinfo.from_file, 
-                                    2)
+        msgAdd("pyconf file path", pinfo.from_file)
     if "section" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "section", 
-                                    pinfo.section, 
-                                    2)
+        msgAdd("section", pinfo.section)
 
     # information on prepare
-    logger.write("\n", 2)
-    logger.write(src.printcolors.printcLabel("prepare:") + "\n", 2)
+    msg += UTS.label("prepare:\n")
 
     is_dev = src.product.product_is_dev(pinfo)
     method = pinfo.get_source
     if is_dev:
         method += " (dev)"
-    src.printcolors.print_value(logger, "get method", method, 2)
+    msgAdd("get method", method)
 
     if method == 'cvs':
-        src.printcolors.print_value(logger, "server", pinfo.cvs_info.server, 2)
-        src.printcolors.print_value(logger, "base module",
-                                    pinfo.cvs_info.module_base, 2)
-        src.printcolors.print_value(logger, "source", pinfo.cvs_info.source, 2)
-        src.printcolors.print_value(logger, "tag", pinfo.cvs_info.tag, 2)
+        msgAdd("server", pinfo.cvs_info.server)
+        msgAdd("base module", pinfo.cvs_info.module_base)
+        msgAdd("source", pinfo.cvs_info.source)
+        msgAdd("tag", pinfo.cvs_info.tag)
 
     elif method == 'svn':
-        src.printcolors.print_value(logger, "repo", pinfo.svn_info.repo, 2)
+        msgAdd("repo", pinfo.svn_info.repo)
 
     elif method == 'git':
-        src.printcolors.print_value(logger, "repo", pinfo.git_info.repo, 2)
-        src.printcolors.print_value(logger, "tag", pinfo.git_info.tag, 2)
+        msgAdd("repo", pinfo.git_info.repo)
+        msgAdd("tag", pinfo.git_info.tag)
 
     elif method == 'archive':
-        src.printcolors.print_value(logger, 
-                                    "get from", 
-                                    check_path(pinfo.archive_info.archive_name), 
-                                    2)
+        msgAdd("get from", check_path(pinfo.archive_info.archive_name))
 
     if 'patches' in pinfo:
         for patch in pinfo.patches:
-            src.printcolors.print_value(logger, "patch", check_path(patch), 2)
+            msgAdd("patch", check_path(patch))
 
     if src.product.product_is_fixed(pinfo):
-        src.printcolors.print_value(logger, "install_dir", 
-                                    check_path(pinfo.install_dir), 2)
+        msgAdd("install_dir", check_path(pinfo.install_dir))
 
+    logger.info(msg) # return possible
     if src.product.product_is_native(pinfo) or src.product.product_is_fixed(pinfo):
         return
     
     # information on compilation
+    msg = "\n\n"
     if src.product.product_compiles(pinfo):
-        logger.write("\n", 2)
-        logger.write(src.printcolors.printcLabel("compile:") + "\n", 2)
-        src.printcolors.print_value(logger, 
-                                    "compilation method", 
-                                    pinfo.build_source, 
-                                    2)
-        
+        msg += "compile:\n"
+        msgAdd("compilation method", pinfo.build_source)
         if pinfo.build_source == "script" and "compil_script" in pinfo:
-            src.printcolors.print_value(logger, 
-                                        "Compilation script", 
-                                        pinfo.compil_script, 
-                                        2)
-        
+            msgAdd("Compilation script", pinfo.compil_script)
         if 'nb_proc' in pinfo:
-            src.printcolors.print_value(logger, "make -j", pinfo.nb_proc, 2)
-    
-        src.printcolors.print_value(logger, 
-                                    "source dir", 
-                                    check_path(pinfo.source_dir), 
-                                    2)
+            msgAdd("make -j", pinfo.nb_proc)
+        msgAdd("source dir", check_path(pinfo.source_dir))
         if 'install_dir' in pinfo:
-            src.printcolors.print_value(logger, 
-                                        "build dir", 
-                                        check_path(pinfo.build_dir), 
-                                        2)
-            src.printcolors.print_value(logger, 
-                                        "install dir", 
-                                        check_path(pinfo.install_dir), 
-                                        2)
+            msgAdd("build dir", check_path(pinfo.build_dir))
+            msgAdd("install dir", check_path(pinfo.install_dir))
         else:
-            logger.write("  %s\n" % src.printcolors.printcWarning(_("no install dir")) , 2)
+            msg += "  %s\n" % UTS.red(_("no install dir"))
     else:
-        logger.write("\n", 2)
-        msg = _("This product does not compile")
-        logger.write("%s\n" % msg, 2)
+        msg += "%s\n" % UTS.red(_("This product does not compile"))
 
+    logger.info(msg)
+    
     # information on environment
-    logger.write("\n", 2)
-    logger.write(src.printcolors.printcLabel("environ :") + "\n", 2)
+    msg = UTS.label("\nenviron:\n")
     if "environ" in pinfo and "env_script" in pinfo.environ:
-        src.printcolors.print_value(logger, 
-                                    "script", 
-                                    check_path(pinfo.environ.env_script), 
-                                    2)
-
-    zz = src.environment.SalomeEnviron(config, 
-                                       src.fileEnviron.ScreenEnviron(logger), 
-                                       False)
+        msgAdd("script", check_path(pinfo.environ.env_script))
+    logger.info(msg)
+    
+    zz = src.environment.SalomeEnviron(
+           config, src.fileEnviron.ScreenEnviron(logger), False)
     zz.set_python_libdirs()
+    
     zz.set_a_product(name, logger)
+    return
         
 def show_patchs(config, logger):
     """

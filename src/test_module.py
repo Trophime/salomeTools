@@ -36,6 +36,7 @@ import imp
 import subprocess
 
 import src.pyconf as PYCONF
+import src.utilsSat as UTS
 
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
@@ -208,11 +209,8 @@ class Test:
     ##
     # Configure tests base.
     def prepare_testbase(self, test_base_name):
-        src.printcolors.print_value(self.logger,
-                                    _("Test base"),
-                                    test_base_name,
-                                    3)
-        self.logger.write("\n", 3, False)
+        logger = self.logger
+        logger.info("  %s = %s\n" % (_("Test base"), test_base_name))
 
         # search for the test base
         test_base_info = None
@@ -231,8 +229,8 @@ class Test:
                 return 0
         
         if not test_base_info:
-            message = _("ERROR: test base '%s' not found\n") % test_base_name
-            self.logger.write("%s\n" % src.printcolors.printcError(message))
+            msg = _("test base '%s' not found\n") % test_base_name
+            logger.error(UTS.red(msg))
             return 1
 
         if test_base_info.get_sources == "dir":
@@ -739,15 +737,13 @@ class Test:
     ##
     # Runs test testbase.
     def run_testbase_tests(self):
+        logger = self.logger
         res_dir = os.path.join(self.currentDir, "RESSOURCES")
         os.environ['PYTHONPATH'] =  (res_dir + 
                                      os.pathsep + 
                                      os.environ['PYTHONPATH'])
         os.environ['TT_BASE_RESSOURCES'] = res_dir
-        src.printcolors.print_value(self.logger,
-                                    "TT_BASE_RESSOURCES",
-                                    res_dir,
-                                    4)
+        logger.debug("  %s = %s\n" % ("TT_BASE_RESSOURCES", res_dir)
         self.logger.write("\n", 4, False)
 
         self.logger.write(self.write_test_margin(0), 3)
