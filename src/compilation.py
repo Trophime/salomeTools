@@ -57,7 +57,7 @@ class Builder:
     # Shortcut method to log in log file.
     def log(self, text, level, showInfo=True):
         self.logger.write(text, level, showInfo)
-        self.logger.logTxtFile.write(src.printcolors.cleancolor(text))
+        self.logger.logTxtFile.write(UTS.cleancolor(text))
         self.logger.flush()
 
     ##
@@ -251,7 +251,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         hh = 'MSBUILD /m:%s' % str(nb_proc)
         if self.debug_mode:
-            hh += " " + src.printcolors.printcWarning("DEBUG")
+            hh += " " + UTS.red("DEBUG")
         # make
         command = 'msbuild'
         command = command + " /maxcpucount:" + str(nb_proc)
@@ -397,7 +397,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         # script found
         self.logger.write(_("Compile %(product)s using script %(script)s\n") %
             { 'product': self.product_info.name,
-              'script': src.printcolors.printcLabel(script) }, 4)
+              'script': UTS.label(script) }, 4)
         try:
             import imp
             product = self.product_info.name

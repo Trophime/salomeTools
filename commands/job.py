@@ -73,39 +73,37 @@ class Command(_BaseCommand):
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
-        logger.write(src.printcolors.printcError(message))
+        logger.error(message)
         return 1
     
     # Make sure the name option has been called
     if not options.job:
         message = _("The option --name is required\n")      
-        logger.write(src.printcolors.printcError(message))
+        logger.error(message)
         return 1
     
     # Find the file in the directories
-    found = False
-    for cfg_dir in l_cfg_dir:
-        file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
-        if not file_jobs_cfg.endswith('.pyconf'):
-            file_jobs_cfg += '.pyconf'
+    found = True
+    fPyconf = options.jobs_cfg
+    if not file_jobs_cfg.endswith('.pyconf'): 
+        fPyconf += '.pyconf'
         
-        if not os.path.exists(file_jobs_cfg):
-            continue
-        else:
+    for cfg_dir in l_cfg_dir:
+        file_jobs_cfg = os.path.join(cfg_dir, fPyconf)
+        if os.path.exists(file_jobs_cfg):
             found = True
             break
-    
+
     if not found:
-        msg = _("The file configuration %(name_file)s was not found.\n"
-                "Use the --list option to get the possible files.")
-        src.printcolors.printcError(msg)
+        msg = _("""\
+The job file configuration %s was not found.
+Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
+        logger.error(msg)
         return 1
     
-    info = [
-    (_("Platform"), runner.cfg.VARS.dist),
-    (_("File containing the jobs configuration"), file_jobs_cfg)
-    ]
-    src.print_info(logger, info)
+    info = [ (_("Platform"), runner.cfg.VARS.dist),
+             (_("File containing the jobs configuration"), file_jobs_cfg) ]
+    UTS.logger_info_tuples(logger, info)
     
     # Read the config that is in the file
     config_jobs = src.read_config_from_a_file(file_jobs_cfg)
@@ -118,9 +116,9 @@ class Command(_BaseCommand):
             found = True
             break
     if not found:
-        msg = _("Impossible to find the job '%(job_name)s' in %(jobs_config_file)s" % \
-             {"job_name" : options.job, "jobs_config_file" : file_jobs_cfg})
-        logger.write(src.printcolors.printcError(msg) + "\n")
+        msg = _("Impossible to find the job %s in %s\n" % \
+                (options.job, file_jobs_cfg)
+        logger.error(msg)
         return 1
     
     # Find the maximum length of the commands in order to format the display
@@ -156,10 +154,8 @@ class Command(_BaseCommand):
         # Get dynamically the command function to call
         sat_command = runner.__getattr__(sat_command_name)
 
-        logger.write("Executing " + 
-                     src.printcolors.printcLabel(command) + " ", 3)
-        logger.write("." * (len_max_command - len(command)) + " ", 3)
-        logger.flush()
+        logger.info("Executing " + UTS.label(command) + " " +
+                    "." * (len_max_command - len(command)) + " ")
         
         error = ""
         stack = ""
@@ -173,24 +169,22 @@ class Command(_BaseCommand):
         # Print the status of the command
         if code == 0:
             nb_pass += 1
-            logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
+            logger.info("<OK>\n")
         else:
             if sat_command_name != "test":
                 res = 1
-            logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS), error), 3)
+            logger.write('<KO>: %s\n' % error)
 
             if len(stack) > 0:
                 logger.write('stack: %s\n' % stack, 3)
     
     # Print the final state
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nCommands: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_pass,
-          '2': len(commands) }, 3)
+    logger.info(_("\nCommands: %s (%d/%d)\n") % \
+                 (final_status, nb_pass, len(commands)))
     
     return res

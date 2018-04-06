@@ -164,8 +164,8 @@ def generate_launch_file(config,
     if display:
         # Write the launcher file
         logger.write(_("Generating launcher for %s :\n") % 
-                     src.printcolors.printcLabel(config.VARS.application), 1)
-        logger.write("  %s\n" % src.printcolors.printcLabel(filepath), 1)
+                     UTS.label(config.VARS.application), 1)
+        logger.write("  %s\n" % UTS.label(filepath), 1)
     
     # open the file and write into it
     launch_file = open(filepath, "w")
@@ -216,8 +216,7 @@ def generate_catalog(machines, config, logger):
     # Write into it
     catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
     for k in machines:
-        logger.write("    ssh %s " % (k + " ").ljust(20, '.'), 4)
-        logger.flush()
+        logger.debug("    ssh %s " % (k + " ").ljust(20, '.'))
 
         # Verify that the machine is accessible
         ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
@@ -228,13 +227,12 @@ def generate_catalog(machines, config, logger):
         p.wait()
 
         if p.returncode != 0: # The machine is not accessible
-            logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 4)
-            logger.write("    " + 
-                         src.printcolors.printcWarning(p.stderr.read()), 2)
+            logger.error("<KO>: The machine %s is not accessible:\n%s\n" % k + 
+                         UTS.red(p.stderr.read()))
         else:
             # The machine is accessible, write the corresponding section on
             # the xml file
-            logger.write(src.printcolors.printc(src.OK_STATUS) + "\n", 4)
+            logger.debug("<OK>: The machine %s is accessible:\n" % k)
             lines = p.stdout.readlines()
             freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
             nb_proc = len(lines) -1

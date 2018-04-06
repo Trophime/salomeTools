@@ -81,12 +81,12 @@ class Command(_BaseCommand):
     products_infos = get_products_list(options, runner.cfg, logger)
     
     # Print some informations
-    logger.write(_('Configuring the sources of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    logger.info(_('Configuring the sources of the application %s\n') % 
+                UTS.label(runner.cfg.VARS.application))
     
     info = [(_("BUILD directory"),
              os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -97,14 +97,14 @@ class Command(_BaseCommand):
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nConfiguration: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          'valid_result': nb_products - res,
-          'nb_products': nb_products }, 1)    
+    logger.info(_("\nConfiguration: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': final_status, 
+          '1': nb_products - res,
+          '2': nb_products }, 1)    
     
     return res 
 
@@ -143,18 +143,16 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 20), 3)
-    logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
+    logger.info("\r%s%s" % (header, " " * 20))
+    logger.info("\r%s%s" % (header, step))
+    logger.debug("\n==== %s \n" % UTS.info(step))
     logger.flush()
 
 def log_res_step(logger, res):
     if res == 0:
-        logger.write("%s \n" % src.printcolors.printcSuccess("OK"), 4)
-        logger.flush()
+        logger.debug("<OK>")
     else:
-        logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
-        logger.flush()
+        logger.debug("<KO>")
 
 def configure_all_products(config, products_infos, conf_option, logger):
     '''Execute the proper configuration commands 
@@ -191,19 +189,17 @@ def configure_product(p_name_info, conf_option, config, logger):
     p_name, p_info = p_name_info
     
     # Logging
-    logger.write("\n", 4, False)
-    logger.write("################ ", 4)
-    header = _("Configuration of %s") % src.printcolors.printcLabel(p_name)
+    header = _("Configuration of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
-    logger.write(header, 3)
-    logger.write("\n", 4, False)
-    logger.flush()
-
+    logger.info(header)
+    
     # Do nothing if he product is not compilable
-    if ("properties" in p_info and "compilation" in p_info.properties and 
-                                        p_info.properties.compilation == "no"):
+    if ("properties" in p_info and \
+        "compilation" in p_info.properties and \
+        p_info.properties.compilation == "no"):
+          
         log_step(logger, header, "ignored")
-        logger.write("\n", 3, False)
+        logger.info("\n")
         return 0
 
     # Instantiate the class that manages all the construction commands
@@ -235,18 +231,13 @@ def configure_product(p_name_info, conf_option, config, logger):
     
     # Log the result
     if res > 0:
-        logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in configuration of %(name)s \n" %
-            { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
-        logger.flush()
+        logger.info("\r%s%s" % (header, " " * 20))
+        logger.info("\r" + header + "<KO>")
+        logger.debug("==== <KO> in configuration of %s\n" % p_name)
     else:
-        logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Configuration of %(name)s %(OK)s \n" %
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
-    logger.write("\n", 3, False)
+        logger.info("\r%s%s" % (header, " " * 20))
+        logger.info("\r" + header + "<OK>")
+        logger.debug("==== <OK> in configuration of %s\n" % p_name)
+    logger.info("\n")
 
     return res

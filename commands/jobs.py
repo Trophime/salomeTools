@@ -129,8 +129,7 @@ class Command(_BaseCommand):
     if options.list:
         for cfg_dir in l_cfg_dir:
             if not options.no_label:
-                logger.write("------ %s\n" % 
-                                 src.printcolors.printcHeader(cfg_dir))
+                logger.info("------ %s\n" % UTS.blue(cfg_dir))
             if not os.path.exists(cfg_dir):
                 continue
             for f in sorted(os.listdir(cfg_dir)):
@@ -143,7 +142,7 @@ class Command(_BaseCommand):
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
-        src.printcolors.printcError(message)
+        logger.error(message)
         return 1
     
     # Find the file in the directories, unless it is a full path
@@ -156,19 +155,17 @@ class Command(_BaseCommand):
         if not found:
             msg = _("""\
 The file configuration %s was not found.
-Use the --list option to get the possible files.""") % config_file
-            logger.write("%s\n" % src.printcolors.printcError(msg), 1)
+Use the --list option to get the possible files.\n""") % config_file
+            logger.error(msg)
             return 1
         l_conf_files_path.append(file_jobs_cfg)
         # Read the config that is in the file
         one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
         merger.merge(config_jobs, one_config_jobs)
     
-    info = [
-        (_("Platform"), runner.cfg.VARS.dist),
-        (_("Files containing the jobs configuration"), l_conf_files_path)
-    ]    
-    src.print_info(logger, info)
+    info = [(_("Platform"), runner.cfg.VARS.dist),
+            (_("Files containing the jobs configuration"), l_conf_files_path)]    
+    UTS.logger_info_tuples(logger, info)
 
     if options.only_jobs:
         l_jb = PYCONF.Sequence()
@@ -211,7 +208,7 @@ Use the --list option to get the possible files.""") % config_file
     
     gui = None
     if options.publish:
-        logger.write(src.printcolors.printcInfo(
+        logger.write(UTS.info(
                                         _("Initialize the xml boards : ")), 5)
         logger.flush()
         
@@ -237,12 +234,10 @@ Use the --list option to get the possible files.""") % config_file
                   logger,
                   file_boards = options.input_boards)
         
-        logger.write(src.printcolors.printcSuccess("OK"), 5)
-        logger.write("\n\n", 5)
-        logger.flush()
+        logger.debug("<OK>\n\n")
         
         # Display the list of the xml files
-        logger.write(src.printcolors.printcInfo(("Here is the list of published"
+        logger.write(UTS.info(("Here is the list of published"
                                                  " files :\n")), 4)
         logger.write("%s\n" % gui.xml_global_file.logFile, 4)
         for board in gui.d_xml_board_files.keys():
@@ -261,26 +256,19 @@ Use the --list option to get the possible files.""") % config_file
         today_jobs.run_jobs()
     except KeyboardInterrupt:
         interruped = True
-        logger.write("\n\n%s\n\n" % 
-                (src.printcolors.printcWarning(_("Forced interruption"))), 1)
+        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n"))
     except Exception as e:
-        msg = _("CRITICAL ERROR: The jobs loop has been interrupted\n")
-        logger.write("\n\n%s\n" % src.printcolors.printcError(msg) )
-        logger.write("%s\n" % str(e))
-        # get stack
-        __, __, exc_traceback = sys.exc_info()
-        fp = tempfile.TemporaryFile()
-        traceback.print_tb(exc_traceback, file=fp)
-        fp.seek(0)
-        stack = fp.read()
-        logger.write("\nTRACEBACK:\n%s\n" % stack.replace('"',"'"), 1)
+         # verbose debug message with traceback
+        msg = _("Exception raised, the jobs loop has been interrupted:\n\n%s\n")
+        import traceback
+        logger.critical( msg % UTS.yellow(traceback.format_exc()))
         
     finally:
         res = 0
         if interruped:
             res = 1
             msg = _("Killing the running jobs and trying to get the corresponding logs\n")
-            logger.write(src.printcolors.printcWarning(msg))
+            logger.write(UTS.red(msg))
             
         # find the potential not finished jobs and kill them
         for jb in today_jobs.ljobs:
@@ -290,7 +278,7 @@ Use the --list option to get the possible files.""") % config_file
                     jb.kill_remote_process()
                 except Exception as e:
                     msg = _("Failed to kill job %(1)s: %(2)s\n") % {"1": jb.name, "2": e}
-                    logger.write(src.printcolors.printcWarning(msg))
+                    logger.write(UTS.red(msg))
             if jb.res_job != "0":
                 res = 1
         if interruped:
@@ -372,7 +360,7 @@ WARNING : trying to ask if the connection to
           (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
           whereas there were no connection request""" % 
               {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
-            logger.write( src.printcolors.printcWarning(message))
+            logger.write( UTS.red(message))
         return self._connection_successful
 
     def copy_sat(self, sat_local_path, job_file):
@@ -445,19 +433,23 @@ WARNING : trying to ask if the connection to
         :rtype: (paramiko.channel.ChannelFile, paramiko.channel.ChannelFile,
                 paramiko.channel.ChannelFile)
         '''
+        import traceback
         try:        
             # Does not wait the end of the command
             (stdin, stdout, stderr) = self.ssh.exec_command(command)
         except self.paramiko.SSHException:
-            message = src.KO_STATUS + _(
-                            ": the server failed to execute the command\n")
-            logger.write( src.printcolors.printcError(message))
+            msg = _("<KO>: the paramiko server failed to execute the command\n")
+            msg += "command: '%s'\n" % command
+            msg += "\n%s\n" % UTS.yellow(traceback.format_exc())
+            logger.critical(msg)
             return (None, None, None)
-        except:
-            logger.write( src.printcolors.printcError(src.KO_STATUS + '\n'))
+        except Exception as e:
+            msg = _("<KO>: an exception raised on ssh.exec_command:\n")
+            msg += "command: '%s'\n" % command
+            msg += "\n%s\n" % UTS.yellow(traceback.format_exc())
+            logger.critical(msg)
             return (None, None, None)
-        else:
-            return (stdin, stdout, stderr)
+        return (stdin, stdout, stderr)
 
     def close(self):
         '''Close the ssh connection
@@ -622,7 +614,7 @@ class Job(object):
         # Do not get the files if the command is not finished
         if not self.has_finished():
             msg = _("Trying to get log files whereas the job is not finished.")
-            self.logger.write(src.printcolors.printcWarning(msg))
+            self.logger.write(UTS.red(msg))
             return
         
         # First get the file that contains the list of log files to get
@@ -783,7 +775,7 @@ class Job(object):
             msg2 = _("Trying to launch the job \"%s\" whereas it has "
                      "already been launched.") % self.name
             self.logger.write(
-                src.printcolors.printcWarning("%s\n%s\n" % (msg,msg2)) )
+                UTS.red("%s\n%s\n" % (msg,msg2)) )
             return
         
         # Do not execute the command if the machine could not be reached
@@ -832,16 +824,16 @@ class Job(object):
         
         machine_head = "Informations about connection :\n"
         underline = (len(machine_head) - 2) * "-"
-        self.logger.write(src.printcolors.printcInfo(
+        self.logger.write(UTS.info(
                                                 machine_head+underline+"\n"))
         self.machine.write_info(self.logger)
         
-        self.logger.write(src.printcolors.printcInfo("out : \n"))
+        self.logger.write(UTS.info("out : \n"))
         if self.out == "":
             self.logger.write("Unable to get output\n")
         else:
             self.logger.write(self.out + "\n")
-        self.logger.write(src.printcolors.printcInfo("err : \n"))
+        self.logger.write(UTS.info("err : \n"))
         self.logger.write(self.err + "\n")
         
     def get_status(self):
@@ -957,7 +949,7 @@ class Jobs(object):
                 msg = _("""\
 WARNING: The job '%s' do not have the key 'machine'.
          This job is ignored.\n""") % job_def.name
-                self.logger.write(src.printcolors.printcWarning(msg))
+                self.logger.write(UTS.red(msg))
                 continue
             name_machine = job_def.machine
             
@@ -1014,7 +1006,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
          This machine is not defined in the configuration file.
          The job will not be launched.
 """) % {"job" : job_def.name, "machine" : name_machine}
-                    self.logger.write(src.printcolors.printcWarning(msg))
+                    self.logger.write(UTS.red(msg))
                     continue
                                   
             a_job = self.define_job(job_def, a_machine)
@@ -1033,7 +1025,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
         :return: Nothing
         :rtype: N\A
         '''
-        self.logger.write(src.printcolors.printcInfo((
+        self.logger.write(UTS.info((
                         "Establishing connection with all the machines :\n")))
         for machine in self.lmachines:
             # little algorithm in order to display traces
@@ -1086,31 +1078,22 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                 
                 # Print the status of the copy
                 if res_copy == 0:
-                    self.logger.write('\r%s' % 
+                    self.logger.write('\r%s' % \
                                 ((len(begin_line)+len(endline)+20) * " "), 3)
-                    self.logger.write('\r%s%s%s' % 
-                        (begin_line, 
-                         endline, 
-                         src.printcolors.printc(src.OK_STATUS)), 3)
+                    self.logger.info('\r%s%s%s' % (begin_line, endline, "<OK>"))
                 else:
-                    self.logger.write('\r%s' % 
+                    self.logger.write('\r%s' % \
                             ((len(begin_line)+len(endline)+20) * " "), 3)
-                    self.logger.write('\r%s%s%s %s' % 
-                        (begin_line,
-                         endline,
-                         src.printcolors.printc(src.KO_STATUS),
-                         _("Copy of SAT failed: %s") % res_copy), 3)
+                    self.logger.info('\r%s%s%s %s' % \
+                        (begin_line, endline, "<KO>",
+                         _("Copy of SAT failed: %s") % res_copy))
             else:
                 self.logger.write('\r%s' % 
                                   ((len(begin_line)+len(endline)+20) * " "), 3)
-                self.logger.write('\r%s%s%s %s' % 
-                    (begin_line,
-                     endline,
-                     src.printcolors.printc(src.KO_STATUS),
-                     msg), 3)
-            self.logger.write("\n", 3)
+                self.logger.write('\r%s%s%s %s' % (begin_line, endline, "<KO>", msg))
+            self.logger.info("\n")
                 
-        self.logger.write("\n")
+        self.logger.info("\n")
         
 
     def is_occupied(self, hostname):
@@ -1218,7 +1201,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                 empty = self.str_of_length("empty", len_col)
                 display_line += "|" + empty 
             else:
-                display_line += "|" + src.printcolors.printcInfo(
+                display_line += "|" + UTS.info(
                                         self.str_of_length(jb.name, len_col))
         
         self.logger.write("\r" + display_line + "|")
@@ -1238,7 +1221,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
 
         # Print header
         self.logger.write(
-            src.printcolors.printcInfo(_('Executing the jobs :\n')) )
+            UTS.info(_('Executing the jobs :\n')) )
         text_line = ""
         for host_port in self.lhosts:
             host = host_port[0]
@@ -1314,7 +1297,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
         '''
         
         for jb in self.ljobs:
-            self.logger.write(src.printcolors.printcLabel(
+            self.logger.write(UTS.label(
                         "#------- Results for job %s -------#\n" % jb.name))
             jb.write_results()
             self.logger.write("\n\n")
@@ -1574,7 +1557,7 @@ class Gui(object):
                 except Exception as e:
                     msg = _("WARNING: the file '%(1)s' can not be read, it will be "
                             "ignored\n%(2)s") % {"1": file_path, "2": e}
-                    self.logger.write("%s\n" % src.printcolors.printcWarning(
+                    self.logger.write("%s\n" % UTS.red(
                                                                         msg), 5)
                     
         # Construct the dictionnary self.history 
@@ -1756,10 +1739,8 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "state", job.get_status())
             src.xmlManager.add_simple_node(xmlj, "begin", T0)
             src.xmlManager.add_simple_node(xmlj, "end", Tf)
-            src.xmlManager.add_simple_node(xmlj, "out",
-                                           src.printcolors.cleancolor(job.out))
-            src.xmlManager.add_simple_node(xmlj, "err",
-                                           src.printcolors.cleancolor(job.err))
+            src.xmlManager.add_simple_node(xmlj, "out", UTS.cleancolor(job.out))
+            src.xmlManager.add_simple_node(xmlj, "err", UTS.cleancolor(job.err))
             src.xmlManager.add_simple_node(xmlj, "res", str(job.res_job))
             if len(job.remote_log_files) > 0:
                 src.xmlManager.add_simple_node(xmlj,

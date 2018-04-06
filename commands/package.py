@@ -24,6 +24,7 @@ import datetime
 import tarfile
 import codecs
 import string
+import traceback
 
 from commands.application import get_SALOME_modules
 
@@ -165,11 +166,11 @@ class Command(_BaseCommand):
 
     # Check if no option for package type
     if all_option_types.count(True) == 0:
-        msg = _("ERROR: needs a type for the package\n"
-                "       Use one of the following options:\n"
-                "       --binaries, --sources, --project or --salometools")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("""\
+Needs a type for the package
+Use one of the following options:
+  '--binaries' '--sources' '--project' or '--salometools'\n""")
+        logger.error(msg)
         return 1
     
     # The repository where to put the package if not Binary or Source
@@ -182,7 +183,7 @@ class Command(_BaseCommand):
 
         # Display information
         logger.write(_("Packaging application %s\n") % \
-            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+            UTS.label(runner.cfg.VARS.application), 1)
         
         # Get the default directory where to put the packages
         package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
@@ -192,14 +193,12 @@ class Command(_BaseCommand):
     if options.project:
         # check that the project is visible by SAT
         if options.project not in runner.cfg.PROJECTS.project_file_paths:
-            local_path = os.path.join(runner.cfg.VARS.salometoolsway,
-                                     "data",
-                                     "local.pyconf")
-            msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
-                    "\nPlease add it in the %(local)s file.") % \
-                  {"proj" : options.project, "local" : local_path}
-            logger.write(src.printcolors.printcError(msg), 1)
-            logger.write("\n", 1)
+            local_path = os.path.join(
+                   runner.cfg.VARS.salometoolsway, "data", "local.pyconf")
+            msg = _("""\
+The project %s is not visible by salomeTools.
+Please add it in the %s file.\n""") % (options.project, local_path)
+            logger.error(msg)
             return 1
     
     # Remove the products that are filtered by the --without_property option
@@ -245,12 +244,11 @@ class Command(_BaseCommand):
         if options.sat:
             archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
         if len(archive_name)==0: # no option worked 
-            msg = _("Error: Cannot name the archive\n"
-                    "  check if at least one of the following options was "
-                    "selected: --binaries, --sources, --project or"
-                    " --salometools")
-            logger.write(src.printcolors.printcError(msg), 1)
-            logger.write("\n", 1)
+            msg = _("""\
+Cannot name the archive.
+check if at least one of the following options was selected: 
+  '--binaries' '--sources' '--project' or '--salometools'\n""")
+            logger.error(msg)
             return 1
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
@@ -268,7 +266,7 @@ class Command(_BaseCommand):
     logger.write("\n", 3)
 
     msg = _("Preparation of files to add to the archive")
-    logger.write(src.printcolors.printcLabel(msg), 2)
+    logger.write(UTS.label(msg), 2)
     logger.write("\n", 2)
 
     d_files_to_add={}  # content of the archive
@@ -324,9 +322,8 @@ class Command(_BaseCommand):
         d_files_to_add.update(project_package(options.project, tmp_working_dir))
 
     if not(d_files_to_add):
-        msg = _("Error: Empty dictionnary to build the archive!\n")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("Empty dictionnary to build the archive.\n")
+        logger.error(msg)
         return 1
 
     # Add the README file in the package
@@ -346,7 +343,7 @@ class Command(_BaseCommand):
 
     logger.write("\n", 2)
 
-    logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
+    logger.write(UTS.label(_("Actually do the package")), 2)
     logger.write("\n", 2)
     
     try:
@@ -359,13 +356,13 @@ class Command(_BaseCommand):
         # Add the files to the tarfile object
         res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
         tar.close()
+        
     except KeyboardInterrupt:
-        logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
-        logger.write(_("Removing the temporary working directory ... "), 1)
+        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n"))
+        logger.info(_("Removing the temporary working directory ... "))
         # remove the working directory
         shutil.rmtree(tmp_working_dir)
-        logger.write(_("OK"), 1)
-        logger.write(_("\n"), 1)
+        logger.info("<OK>")
         return 1
     
     # remove the working directory    
@@ -408,12 +405,10 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         # Add it in the archive
         try:
             tar.add(local_path, arcname=in_archive, exclude=f_exclude)
-            logger.write(src.printcolors.printcSuccess(_("OK")), 3)
+            logger.info("<OK>\n")
         except Exception as e:
-            logger.write(src.printcolors.printcError(_("KO ")), 3)
-            logger.write(str(e), 3)
+            logger.info("<KO> %s\n" str(e))
             success = 1
-        logger.write("\n", 3)
     return success
 
 def exclude_VCS_and_extensions(filename):
@@ -773,34 +768,22 @@ def binary_package(config, logger, options, tmp_working_dir):
         text_missing_prods = ""
         for p_name in l_not_installed:
             text_missing_prods += "-" + p_name + "\n"
+        
+        msg = _("There are missing products installations:\n")
+        logger.warning(msg + text_missing_prods))
         if not options.force_creation:
-            msg = _("ERROR: there are missing products installations:")
-            logger.write("%s\n%s" % (src.printcolors.printcError(msg),
-                                     text_missing_prods),
-                         1)
             return None
-        else:
-            msg = _("WARNING: there are missing products installations:")
-            logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
-                                     text_missing_prods),
-                         1)
 
     # Do the same for sources
     if len(l_sources_not_present) > 0:
         text_missing_prods = ""
         for p_name in l_sources_not_present:
             text_missing_prods += "-" + p_name + "\n"
+            
+        msg = _("There are missing products sources:\n")
+        logger.warning(msg + text_missing_prods)
         if not options.force_creation:
-            msg = _("ERROR: there are missing products sources:")
-            logger.write("%s\n%s" % (src.printcolors.printcError(msg),
-                                     text_missing_prods),
-                         1)
             return None
-        else:
-            msg = _("WARNING: there are missing products sources:")
-            logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
-                                     text_missing_prods),
-                         1)
  
     # construct the name of the directory that will contain the binaries
     binaries_dir_name = "BINARIES-" + config.VARS.dist

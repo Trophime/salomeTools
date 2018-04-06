@@ -30,9 +30,10 @@ import src.utilsSat as UTS
 import src.pyconf as PYCONF
 
 class ConfigOpener:
-    '''Class that helps to find an application pyconf 
-       in all the possible directories (pathList)
-    '''
+    """
+    Class that helps to find an application pyconf 
+    in all the possible directories (pathList)
+    """
     def __init__(self, pathList):
         '''Initialization
         
@@ -361,7 +362,7 @@ class ConfigManager:
                         _("Error in configuration file: (1)s.pyconf\n  %(2)s") % \
                         { 'application': application, 'error': str(e) } )
                 else:
-                    sys.stdout.write(src.printcolors.printcWarning(
+                    sys.stdout.write(UTS.red(
                         "There is an error in the file %s.pyconf.\n" % \
                         cfg.VARS.application))
                     do_merge = False
@@ -369,14 +370,14 @@ class ConfigManager:
                 if ( not('-e' in parser.parse_args()[1]) or
                      ('--edit' in parser.parse_args()[1]) and
                      command == 'config' ):
-                    sys.stdout.write(src.printcolors.printcWarning("%s\n" % str(e)))
+                    sys.stdout.write(UTS.red("%s\n" % str(e)))
                     raise Exception(
                         _("Error in configuration file: %s.pyconf\n") % application )
                 else:
-                    sys.stdout.write(src.printcolors.printcWarning(
+                    sys.stdout.write(UTS.red(
                         "ERROR: in file %s.pyconf. Opening the file with the default viewer\n" % \
                         cfg.VARS.application))
-                    sys.stdout.write("\n%s\n" % src.printcolors.printcWarning(str(e)))
+                    sys.stdout.write("\n%s\n" % UTS.red(str(e)))
                     do_merge = False
         
             else:
@@ -539,13 +540,13 @@ def check_path(path, ext=[]):
     '''
     # check if file exists
     if not os.path.exists(path):
-        return "'%s' %s" % (path, src.printcolors.printcError(_("** not found")))
+        return "path '%s' ** not found" % path
 
     # check extension
     if len(ext) > 0:
         fe = os.path.splitext(path)[1].lower()
         if fe not in ext:
-            return "'%s' %s" % (path, src.printcolors.printcError(_("** bad extension")))
+            return "path '%s' ** bad extension" % path
 
     return path
 
@@ -559,7 +560,7 @@ def show_product_info(config, name, logger):
     
     def msgAdd(label, value):
         """
-        local short named macro 
+        local short named macro for convenience
         appending show_product_info.msg variable
         """
         msg += "  %s = %s\n" % (label, value)
@@ -870,7 +871,7 @@ def _getConfig(self, appliToLoad):
                 msg = _("WARNING: the logs_paths_in_file option will "
                         "not be taken into account.\nHere is the error:")
                 logger_command.write("%s\n%s\n\n" % (
-                                     src.printcolors.printcWarning(msg),
+                                     UTS.red(msg),
                                      str(e)))
                 self.options.logs_paths_in_file = None
                 

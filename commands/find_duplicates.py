@@ -142,7 +142,7 @@ class Command(_BaseCommand):
         if not(os.path.isdir(dir_path)):
             msg = _("%s does not exists or is not a directory path: it will be ignored" %
                   dir_path)
-            logger.write("%s\n" % src.printcolors.printcWarning(msg), 3)
+            logger.warning("%s\n" % msg)
             continue
         l_dir_path.append(dir_path)
             
@@ -153,16 +153,15 @@ class Command(_BaseCommand):
             (_("Ignored extensions"), extension_ignored),
             (_("Ignored directories"), directories_ignored)
            ]
-    print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # Get all the files and paths
-    logger.write(_("Store all file paths ... "), 3)
-    logger.flush()
+    logger.info(_("Store all file paths ... "), 3)
     dic, fic = list_directory(l_dir_path,
                               extension_ignored,
                               files_ignored,
                               directories_ignored)  
-    logger.write(src.printcolors.printcSuccess('OK\n'), 3)
+    logger.info("<OK>\n")
     
     # Eliminate all the singletons
     len_fic = len(fic)
@@ -180,7 +179,7 @@ class Command(_BaseCommand):
             dic.remove(dic[i])
 
     # Format the resulting variable to get a dictionary
-    logger.write(_("\n\nCompute the dict {files : [list of pathes]} ... "), 3)
+    logger.info(_("\n\nCompute the dict for file -> list of paths ... "))
     fic.sort()
     len_fic = len(fic)
     rg_fic = range(0,len_fic)
@@ -198,32 +197,28 @@ class Command(_BaseCommand):
                 l_path.append(fic_path[1])
         dic_fic_paths[the_file] = l_path
     
-    logger.write(src.printcolors.printcSuccess('OK\n'), 3)
+    logger.info("<OK>\n')
 
     # End the execution if no duplicates were found
     if len(dic_fic_paths) == 0:
-        logger.write(_("No duplicate files found.\n"), 3)
+        logger.info(_("No duplicate files found.\n"))
         return 0
 
     # Check that there are no singletons in the result (it would be a bug)
     for elem in dic_fic_paths:
         if len(dic_fic_paths[elem])<2:
-            logger.write(
-                _("WARNING : element %s has not more than two paths.\n") % elem,
-                3 )
+            logger.warning(_("Element %s has not more than two paths.\n") % elem)
 
 
     # Display the results
-    logger.write(src.printcolors.printcInfo(_('\nResults:\n\n')), 3)
+    logger.info(_('\nResults:\n\n'))
     max_file_name_lenght = max(map(lambda l: len(l), dic_fic_paths.keys()))
     for fich in dic_fic_paths:
-        logger.write(src.printcolors.printcLabel(fich), 1)
         sp = " " * (max_file_name_lenght - len(fich))
-        logger.write(sp, 1)
+        msg = UTS.label(fich) + sp
         for rep in dic_fic_paths[fich]:
-            logger.write(rep, 1)
-            logger.write(" ", 1)
-        logger.write("\n", 1)
+            msg += rep + " "
+        logger.info(msg + "\n")
 
     return 0
 
@@ -295,13 +290,11 @@ class Progress_bar:
         :param val float: val must be between valMin and valMax.
         '''
         if val < self.valMin or val > self.valMax:
-            self.logger.write(src.printcolors.printcWarning(_(
-                           'WARNING : wrong value for the progress bar.\n')), 3)
+            self.logger.error(_("Wrong value for the progress bar.\n')))
         else:
             perc = (float(val-self.valMin) / (self.valMax - self.valMin)) * 100.
             nb_equals = int(perc * self.length / 100)
             out = '\r %s : %3d %% [%s%s]' % (self.name, perc, nb_equals*'=',
                                              (self.length - nb_equals)*' ' )
-            self.logger.write(out, 3)
-            self.logger.flush()
+            self.logger.info(out)
 

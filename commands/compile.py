@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#  Copyright (C) 2010-2012  CEA/DEN
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -121,17 +121,16 @@ class Command(_BaseCommand):
     src.check_config_has_application( runner.cfg )
 
     # Print some informations
-    logger.write(_('Executing the compile commands in the build '
-                   'directories of the products of the application %s\n') % 
-                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    nameApp = str(runner.cfg.VARS.application)
+    srcDir = os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')
+    buildDir = os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD')
     
-    info = [
-            (_("SOURCE directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),
-            (_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))
-            ]
-    src.print_info(logger, info)
+    msg = _("Application %s, executing compile commands in build directories of products.\n"
+    logger.info(msg % UTS.label(nameApp))
+    
+    info = [ (_("SOURCE directory"), srcDir),
+             (_("BUILD directory"),buildDir) ]
+    UTS.logger_info_tuples(logger, info)
 
     # Get the list of products to treat
     products_infos = get_products_list(options, runner.cfg, logger)
@@ -155,14 +154,14 @@ class Command(_BaseCommand):
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") %
-        { 'status': src.printcolors.printc(final_status), 
+    logger.info(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': final_status, 
           '1': nb_products - res,
-          '2': nb_products }, 1)    
+          '2': nb_products })    
     
     code = res
     if code != 0:
@@ -372,22 +371,21 @@ def check_dependencies(config, p_name_p_info):
     return l_depends_not_installed
 
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 30), 3)
-    logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
-    logger.flush()
+    logger.info("\r%s%s" % (header, " " * 30))
+    logger.info("\r%s%s" % (header, step))
+    logger.debug("\n==== %s \n" % step)
 
 def log_res_step(logger, res):
     if res == 0:
-        logger.write("%s \n" % src.printcolors.printcSuccess("OK"), 4)
-        logger.flush()
+        logger.debug("<OK>\n")
     else:
-        logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
-        logger.flush()
+        logger.debug("<KO>\n")
+
 
 def compile_all_products(sat, config, options, products_infos, logger):
-    '''Execute the proper configuration commands 
-       in each product build directory.
+    """\
+    Execute the proper configuration commands 
+    in each product build directory.
 
     :param config Config: The global configuration
     :param products_info list: List of 
@@ -395,7 +393,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
     :param logger Logger: The logger instance to use for the display and logging
     :return: the number of failing commands.
     :rtype: int
-    '''
+    """
     res = 0
     for p_name_info in products_infos:
         
@@ -403,25 +401,23 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Logging
         len_end_line = 30
-        logger.write("\n", 4, False)
-        logger.write("################ ", 4)
-        header = _("Compilation of %s") % src.printcolors.printcLabel(p_name)
-        header += " %s " % ("." * (len_end_line - len(p_name)))
-        logger.write(header, 3)
-        logger.write("\n", 4, False)
-        logger.flush()
-
+        header = _("Compilation of %s") % UTS.label(p_name)
+        header += " %s \n" % ("." * (len_end_line - len(p_name)))
+        logger.info(header)
+        
         # Do nothing if the product is not compilable
-        if ("properties" in p_info and "compilation" in p_info.properties and 
-                                            p_info.properties.compilation == "no"):
+        if ("properties" in p_info and \
+            "compilation" in p_info.properties and \
+            p_info.properties.compilation == "no"):
+              
             log_step(logger, header, "ignored")
-            logger.write("\n", 3, False)
+            logger.info("\n")
             continue
 
         # Do nothing if the product is native
         if src.product.product_is_native(p_info):
             log_step(logger, header, "native")
-            logger.write("\n", 3, False)
+            logger.info("\n")
             continue
 
         # Clean the build and the install directories 
@@ -452,23 +448,22 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
-            logger.write(_("Already installed\n"))
+            logger.info(_("Already installed\n"))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            logger.write(_("Not installed\n"))
+            logger.info(_("Not installed\n"))
             continue
         
         # Check if the dependencies are installed
         l_depends_not_installed = check_dependencies(config, p_name_info)
         if len(l_depends_not_installed) > 0:
             log_step(logger, header, "")
-            logger.write(src.printcolors.printcError(
-                    _("ERROR : the following product(s) is(are) mandatory: ")))
+            msg = _("the following products are mandatory:\n")
             for prod_name in l_depends_not_installed:
-                logger.write(src.printcolors.printcError(prod_name + " "))
-            logger.write("\n")
+                msg += "%s\n" % prod_name
+            logger.error(msg)
             continue
         
         # Call the function to compile the product
@@ -485,8 +480,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
             
             if error_step != "CHECK":
                 # Clean the install directory if there is any
-                logger.write(
-                    _("Cleaning the install directory if there is any\n"), 5)
+                logger.debug(_("Cleaning the install directory if there is any\n"))
                 sat.clean(config.VARS.application + 
                           " --products " + p_name + 
                           " --install",
@@ -506,24 +500,17 @@ def compile_all_products(sat, config, options, products_infos, logger):
 
         # Log the result
         if res_prod > 0:
-            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-            logger.write("\r" + header + src.printcolors.printcError("KO ") + error_step)
-            logger.write("\n==== %(KO)s in compile of %(name)s \n" %
-                { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+            logger.info("\r%s%s" % (header, " " * len_end_line))
+            logger.info("\r" + header + "<KO> ") + error_step)
+            logger.debug("\n==== <KO> in compile of %s\n" % p_name
             if error_step == "CHECK":
-                logger.write(_("\nINSTALL directory = %s") % 
-                           src.printcolors.printcInfo(p_info.install_dir), 3)
-            logger.flush()
+                logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
         else:
-            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-            logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-            logger.write(_("\nINSTALL directory = %s") % 
-                           src.printcolors.printcInfo(p_info.install_dir), 3)
-            logger.write("\n==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-            logger.write("\n==== Compilation of %(name)s %(OK)s \n" %
-                { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-            logger.flush()
-        logger.write("\n", 3, False)
+            logger.info("\r%s%s" % (header, " " * len_end_line)
+            logger.info("\r" + header + "<OK>")
+            logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
+            logger.debug("\n==== <OK> in compile of %s\n" % p_name)
+        logger.info("\n")
         
         
         if res_prod != 0 and options.stop_first_fail:
@@ -575,16 +562,14 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     if res==0 and not(os.path.exists(p_info.install_dir)):
         res = 1
         error_step = "NO INSTALL DIR"
-        msg = _("Error: despite the fact that all the steps ended successfully,"
-                " no install directory was found !")
-        logger.write(src.printcolors.printcError(msg), 4)
-        logger.write("\n", 4)
+        msg = _("despite all the steps ended successfully, no install directory was found\n")
+        logger.error(msg)
         return res, len_end, error_step
     
     # Add the config file corresponding to the dependencies/versions of the 
     # product that have been successfully compiled
     if res==0:       
-        logger.write(_("Add the config file in installation directory\n"), 5)
+        logger.debug(_("Add the config file in installation directory\n"))
         add_compile_config_file(p_info, config)
         
         if options.check:
@@ -644,7 +629,7 @@ def compile_product_cmake_autotools(sat,
         if src.product.product_has_script(p_info):
             # if the product has a compilation script, 
             # it is executed during make step
-            scrit_path_display = src.printcolors.printcLabel(
+            scrit_path_display = UTS.label(
                                                         p_info.compil_script)
             log_step(logger, header, "SCRIPT " + scrit_path_display)
             len_end_line = len(scrit_path_display)
@@ -703,7 +688,7 @@ def compile_product_script(sat,
     error_step = ""
     
     # Logging and sat command call for the script step
-    scrit_path_display = src.printcolors.printcLabel(p_info.compil_script)
+    scrit_path_display = UTS.label(p_info.compil_script)
     log_step(logger, header, "SCRIPT " + scrit_path_display)
     len_end_line = len_end + len(scrit_path_display)
     res = sat.script(config.VARS.application + " --products " + p_name,

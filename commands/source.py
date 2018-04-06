@@ -72,7 +72,7 @@ class Command(_BaseCommand):
 
     # Print some informations
     logger.write(_('Getting sources of the application %s\n') % \
-                src.printcolors.printcLabel(config.VARS.application), 1)
+                UTS.label(config.VARS.application), 1)
     logger.info("  workdir = %s\n" % config.APPLICATION.workdir)
        
     # Get the products list with products informations regarding the options
@@ -85,31 +85,20 @@ class Command(_BaseCommand):
 
     # Display the results (how much passed, how much failed, etc...)
     details = []
-
-    logger.write("\n", 2, False)
-    if good_result == len(products_infos):
-        res_count = "%d / %d" % (good_result, good_result)
-        returnCode = RCO.ReturnCode("OK", "source "+res_count)     
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("Getting sources of the application")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        res_count = "%d / %d" % (good_result, len(products_infos))
-        returnCode = RCO.ReturnCode("KO", "source "+res_count)     
-        for product in results:
-            if results[product] == 0 or results[product] is None:
-                details.append(product)
+      status = "KO"
+      msg = _("Some sources haven't been get")
+      details = [p for p in results if (results[product] == 0 or results[product] is None)]
+      details  = " ".join(details)
+      logger.info("\n%s %s: <%s>.\n%s\n" % (msg, msgCount, status, details))
 
-    result = len(products_infos) - good_result
-
-    # write results
-    logger.write(_("Getting sources of the application:"), 1)
-    logger.write(" " + src.printcolors.printc(status), 1, False)
-    logger.write(" (%s)\n" % res_count, 1, False)
-
-    if len(details) > 0:
-        logger.write(_("Following sources haven't been get:\n"), 2)
-        logger.write(" ".join(details), 2)
-        logger.write("\n", 2, False)
-
-    return returnCode
+    return RCO.ReturnCode(status, "%s %s" % msg, msgCount)
 
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
@@ -139,7 +128,7 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     logger.write(" " * (pad+2), 3, False) 
     
     logger.write('dev: %s ... ' % \
-                 src.printcolors.printcInfo(product_info.source_dir), 3, False)
+                 UTS.info(product_info.source_dir), 3, False)
     logger.flush()
     
     return retcode
@@ -170,23 +159,18 @@ def get_source_from_git(product_info,
     # Get the repository address. (from repo_dev key if the product is 
     # in dev mode.
     if is_dev and 'repo_dev' in product_info.git_info:
-        coflag = src.printcolors.printcHighlight(coflag.upper())
+        coflag = coflag.upper()
         repo_git = product_info.git_info.repo_dev    
     else:
         repo_git = product_info.git_info.repo    
         
     # Display informations
-    logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(repo_git)), 3, 
-                 False)
-    logger.write(' ' * (pad + 50 - len(repo_git)), 3, False)
-    logger.write(' tag:%s' % src.printcolors.printcInfo(
-                                                    product_info.git_info.tag), 
-                 3,
-                 False)
-    logger.write(' %s. ' % ('.' * (10 - len(product_info.git_info.tag))), 3, 
-                 False)
-    logger.flush()
-    logger.write('\n', 5, False)
+    msg = "'%s:%s" % (coflag, repo_git)
+    msg += " " * (pad + 50 - len(repo_git))
+    msg += " tag:%s" % product_info.git_info.tag
+    msg += "%s. " % "." * (10 - len(product_info.git_info.tag))
+    logger.write("\n" + msg)
+    
     # Call the system function that do the extraction in git mode
     retcode = src.system.git_extract(repo_git,
                                  product_info.git_info.tag,
@@ -210,7 +194,7 @@ def get_source_from_archive(product_info, source_dir, logger):
                                product_info.archive_info.archive_name)
 
     logger.write('arc:%s ... ' % \
-                 src.printcolors.printcInfo(product_info.archive_info.archive_name),
+                 UTS.info(product_info.archive_info.archive_name),
                  3, False)
     logger.flush()
     # Call the system function that do the extraction in archive mode
@@ -231,27 +215,26 @@ def get_source_from_archive(product_info, source_dir, logger):
 def get_source_from_dir(product_info, source_dir, logger):
     
     if "dir_info" not in product_info:
-        msg = _("Error: you must put a dir_info section in the file %s.pyconf") % \
+        msg = _("You must put a dir_info section in the file %s.pyconf") % \
               product_info.name
-        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        logger.error(msg)
         return False
 
     if "dir" not in product_info.dir_info:
         msg = _("Error: you must put a dir in the dir_info section  in the file %s.pyconf") % \
               product_info.name
-        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        logger.error(msg)
         return False
 
     # check that source exists
     if not os.path.exists(product_info.dir_info.dir):
-        msg = _("ERROR: the dir '%(1)s' defined in the file %(2)s.pyconf does not exists") % \
-              {"1": product_info.dir_info.dir, "2": product_info.name}
-        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        msg = _("The dir %s defined in the file %s.pyconf does not exists") % \
+                (product_info.dir_info.dir, product_info.name)
+        logger.error(msg)
         return False
     
-    logger.write('DIR: %s ... ' % src.printcolors.printcInfo(
+    logger.write('DIR: %s ... ' % UTS.info(
                                            product_info.dir_info.dir), 3)
-    logger.flush()
 
     retcode = src.Path(product_info.dir_info.dir).copy(source_dir)
     
@@ -295,21 +278,18 @@ def get_source_from_cvs(user,
                                 product_info.cvs_info.product_base)
 
     coflag = 'cvs'
-    if checkout: coflag = src.printcolors.printcHighlight(coflag.upper())
+    if checkout: coflag = coflag.upper()
 
-    logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(cvs_line)), 
-                 3, False)
-    logger.write(' ' * (pad + 50 - len(cvs_line)), 3, False)
-    logger.write(' src:%s' % src.printcolors.printcInfo(product_info.cvs_info.source), 
-                 3, False)
-    logger.write(' ' * (pad + 1 - len(product_info.cvs_info.source)), 3, False)
-    logger.write(' tag:%s' % src.printcolors.printcInfo(product_info.cvs_info.tag), 
-                 3, False)
+    msg = '%s:%s' % (coflag, cvs_line)
+    msg += " " * (pad + 50 - len(cvs_line))
+    msg += " src:%s" % product_info.cvs_info.source
+    msg += " " * (pad + 1 - len(product_info.cvs_info.source))
+    msg += " tag:%s" % product_info.cvs_info.tag
+                 
     # at least one '.' is visible
-    logger.write(' %s. ' % ('.' * (10 - len(product_info.cvs_info.tag))), 
-                 3, False) 
-    logger.flush()
-    logger.write('\n', 5, False)
+    msg += " %s. " % ("." * (10 - len(product_info.cvs_info.tag)))
+                 
+    logger.write(msg)
 
     # Call the system function that do the extraction in cvs mode
     retcode = src.system.cvs_extract(protocol, user,
@@ -341,12 +321,10 @@ def get_source_from_svn(user,
     :rtype: boolean
     '''
     coflag = 'svn'
-    if checkout: coflag = src.printcolors.printcHighlight(coflag.upper())
+    if checkout: coflag = coflag.upper()
 
-    logger.write('%s:%s ... ' % (coflag, src.printcolors.printcInfo(product_info.svn_info.repo)), 
-                 3,  False)
-    logger.flush()
-    logger.write('\n', 5, False)
+    logger.write('%s:%s ... ' % (coflag, product_info.svn_info.repo)
+
     # Call the system function that do the extraction in svn mode
     retcode = src.system.svn_extract(user, 
                                      product_info.svn_info.repo, 
@@ -380,7 +358,7 @@ def get_product_sources(config,
     '''
     
     # Get the application environment
-    logger.write(_("Set the application environment\n"), 5)
+    logger.info(_("Set the application environment\n"))
     env_appli = src.environment.SalomeEnviron(config,
                                       src.environment.Environ(dict(os.environ)))
     env_appli.set_application_env(logger)
@@ -422,28 +400,20 @@ def get_product_sources(config,
 
     if product_info.get_source == "native":
         # skip
-        logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
-                     3,
-                     False)
-        msg = _("INFORMATION : do nothing because the product is of type 'native'.\n")
-        logger.write(msg, 3)
+        msg = "<OK>" + _("\ndo nothing because the product is of type 'native'.\n")
+        logger.write(msg)
         return True        
 
     if product_info.get_source == "fixed":
         # skip
-        logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
-                     3,
-                     False)
-        msg = _("INFORMATION : do nothing because the product is of type 'fixed'.\n")
-        logger.write(msg, 3)
+        msg = "<OK>" + _("\ndo nothing because the product is of type 'fixed'.\n")
+        logger.write(msg)
         return True  
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]
-    logger.write(_("Unknown get source method '%(get)s' for product %(product)s") % \
-                 {'get': product_info.get_source, 'product': product_info.name}, 
-                 3, False)
-    logger.write(" ... ", 3, False)
-    logger.flush()
+    msg = _("Unknown get source method '%s' for product %s") % \
+                 ( product_info.get_source, product_info.name) 
+    logger.write("%s ... " % msg)
     return False
 
 def get_all_product_sources(config, products, logger):
@@ -476,7 +446,7 @@ def get_all_product_sources(config, products, logger):
             source_dir = src.Path('')
 
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(product_name), 3)
+        logger.write('%s: ' % UTS.label(product_name), 3)
         logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
         logger.write("\n", 4, False)
         
@@ -484,12 +454,9 @@ def get_all_product_sources(config, products, logger):
         # the product is not in development mode
         is_dev = src.product.product_is_dev(product_info)
         if source_dir.exists():
-            logger.write('%s  ' % src.printcolors.printc(RCO.OK_STATUS),
-                         3,
-                         False)
-            msg = _("INFORMATION : Not doing anything because the source"
-                    " directory already exists.\n")
-            logger.write(msg, 3)
+            logger.info("<OK>\n")
+            msg = _("Nothing done because source directory existing yet.\n")
+            logger.info(msg)
             good_result = good_result + 1
             # Do not get the sources and go to next product
             continue
@@ -515,24 +482,24 @@ def get_all_product_sources(config, products, logger):
             check_OK, wrong_path = check_sources(product_info, logger)
             if not check_OK:
                 # Print the missing file path
-                msg = _("The required file %s does not exists. ") % wrong_path
-                logger.write(src.printcolors.printcError("\nERROR: ") + msg, 3)
+                msg = _("The required file %s does not exists.\n") % wrong_path
+                logger.error(msg)
                 retcode = False
 
         # show results
         results[product_name] = retcode
         if retcode:
             # The case where it succeed
-            res = RCO.OK_STATUS
+            res = "<OK>"
             good_result = good_result + 1
         else:
             # The case where it failed
-            res = RCO.KO_STATUS
+            res = "<KO>"
         
         # print the result
         if not(src.product.product_is_fixed(product_info) or 
                src.product.product_is_native(product_info)):
-            logger.write('%s\n' % src.printcolors.printc(res), 3, False)
+            logger.info('%s\n' % res)
 
     return good_result, results
 
@@ -549,13 +516,17 @@ def check_sources(product_info, logger):
     if ("present_files" in product_info and 
         "source" in product_info.present_files):
         l_files_to_be_tested = product_info.present_files.source
+        res = True # all ok a priori
+        filesKo = "" # None
         for file_path in l_files_to_be_tested:
-            # The path to test is the source directory 
-            # of the product joined the file path provided
+            # add source directory of the product
             path_to_test = os.path.join(product_info.source_dir, file_path)
-            logger.write(_("\nTesting existence of file: \n"), 5)
-            logger.write(path_to_test, 5)
+            msg = _("File %s testing existence:" % path_to_test)
             if not os.path.exists(path_to_test):
-                return False, path_to_test
-            logger.write(src.printcolors.printcSuccess(" OK\n"), 5)
-    return True, ""
+              logger.debug("%s <KO>\n" % msg)
+              res = False
+              # return False, path_to_test #break at first
+              filesKo += path_to_test + "\n" # check all              
+            else:
+              logger.debug("%s <OK>\n" % msg)
+    return res, filesKo

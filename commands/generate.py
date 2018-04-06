@@ -72,7 +72,7 @@ class Command(_BaseCommand):
     src.check_config_has_application(runner.cfg)
     
     logger.write(_('Generation of SALOME modules for application %s\n') % \
-        src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+        UTS.label(runner.cfg.VARS.application), 1)
 
     status = src.KO_STATUS
 
@@ -82,9 +82,8 @@ class Command(_BaseCommand):
     if isinstance(yacsgen_dir, tuple):
         # The check failed
         __, error = yacsgen_dir
-        msg = _("Error: %s") % error
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("check yacsgen: %s\n") % error
+        logger.error(msg)
         return 1
     
     # Make the generator module visible by python
@@ -102,7 +101,7 @@ class Command(_BaseCommand):
 
     context = build_context(runner.cfg, logger)
     for product in products:
-        header = _("Generating %s") % src.printcolors.printcLabel(product)
+        header = _("Generating %s") % UTS.label(product)
         header += " %s " % ("." * (20 - len(product)))
         logger.write(header, 3)
         logger.flush()
@@ -145,10 +144,9 @@ class Command(_BaseCommand):
 
 def generate_component_list(config, product_info, context, logger):
     res = "?"
-    logger.write("\n", 3)
+    logger.info("\n")
     for compo in src.product.get_product_components(product_info):
-        header = "  %s %s " % (src.printcolors.printcLabel(compo),
-                               "." * (20 - len(compo)))
+        header = "  %s %s " % (UTS.label(compo), "." * (20 - len(compo)))
         res = generate_component(config,
                                  compo,
                                  product_info,
@@ -156,9 +154,8 @@ def generate_component_list(config, product_info, context, logger):
                                  header,
                                  logger)
         if config.USER.output_verbose_level == 3:
-            logger.write("\r%s%s\r%s" % (header, " " * 20, header), 3)
-        logger.write(src.printcolors.printc(res), 3, False)
-        logger.write("\n", 3, False)
+            logger.info("\r%s%s\r%s" % (header, " " * 20, header))
+        logger.info(res + "\n")
     return res
 
 def generate_component(config, compo, product_info, context, header, logger):
@@ -318,7 +315,7 @@ def build_context(config, logger):
                 warn = _("product %(product)s is not defined. Include it in the"
                          " application or define $%(env)s.") % \
                     { "product": p, "env": prod_env}
-                logger.write(src.printcolors.printcWarning(warn), 1)
+                logger.write(UTS.red(warn), 1)
                 logger.write("\n", 3, False)
                 val = ""
             val = ctxenv.environ.environ[prod_env]

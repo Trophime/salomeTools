@@ -74,11 +74,11 @@ class Command(_BaseCommand):
 
     # Print some informations
     logger.write(_('Executing the make install command in the build directories of the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+                UTS.label(runner.cfg.VARS.application), 1)
     
     info = [(_("BUILD directory"),
              os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -87,14 +87,12 @@ class Command(_BaseCommand):
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nMake install: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
+    logger.info(_("\nMake install: %s (%d/%d)\n") % \
+                  (final_status, nb_products - res, nb_products))    
     
     return res 
    
@@ -135,16 +133,14 @@ def get_products_list(options, cfg, logger):
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 20), 3)
     logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
+    logger.write("\n==== %s \n" % UTS.info(step), 4)
     logger.flush()
 
 def log_res_step(logger, res):
     if res == 0:
-        logger.write("%s \n" % src.printcolors.printcSuccess("OK"), 4)
-        logger.flush()
+        logger.debug("<OK>\n")
     else:
-        logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
-        logger.flush()
+        logger.debug("<KO>\n")
 
 def makeinstall_all_products(config, products_infos, logger):
     '''Execute the proper configuration commands 
@@ -181,7 +177,7 @@ def makeinstall_product(p_name_info, config, logger):
     # Logging
     logger.write("\n", 4, False)
     logger.write("################ ", 4)
-    header = _("Make install of %s") % src.printcolors.printcLabel(p_name)
+    header = _("Make install of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
     logger.write(header, 3)
     logger.write("\n", 4, False)
@@ -215,17 +211,12 @@ def makeinstall_product(p_name_info, config, logger):
     # Log the result
     if res > 0:
         logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in make install of %(name)s \n" %
-            { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
-        logger.flush()
+        logger.write("\r" + header + "<KO>")
+        logger.error("==== <KO> in make install of s\n" % p_name)
     else:
         logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Make install of %(name)s %(OK)s \n" %
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
+        logger.write("\r" + header + "<OK>")
+        logger.write("==== <OK> in make install of %s\n" % p_name)
     logger.write("\n", 3, False)
 
     return res

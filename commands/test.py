@@ -118,7 +118,7 @@ Optional: set the display where to launch SALOME.
     if runner.cfg.VARS.application != 'None':
         logger.write(
             _('Running tests on application %s\n') % 
-            src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+            UTS.label(runner.cfg.VARS.application), 1)
         with_application = True
     elif not options.base:
         raise Exception(
@@ -128,18 +128,17 @@ Optional: set the display where to launch SALOME.
     if with_application:
         # check if environment is loaded
         if 'KERNEL_ROOT_DIR' in os.environ:
-            logger.write( src.printcolors.printcWarning(
+            logger.write( UTS.red(
                _("WARNING: SALOME environment already sourced")) + "\n", 1 )
             
         
     elif options.launcher:
-        logger.write(src.printcolors.printcWarning(
-           _("Running SALOME application.")) + "\n\n", 1)
+        logger.write(UTS.red(_("Running SALOME application.")) + "\n\n", 1)
     else:
-        msg = _("Impossible to find any launcher.\n"
-                "Please specify an application or a launcher")
-        logger.write(src.printcolors.printcError(msg))
-        logger.write("\n")
+        msg = _("""\
+Impossible to find any launcher.
+Please specify an application or a launcher\n""")
+        logger.error(msg)
         return 1
 
     # set the display
@@ -413,13 +412,12 @@ def move_test_results(in_dir, what, out_dir, logger):
                                                   finalPath))
                                 f.close()
 
-    logger.write(src.printcolors.printc("OK"), 3, False)
-    logger.write("\n", 3, False)
+    logger.info("<OK>\n")
 
 def check_remote_machine(machine_name, logger):
-    logger.write(_("\ncheck the display on %s\n") % machine_name, 4)
+    logger.debug(_("Check the display on %s\n") % machine_name)
     ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s "ls"' % machine_name
-    logger.write(_("Executing the command : %s ") % ssh_cmd, 4)
+    logger.debug(_("Executing the command : %s\n") % ssh_cmd)
     p = subprocess.Popen(ssh_cmd, 
                          shell=True,
                          stdin =subprocess.PIPE,
@@ -427,12 +425,12 @@ def check_remote_machine(machine_name, logger):
                          stderr=subprocess.PIPE)
     p.wait()
     if p.returncode != 0:
-        logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 1)
-        logger.write("    " + src.printcolors.printcError(p.stderr.read()), 2)
-        logger.write(src.printcolors.printcWarning(
-            _("No ssh access to the display machine.")), 1)
+        msg = "<KO> on '%s'" % ssh_cmd
+        logger.critical(msg)
+        logger.error(UTS.red(p.stderr.read()))
+        logger.error(UTS.red(_("No ssh access to the display machine %s.") % machine_name))
     else:
-        logger.write(src.printcolors.printcSuccess(src.OK_STATUS) + "\n\n", 4)
+        logger.debug("<OK>\n")
 
 ##
 # Creates the XML report for a product.

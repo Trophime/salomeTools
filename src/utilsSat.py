@@ -32,29 +32,27 @@ import shutil
 import errno
 import stat
 
+from srs.coloringSat import cleanColors # as shortcut
 
 ##############################################################################
 # file system utilities
 ##############################################################################
 def ensure_path_exists(p):
-    '''Create a path if not existing
+    """Create a path if not existing
     
     :param p str: The path.
-    '''
+    """
     if not os.path.exists(p):
         os.makedirs(p)
         
 def replace_in_file(filein, strin, strout):
-    '''Replace <strin> by <strout> in file <filein>
-    '''
+    """Replace <strin> by <strout> in file <filein>"""
+    with open(filein, "r") as f: 
+      contents = f.read()
     shutil.move(filein, filein + "_old")
-    fileout= filein
-    filein = filein + "_old"
-    fin = open(filein, "r")
-    fout = open(fileout, "w")
-    for line in fin:
-        fout.write(line.replace(strin, strout))
-
+    with open(filein, "r") as f: 
+      f.write(contents.replace(strin, strout))
+  
 ##############################################################################
 # Utils class to simplify path manipulations.
 ##############################################################################
@@ -345,11 +343,12 @@ def get_property_in_product_cfg(product_cfg, pprty):
 # logger and color utilities
 ##############################################################################
 def formatTuples(tuples):
-    '''format the tuples variable in a tabulated way.
+    """
+    format 'label = value' the tuples in a tabulated way.
     
     :param tuples list: The list of tuples to format
-    :return: The tabulated text. (lines '   label = value')
-    '''
+    :return: The tabulated text. (mutiples lines)
+    """
     # find the maximum length of the first value of the tuples in info
     smax = max(map(lambda l: len(l[0]), tuples))
     # Print each item of tuples with good indentation
@@ -361,33 +360,34 @@ def formatTuples(tuples):
     return msg
     
 def formatValue(label, value, suffix=""):
-    """format 'label = value' with the info color
+    """
+    format 'label = value' with the info color
     
     :param label int: the label to print.
     :param value str: the value to print.
-    :param suffix str: the suffix to add at the end.
+    :param suffix str: the optionnal suffix to add at the end.
     """
     msg = "  %s = %s %s" % (label, value, suffix)
     return msg
     
-def print_info(logger, tuples):
-    '''format the tuples variable in a tabulated way.
-    
-    :param logger Logger: The logging instance to use for the prints.
-    :param tuples list: The list of tuples to display
-    '''
+def logger_info_tuples(logger, tuples):
+    """
+    for convenience
+    format as formatTuples() and call logger.info()
+    """
     msg = formatTuples(tuples)
     logger.info(msg)
-    
-_colors = "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE".lower().split(" ")
 
+# for convenience    
+_colors = "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE".lower().split(" ")
+    
 def black(msg):
     return "<black>"+msg+"<reset>"
 
 def red(msg):
     return "<red>"+msg+"<reset>"
 
-def greem(msg):
+def green(msg):
     return "<green>"+msg+"<reset>"
 
 def yellow(msg):
@@ -404,6 +404,27 @@ def cyan(msg):
 
 def white(msg):
     return "<white>"+msg+"<reset>"
+
+def normal(msg):
+    return "<normal>"+msg+"<reset>"
+
+def reset(msg):
+    return "<reset>"+msg
+
+def info(msg):
+    return "<info>"+msg+"<reset>"
+
+def header(msg):
+    return "<info>"+msg+"<reset>"
+
+def warning(msg):
+    return "<warning>"+msg+"<reset>"
+
+def error(msg):
+    return "<error>"+msg+"<reset>"
+
+def critical(msg):
+    return "<critical>"+msg+"<reset>"
 
 
 ##############################################################################

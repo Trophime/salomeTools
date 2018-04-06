@@ -80,7 +80,11 @@ _tags = (
   ("<bright>", ST.BRIGHT),
   ("<normal>", ST.NORMAL),
   ("<reset>", ST.RESET_ALL),
+  ("<info>", ST.RESET_ALL),
   ("<header>", FG.BLUE),
+  ("<warning>", FG.RED),
+  ("<error>", FG.RED + ST.BRIGHT),
+  ("<critical>", FG.RED + ST.BRIGHT),
   ("<OK>", FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL),
   ("<KO>", FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL),
 )
@@ -99,7 +103,11 @@ _tagsNone = reversed( (
   ("<bright>", ""),
   ("<normal>", ""),
   ("<reset>", ""),
+  ("<info>", ""),
   ("<header>", ""),
+  ("<warning>", ""),
+  ("<error>", ""),
+  ("<critical>", ""),
   ("<OK>", "OK"),
   ("<KO>", "KO"),
 ) )
@@ -142,12 +150,22 @@ class ColoringStream(object):
     return self.logs
 
 def toColor(msg):
+  """
+  automatically clean the message of color tags '<red> ... 
+  if the terminal output stdout is redirected by user
+  if not, replace tags with ansi color codes
+  example:
+    >> sat compile SALOME > log.txt
+  """
   if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
-    # clean the message color if the terminal is redirected by user
-    # ex: sat compile appli > log.txt
+    # clean the message color (if the terminal is redirected by user)
     return replace(msg, _tagsNone)
   else:
     return replace(msg, _tags)
+    
+def cleanColor(msg):
+  """clean the message of color tags '<red> ... """
+  return replace(msg, _tagsNone)
   
 def toColor_AnsiToWin32(msg):
   """for test debug no wrapping"""

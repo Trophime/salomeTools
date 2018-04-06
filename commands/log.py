@@ -101,7 +101,7 @@ class Command(_BaseCommand):
     nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
     info = [("log directory", logDir), 
             ("number of log files", nb_files_log_dir)]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # If the clean options is invoked, 
     # do nothing but deleting the concerned files.
@@ -132,8 +132,7 @@ class Command(_BaseCommand):
             remove_log_file(pyconfFilePath, logger)
 
         
-        logger.write(src.printcolors.printcSuccess("OK\n"))
-        logger.write("%i logs deleted.\n" % nbClean)
+        logger.write("<OK>\n%i logs deleted.\n" % nbClean)
         return 0 
 
     # determine the commands to show in the hat log
@@ -202,7 +201,7 @@ class Command(_BaseCommand):
         index = 0
         # loop on all files and print it with date, time and command name 
         for __, date, hour, cmd, cmdAppli in lLogsFiltered:          
-            num = src.printcolors.printcLabel("%2d" % (nb_logs - index))
+            num = UTS.label("%2d" % (nb_logs - index))
             logger.write("%s: %13s %s %s %s\n" % 
                          (num, cmd, date, hour, cmdAppli), 1, False)
             index += 1
@@ -225,8 +224,7 @@ class Command(_BaseCommand):
     src.logger.update_hat_xml(logDir, 
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
-    logger.write(src.printcolors.printc("OK"), 3)
-    logger.write("\n", 3)
+    logger.info("<OK>\n"))
     
     # open the hat xml in the user editor
     if not options.no_browser:
@@ -270,7 +268,7 @@ def remove_log_file(filePath, logger):
     :param logger Logger: the logger instance to use for the print 
     '''
     if os.path.exists(filePath):
-        logger.write(src.printcolors.printcWarning("Removing ")
+        logger.write(UTS.red("Removing ")
                      + filePath + "\n", 5)
         os.remove(filePath)
 
@@ -281,7 +279,7 @@ def print_log_command_in_terminal(filePath, logger):
                      context and traces
     :param logger Logger: the logging instance to use in order to print.  
     '''
-    logger.write(_("Reading ") + src.printcolors.printcHeader(filePath) + "\n", 5)
+    logger.debug(_("Reading %s\n") % filePath)
     # Instantiate the ReadXmlFile class that reads xml files
     xmlRead = src.xmlManager.ReadXmlFile(filePath)
     # Get the attributes containing the context (user, OS, time, etc..)
@@ -291,15 +289,13 @@ def print_log_command_in_terminal(filePath, logger):
     for attrib in dAttrText:
         lAttrText.append((attrib, dAttrText[attrib]))
     logger.write("\n", 1)
-    src.print_info(logger, lAttrText)
+    UTS.logger_info_tuples(logger, lAttrText)
     # Get the traces
     command_traces = xmlRead.get_node_text('Log')
     # Print it if there is any
     if command_traces:
-        logger.write(src.printcolors.printcHeader(
-                                    _("Here are the command traces :\n")), 1)
-        logger.write(command_traces, 1)
-        logger.write("\n", 1)
+        logger.info(UTS.header(_("Here are the command traces :\n")))
+        logger.info(command_traces + "\n" )
         
 def getMaxFormat(aListOfStr, offset=1):
     """returns format for columns width as '%-30s"' for example"""
@@ -326,7 +322,7 @@ def show_last_logs(logger, config, log_dirs):
             k = index + i * col_size
             if k < nb:
                 l = log_dirs[k]
-                str_indice = src.printcolors.printcLabel("%2d" % (k+1))
+                str_indice = UTS.label("%2d" % (k+1))
                 log_name = l
                 logger.write(fmt2 % (str_indice, log_name), 1, False)
         logger.write("\n", 1, False)
@@ -350,7 +346,7 @@ def show_product_last_logs(logger, config, product_log_dir):
     
     # display the available logs
     for i, (__, file_name) in enumerate(sorted(l_time_file)):
-        str_indice = src.printcolors.printcLabel("%2d" % (i+1))
+        str_indice = UTS.label("%2d" % (i+1))
         opt = []
         my_stat = os.stat(os.path.join(product_log_dir, file_name))
         opt.append(str(datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME])))

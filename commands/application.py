@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#  Copyright (C) 2010-2012  CEA/DEN
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -100,7 +100,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     # if section APPLICATION.virtual_app does not exists create one
     if "virtual_app" not in runner.cfg.APPLICATION:
         msg = _("The section APPLICATION.virtual_app is not defined in the product.")
-        logger.error(UTS.red(msg)
+        logger.error(UTS.red(msg))
         return RCO.ReturnCode("KO", msg)
 
     # get application dir
@@ -161,13 +161,13 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
 
     # remove previous application
     if os.path.exists(appli_dir):
-        write_step(logger, _("Removing previous application directory"))
-        rres = src.KO_STATUS
+        logger.info(get_step(_("Removing previous application directory")))
+        rres = "<KO>"
         try:
             shutil.rmtree(appli_dir)
-            rres = src.OK_STATUS
+            rres = "<OK>"
         finally:
-            logger.write(src.printcolors.printc(rres) + "\n", 3, False)
+            logger.info(rres + "\n")
 
     # generate the application
     try:
@@ -177,7 +177,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
             details.append(str(exc))
             raise
     finally:
-        logger.write("\n", 3, False)
+        logger.info("\n")
 
     return RCO.ReturnCode("OK")
 
@@ -191,19 +191,16 @@ def make_alias(appli_path, alias_path, force=False):
     else: # find relative path
         os.symlink(appli_path, alias_path)
 
-##
-# add the definition of a module to out stream.
 def add_module_to_appli(out, module, has_gui, module_path, logger, flagline):
+    """add the definition of a module to out stream."""
     if not os.path.exists(module_path):
         if not flagline:
-            logger.write("\n", 3, False)
+            logger.info("\n")
             flagline = True
-        logger.write("  " + src.printcolors.printcWarning(_(
-                        "WARNING: module %s not installed") % module) + "\n", 3)
+        logger.warning("  %s\n" + _("module %s not installed") % module)
 
-    out.write('   <module name="%s" gui="%s" path="%s"/>\n' % (module,
-                                                               has_gui,
-                                                               module_path))
+    out.write('   <module name="%s" gui="%s" path="%s"/>\n' % \
+              (module, has_gui, module_path))
     return flagline
 
 ##
@@ -257,15 +254,15 @@ def create_config_file(config, modules, env_file, logger):
 
     return config_file
 
-##
-# Customizes the application by editing SalomeApp.xml.
+
 def customize_app(config, appli_dir, logger):
+    """Customizes the application by editing SalomeApp.xml."""
     if 'configure' not in config.APPLICATION.virtual_app \
         or len(config.APPLICATION.virtual_app.configure) == 0:
         return
 
-    # shortcut to get an element (section or parameter) from parent.
     def get_element(parent, name, strtype):
+        """shortcut to get an element (section or parameter) from parent."""
         for c in parent.getchildren():
             if c.attrib['name'] == name:
                 return c
@@ -275,14 +272,15 @@ def customize_app(config, appli_dir, logger):
         elt.attrib['name'] = name
         return elt
 
-    # shortcut method to create a node
     def add_simple_node(parent, node_name, text=None):
+        """shortcut method to create a node"""
         n = etree.Element(node_name)
         if text is not None:
             try:
                 n.text = text.strip("\n\t").decode("UTF-8")
             except:
-                sys.stderr.write("################ %s %s\n" % (node_name, text))
+                logger.error("problem decode UTF8 %s:\n%s\n" % \
+                   (node_name, UTS.toHex(text)))
                 n.text = "?"
         parent.append(n)
         return n
@@ -293,13 +291,13 @@ def customize_app(config, appli_dir, logger):
     document = tree.getroot()
     assert document is not None, "document tag not found"
 
-    logger.write("\n", 4)
+    logger.info("\n")
     for section_name in config.APPLICATION.virtual_app.configure:
         for parameter_name in config.APPLICATION.virtual_app.configure[section_name]:
             parameter_value = config.APPLICATION.virtual_app.configure[section_name][parameter_name]
-            logger.write("  configure: %s/%s = %s\n" % (section_name,
+            logger.info("  configure: %s/%s = %s\n" % (section_name,
                                                         parameter_name,
-                                                        parameter_value), 4)
+                                                        parameter_value))
             section = get_element(document, section_name, "section")
             parameter = get_element(section, parameter_name, "parameter")
             parameter.attrib['value'] = parameter_value
@@ -333,7 +331,7 @@ def generate_application(config, appli_dir, config_file, logger):
     command = "python %s --prefix=%s --config=%s" % (script,
                                                      appli_dir,
                                                      config_file)
-    logger.write("\n>" + command + "\n", 5, False)
+    logger.debug("\n>" + command + "\n")
     res = subprocess.call(command,
                     shell=True,
                     cwd=target_dir,
@@ -346,11 +344,12 @@ def generate_application(config, appli_dir, config_file, logger):
 
     return res
 
-##
-#
-def write_step(logger, message, level=3, pad=50):
-    logger.write("%s %s " % (message, '.' * (pad - len(message.decode("UTF-8")))), level)
-    logger.flush()
+def get_step(logger, message, pad=50):
+    """
+    returns 'message ........ ' with pad 50 by default
+    avoid colors '<color>' for now in message
+    """
+    return "%s %s " % (message, '.' * (pad - len(message.decode("UTF-8")))
 
 ##
 # Creates a SALOME application.
@@ -362,8 +361,8 @@ def create_application(config, appli_dir, catalog, logger, display=True):
     if display:
         for w in warn:
             if w not in SALOME_modules:
-                msg = _("WARNING: module %s is required to create application\n") % w
-                logger.write(src.printcolors.printcWarning(msg), 2)
+                msg = _("module %s is required to create application\n") % w
+                logger.warning(msg)
 
     # generate the launch file
     retcode = generate_launch_file(config,
@@ -373,13 +372,11 @@ def create_application(config, appli_dir, catalog, logger, display=True):
                                    SALOME_modules)
     
     if retcode == 0:
-        cmd = src.printcolors.printcLabel("%s/salome" % appli_dir)
+        cmd = UTS.label("%s/salome" % appli_dir)
 
     if display:
-        logger.write("\n", 3, False)
-        logger.write(_("To launch the application, type:\n"), 3, False)
-        logger.write("  %s" % (cmd), 3, False)
-        logger.write("\n", 3, False)
+        msg = _("To launch the application, type:"))
+        logger.info("\n%s\n  %s\n" % (msg, cmd))
     return retcode
 
 def get_SALOME_modules(config):
@@ -401,11 +398,11 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     if len(catalog) > 0 and not os.path.exists(catalog):
         raise IOError(_("Catalog not found: %s") % catalog)
     
-    write_step(logger, _("Creating environment files"))
-    status = src.KO_STATUS
+    logger.info(get_step(_("Creating environment files")))
+    status = "<KO>"
 
     VersionSalome = src.get_salome_version(config)
-    if VersionSalome>=820:
+    if VersionSalome >= 820:
         # for salome 8+ we use a salome context file for the virtual app
         app_shell="cfg"
         env_ext="cfg"
@@ -422,27 +419,27 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
                                        logger,
                                        shells=[app_shell],
                                        silent=True)
-        status = src.OK_STATUS
+        status = "<OK>"
     finally:
-        logger.write(src.printcolors.printc(status) + "\n", 2, False)
+        logger.info(status + "\n")
 
     # build the application (the name depends upon salome version
     env_file = os.path.join(config.APPLICATION.workdir, "env_launch." + env_ext)
 
-    write_step(logger, _("Building application"), level=2)
+    logger.info(get_step(_("Building application"))
     cf = create_config_file(config, l_SALOME_modules, env_file, logger)
 
     # create the application directory
     os.makedirs(appli_dir)
 
     # generate the application
-    status = src.KO_STATUS
+    status = "<KO>"
     try:
         retcode = generate_application(config, appli_dir, cf, logger)
         customize_app(config, appli_dir, logger)
-        status = src.OK_STATUS
+        status = "<OK>"
     finally:
-        logger.write(src.printcolors.printc(status) + "\n", 2, False)
+        logger.info(status + "\n")
 
     # copy the catalog if one
     if len(catalog) > 0:
@@ -463,10 +460,13 @@ def generate_catalog(machines, config, logger):
 
     catfile = src.get_tmp_filename(config, "CatalogResources.xml")
     catalog = file(catfile, "w")
-    catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
+    catalog.write("""\
+<!DOCTYPE ResourcesCatalog>
+<resources>
+""")
+
     for k in machines:
-        logger.write("    ssh %s " % (k + " ").ljust(20, '.'), 4)
-        logger.flush()
+        logger.info("    ssh %s " % (k + " ").ljust(20, '.'), 4)
 
         ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
         p = subprocess.Popen(ssh_cmd, shell=True,
@@ -476,31 +476,33 @@ def generate_catalog(machines, config, logger):
         p.wait()
 
         if p.returncode != 0:
-            logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 4)
-            logger.write("    " + src.printcolors.printcWarning(p.stderr.read()),
-                         2)
+            logger.error("<KO>\n%s\n" % UTS.red(p.stderr.read()))
         else:
-            logger.write(src.printcolors.printc(src.OK_STATUS) + "\n", 4)
+            logger.info("<OK>\n")
             lines = p.stdout.readlines()
             freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
             nb_proc = len(lines) -1
             memory = lines[-1].split(':')[-1].split()[0].strip()
             memory = int(memory) / 1000
-
-            catalog.write("    <machine\n")
-            catalog.write("        protocol=\"ssh\"\n")
-            catalog.write("        nbOfNodes=\"1\"\n")
-            catalog.write("        mode=\"interactif\"\n")
-            catalog.write("        OS=\"LINUX\"\n")
-            catalog.write("        CPUFreqMHz=\"%s\"\n" % freq)
-            catalog.write("        nbOfProcPerNode=\"%s\"\n" % nb_proc)
-            catalog.write("        memInMB=\"%s\"\n" % memory)
-            catalog.write("        userName=\"%s\"\n" % user)
-            catalog.write("        name=\"%s\"\n" % k)
-            catalog.write("        hostname=\"%s\"\n" % k)
-            catalog.write("    >\n")
-            catalog.write("    </machine>\n")
-
+            
+            msg = """\
+    <machine
+        protocol="ssh"
+        nbOfNodes="1"
+        mode="interactif"
+        OS="LINUX"
+        CPUFreqMHz="%s"
+        nbOfProcPerNode="%s"
+        memInMB="%s"
+        userName="%s"
+        name="%s"
+        hostname="%s"
+    >
+    </machine>
+"""
+            msg = msg % (freq, nb_proc, memory, user, k, k)
+            catalog.write(msg)
+            
     catalog.write("</resources>\n")
     catalog.close()
     return catfile

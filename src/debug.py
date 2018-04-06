@@ -51,7 +51,7 @@ def indent(text, amount=2, ch=' '):
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-        if 'pyconf.Config' in str(type(var)): 
+        if '.Config' in str(type(var)): 
             sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
         if 'loggingSat.UnittestStream' in str(type(var)): 
             sys.stderr.write(fmt % (title, indent(var.getLogs())))

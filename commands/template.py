@@ -92,44 +92,37 @@ Optional: dictionary to generate the configuration for salomeTools.
     logger = self.getLogger()
     options = self.getOptions()
 
+    msg_miss = _("The --%s argument is required\n")
     if options.template is None:
-        msg = _("Error: the --%s argument is required\n") % "template"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        logger.error(msg_miss % "template")
         return 1
 
     if options.target is None and options.info is None:
-        msg = _("Error: the --%s argument is required\n") % "target"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        logger.error(msg_miss % "target")
         return 1
 
     if "APPLICATION" in runner.cfg:
-        msg = _("Error: this command does not use a product.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("This command does not use a product.\n")
+        logger.error(msg)
         return 1
 
     if options.info:
         return get_template_info(runner.cfg, options.template, logger)
 
     if options.name is None:
-        msg = _("Error: the --%s argument is required\n") % "name"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        logger.error(msg_miss % "name")
         return 1
 
     if not options.name.replace('_', '').isalnum():
-        msg = _("Error: component name must contains only alphanumeric "
-                "characters and no spaces\n")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("""\
+Component name must contains only alphanumeric characters and no spaces\n""")
+        logger.error(msg)
         return 1
 
     # CNC inutile
     # Ask user confirmation if a module of the same name already exists
     #if options.name in runner.cfg.PRODUCTS and not runner.options.batch:
-    #    logger.write(src.printcolors.printcWarning(
+    #    logger.write(UTS.red(
     #                _("A module named '%s' already exists." % options.name)), 1)
     #    logger.write("\n", 1)
     #    rep = input(_("Are you sure you want to continue? [Yes/No] "))
@@ -137,16 +130,13 @@ Optional: dictionary to generate the configuration for salomeTools.
     #        return 1
 
     if options.target is None:
-        msg = _("Error: the --%s argument is required\n") % "target"
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        logger.error(msg_miss % "target")
         return 1
 
     target_dir = os.path.join(options.target, options.name)
     if os.path.exists(target_dir):
-        msg = _("Error: the target already exists: %s") % target_dir
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
+        msg = _("The target already exists: %s\n") % target_dir
+        logger.error(msg)
         return 1
 
     # CNC inutile
@@ -154,7 +144,7 @@ Optional: dictionary to generate the configuration for salomeTools.
     #    if "_APPLI" not in options.name and not runner.options.batch:
     #        msg = _("An Application module named '..._APPLI' "
     #                "is usually recommended.")
-    #        logger.write(src.printcolors.printcWarning(msg), 1)
+    #        logger.write(UTS.red(msg), 1)
     #        logger.write("\n", 1)
     #        rep = input(_("Are you sure you want to continue? [Yes/No] "))
     #        if rep.upper() != _("YES"):
@@ -165,7 +155,7 @@ Optional: dictionary to generate the configuration for salomeTools.
     msg += '  destination = %s\n' % target_dir
     msg += '  name = %\ns' % options.name
     msg += '  template = %s\n' % options.template
-    logger.write(msg)
+    logger.info(msg)
     
     conf_values = None
     if options.param is not None:
@@ -173,9 +163,8 @@ Optional: dictionary to generate the configuration for salomeTools.
         for elt in options.param.split(","):
             param_def = elt.strip().split('=')
             if len(param_def) != 2:
-                msg = _("Error: bad parameter definition")
-                logger.write(src.printcolors.printcError(msg), 1)
-                logger.write("\n", 1)
+                msg = _("Bad parameter definition: '%s'\n") % elt
+                logger.error(msg)
                 return 1
             conf_values[param_def[0].strip()] = param_def[1].strip()
     
@@ -183,13 +172,11 @@ Optional: dictionary to generate the configuration for salomeTools.
         target_dir, conf_values, logger)
 
     if retcode == 0:
-        logger.write(_(
-                 "The sources were created in %s") % src.printcolors.printcInfo(
-                                                                 target_dir), 3)
-        logger.write(src.printcolors.printcWarning(_("\nDo not forget to put "
-                                   "them in your version control system.")), 3)
-        
-    logger.write("\n", 3)
+        logger.info(_("The sources were created in %s\n") % UTS.info(target_dir))
+        msg = _("Do not forget to put them in your version control system.\n")
+        logger.info("\n" + UTS.red(msg))
+    else:    
+        logger.info("\n")
     
     return retcode
 
@@ -374,12 +361,12 @@ def prepare_from_template(config,
     # copy the template
     if os.path.isfile(template_src_dir):
         logger.write("  " + _(
-                        "Extract template %s\n") % src.printcolors.printcInfo(
+                        "Extract template %s\n") % UTS.info(
                                                                    template), 4)
         src.system.archive_extract(template_src_dir, target_dir)
     else:
         logger.write("  " + _(
-                        "Copy template %s\n") % src.printcolors.printcInfo(
+                        "Copy template %s\n") % UTS.info(
                                                                    template), 4)
         shutil.copytree(template_src_dir, target_dir)
     logger.write("\n", 5)
@@ -395,7 +382,7 @@ def prepare_from_template(config,
     tsettings = TemplateSettings(compo_name, settings_file, target_dir)
 
     # first rename the files
-    logger.write("  " + src.printcolors.printcLabel(_("Rename files\n")), 4)
+    logger.write("  " + UTS.label(_("Rename files\n")), 4)
     for root, dirs, files in os.walk(target_dir):
         for fic in files:
             ff = fic.replace(tsettings.file_subst, compo_name)
@@ -409,7 +396,7 @@ def prepare_from_template(config,
 
     # rename the directories
     logger.write("\n", 5)
-    logger.write("  " + src.printcolors.printcLabel(_("Rename directories\n")),
+    logger.write("  " + UTS.label(_("Rename directories\n")),
                  4)
     for root, dirs, files in os.walk(target_dir, topdown=False):
         for rep in dirs:
@@ -424,7 +411,7 @@ def prepare_from_template(config,
 
     # ask for missing parameters
     logger.write("\n", 5)
-    logger.write("  " + src.printcolors.printcLabel(
+    logger.write("  " + UTS.label(
                                         _("Make substitution in files\n")), 4)
     logger.write("    " + _("Delimiter =") + " %s\n" % tsettings.delimiter_char,
                  5)
@@ -459,7 +446,7 @@ def prepare_from_template(config,
             logger.write("  %s %s\n" % (changed, fpath[pathlen:]), 5)
 
     if not tsettings.has_pyconf:
-        logger.write(src.printcolors.printcWarning(_(
+        logger.write(UTS.red(_(
                    "Definition for sat not found in settings file.")) + "\n", 2)
     else:
         definition = tsettings.pyconf % dico
@@ -468,14 +455,14 @@ def prepare_from_template(config,
         f.write(definition)
         f.close
         logger.write(_(
-            "Create configuration file: ") + src.printcolors.printcInfo(
+            "Create configuration file: ") + UTS.info(
                                                          pyconf_file) + "\n", 2)
 
     if len(tsettings.post_command) > 0:
         cmd = tsettings.post_command % dico
         logger.write("\n", 5, True)
         logger.write(_(
-              "Run post command: ") + src.printcolors.printcInfo(cmd) + "\n", 3)
+              "Run post command: ") + UTS.info(cmd) + "\n", 3)
         
         p = subprocess.Popen(cmd, shell=True, cwd=target_dir)
         p.wait()

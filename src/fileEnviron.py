@@ -661,9 +661,9 @@ class ScreenEnviron(FileEnviron):
     def write(self, command, name, value, sign="="):
         import src
         self.output.write("  %s%s %s %s %s\n" % \
-            (src.printcolors.printcLabel(command),
+            (UTS.label(command),
              " " * (12 - len(command)),
-             src.printcolors.printcInfo(name), sign, value))
+             UTS.info(name), sign, value))
 
     def is_defined(self, name):
         return self.defined.has_key(name)

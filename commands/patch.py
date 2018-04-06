@@ -102,17 +102,14 @@ class Command(_BaseCommand):
 
     logger.write("\n", 2, False)
     if good_result == len(products_infos):
-        status = src.OK_STATUS
-        res_count = "%d / %d" % (good_result, good_result)
+        status = "<OK>"
     else:
-        status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(products_infos))
+        status = "<KO>"
     
     # write results
-    logger.write("Patching sources of the application:", 1)
-    logger.write(" " + src.printcolors.printc(status), 1, False)
-    logger.write(" (%s)\n" % res_count, 1, False)
-    
+    logger.info(_("\nPatching sources of the application: %s (%d/%d)\n") % \
+                  (status, good_result, len(products_infos)))    
+
     return len(products_infos) - good_result
      
 
@@ -130,7 +127,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
     # if the product is native, do not apply patch
     if src.product.product_is_native(product_info):
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)
+        logger.write('%s: ' % UTS.label(product_info.name), 4)
         logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
         logger.write("\n", 4, False)
         msg = _("The %s product is native. Do not apply any patch.") % product_info.name
@@ -140,7 +137,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
 
     if not "patches" in product_info or len(product_info.patches) == 0:
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)
+        logger.write('%s: ' % UTS.label(product_info.name), 4)
         logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
         logger.write("\n", 4, False)
         msg = _("No patch for the %s product") % product_info.name
@@ -149,13 +146,13 @@ def apply_patch(config, product_info, max_product_name_len, logger):
         return True, ""
     else:
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 3)
+        logger.write('%s: ' % UTS.label(product_info.name), 3)
         logger.write(' ' * (max_product_name_len - len(product_info.name)), 3, False)
         logger.write("\n", 4, False)
 
     if not os.path.exists(product_info.source_dir):
         msg = _("No sources found for the %s product\n") % product_info.name
-        logger.write(src.printcolors.printcWarning(msg), 1)
+        logger.write(UTS.red(msg), 1)
         return False, ""
 
     # At this point, there one or more patches and the source directory exists
@@ -177,24 +174,24 @@ def apply_patch(config, product_info, max_product_name_len, logger):
             logger.logTxtFile.flush()
             
             # Call the command
-            res_cmd = (subprocess.call(patch_cmd, 
-                                   shell=True, 
-                                   cwd=product_info.source_dir,
-                                   stdout=logger.logTxtFile, 
-                                   stderr=subprocess.STDOUT) == 0)        
+            res_cmd = subprocess.call(
+                         patch_cmd, 
+                         shell=True, 
+                         cwd=product_info.source_dir,
+                         stdout=logger.logTxtFile, 
+                         stderr=subprocess.STDOUT )
+                         
+            res_cmd = (res_cmd == 0)       
         else:
             res_cmd = False
-            details.append("  " + 
-                src.printcolors.printcError(_("Not a valid patch: %s") % patch))
+            details.append("  " + UTS.red(_("Not a valid patch: %s\n")) % patch)
 
         res.append(res_cmd)
         
         if res_cmd:
-            message = (_("Apply patch %s") % 
-                       src.printcolors.printcHighlight(patch))
+            message = _("Apply patch %s") % UTS.blue(patch)
         else:
-            message = src.printcolors.printcWarning(
-                                        _("Failed to apply patch %s") % patch)
+            message = _("Failed to apply patch %s") % UTS.red(patch)
 
         if config.USER.output_verbose_level >= 3:
             retcode.append("  %s" % message)

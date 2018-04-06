@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#  Copyright (C) 2010-2012  CEA/DEN
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -98,10 +98,10 @@ class Command(_BaseCommand):
     if options.properties:
         oExpr = re.compile(PROPERTY_EXPRESSION)
         if not oExpr.search(options.properties):
-            msg = _('WARNING: the "--properties" options must have the '
-                    'following syntax:\n--properties <property>:<value>')
-            logger.write(src.printcolors.printcWarning(msg), 1)
-            logger.write("\n", 1)
+            msg = _("""\
+The '--properties' options must have the following syntax:
+  --properties <property>:<value>\n""")
+            logger.error(msg)
             options.properties = None
             
 
@@ -127,18 +127,17 @@ class Command(_BaseCommand):
                                                 options.sources_without_dev)
     
     if len(l_dir_to_suppress) == 0:
-        logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
-        sat_command = (config.VARS.salometoolsway +
-                       config.VARS.sep +
-                       "sat -h clean")
-        logger.write(_("Please specify what you want to suppress: tap '%s'\n") % sat_command)
+        sat_command = ("sat -h clean")
+        msg = _("Nothing to suppress, Please specify what you want to suppress.")
+        logger.error(msg + "\nsee: '%s'\n" % sat_command)
         return RCO.ReturnCode("KO", "specify what you want to suppress")
     
     # Check with the user if he really wants to suppress the directories
     if not runner.options.batch:
-        logger.write(_("Remove the following directories ?\n"), 1)
+        msg = _("Remove the following directories ?\n")
         for directory in l_dir_to_suppress:
-            logger.write("  %s\n" % directory, 1)
+            msg += "  %s\n" % directory
+        logger.info(msg)
         rep = input(_("Are you sure you want to continue? [Yes/No] "))
         if rep.upper() != _("YES"):
             return RCO.ReturnCode("OK", "user do not want to continue")
@@ -222,12 +221,12 @@ def suppress_directories(l_paths, logger):
                           logging
     '''    
     for path in l_paths:
+        strpath = str(path)
         if not path.isdir():
-            msg = _("WARNING: the path %s does not "
-                    "exists (or is not a directory)\n") % path.__str__()
-            logger.write(src.printcolors.printcWarning(msg), 1)
+            msg = _("The path %s does not exists (or is not a directory)\n") % strpath
+            logger.warning(msg)
         else:
-            logger.write(_("Removing %s ...") % path.__str__())
+            logger.info(_("Removing %s ...") % strpath )
             path.rm()
-            logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
+            logger.info('<OK>\n')
 

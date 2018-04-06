@@ -77,13 +77,12 @@ Optional: products to configure.
     products_infos = get_products_list(options, runner.cfg, logger)
     
     # Print some informations
-    logger.write(_('Executing the check command in the build '
-                   'directories of the application %s\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    msg = _('Executing the check command in the build directories of the application')
+    logger.info("%s %s\n" % (msg, UTS.label(runner.cfg.VARS.application)))
     
     info = [(_("BUILD directory"),
              os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -92,14 +91,14 @@ Optional: products to configure.
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
+    logger.info(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
+        { 'status': final_status, 
           '1': nb_products - res,
-          '2': nb_products }, 1)    
+          '2': nb_products })    
     
     return res 
 
@@ -141,18 +140,14 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 20), 3)
-    logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
-    logger.flush()
+    logger.info("\r%s%s" % (header, " " * 20))
+    logger.info("\r%s%s" % (header, step))
 
 def log_res_step(logger, res):
     if res == 0:
-        logger.write("%s \n" % src.printcolors.printcSuccess("OK"), 4)
-        logger.flush()
+        logger.debug("<OK>\n")
     else:
-        logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
-        logger.flush()
+        logger.debug("<KO>\n")
 
 def check_all_products(config, products_infos, logger):
     '''Execute the proper configuration commands 
@@ -185,32 +180,25 @@ def check_product(p_name_info, config, logger):
     '''
     
     p_name, p_info = p_name_info
-    
-    # Logging
-    logger.write("\n", 4, False)
-    logger.write("################ ", 4)
-    header = _("Check of %s") % src.printcolors.printcLabel(p_name)
+
+    header = _("Check of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
-    logger.write(header, 3)
-    logger.write("\n", 4, False)
-    logger.flush()
+    logger.info(header)
 
     # Verify if the command has to be launched or not
     ignored = False
+    msg += ""
     if not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
-        msg = _("The product %s is defined as not having tests. product ignored.") % p_name
-        logger.write("%s\n" % msg, 4)
+        msg += _("The product %s is defined as not having tests: product ignored.\n") % p_name
         ignored = True
     if "build_dir" not in p_info:
-        msg = _("No build_dir key defined in the config file of %s: product ignored.") % p_name
-        logger.write("%s\n" % msg, 4)
+        msg += _("The product %s have no 'build_dir' key: product ignored.\n") % p_name
         ignored = True
     if not src.product.product_compiles(p_info):
-        msg = _("The product %s is defined as not compiling. "
-                "product ignored." % p_name)
-        logger.write("%s\n" % msg, 4)
+        msg += _("The product %s is defined as not compiling: product ignored.\n") % p_name
         ignored = True
-
+    
+    logger.info("%s\n" % msg)
     # Get the command to execute for script products
     cmd_found = True
     command = ""
@@ -219,19 +207,14 @@ def check_product(p_name_info, config, logger):
         if command == "Not found":
             cmd_found = False
             msg = _("""\
-WARNING: The product %(name)s is defined as having tests.
-         But it is compiled using a script and the key 'test_build'
-         is not defined in the definition of %(name)""") % {"name": p_name}
-            logger.write("%s\n" % msg, 4)
+The product %s is defined as having tests.
+But it is compiled using a script and the key 'test_build'
+is not defined in the definition of %(name)\n""") % p_name
+            logger.warning(msg)
                 
     if ignored or not cmd_found:
         log_step(logger, header, "ignored")
-        logger.write("==== %(name)s %(IGNORED)s\n" % \
-            { "name" : p_name ,
-             "IGNORED" : src.printcolors.printcInfo("IGNORED")},
-            4)
-        logger.write("\n", 3, False)
-        logger.flush()
+        logger.debug("==== %s %s\n" % (p_name, "IGNORED")
         if not cmd_found:
             return 1
         return 0
@@ -254,19 +237,14 @@ WARNING: The product %(name)s is defined as having tests.
     
     # Log the result
     if res > 0:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in check of %(name)s \n" % \
-            { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
-        logger.flush()
+        logger.info("\r%s%s" % (header, " " * len_end_line))
+        logger.info("\r" + header + "<KO>\n")
+        logger.debug("==== <KO> in check of %s\n" % p_name)
     else:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Check of %(name)s %(OK)s \n" % \
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
-    logger.write("\n", 3, False)
+        logger.info("\r%s%s" % (header, " " * len_end_line))
+        logger.info("\r" + header + "<OK>\n")
+        logger.debug("==== <OK> in check of %s\n" % p_name)
+    logger.info("\n")
 
     return res
 

@@ -100,7 +100,7 @@ class Test:
 
     def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
         self.logger.write(_("get test base from dir: %s\n") % \
-                          src.printcolors.printcLabel(testbase_dir), 3)
+                          UTS.label(testbase_dir), 3)
         if not os.access(testbase_dir, os.X_OK):
             raise Exception(
               _("testbase %(name)s (%(dir)s) does not exist ...\n") % \
@@ -115,8 +115,8 @@ class Test:
                                   testbase_tag):
         self.logger.write(
             _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % \
-              { "testbase" : src.printcolors.printcLabel(testbase_name),
-                "tag" : src.printcolors.printcLabel(testbase_tag) },
+              { "testbase" : UTS.label(testbase_name),
+                "tag" : UTS.label(testbase_tag) },
             3)
         try:
             def set_signal(): # pragma: no cover
@@ -162,7 +162,7 @@ class Test:
 
     def prepare_testbase_from_svn(self, user, testbase_name, testbase_base):
         self.logger.write(_("get test base '%s' from svn\n") %
-                          src.printcolors.printcLabel(testbase_name), 3)
+                          UTS.label(testbase_name), 3)
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -657,16 +657,12 @@ class Test:
                 exectime = ""
 
             sp = "." * (35 - len(script_info.name))
-            self.logger.write(self.write_test_margin(3), 3)
-            self.logger.write("script %s %s %s %s\n" % (
-                                src.printcolors.printcLabel(script_info.name),
-                                sp,
-                                src.printcolors.printc(script_info.res),
-                                exectime), 3, False)
+            self.logger.info(self.write_test_margin(3))
+            self.logger.info("script %s %s %s %s\n" % \
+                (UTS.label(script_info.name),sp,script_info.res,exectime)
             if script_info and len(callback) > 0:
-                self.logger.write("Exception in %s\n%s\n" % \
-                    (script_info.name,
-                     src.printcolors.printcWarning(callback)), 2, False)
+                self.logger.error("Exception in %s\n%s\n" % \
+                    (script_info.name, UTS.red(callback)))
 
             if script_info.res == src.OK_STATUS:
                 self.nb_succeed += 1
@@ -687,7 +683,7 @@ class Test:
        
         self.logger.write(self.write_test_margin(2), 3)
         self.logger.write("Session = %s\n" % \
-             src.printcolors.printcLabel(self.currentsession), 3, False)
+             UTS.label(self.currentsession), 3, False)
 
         # prepare list of tests to run
         tests = os.listdir(os.path.join(self.currentDir,
@@ -710,7 +706,7 @@ class Test:
     def run_grid_tests(self):
         self.logger.write(self.write_test_margin(1), 3)
         self.logger.write("grid = %s\n" % \
-             src.printcolors.printcLabel(self.currentgrid), 3, False)
+             UTS.label(self.currentgrid), 3, False)
 
         grid_path = os.path.join(self.currentDir, self.currentgrid)
 
@@ -729,28 +725,31 @@ class Test:
             if not os.path.exists(os.path.join(grid_path, session_)):
                 self.logger.write(self.write_test_margin(2), 3)
                 self.logger.write(
-                     src.printcolors.printcWarning("Session %s not found" % session_) + "\n", 3, False)
+                     UTS.red("Session %s not found" % session_) + "\n", 3, False)
             else:
                 self.currentsession = session_
                 self.run_session_tests()
 
-    ##
-    # Runs test testbase.
+
     def run_testbase_tests(self):
+        """Runs test testbase"""
         logger = self.logger
         res_dir = os.path.join(self.currentDir, "RESSOURCES")
+        DBG.write("fix what the pythonpath ?", )
         os.environ['PYTHONPATH'] =  (res_dir + 
                                      os.pathsep + 
                                      os.environ['PYTHONPATH'])
+                                     
+        DBG.tofix("fix what the hell is the pythonpath ?", os.environ['PYTHONPATH'], True)
+        
         os.environ['TT_BASE_RESSOURCES'] = res_dir
         logger.debug("  %s = %s\n" % ("TT_BASE_RESSOURCES", res_dir)
         self.logger.write("\n", 4, False)
 
         self.logger.write(self.write_test_margin(0), 3)
-        testbase_label = "Test base = %s\n" % \
-             src.printcolors.printcLabel(self.currentTestBase)
+        testbase_label = "Test base = %s\n" % UTS.label(self.currentTestBase)
         self.logger.write(testbase_label, 3, False)
-        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)), 3)
+        self.logger.write("-" * len(UTS.cleancolor(testbase_label)), 3)
         self.logger.write("\n", 3, False)
 
         # load settings
@@ -763,7 +762,7 @@ class Test:
             self.ignore_tests = ldic['known_failures_list']
             if isinstance(self.ignore_tests, list):
                 self.ignore_tests = {}
-                self.logger.write(src.printcolors.printcWarning("known_failur"
+                self.logger.write(UTS.red("known_failur"
                   "es_list must be a dictionary (not a list)") + "\n", 1, False)
         else:
             self.ignore_tests = {}
@@ -793,7 +792,7 @@ class Test:
         for grid in grids:
             if not os.path.exists(os.path.join(self.currentDir, grid)):
                 self.logger.write(self.write_test_margin(1), 3)
-                self.logger.write(src.printcolors.printcWarning(
+                self.logger.write(UTS.red(
                             "grid %s does not exist\n" % grid), 3, False)
             else:
                 self.currentgrid = grid
@@ -808,77 +807,64 @@ class Test:
 
             self.logger.write("\n", 2, False)
             if not os.path.exists(script):
-                self.logger.write(src.printcolors.printcWarning(
-                     "WARNING: script not found: %s" % script) + "\n", 2)
+                self.logger.warning("script not found: %s" % script)
             else:
-                self.logger.write(src.printcolors.printcHeader(
-                     "----------- start %s" % script_name) + "\n", 2)
-                self.logger.write("Run script: %s\n" % script, 2)
+                self.logger.info("----------- start %s\n" % script_name))
+                self.logger.info("Run script: %s\n" % script)
                 subprocess.Popen(script, shell=True).wait()
-                self.logger.write(src.printcolors.printcHeader(
-                     "----------- end %s" % script_name) + "\n", 2)
+                self.logger.info("----------- end %s\n" % script_name))
 
     def run_all_tests(self):
         initTime = datetime.datetime.now()
 
         self.run_script('test_setup')
-        self.logger.write("\n", 2, False)
-
-        self.logger.write(src.printcolors.printcHeader(
-                                            _("=== STARTING TESTS")) + "\n", 2)
-        self.logger.write("\n", 2, False)
-        self.currentDir = os.path.join(self.tmp_working_dir,
-                                       'BASES',
-                                       self.currentTestBase)
+        
+        self.logger.info("\n\n" + _("=== STARTING TESTS\n"))
+        self.currentDir = os.path.join(
+            self.tmp_working_dir, 'BASES', self.currentTestBase)
         self.run_testbase_tests()
 
         # calculate total execution time
         totalTime = datetime.datetime.now() - initTime
         totalTime -= datetime.timedelta(microseconds=totalTime.microseconds)
-        self.logger.write("\n", 2, False)
-        self.logger.write(src.printcolors.printcHeader(_("=== END TESTS")), 2)
-        self.logger.write(" %s\n" % src.printcolors.printcInfo(str(totalTime)),
-                          2,
-                          False)
+        self.logger.write("\n\n" + _("=== END TESTS %s\n") % str(totalTime))
 
-        #
         # Start the tests
-        #
         self.run_script('test_cleanup')
         self.logger.write("\n", 2, False)
 
         # evaluate results
-        res_count = "%d / %d" % \
+        res_count = "(%d/%d)" % \
              (self.nb_succeed, self.nb_run - self.nb_acknoledge)
 
-        res_out = _("Tests Results: %(1)d/%(2)d\n") % \
-                  { '1': self.nb_succeed, '2': self.nb_run }
+        res_out = _("Tests Results: (%d/%d)\n") % (self.nb_succeed, self.nb_run)
         if self.nb_succeed == self.nb_run:
-            res_out = src.printcolors.printcSuccess(res_out)
+
+            res_out = UTS.green(res_out)
         else:
-            res_out = src.printcolors.printcError(res_out)
-        self.logger.write(res_out, 1)
+            res_out = UTS.red(res_out)
+        self.logger.info(res_out)
 
         if self.nb_timeout > 0:
-            self.logger.write(_("%d tests TIMEOUT\n") % self.nb_timeout, 1)
+            self.logger.info(_("%d tests TIMEOUT\n") % self.nb_timeout)
             res_count += " TO: %d" % self.nb_timeout
         if self.nb_not_run > 0:
-            self.logger.write(_("%d tests not executed\n") % self.nb_not_run, 1)
+            self.logger.info(_("%d tests not executed\n") % self.nb_not_run)
             res_count += " NR: %d" % self.nb_not_run
 
-        status = src.OK_STATUS
+        status = "<OK>"
         if self.nb_run - self.nb_succeed - self.nb_acknoledge > 0:
-            status = src.KO_STATUS
+            status = "<KO>"
         elif self.nb_acknoledge:
-            status = src.KNOWNFAILURE_STATUS
+            status = UTS.green("KNOWN FAILURE")
         
-        self.logger.write(_("Status: %s\n") % status, 3)
+        self.logger.info(_("Status: %s\n") % status)
 
         return self.nb_run - self.nb_succeed - self.nb_acknoledge
 
-    ##
     # Write margin to show test results.
     def write_test_margin(self, tab):
+        """indent with '| ... +' to show test results."""
         if tab == 0:
             return ""
         return "|   " * (tab - 1) + "+ "

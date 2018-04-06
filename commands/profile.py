@@ -91,7 +91,7 @@ class Command(_BaseCommand):
 
     if options.prefix is None:
         msg = _("The --%s argument is required\n") % "prefix"
-        logger.write(src.printcolors.printcWarning(msg), 1)
+        logger.write(UTS.red(msg), 1)
         return 1
     
     retcode = generate_profile_sources( runner.cfg, options, logger )

@@ -76,7 +76,7 @@ class Command(_BaseCommand):
    
     # Print some informations
     logger.write(_('Local Settings of SAT %s\n\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.salometoolsway), 1)
+                UTS.label(runner.cfg.VARS.salometoolsway), 1)
 
     res = 0
     
@@ -145,7 +145,7 @@ def display_local_values(config, logger):
             ("archive_dir", config.LOCAL.archive_dir),
             ("VCS", config.LOCAL.VCS),
             ("tag", config.LOCAL.tag)]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
 
     return 0
 
@@ -163,18 +163,21 @@ def check_path(path_to_check, logger):
     
     # If it is a file, do nothing and return error
     if path.isfile():
-        msg = _("ERROR: The given path is a file. Please provide a path to a directory")
-        logger.write(src.printcolors.printcError(msg), 1)
+        msg = _("""\
+The given path is a file: %s
+Please provide a path to a directory\n""") % UTS.blue(path_to_check)
+        logger.error(msg)
         return 1
       
     # Try to create the given path
     try:
         src.ensure_path_exists(str(path))
     except Exception as e:
-        err = src.printcolors.printcError(str(e))
-        msg = _("Unable to create the directory '%(1)s': %(2)s\n") % \
-             {"1": str(path), "2": err}
-        logger.write(msg, 1)
+        msg = _("""\
+Unable to create the directory %s:
+
+%s\n""") % (UTS.blue(str(path)), UTS.yellow(e)
+        logger.error(msg)
         return 1
     
     return 0

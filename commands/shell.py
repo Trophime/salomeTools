@@ -67,8 +67,8 @@ class Command(_BaseCommand):
   
     # Make sure the command option has been called
     if not options.command:
-        message = _("The option --command is required\n")      
-        logger.write(src.printcolors.printcError(message))
+        msg = _("The option --command is required\n")      
+        logger.error(msg)
         return 1
     
     # Print the input command
@@ -84,10 +84,8 @@ class Command(_BaseCommand):
     # Format the result to be 0 (success) or 1 (fail)
     if res != 0:
         res = 1
-        logger.write(src.printcolors.printc("KO"), 3)
+        logger.info("<KO>\n")
     else:
-        logger.write(src.printcolors.printc("OK"), 3)
-    
-    logger.write("\n",3)
+        logger.info("<OK>\n")
     
     return res

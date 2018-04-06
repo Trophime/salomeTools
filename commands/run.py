@@ -101,7 +101,7 @@ Did you run the command 'sat launcher' ?\n""") % launcher_path
     # Display information : how to get the logs
     messageFirstPart = _("\nEnd of execution. To see the traces, "
                          "please tap the following command :\n")
-    messageSecondPart = src.printcolors.printcLabel(
+    messageSecondPart = UTS.label(
                                             runner.cfg.VARS.salometoolsway +
                                             os.sep +
                                             "sat log " +

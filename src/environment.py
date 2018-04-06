@@ -716,7 +716,7 @@ class FileEnvWriter:
         """
         if not self.silent:
             self.logger.write(_("Create environment file %s\n") % 
-                              src.printcolors.printcLabel(filename), 3)
+                              UTS.label(filename), 3)
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
@@ -763,7 +763,7 @@ class FileEnvWriter:
         """
         if not self.silent:
             self.logger.write(_("Create configuration file %s\n") % 
-                              src.printcolors.printcLabel(filename.name), 3)
+                              UTS.label(filename.name), 3)
 
         # create then env object
         tmp = src.fileEnviron.get_file_environ(filename, 

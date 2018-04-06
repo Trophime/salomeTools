@@ -96,7 +96,7 @@ class Command(_BaseCommand):
         if len(l_products_not_getted) > 0:
             msg = _("Do not get the source of the following products in development mode\n"
                     "  Use the --force option to overwrite it.\n")
-            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write(UTS.red(msg), 1)
             args_product_opt_clean = remove_products(args_product_opt_clean,
                                                      l_products_not_getted,
                                                      logger)
@@ -109,7 +109,7 @@ class Command(_BaseCommand):
         if len(l_products_with_patchs) > 0:
             msg = _("do not patch the following products in development mode\n"
                     "  Use the --force_patch option to overwrite it.\n")
-            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write(UTS.red(msg), 1)
             args_product_opt_patch = remove_products(args_product_opt_patch,
                                                      l_products_with_patchs,
                                                      logger)

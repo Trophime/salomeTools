@@ -79,11 +79,11 @@ class Command(_BaseCommand):
     
     # Print some informations
     msg = ('Executing the script in the build directories of the application %s\n') % \
-                src.printcolors.printcLabel(runner.cfg.VARS.application)
+                UTS.label(runner.cfg.VARS.application)
     logger.write(msg, 1)
     
     info = [(_("BUILD directory"), os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
-    src.print_info(logger, info)
+    UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -97,14 +97,12 @@ class Command(_BaseCommand):
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "OK"
+        final_status = "<OK>"
     else:
-        final_status = "KO"
+        final_status = "<KO>"
    
-    logger.write(_("\nScript: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': src.printcolors.printc(final_status), 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
+    logger.info( _("\nScript: %(s (%d/%d)\n") % \
+          (final_status, nb_products - res, nb_products) )   
     
     return res 
     
@@ -148,16 +146,14 @@ def get_products_list(options, cfg, logger):
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 20), 3)
     logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
+    logger.write("\n==== %s \n" % UTS.info(step), 4)
     logger.flush()
 
 def log_res_step(logger, res):
     if res == 0:
-        logger.write("%s \n" % src.printcolors.printcSuccess("OK"), 4)
-        logger.flush()
+        logger.debug("<OK>\n")
     else:
-        logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
-        logger.flush()
+        logger.debug("<KO>\n")
 
 def run_script_all_products(config, products_infos, nb_proc, logger):
     '''Execute the script in each product build directory.
@@ -198,7 +194,7 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     # Logging
     logger.write("\n", 4, False)
     logger.write("################ ", 4)
-    header = _("Running script of %s") % src.printcolors.printcLabel(p_name)
+    header = _("Running script of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
     logger.write(header, 3)
     logger.write("\n", 4, False)
@@ -224,7 +220,7 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     
     # Execute the script
     len_end_line = 20
-    script_path_display = src.printcolors.printcLabel(p_info.compil_script)
+    script_path_display = UTS.label(p_info.compil_script)
     log_step(logger, header, "SCRIPT " + script_path_display)
     len_end_line += len(script_path_display)
     res = builder.do_script_build(p_info.compil_script, number_of_proc=nb_proc)
@@ -233,17 +229,12 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     # Log the result
     if res > 0:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in script execution of %(name)s \n" % \
-            { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
-        logger.flush()
+        logger.write("\r" + header + "<KO>")
+        logger.debug("==== <KO> in script execution of %s\n" %  p_name)
     else:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Script execution of %(name)s %(OK)s \n" % \
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
-    logger.write("\n", 3, False)
+        logger.write("\r" + header + "<OK>"))
+        logger.debug("==== <OK> in script execution of %s\n" %  p_name)
+    logger.write("\n")
 
     return res

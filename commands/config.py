@@ -121,14 +121,14 @@ If a name is given the new config file takes the given name."""))
         if ('APPLICATION' not in config and
             'open_application' not in config): # edit user pyconf
             usercfg = os.path.join(config.VARS.personalDir, 'SAT.pyconf')
-            logger.write(_("Opening %s\n") % usercfg, 3)
+            logger.info(_("Opening %s\n") % usercfg)
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
             for path in config.PATHS.APPLICATIONPATH:
                 pyconf_path = os.path.join(path, config.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
-                    logger.write(_("Opening %s\n") % pyconf_path, 3)
+                    logger.info(_("Opening %s\n") % pyconf_path)
                     src.system.show_in_editor(editor, pyconf_path, logger)
                     break
     
@@ -185,7 +185,7 @@ If a name is given the new config file takes the given name."""))
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
-            logger.write(_("%s has been created.\n") % dest_file)
+            logger.info(_("%s has been created.\n") % dest_file)
     
     # case : display all the available pyconf applications
     elif options.list:
@@ -219,14 +219,13 @@ If a name is given the new config file takes the given name."""))
     elif options.show_patchs:
         src.check_config_has_application(config)
         # Print some informations
-        logger.write(_('Show the patchs of application %s\n') % \
-                     src.printcolors.printcLabel(config.VARS.application), 3)
-        logger.write("\n", 2, False)
+        logger.info(_('Show the patchs of application %s\n') % \
+                     UTS.label(config.VARS.application))
         show_patchs(config, logger)
     
     # case: print all the products name of the application (internal use for completion)
     elif options.completion:
         for product_name in config.APPLICATION.products.keys():
-            logger.write("%s\n" % product_name)
+            logger.info("%s\n" % product_name)
           
     return RCO.ReturnCode("OK")

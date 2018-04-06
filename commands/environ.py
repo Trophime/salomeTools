@@ -102,7 +102,7 @@ class Command(_BaseCommand):
     
     write_all_source_files(runner.cfg, logger, out_dir=out_dir, shells=shell,
                            prefix=options.prefix, env_info=environ_info)
-    logger.write("\n", 3, False)
+    logger.info("\n")
     #TODO return code
 
 def write_all_source_files(config,
@@ -148,7 +148,7 @@ def write_all_source_files(config,
 
     for shell in shells:
         if shell not in C_SHELLS:
-            logger.write(_("Unknown shell: %s\n") % shell, 2)
+            logger.warning(_("Unknown shell: %s\n") % shell)
         else:
             shells_list.append(src.environment.Shell(shell, C_SHELLS[shell]))
     
