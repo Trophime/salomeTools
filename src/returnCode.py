@@ -23,27 +23,34 @@ usage:
 >> import returnCode as RCO
 """
 
-import os
-import sys
- 
-# OKSYS and KOSYS seems equal on linux or windows
-OKSYS = 0  # OK 
-KOSYS = 1  # KO
-OK_STATUS = "OK"
-KO_STATUS = "KO"
+import pprint as PP
 
 #####################################################
 class ReturnCode(object):
 
-  """
+  """\
   assume simple return code for methods, with explanation as 'why'
-  obviously why it is not OK, but also why it is OK (if you want)
+  obviously why is why it is not OK, 
+  but also why is why it is OK (if you want). 
+  and optionnaly contains a return value as self.getValue()
+  
   usage:
-  >> import returnCode as RCO
-  >> return RCO.ReturnCode("KO", "there is no problem here")
-  >> return RCO.ReturnCode("KO", "there is a problem here because etc")
-  >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
-  >> return RCO.ReturnCode("NA", "not applicable here because etc")
+    >> import returnCode as RCO
+    
+    >> aValue = doSomethingToReturn()
+    >> return RCO.ReturnCode("KO", "there is no problem here", aValue)
+    >> return RCO.ReturnCode("KO", "there is a problem here because etc", None)
+    >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
+    >> return RCO.ReturnCode("NA", "not applicable here because etc")
+    
+    >> rc = doSomething()
+    >> print("short returnCode string", str(rc))
+    >> print("long returnCode string with value", repr(rc))
+    
+    >> rc1 = RCO.ReturnCode("OK", ...)
+    >> rc2 = RCO.ReturnCode("KO", ...)
+    >> rcFinal = rc1 + rc2
+    >> print("long returnCode string with value", repr(rcFinal)) # KO!
   """
 
   OK_STATUS = "OK"
@@ -71,32 +78,49 @@ class ReturnCode(object):
     TIMEOUT_STATUS: TOSYS, 
   }
   _DEFAULT_WHY = "No given explanation"
+  _DEFAULT_VALUE = "Not set"
 
-  def __init__(self, status=None, why=None):
+  def __init__(self, status=None, why=None, value=None):
+    self._why = self._DEFAULT_WHY 
+    self._value = self._DEFAULT_VALUE
     if status is None:
-      aStatus = self.UNKNOWN_STATUS
-      self._why = self._DEFAULT_WHY  
+      self._status = self.UNKNOWN_STATUS
     else:
-      self.setStatus(status, why)
+      self.setStatus(status, why, value)
     
   def __repr__(self):
-    res = "%s: '%s'" % (self._status, self.indent(self._why))
+    """complete with value, 'ok, why, value' message"""
+    res = "%s: '%s' for value: %s" % (self._status, self._why, PP.pformat(self._value))
+    return res
+  
+  def __str__(self):
+    """without value, only simple 'ok, why' message"""
+    res = "%s: '%s'" % (self._status, self._why)
     return res
 
   def indent(self, text, amount=5, ch=' '):
-      """indent multi lines message"""
-      padding = amount * ch
-      res = ''.join(padding + line for line in text.splitlines(True))
-      return res[amount:]
+    """indent multi lines message"""
+    padding = amount * ch
+    res = ''.join(padding + line for line in text.splitlines(True))
+    return res[amount:]
 
-  def __add__(self, value):
+  def __add__(self, rc2):
     """allows expression 'returnCode1 + returnCode2 + ...' """
-    isOk = self.isOk() and value.isOk()
+    isOk = self.isOk() and rc2.isOk()
+    newWhy = self._toList(self.getWhy()) + self._toList(rc2.getWhy())
+    newValue = self._toList(self.getValue()) + self._toList(rc2.getValue())    
     if isOk: 
-      return ReturnCode("OK", "%s\n%s" % (self.getWhy(), value.getWhy()) )
+      return ReturnCode("OK", newWhy, newValue )
     else:
-      return ReturnCode("KO", "%s\n%s" % (self.getWhy(), value.getWhy()) )
-  
+      return ReturnCode("KO", newWhy, newValue ) 
+    
+  def _toList(self, strOrList):
+    """internal use"""
+    if type(strOrList) is not list: 
+      return [strOrList]
+    else:
+      return strOrList
+
   def toSys(self):
     try:
       return self._TOSYS[self._status]
@@ -106,26 +130,32 @@ class ReturnCode(object):
   def getWhy(self):
     return self._why
     
-  def getWhy(self):
-    return self._why
-    
   def setWhy(self, why):
     self._why = why
     
-  def setStatus(self, status, why=None):
+  def getValue(self):
+    return self._value
+    
+  def setValue(self, value):
+    self._value = value
+    
+  def setStatus(self, status, why=None, value=None):
     if why is None: 
       aWhy = self._DEFAULT_WHY
     else:
       aWhy = why
+      
     if status in self._TOSYS.keys():
       self._status = status
       self._why = aWhy
     else:
       self._status = self.NA_STATUS
       self._why = "Error status '%s' for '%s'" % (status, aWhy)
+      
+    if value is not None:
+      self._value = value
+    else:
+      self._value = self._DEFAULT_VALUE
 
   def isOk(self):
     return (self._status == self.OK_STATUS)
-
-
-

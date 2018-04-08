@@ -163,7 +163,7 @@ def toColor(msg):
   else:
     return replace(msg, _tags)
     
-def cleanColor(msg):
+def cleanColors(msg):
   """clean the message of color tags '<red> ... """
   return replace(msg, _tagsNone)
   

@@ -32,7 +32,7 @@ import shutil
 import errno
 import stat
 
-from srs.coloringSat import cleanColors # as shortcut
+from src.coloringSat import cleanColors # as shortcut
 
 ##############################################################################
 # file system utilities
@@ -50,7 +50,7 @@ def replace_in_file(filein, strin, strout):
     with open(filein, "r") as f: 
       contents = f.read()
     shutil.move(filein, filein + "_old")
-    with open(filein, "r") as f: 
+    with open(filein, "w") as f: 
       f.write(contents.replace(strin, strout))
   
 ##############################################################################
