@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# salomeTools documentation build configuration file, created by
-# sphinx-quickstart on Wed Sep 14 11:55:14 2011.
+# sat documentation build configuration file, created by
+# sphinx-quickstart on Fri Apr 13 10:08:59 2018.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -13,6 +13,19 @@
 
 import sys
 import os
+
+# Append source folder to path in order to enable autodoc
+currentPath = os.path.dirname(__file__)
+print "sphinx on file", __file__
+sys.path.append(os.path.join(currentPath, '..', '..'))
+
+# https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
+# this needs realpath(custom), cause problem on relocated git clone, 
+# so use file link instead in _themes/alabaster: ln -s ../../../../src/custom.css custom.css
+# def setup(app):
+#     custom = os.path.join('src', 'custom.css')
+#     print "setup add_stylesheet\n  %s as\n  %s" % (custom, os.path.realpath(custom))
+#     app.add_stylesheet(os.path.realpath(custom))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -26,7 +39,10 @@ import os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.viewcode']
+
+# do not use rst_prolog please use doc/rst_prolog.rst and '.. include:: ../rst_prolog.rst'
+# https://github.com/sphinx-doc/sphinx/issues/2445
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -42,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'salomeTools'
-copyright = u'2010-2016, CEA'
+copyright = u'2018, CEA'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -93,15 +109,34 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # default sphinxdoc scrolls agogo traditional nature haiku
-html_theme = 'default'
+html_theme = 'alabaster' #added in _theme dir
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    #'logo': 'logo.png',
+    #'github_user': 'bitprophet',
+    #'github_repo': 'alabaster',
+    #'description': 'MYYY DESCRIPTION',
+    #'sidebar_includehidden': True,
+    #'sidebar_collapse': True,
+    #'show_powered_by': False,
+    'show_related': True,
+    'fixed_sidebar': False,
+    'page_width': '1000px',
+    'sidebar_width': '250px',
+    'font_size': '0.9em', #'1.0625em',
+    'code_font_size': '0.8em',
+    #'note_bg': '#eee',
+    'pre_bg': '#fee', # code-block background
+    #'gray_1': '#00f',
+    #'gray_2': '#f00',
+    #'gray_3': '#0f0',
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = ["../_themes/alabaster", ]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -112,12 +147,12 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = "images/sat_v5.0.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = "images/salomeTools.ico"
+# html_favicon = ""
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -171,8 +206,23 @@ htmlhelp_basename = 'salomeToolsdoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
+latex_elements = {
+  # The paper size ('letterpaper' or 'a4paper').
+  'papersize': 'a4paper',
+
+  # The font size ('10pt', '11pt' or '12pt').
+  'pointsize': '10pt',
+
+  # Additional stuff for the LaTeX preamble.
+  #'preamble': '',
+
+  # http://www.sphinx-doc.org/en/master/latex.html
+  'sphinxsetup': 'verbatimwithframe=false, VerbatimColor={rgb}{.98,.94,.94}',
+}
+
+
 # The paper size ('letter' or 'a4').
-latex_paper_size = 'a4'
+#latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
 #latex_font_size = '10pt'
@@ -181,7 +231,7 @@ latex_paper_size = 'a4'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'salomeTools.tex', u'salomeTools Documentation',
-   u'CEA', 'manual'),
+   u'CEA DEN/DANS/DM2S/STMF/LGLS', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -193,10 +243,10 @@ latex_documents = [
 #latex_use_parts = False
 
 # If true, show page references after internal links.
-#latex_show_pagerefs = False
+latex_show_pagerefs = True
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+latex_show_urls = 'footnote' # sphinx version 1.7 # True
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
@@ -214,8 +264,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'salometools', u'salomeTools Documentation',
-     [u'CEA'], 1)
+     [u'CEA DEN/DANS/DM2S/STMF/LGLS'], 1)
 ]
 
-# Append source folder to path in order to enable autodoc
-sys.path.append(os.path.join('..'))
+
