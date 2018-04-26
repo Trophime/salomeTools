@@ -23,6 +23,7 @@ import shutil
 import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
+import src.system as SYSS
 
 ########################################################################
 # Command class
@@ -172,7 +173,7 @@ def get_source_from_git(product_info,
     logger.write("\n" + msg)
     
     # Call the system function that do the extraction in git mode
-    retcode = src.system.git_extract(repo_git,
+    retcode = SYSS.git_extract(repo_git,
                                  product_info.git_info.tag,
                                  source_dir, logger, environ)
     return retcode
@@ -198,7 +199,7 @@ def get_source_from_archive(product_info, source_dir, logger):
                  3, False)
     logger.flush()
     # Call the system function that do the extraction in archive mode
-    retcode, NameExtractedDirectory = src.system.archive_extract(
+    retcode, NameExtractedDirectory = SYSS.archive_extract(
                                     product_info.archive_info.archive_name,
                                     source_dir.dir(), logger)
     
@@ -292,7 +293,7 @@ def get_source_from_cvs(user,
     logger.write(msg)
 
     # Call the system function that do the extraction in cvs mode
-    retcode = src.system.cvs_extract(protocol, user,
+    retcode = SYSS.cvs_extract(protocol, user,
                                  product_info.cvs_info.server,
                                  product_info.cvs_info.product_base,
                                  product_info.cvs_info.tag,
@@ -326,7 +327,7 @@ def get_source_from_svn(user,
     logger.write('%s:%s ... ' % (coflag, product_info.svn_info.repo)
 
     # Call the system function that do the extraction in svn mode
-    retcode = src.system.svn_extract(user, 
+    retcode = SYSS.svn_extract(user, 
                                      product_info.svn_info.repo, 
                                      product_info.svn_info.tag,
                                      source_dir, 

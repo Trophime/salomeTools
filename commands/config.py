@@ -23,6 +23,7 @@ import src.debug as DBG
 import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
 import src.configManager as CFGMGR
+import src.system as SYSS
 
 
 ########################################################################
@@ -122,14 +123,14 @@ If a name is given the new config file takes the given name."""))
             'open_application' not in config): # edit user pyconf
             usercfg = os.path.join(config.VARS.personalDir, 'SAT.pyconf')
             logger.info(_("Opening %s\n") % usercfg)
-            src.system.show_in_editor(editor, usercfg, logger)
+            SYSS.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
             for path in config.PATHS.APPLICATIONPATH:
                 pyconf_path = os.path.join(path, config.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
                     logger.info(_("Opening %s\n") % pyconf_path)
-                    src.system.show_in_editor(editor, pyconf_path, logger)
+                    SYSS.show_in_editor(editor, pyconf_path, logger)
                     break
     
     # case : give information about the product in parameter

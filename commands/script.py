@@ -72,24 +72,24 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = get_products_list(options, config, logger)
     
     # Print some informations
     msg = ('Executing the script in the build directories of the application %s\n') % \
-                UTS.label(runner.cfg.VARS.application)
+                UTS.label(config.VARS.application)
     logger.write(msg, 1)
     
-    info = [(_("BUILD directory"), os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+    info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
     UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
     if options.nb_proc is None:
         options.nb_proc = 0
-    res = run_script_all_products(runner.cfg,
+    res = run_script_all_products(config,
                                   products_infos,
                                   options.nb_proc,
                                   logger)

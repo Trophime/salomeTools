@@ -65,11 +65,11 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check for product
-    src.check_config_has_application(runner.cfg)
+    src.check_config_has_application(config)
 
     # Determine launcher path 
-    launcher_name = src.get_launcher_name(runner.cfg)
-    launcher_dir = runner.cfg.APPLICATION.workdir
+    launcher_name = src.get_launcher_name(config)
+    launcher_dir = config.APPLICATION.workdir
     
     # Check the launcher existence
     if launcher_name not in  os.listdir(launcher_dir):
@@ -101,11 +101,8 @@ Did you run the command 'sat launcher' ?\n""") % launcher_path
     # Display information : how to get the logs
     messageFirstPart = _("\nEnd of execution. To see the traces, "
                          "please tap the following command :\n")
-    messageSecondPart = UTS.label(
-                                            runner.cfg.VARS.salometoolsway +
-                                            os.sep +
-                                            "sat log " +
-                                            runner.cfg.VARS.application + "\n")
+    messageSecondPart = UTS.label( config.VARS.salometoolsway + os.sep + 
+                                   "sat log " + config.VARS.application + "\n")
     logger.write("  %s\n" %(messageFirstPart + messageSecondPart), 2)
     
     return 0

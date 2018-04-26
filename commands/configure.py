@@ -75,24 +75,24 @@ class Command(_BaseCommand):
     
 
     # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = get_products_list(options, config, logger)
     
     # Print some informations
     logger.info(_('Configuring the sources of the application %s\n') % 
-                UTS.label(runner.cfg.VARS.application))
+                UTS.label(config.VARS.application))
     
     info = [(_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))]
+             os.path.join(config.APPLICATION.workdir, 'BUILD'))]
     UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
     if options.option is None:
         options.option = ""
-    res = configure_all_products(runner.cfg, products_infos, options.option, logger)
+    res = configure_all_products(config, products_infos, options.option, logger)
     
     # Print the final state
     nb_products = len(products_infos)

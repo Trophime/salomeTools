@@ -118,12 +118,12 @@ class Command(_BaseCommand):
             return 0
         
     # check that the command has been called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
 
     # Print some informations
-    nameApp = str(runner.cfg.VARS.application)
-    srcDir = os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')
-    buildDir = os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD')
+    nameApp = str(config.VARS.application)
+    srcDir = os.path.join(config.APPLICATION.workdir, 'SOURCES')
+    buildDir = os.path.join(config.APPLICATION.workdir, 'BUILD')
     
     msg = _("Application %s, executing compile commands in build directories of products.\n"
     logger.info(msg % UTS.label(nameApp))
@@ -133,23 +133,23 @@ class Command(_BaseCommand):
     UTS.logger_info_tuples(logger, info)
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = get_products_list(options, config, logger)
 
     if options.fathers:
         # Extend the list with all recursive dependencies of the given products
-        products_infos = extend_with_fathers(runner.cfg, products_infos)
+        products_infos = extend_with_fathers(config, products_infos)
 
     if options.children:
         # Extend the list with all products that use the given products
-        products_infos = extend_with_children(runner.cfg, products_infos)
+        products_infos = extend_with_children(config, products_infos)
 
     # Sort the list regarding the dependencies of the products
-    products_infos = sort_products(runner.cfg, products_infos)
+    products_infos = sort_products(config, products_infos)
 
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = compile_all_products(runner, runner.cfg, options, products_infos, logger)
+    res = compile_all_products(runner, config, options, products_infos, logger)
     
     # Print the final state
     nb_products = len(products_infos)

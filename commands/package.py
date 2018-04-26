@@ -174,27 +174,27 @@ Use one of the following options:
         return 1
     
     # The repository where to put the package if not Binary or Source
-    package_default_path = runner.cfg.LOCAL.workdir
+    package_default_path = config.LOCAL.workdir
     
     # if the package contains binaries or sources:
     if options.binaries or options.sources:
         # Check that the command has been called with an application
-        src.check_config_has_application(runner.cfg)
+        src.check_config_has_application(config)
 
         # Display information
         logger.write(_("Packaging application %s\n") % \
-            UTS.label(runner.cfg.VARS.application), 1)
+            UTS.label(config.VARS.application), 1)
         
         # Get the default directory where to put the packages
-        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
-        src.ensure_path_exists(package_default_path)
+        package_default_path = os.path.join(config.APPLICATION.workdir, "PACKAGE")
+        UTS.ensure_path_exists(package_default_path)
         
     # if the package contains a project:
     if options.project:
         # check that the project is visible by SAT
-        if options.project not in runner.cfg.PROJECTS.project_file_paths:
+        if options.project not in config.PROJECTS.project_file_paths:
             local_path = os.path.join(
-                   runner.cfg.VARS.salometoolsway, "data", "local.pyconf")
+                   config.VARS.salometoolsway, "data", "local.pyconf")
             msg = _("""\
 The project %s is not visible by salomeTools.
 Please add it in the %s file.\n""") % (options.project, local_path)
@@ -204,7 +204,7 @@ Please add it in the %s file.\n""") % (options.project, local_path)
     # Remove the products that are filtered by the --without_property option
     if options.without_property:
         [prop, value] = options.without_property.split(":")
-        update_config(runner.cfg, prop, value)
+        update_config(config, prop, value)
     
     # get the name of the archive or build it
     if options.name:
@@ -226,10 +226,10 @@ Please add it in the %s file.\n""") % (options.project, local_path)
         archive_name=""
         dir_name = package_default_path
         if options.binaries or options.sources:
-            archive_name = runner.cfg.APPLICATION.name
+            archive_name = config.APPLICATION.name
 
         if options.binaries:
-            archive_name += "-"+runner.cfg.VARS.dist
+            archive_name += "-"+config.VARS.dist
             
         if options.sources:
             archive_name += "-SRC"
@@ -242,7 +242,7 @@ Please add it in the %s file.\n""") % (options.project, local_path)
             archive_name += ("PROJECT-" + project_name)
  
         if options.sat:
-            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
+            archive_name += ("salomeTools_" + config.INTERNAL.sat_version)
         if len(archive_name)==0: # no option worked 
             msg = _("""\
 Cannot name the archive.
@@ -257,9 +257,9 @@ check if at least one of the following options was selected:
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
-    tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                                   runner.cfg.VARS.datehour)
-    src.ensure_path_exists(tmp_working_dir)
+    tmp_working_dir = os.path.join(config.VARS.tmp_root,
+                                   config.VARS.datehour)
+    UTS.ensure_path_exists(tmp_working_dir)
     logger.write("\n", 5)
     logger.write(_("The temporary working directory: %s\n") % tmp_working_dir, 5)
     
@@ -275,7 +275,7 @@ check if at least one of the following options was selected:
     d_paths_to_substitute={}  
 
     if options.binaries:
-        d_bin_files_to_add = binary_package(runner.cfg,
+        d_bin_files_to_add = binary_package(config,
                                             logger,
                                             options,
                                             tmp_working_dir)
@@ -284,7 +284,7 @@ check if at least one of the following options was selected:
         for key in d_bin_files_to_add:
             if key.endswith("(bin)"):
                 source_dir = d_bin_files_to_add[key][0]
-                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + runner.cfg.VARS.dist,"INSTALL")
+                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + config.VARS.dist,"INSTALL")
                 if os.path.basename(source_dir)==os.path.basename(path_in_archive):
                     # if basename is the same we will just substitute the dirname 
                     d_paths_to_substitute[os.path.dirname(source_dir)]=\
@@ -296,14 +296,14 @@ check if at least one of the following options was selected:
 
     if options.sources:
         d_files_to_add.update(source_package(runner,
-                                        runner.cfg,
+                                        config,
                                         logger, 
                                         options,
                                         tmp_working_dir))
         if options.binaries:
             # for archives with bin and sources we provide a shell script able to 
             # install binaries for compilation
-            file_install_bin=produce_install_bin_file(runner.cfg,logger,
+            file_install_bin=produce_install_bin_file(config,logger,
                                                       tmp_working_dir,
                                                       d_paths_to_substitute,
                                                       "install_bin.sh")
@@ -315,7 +315,7 @@ check if at least one of the following options was selected:
         # --salomeTool option is not considered when --sources is selected, as this option
         # already brings salomeTool!
         if options.sat:
-            d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
+            d_files_to_add.update({"salomeTools" : (config.VARS.salometoolsway, "")})
         
     
     if options.project:
@@ -327,9 +327,7 @@ check if at least one of the following options was selected:
         return 1
 
     # Add the README file in the package
-    local_readme_tmp_path = add_readme(runner.cfg,
-                                       options,
-                                       tmp_working_dir)
+    local_readme_tmp_path = add_readme(config, options, tmp_working_dir)
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
 
     # Add the additional files of option add_files
@@ -1067,7 +1065,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
                       env_scripts_tmp_dir,
                       patches_tmp_dir,
                       application_tmp_dir]:
-        src.ensure_path_exists(directory)
+        UTS.ensure_path_exists(directory)
 
     # Create the pyconf that contains the information of the project
     project_pyconf_name = "project.pyconf"        

@@ -68,7 +68,7 @@ class Command(_BaseCommand):
     logger = self.getLogger()
     options = self.getOptions()
          
-    l_cfg_dir = runner.cfg.PATHS.JOBPATH
+    l_cfg_dir = config.PATHS.JOBPATH
     
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
@@ -101,7 +101,7 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
         logger.error(msg)
         return 1
     
-    info = [ (_("Platform"), runner.cfg.VARS.dist),
+    info = [ (_("Platform"), config.VARS.dist),
              (_("File containing the jobs configuration"), file_jobs_cfg) ]
     UTS.logger_info_tuples(logger, info)
     

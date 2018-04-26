@@ -22,6 +22,7 @@ import sys
 import shutil
 
 from src.options import OptResult
+import src.utilsSat as UTS
 
 
 C_COMPILE_ENV_LIST = ["CC",
@@ -484,7 +485,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                                         "LOGS",
                                         self.product_info.name)
         file_path = os.path.join(dir_where_to_put, file_name)
-        src.ensure_path_exists(dir_where_to_put)
+        UTS.ensure_path_exists(dir_where_to_put)
         # write the logTxtFile copy it to the destination, and then recreate 
         # it as it was
         self.logger.logTxtFile.close()

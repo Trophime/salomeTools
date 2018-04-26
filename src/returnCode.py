@@ -90,12 +90,12 @@ class ReturnCode(object):
     
   def __repr__(self):
     """complete with value, 'ok, why, value' message"""
-    res = "%s: '%s' for value: %s" % (self._status, self._why, PP.pformat(self._value))
+    res = '%s: "%s" for value: %s' % (self._status, self._why, PP.pformat(self._value))
     return res
   
   def __str__(self):
     """without value, only simple 'ok, why' message"""
-    res = "%s: '%s'" % (self._status, self._why)
+    res = '%s: "%s"' % (self._status, self._why)
     return res
 
   def indent(self, text, amount=5, ch=' '):

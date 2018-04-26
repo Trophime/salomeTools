@@ -17,14 +17,14 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""
+"""\
 utilities for sat
 general useful simple methods
 all-in-one import srs.utilsSat as UTS
 
 usage:
-  >> import srs.utilsSat as UTS
-  >> UTS.ensure_path_exists(path)
+>> import srsc.utilsSat as UTS
+>> UTS.ensure_path_exists(path)
 """
 
 import os
@@ -32,7 +32,11 @@ import shutil
 import errno
 import stat
 
-from src.coloringSat import cleanColors # as shortcut
+import datetime
+import re
+import tempfile
+
+import src.returnCode as RCO
 
 ##############################################################################
 # file system utilities
@@ -349,14 +353,14 @@ def formatTuples(tuples):
     :param tuples list: The list of tuples to format
     :return: The tabulated text. (mutiples lines)
     """
-    # find the maximum length of the first value of the tuples in info
+    # find the maximum length of the first value of the tuples
     smax = max(map(lambda l: len(l[0]), tuples))
     # Print each item of tuples with good indentation
     msg = ""
-    for i in info:
+    for i in tuples:
         sp = " " * (smax - len(i[0]))
-        msg += sp + "%s = %s\n" % i[0:1] # tuples, may be longer
-    if len(info) > 1: msg += "\n" # for long list
+        msg += sp + "%s = %s\n" % (i[0], i[1]) # tuples, may be longer
+    if len(tuples) > 1: msg += "\n" # for long list
     return msg
     
 def formatValue(label, value, suffix=""):
@@ -488,4 +492,157 @@ def parse_date(date):
     return res
 
 
+##############################################################################
+# log utilities (TODO: set in loggingSat class ? ...)
+##############################################################################
 
+_log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+        
+def date_to_datetime(date):
+    """\
+    From a string date in format YYYYMMDD_HHMMSS
+    returns list year, mon, day, hour, minutes, seconds 
+    
+    :param date str: The date in format YYYYMMDD_HHMMSS
+    :return: the same date and time in separate variables.
+    :rtype: (str,str,str,str,str,str)
+    """
+    Y = date[:4]
+    m = date[4:6]
+    dd = date[6:8]
+    H = date[9:11]
+    M = date[11:13]
+    S = date[13:15]
+    return Y, m, dd, H, M, S
+
+def timedelta_total_seconds(timedelta):
+    """\
+    Replace total_seconds from datetime module 
+    in order to be compatible with old python versions
+    
+    :param timedelta datetime.timedelta: The delta between two dates
+    :return: The number of seconds corresponding to timedelta.
+    :rtype: float
+    """
+    return (
+        timedelta.microseconds + 0.0 +
+        (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
+        
+def show_command_log(logFilePath, cmd, application, notShownCommands):
+    """\
+    Used in updateHatXml. 
+    Determine if the log xml file logFilePath 
+    has to be shown or not in the hat log.
+    
+    :param logFilePath str: the path to the command xml log file
+    :param cmd str: the command of the log file
+    :param application str: the application passed as parameter 
+                            to the salomeTools command
+    :param notShownCommands list: the list of commands 
+                                  that are not shown by default
+    
+    :return: RCO.ReturnCode("OK") if cmd is not in notShownCommands and the application 
+             in the log file corresponds to application
+             ReturnCode value is tuple (appliLog, launched_cmd)
+    """
+    # When the command is not in notShownCommands, no need to go further :
+    # Do not show
+    if cmd in notShownCommands:
+        return RCO.ReturnCode("KO", "in notShownCommands", None)
+ 
+    # Get the application of the log file
+    try:
+        logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
+    except Exception as e:
+        msg = _("The log file '%s' cannot be read:" % logFilePath)
+        return RCO.ReturnCode("KO", msg, None)
+
+    if 'application' in logFileXml.xmlroot.keys():
+        appliLog = logFileXml.xmlroot.get('application')
+        launched_cmd = logFileXml.xmlroot.find('Site').attrib['launchedCommand']
+        # if it corresponds, then the log has to be shown
+        if appliLog == application:
+            return RCO.ReturnCode("OK", "appliLog == application", (appliLog, launched_cmd))
+        elif application != 'None':
+            return RCO.ReturnCode("KO", "application != 'None'", (appliLog, launched_cmd))
+        
+        return RCO.ReturnCode("OK", "", (appliLog, launched_cmd))
+    
+    if application == 'None':
+        return RCO.ReturnCode("OK", "application == 'None'", (None, None))
+        
+    return RCO.ReturnCode("KO", "", (None, None))
+
+def list_log_file(dirPath, expression):
+    """Find all files corresponding to expression in dirPath
+    
+    :param dirPath str: the directory where to search the files
+    :param expression str: the regular expression of files to find
+    :return: the list of files path and informations about it
+    :rtype: list
+    """
+    lRes = []
+    for fileName in os.listdir(dirPath):
+        # YYYYMMDD_HHMMSS_namecmd.xml
+        sExpr = expression
+        oExpr = re.compile(sExpr)
+        if oExpr.search(fileName):
+            file_name = fileName
+            if fileName.startswith("micro_"):
+                file_name = fileName[len("micro_"):]
+            # get date and hour and format it
+            date_hour_cmd_host = file_name.split('_')
+            date_not_formated = date_hour_cmd_host[0]
+            date = "%s/%s/%s" % (date_not_formated[6:8], 
+                                 date_not_formated[4:6], 
+                                 date_not_formated[0:4])
+            hour_not_formated = date_hour_cmd_host[1]
+            hour = "%s:%s:%s" % (hour_not_formated[0:2], 
+                                 hour_not_formated[2:4], 
+                                 hour_not_formated[4:6])
+            if len(date_hour_cmd_host) < 4:
+                cmd = date_hour_cmd_host[2][:-len('.xml')]
+                host = ""
+            else:
+                cmd = date_hour_cmd_host[2]
+                host = date_hour_cmd_host[3][:-len('.xml')]
+            lRes.append((os.path.join(dirPath, fileName), 
+                         date_not_formated,
+                         date,
+                         hour_not_formated,
+                         hour,
+                         cmd,
+                         host))
+    return lRes
+
+def update_hat_xml(logDir, application=None, notShownCommands = []):
+    """\
+    Create the xml file in logDir that contain all the xml file 
+    and have a name like YYYYMMDD_HHMMSS_namecmd.xml
+    
+    :param logDir str: the directory to parse
+    :param application str: the name of the application if there is any
+    """
+    # Create an instance of XmlLogFile class to create hat.xml file
+    xmlHatFilePath = os.path.join(logDir, 'hat.xml')
+    xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath,
+                                    "LOGlist", {"application" : application})
+    # parse the log directory to find all the command logs, 
+    # then add it to the xml file
+    lLogFile = list_log_file(logDir, _log_macro_command_file_expression)
+    for filePath, __, date, __, hour, cmd, __ in lLogFile:
+        showLog, cmdAppli, full_cmd = show_command_log(filePath, cmd,
+                                              application, notShownCommands)
+        #if cmd not in notShownCommands:
+        if showLog:
+            # add a node to the hat.xml file
+            xmlHat.add_simple_node("LogCommand", 
+                                   text=os.path.basename(filePath), 
+                                   attrib = {"date" : date, 
+                                             "hour" : hour, 
+                                             "cmd" : cmd, 
+                                             "application" : cmdAppli,
+                                             "full_command" : full_cmd})
+    
+    # Write the file on the hard drive
+    xmlHat.write_tree('hat.xsl')

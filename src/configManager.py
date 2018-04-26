@@ -508,8 +508,8 @@ class ConfigManager:
 #                                 " file of salomTools).\n")
                
         # 
-        src.ensure_path_exists(config.VARS.personalDir)
-        src.ensure_path_exists(os.path.join(config.VARS.personalDir, 
+        UTS.ensure_path_exists(config.VARS.personalDir)
+        UTS.ensure_path_exists(os.path.join(config.VARS.personalDir, 
                                             'Applications'))
 
         f = open(cfg_name, 'w')

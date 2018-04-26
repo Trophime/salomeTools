@@ -78,7 +78,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command was called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
     
     if options.products is None:
         environ_info = None
@@ -86,7 +86,7 @@ class Command(_BaseCommand):
         # add products specified by user (only products 
         # included in the application)
         environ_info = filter(lambda l:
-                              l in runner.cfg.APPLICATION.products.keys(),
+                              l in config.APPLICATION.products.keys(),
                               options.products)
     
     if options.shell == []:
@@ -100,7 +100,7 @@ class Command(_BaseCommand):
     if out_dir:
         out_dir = os.path.abspath(out_dir)
     
-    write_all_source_files(runner.cfg, logger, out_dir=out_dir, shells=shell,
+    write_all_source_files(config, logger, out_dir=out_dir, shells=shell,
                            prefix=options.prefix, env_info=environ_info)
     logger.info("\n")
     #TODO return code

@@ -109,15 +109,13 @@ class Command(_BaseCommand):
     if options.path:
         l_dir_path = options.path
     else:
-        src.check_config_has_application(runner.cfg)
+        src.check_config_has_application(config)
         if options.sources:
-            l_dir_path = [os.path.join(runner.cfg.APPLICATION.workdir,
-                                       "SOURCES")]
+            l_dir_path = [os.path.join(config.APPLICATION.workdir, "SOURCES")]
         else:
             # find all installation paths
-            all_products = runner.cfg.APPLICATION.products.keys()
-            l_product_cfg = src.product.get_products_infos(all_products,
-                                                           runner.cfg)
+            all_products = config.APPLICATION.products.keys()
+            l_product_cfg = src.product.get_products_infos(all_products, config)
             l_dir_path = [pi.install_dir for __, pi in l_product_cfg]
     
     # Get the files to ignore during the searching

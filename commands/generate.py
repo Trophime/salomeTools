@@ -69,15 +69,15 @@ class Command(_BaseCommand):
     options = self.getOptions()
     
     # Check that the command has been called with an application
-    src.check_config_has_application(runner.cfg)
+    src.check_config_has_application(config)
     
     logger.write(_('Generation of SALOME modules for application %s\n') % \
-        UTS.label(runner.cfg.VARS.application), 1)
+        UTS.label(config.VARS.application), 1)
 
     status = src.KO_STATUS
 
     # verify that YACSGEN is available
-    yacsgen_dir = check_yacsgen(runner.cfg, options.yacsgen, logger)
+    yacsgen_dir = check_yacsgen(config, options.yacsgen, logger)
     
     if isinstance(yacsgen_dir, tuple):
         # The check failed
@@ -92,35 +92,32 @@ class Command(_BaseCommand):
     logger.info(" insert directory PATH %s = %s\n" % \
                 ("YACSGEN", UTS.blue(yacsgen_dir)
 
-    products = runner.cfg.APPLICATION.products
+    products = config.APPLICATION.products
     if options.products:
         products = options.products
 
     details = []
     nbgen = 0
 
-    context = build_context(runner.cfg, logger)
+    context = build_context(config, logger)
     for product in products:
         header = _("Generating %s") % UTS.label(product)
         header += " %s " % ("." * (20 - len(product)))
         logger.write(header, 3)
         logger.flush()
 
-        if product not in runner.cfg.PRODUCTS:
+        if product not in config.PRODUCTS:
             logger.write(_("Unknown product\n"), 3, False)
             continue
 
-        pi = src.product.get_product_config(runner.cfg, product)
+        pi = src.product.get_product_config(config, product)
         if not src.product.product_is_generated(pi):
             logger.write(_("not a generated product\n"), 3, False)
             continue
 
         nbgen += 1
         try:
-            result = generate_component_list(runner.cfg,
-                                             pi,
-                                             context,
-                                             logger)
+            result = generate_component_list(config, pi, context, logger)
         except Exception as exc:
             result = str(exc)
 

@@ -79,7 +79,7 @@ class Command(_BaseCommand):
     logger.info('  workdir = %s\n\n"', UTS.blue(config.APPLICATION.workdir))
 
     # Get the products list with products informations regarding the options
-    products_infos = commands.prepare.get_products_list(options, runner.cfg, logger)
+    products_infos = commands.prepare.get_products_list(options, config, logger)
     
     # Get the maximum name length in order to format the terminal display
     max_product_name_len = 1
@@ -90,7 +90,7 @@ class Command(_BaseCommand):
     good_result = 0
     for __, product_info in products_infos:
         # Apply the patch
-        return_code, patch_res = apply_patch(runner.cfg,
+        return_code, patch_res = apply_patch(config,
                                              product_info,
                                              max_product_name_len,
                                              logger)

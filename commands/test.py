@@ -115,10 +115,10 @@ Optional: set the display where to launch SALOME.
 
     # the test base is specified either by the application, or by the --base option
     with_application = False
-    if runner.cfg.VARS.application != 'None':
+    if config.VARS.application != 'None':
         logger.write(
             _('Running tests on application %s\n') % 
-            UTS.label(runner.cfg.VARS.application), 1)
+            UTS.label(config.VARS.application), 1)
         with_application = True
     elif not options.base:
         raise Exception(
@@ -151,22 +151,22 @@ Please specify an application or a launcher\n""")
         os.environ['DISPLAY'] = options.display
     elif 'DISPLAY' not in os.environ:
         # if no display set
-        if ('test' in runner.cfg.LOCAL and
-                'display' in runner.cfg.LOCAL.test and 
-                len(runner.cfg.LOCAL.test.display) > 0):
+        if ('test' in config.LOCAL and
+                'display' in config.LOCAL.test and 
+                len(config.LOCAL.test.display) > 0):
             # use default value for test tool
-            os.environ['DISPLAY'] = runner.cfg.LOCAL.test.display
+            os.environ['DISPLAY'] = config.LOCAL.test.display
         else:
             os.environ['DISPLAY'] = "localhost:0.0"
 
     # initialization
     #################
     if with_application:
-        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                               runner.cfg.APPLICATION.name,
+        tmp_dir = os.path.join(config.VARS.tmp_root,
+                               config.APPLICATION.name,
                                "test")
     else:
-        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+        tmp_dir = os.path.join(config.VARS.tmp_root,
                                "test")
 
     # remove previous tmp dir
@@ -178,19 +178,19 @@ Please specify an application or a launcher\n""")
                 _("error removing TT_TMP_RESULT %s\n") % tmp_dir)
 
     lines = []
-    lines.append("date = '%s'" % runner.cfg.VARS.date)
-    lines.append("hour = '%s'" % runner.cfg.VARS.hour)
-    lines.append("node = '%s'" % runner.cfg.VARS.node)
-    lines.append("arch = '%s'" % runner.cfg.VARS.dist)
+    lines.append("date = '%s'" % config.VARS.date)
+    lines.append("hour = '%s'" % config.VARS.hour)
+    lines.append("node = '%s'" % config.VARS.node)
+    lines.append("arch = '%s'" % config.VARS.dist)
 
-    if 'APPLICATION' in runner.cfg:
+    if 'APPLICATION' in config:
         lines.append("application_info = {}")
         lines.append("application_info['name'] = '%s'" % 
-                     runner.cfg.APPLICATION.name)
+                     config.APPLICATION.name)
         lines.append("application_info['tag'] = '%s'" % 
-                     runner.cfg.APPLICATION.tag)
+                     config.APPLICATION.tag)
         lines.append("application_info['products'] = %s" % 
-                     str(runner.cfg.APPLICATION.products))
+                     str(config.APPLICATION.products))
 
     content = "\n".join(lines)
 
@@ -223,8 +223,8 @@ Please specify an application or a launcher\n""")
     test_base = ""
     if options.base:
         test_base = options.base
-    elif with_application and "test_base" in runner.cfg.APPLICATION:
-        test_base = runner.cfg.APPLICATION.test_base.name
+    elif with_application and "test_base" in config.APPLICATION:
+        test_base = config.APPLICATION.test_base.name
 
     fmt = "  %s = %s\n"
     msg  = fmt % (_('Display'), os.environ['DISPLAY'])
@@ -233,7 +233,7 @@ Please specify an application or a launcher\n""")
     logger.info(msg)
 
     # create the test object
-    test_runner = src.test_module.Test(runner.cfg,
+    test_runner = src.test_module.Test(config,
                                   logger,
                                   base_dir,
                                   testbase=test_base,
@@ -255,13 +255,13 @@ Please specify an application or a launcher\n""")
     logger.write("\n", 2, False)
     
     logger.write(_("\nGenerate the specific test log\n"), 5)
-    log_dir = src.get_log_path(runner.cfg)
+    log_dir = UTS.get_log_path(config)
     out_dir = os.path.join(log_dir, "TEST")
-    src.ensure_path_exists(out_dir)
+    UTS.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
-    historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
+    historic_xml_path = generate_history_xml_path(config, test_base)
     
-    create_test_report(runner.cfg,
+    create_test_report(config,
                        historic_xml_path,
                        out_dir,
                        retcode,
@@ -746,5 +746,5 @@ def generate_history_xml_path(config, test_base):
         test_base_name = os.path.basename(test_base)
     history_xml_name += test_base_name
     history_xml_name += ".xml"
-    log_dir = src.get_log_path(config)
+    log_dir = UTS.get_log_path(config)
     return os.path.join(log_dir, "TEST", history_xml_name)

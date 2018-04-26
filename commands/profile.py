@@ -87,17 +87,17 @@ class Command(_BaseCommand):
     logger = self.getLogger()
     options = self.getOptions()
   
-    src.check_config_has_application(runner.cfg)
+    src.check_config_has_application(config)
 
     if options.prefix is None:
         msg = _("The --%s argument is required\n") % "prefix"
         logger.write(UTS.red(msg), 1)
         return 1
     
-    retcode = generate_profile_sources( runner.cfg, options, logger )
+    retcode = generate_profile_sources(config, options, logger)
 
     if not options.no_update :
-        update_pyconf( runner.cfg, options )
+        update_pyconf(config, options)
 
     return retcode
 

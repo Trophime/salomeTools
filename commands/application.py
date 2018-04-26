@@ -92,34 +92,34 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     options = self.getOptions()
     
     # check for product
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
 
-    application = runner.cfg.VARS.application
+    application = config.VARS.application
     logger.info(_("Building application for <header>%s<reset>\n") % application)
 
     # if section APPLICATION.virtual_app does not exists create one
-    if "virtual_app" not in runner.cfg.APPLICATION:
+    if "virtual_app" not in config.APPLICATION:
         msg = _("The section APPLICATION.virtual_app is not defined in the product.")
         logger.error(UTS.red(msg))
         return RCO.ReturnCode("KO", msg)
 
     # get application dir
-    target_dir = runner.cfg.APPLICATION.workdir
+    target_dir = config.APPLICATION.workdir
     if options.target:
         target_dir = options.target
 
     # set list of modules
     if options.modules:
-        runner.cfg.APPLICATION.virtual_app['modules'] = options.modules
+        config.APPLICATION.virtual_app['modules'] = options.modules
 
     # set name and application_name
     if options.name:
-        runner.cfg.APPLICATION.virtual_app['name'] = options.name
-        runner.cfg.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
+        config.APPLICATION.virtual_app['name'] = options.name
+        config.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
     
-    application_name = src.get_cfg_param(runner.cfg.APPLICATION.virtual_app,
+    application_name = src.get_cfg_param(config.APPLICATION.virtual_app,
                                          "application_name",
-                                         runner.cfg.APPLICATION.virtual_app.name + "_appdir")
+                                         config.APPLICATION.virtual_app.name + "_appdir")
     appli_dir = os.path.join(target_dir, application_name)
 
     fmt = "  %s = %s\n" # as "  label = value\n"
@@ -134,20 +134,20 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
         # generate catalog for given list of computers
         catalog_src = options.gencat
         catalog = generate_catalog(options.gencat.split(","),
-                                   runner.cfg,logger)
-    elif 'catalog' in runner.cfg.APPLICATION.virtual_app:
+                                   config,logger)
+    elif 'catalog' in config.APPLICATION.virtual_app:
         # use catalog specified in the product
-        if runner.cfg.APPLICATION.virtual_app.catalog.endswith(".xml"):
+        if config.APPLICATION.virtual_app.catalog.endswith(".xml"):
             # catalog as a file
-            catalog = runner.cfg.APPLICATION.virtual_app.catalog
+            catalog = config.APPLICATION.virtual_app.catalog
         else:
             # catalog as a list of computers
-            catalog_src = runner.cfg.APPLICATION.virtual_app.catalog
+            catalog_src = config.APPLICATION.virtual_app.catalog
             mlist = filter(lambda l: len(l.strip()) > 0,
-                           runner.cfg.APPLICATION.virtual_app.catalog.split(","))
+                           config.APPLICATION.virtual_app.catalog.split(","))
             if len(mlist) > 0:
-                catalog = generate_catalog(runner.cfg.APPLICATION.virtual_app.catalog.split(","),
-                                           runner.cfg, logger)
+                catalog = generate_catalog(config.APPLICATION.virtual_app.catalog.split(","),
+                                           config, logger)
 
     # display which catalog is used
     if len(catalog) > 0:
@@ -172,7 +172,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     # generate the application
     try:
         try: # try/except/finally not supported in all version of python
-            retcode = create_application(runner.cfg, appli_dir, catalog, logger)
+            retcode = create_application(config, appli_dir, catalog, logger)
         except Exception as exc:
             details.append(str(exc))
             raise

@@ -24,8 +24,8 @@ try: # For python2
 except:
     pass
 
-import src
-from . import ElementTree as etree
+import src.utilsSat as UTS
+import src.ElementTree as etree
 
 class XmlLogFile(object):
     '''Class to manage writing in salomeTools xml log file
@@ -41,7 +41,7 @@ class XmlLogFile(object):
         # Initialize the filePath and ensure that the directory 
         # that contain the file exists (make it if necessary)
         self.logFile = filePath
-        src.ensure_path_exists(os.path.dirname(filePath))
+        UTS.ensure_path_exists(os.path.dirname(filePath))
         # Initialize the field that contain the xml in memory
         self.xmlroot = etree.Element(rootname, attrib = attrib)
     

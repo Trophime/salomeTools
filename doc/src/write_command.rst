@@ -19,6 +19,8 @@ Here are the basic requirements that must be followed in this file in order to a
 Basic requirements
 ==================
 
+.. warning :: THIS IS OBSOLETE FOR SAT 5.1
+
 By adding a file *mycommand.py* in the ``commands`` directory, salomeTools will define a new command named ``mycommand``.
 
 In *mycommand.py*, there must be the following method: ::
@@ -74,7 +76,7 @@ HowTo access salomeTools config and other commands
 ========================================================
 
 The *runner* variable is an python instance of *Sat* class. 
-It gives access to *runner.cfg* which is the data model defined from all 
+It gives access to *runner.getConfig()* which is the data model defined from all 
 *configuration pyconf files* of salomeTools 
 For example, *runner.cfg.APPLICATION.workdir*
 contains the root directory of the current application.

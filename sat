@@ -55,7 +55,10 @@ if __name__ == "__main__":
    
     try:
       returnCode = sat.execute_cli(args)
-      logger.debug("sat exit code: %s" % returnCode)
+      if returnCode.isOk():
+        logger.debug("sat exit code: %s" % returnCode) # OK no trace
+      else:
+        logger.error("sat exit code: %s" % returnCode) # KO say why
       sys.exit(returnCode.toSys())
       
     except Exception as e:

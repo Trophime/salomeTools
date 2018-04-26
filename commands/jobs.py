@@ -33,6 +33,7 @@ import re
 import src.ElementTree as etree
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
 
@@ -123,7 +124,7 @@ class Command(_BaseCommand):
     logger = self.getLogger()
     options = self.getOptions()
        
-    l_cfg_dir = runner.cfg.PATHS.JOBPATH
+    l_cfg_dir = config.PATHS.JOBPATH
     
     # list option : display all the available config files
     if options.list:
@@ -163,7 +164,7 @@ Use the --list option to get the possible files.\n""") % config_file
         one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
         merger.merge(config_jobs, one_config_jobs)
     
-    info = [(_("Platform"), runner.cfg.VARS.dist),
+    info = [(_("Platform"), config.VARS.dist),
             (_("Files containing the jobs configuration"), l_conf_files_path)]    
     UTS.logger_info_tuples(logger, info)
 
@@ -182,15 +183,15 @@ Use the --list option to get the possible files.\n""") % config_file
     # on every machine
     name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
                             for path in l_conf_files_path]) + ".pyconf"
-    path_pyconf = src.get_tmp_filename(runner.cfg, name_pyconf)
+    path_pyconf = src.get_tmp_filename(config, name_pyconf)
     #Save config
     f = file( path_pyconf , 'w')
     config_jobs.__save__(f)
     
     # log the paramiko problems
-    log_dir = src.get_log_path(runner.cfg)
+    log_dir = UTS.get_log_path(config)
     paramiko_log_dir_path = os.path.join(log_dir, "JOBS")
-    src.ensure_path_exists(paramiko_log_dir_path)
+    UTS.ensure_path_exists(paramiko_log_dir_path)
     paramiko = getParamiko(logger)
     paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
                                            logger.txtFileName))
@@ -214,7 +215,7 @@ Use the --list option to get the possible files.\n""") % config_file
         
         # Copy the stylesheets in the log directory 
         log_dir = log_dir
-        xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
+        xsl_dir = os.path.join(config.VARS.srcDir, 'xsl')
         files_to_copy = []
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_BOARD))
@@ -230,7 +231,7 @@ Use the --list option to get the possible files.\n""") % config_file
         gui = Gui(log_dir,
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
-                  runner.cfg.VARS.datehour,
+                  config.VARS.datehour,
                   logger,
                   file_boards = options.input_boards)
         
@@ -758,7 +759,8 @@ class Job(object):
                 self.err += _("Unable to get remote log files!\n%s\n" % str(e))
             
     def total_duration(self):
-        """Give the total duration of the job
+        """\
+        Give the total duration of the job
         
         :return: the total duration of the job in seconds
         :rtype: int
@@ -766,7 +768,8 @@ class Job(object):
         return self._Tf - self._T0
         
     def run(self):
-        """Launch the job by executing the remote command.
+        """\
+        Launch the job by executing the remote command.
         """
         
         # Prevent multiple run
@@ -806,7 +809,8 @@ class Job(object):
         self._has_begun = True
     
     def write_results(self):
-        """Display on the terminal all the job's information
+        """\
+        Display on the terminal all the job's information
         """
         self.logger.write("name : " + self.name + "\n")
         if self.after:
@@ -837,7 +841,8 @@ class Job(object):
         self.logger.write(self.err + "\n")
         
     def get_status(self):
-        """Get the status of the job (used by the Gui for xml display)
+        """\
+        Get the status of the job (used by the Gui for xml display)
         
         :return: The current status of the job
         :rtype: String
@@ -859,8 +864,9 @@ class Job(object):
                                                      time.localtime(self._Tf))
     
 class Jobs(object):
-    '''Class to manage the jobs to be run
-    '''
+    """\
+    Class to manage the jobs to be run
+    """
     def __init__(self,
                  runner,
                  logger,
@@ -894,14 +900,15 @@ class Jobs(object):
         self.determine_jobs_and_machines()
     
     def define_job(self, job_def, machine):
-        '''Takes a pyconf job definition and a machine (from class machine)
-           and returns the job instance corresponding to the definition.
+        """\
+        Takes a pyconf job definition and a machine (from class machine)
+        and returns the job instance corresponding to the definition.
         
         :param job_def src.config.Mapping: a job definition 
         :param machine machine: the machine on which the job will run
         :return: The corresponding job in a job class instance
         :rtype: job
-        '''
+        """
         name = job_def.name
         cmmnds = job_def.commands
         if not "timeout" in job_def:
@@ -934,12 +941,12 @@ class Jobs(object):
                    prefix = prefix)
     
     def determine_jobs_and_machines(self):
-        '''Function that reads the pyconf jobs definition and instantiates all
-           the machines and jobs to be done today.
+        """\
+        Reads the pyconf jobs definition and instantiates all
+        the machines and jobs to be done today.
 
-        :return: Nothing
-        :rtype: N\A
-        '''
+        :return: None
+        """
         today = datetime.date.weekday(datetime.date.today())
         host_list = []
                

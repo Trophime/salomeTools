@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
 
@@ -76,7 +77,7 @@ class Command(_BaseCommand):
    
     # Print some informations
     logger.write(_('Local Settings of SAT %s\n\n') % \
-                UTS.label(runner.cfg.VARS.salometoolsway), 1)
+                UTS.label(config.VARS.salometoolsway), 1)
 
     res = 0
     
@@ -90,16 +91,16 @@ class Command(_BaseCommand):
             res_check = check_path(value, logger)
             res += res_check
             if res_check == 0:
-                res_set = set_local_value(runner.cfg, key, value, logger)
+                res_set = set_local_value(config, key, value, logger)
                 res += res_set
 
     # Set the options corresponding to an informative value            
     for opt in [("VCS", options.VCS), ("tag", options.tag)]:
         key, value = opt
-        res_set = set_local_value(runner.cfg, key, value, logger)
+        res_set = set_local_value(config, key, value, logger)
         res += res_set
     
-    display_local_values(runner.cfg, logger)
+    display_local_values(config, logger)
     
     return res
 
@@ -171,7 +172,7 @@ Please provide a path to a directory\n""") % UTS.blue(path_to_check)
       
     # Try to create the given path
     try:
-        src.ensure_path_exists(str(path))
+        UTS.ensure_path_exists(str(path))
     except Exception as e:
         msg = _("""\
 Unable to create the directory %s:

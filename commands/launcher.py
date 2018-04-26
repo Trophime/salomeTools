@@ -67,31 +67,29 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # Verify that the command was called with an application
-    src.check_config_has_application( runner.cfg )
+    src.check_config_has_application( config )
     
     # Determine the launcher name (from option, profile section or by default "salome")
     if options.name:
         launcher_name = options.name
     else:
-        launcher_name = src.get_launcher_name(runner.cfg)
+        launcher_name = src.get_launcher_name(config)
 
     # set the launcher path
-    launcher_path = runner.cfg.APPLICATION.workdir
+    launcher_path = config.APPLICATION.workdir
 
     # Copy a catalog if the option is called
     additional_environ = {}
     if options.catalog:
-        additional_environ = copy_catalog(runner.cfg, options.catalog)
+        additional_environ = copy_catalog(config, options.catalog)
 
     # Generate a catalog of resources if the corresponding option was called
     if options.gencat:
-        catalog_path  = generate_catalog(options.gencat.split(","),
-                                         runner.cfg,
-                                         logger)
-        additional_environ = copy_catalog(runner.cfg, catalog_path)
+        catalog_path = generate_catalog(options.gencat.split(","), config, logger)
+        additional_environ = copy_catalog(config, catalog_path)
 
     # Generate the launcher
-    launcherPath = generate_launch_file( runner.cfg,
+    launcherPath = generate_launch_file( config,
                                          logger,
                                          launcher_name,
                                          launcher_path,

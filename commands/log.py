@@ -27,7 +27,9 @@ import stat
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
+import src.system as SYSS
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -95,7 +97,7 @@ class Command(_BaseCommand):
       
 
     # get the log directory. 
-    logDir = src.get_log_path(runner.cfg)
+    logDir = UTS.get_log_path(config)
     
     # Print a header
     nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
@@ -108,8 +110,7 @@ class Command(_BaseCommand):
     if options.clean:
         nbClean = options.clean
         # get the list of files to remove
-        lLogs = src.logger.list_log_file(logDir, 
-                                   src.logger.log_all_command_file_expression)
+        lLogs = UTS.list_log_file(logDir, UTS.log_all_command_file_expression)
         nbLogFiles = len(lLogs)
         # Delete all if the invoked number is bigger than the number of log files
         if nbClean > nbLogFiles:
@@ -131,17 +132,17 @@ class Command(_BaseCommand):
                             os.path.basename(filePath)[:-len('.xml')] + '.pyconf')
             remove_log_file(pyconfFilePath, logger)
 
-        
-        logger.write("<OK>\n%i logs deleted.\n" % nbClean)
-        return 0 
+        msg = "%i logs deleted" % nbClean
+        logger.info("<OK>\n%s\n" % msg)
+        return RCO.ReturnCode("OK", msg)
 
     # determine the commands to show in the hat log
-    notShownCommands = list(runner.cfg.INTERNAL.log.not_shown_commands)
+    notShownCommands = list(config.INTERNAL.log.not_shown_commands)
     if options.full:
         notShownCommands = []
 
     # Find the stylesheets Directory and files
-    xslDir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
+    xslDir = os.path.join(config.VARS.srcDir, 'xsl')
     xslCommand = os.path.join(xslDir, "command.xsl")
     xslHat = os.path.join(xslDir, "hat.xsl")
     xsltest = os.path.join(xslDir, "test.xsl")
@@ -152,21 +153,21 @@ class Command(_BaseCommand):
     #    So we can clean the LOGS directories easily
     shutil.copy(xslCommand, logDir)
     shutil.copy(xslHat, logDir)
-    src.ensure_path_exists(os.path.join(logDir, "TEST"))
+    UTS.ensure_path_exists(os.path.join(logDir, "TEST"))
     shutil.copy(xsltest, os.path.join(logDir, "TEST"))
     shutil.copy(imgLogo, logDir)
 
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
-        src.check_config_has_application(runner.cfg)
-        rootLogDir = os.path.join(runner.cfg.APPLICATION.workdir, 'LOGS')
-        src.ensure_path_exists(rootLogDir)
+        src.check_config_has_application(config)
+        rootLogDir = os.path.join(config.APPLICATION.workdir, 'LOGS')
+        UTS.ensure_path_exists(rootLogDir)
         log_dirs = os.listdir(rootLogDir)
         if log_dirs == []:
           raise Exception("log directory empty")
         log_dirs= sorted(log_dirs)
-        show_last_logs(logger, runner.cfg, log_dirs)
-        return 0
+        res = show_last_logs(logger, config, log_dirs)
+        return res
 
     # If the last option is invoked, just, show the last log file
     if options.last:
@@ -176,24 +177,25 @@ class Command(_BaseCommand):
             raise Exception("last log file not found in '%s'" % logDir)
         if options.terminal:
             # Show the log corresponding to the selected command call
-            print_log_command_in_terminal(lastLogFilePath, logger)
+            res = print_log_command_in_terminal(lastLogFilePath, logger)
         else:
             # open the log xml file in the user editor
-            src.system.show_in_editor(runner.cfg.USER.browser, 
+            res = SYSS.show_in_editor(config.USER.browser, 
                                       lastLogFilePath, logger)
-        return 0
+        return res
 
     # If the user asks for a terminal display
     if options.terminal:
         # Parse the log directory in order to find 
         # all the files corresponding to the commands
-        lLogs = src.logger.list_log_file(logDir, 
-                                   src.logger.log_macro_command_file_expression)
+        lLogs = UTS.list_log_file(logDir, UTS._log_macro_command_file_expression)
         lLogsFiltered = []
         for filePath, __, date, __, hour, cmd, __ in lLogs:
-            showLog, cmdAppli, __ = src.logger.show_command_log(filePath, cmd, 
-                                runner.cfg.VARS.application, notShownCommands)
-            if showLog:
+            showLog = UTS.show_command_log(filePath, cmd, config.VARS.application, notShownCommands)
+            # showLog, cmdAppli, __ = UTS.show_command_log(filePath, cmd, 
+            #                     config.VARS.application, notShownCommands)
+            cmdAppli = showLog.getValue()[0]
+            if showLog.isOk():
                 lLogsFiltered.append((filePath, date, hour, cmd, cmdAppli))
             
         lLogsFiltered = sorted(lLogsFiltered)
@@ -216,35 +218,38 @@ class Command(_BaseCommand):
                 print_log_command_in_terminal(lLogsFiltered[index][0], logger)                
                 x = 0
         
-        return 0
+        return RCO.ReturnCode("OK", "end from user")
                     
     # Create or update the hat xml that gives access to all the commands log files
-    logger.write(_("Generating the hat log file (can be long) ... "), 3)
+    logger.info(_("Generating the hat log file (can be long) ... "))
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     src.logger.update_hat_xml(logDir, 
-                              application = runner.cfg.VARS.application, 
+                              application = config.VARS.application, 
                               notShownCommands = notShownCommands)
-    logger.info("<OK>\n"))
+    logger.info("<OK>\n")
     
     # open the hat xml in the user editor
     if not options.no_browser:
-        logger.write(_("\nOpening the log file\n"), 3)
-        src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
-    return 0
-
+        logger.info(_("\nOpening the log file\n"))
+        res =  SYSS.show_in_editor(config.USER.browser, xmlHatFilePath, logger)
+        return res
+    
+    return RCO.ReturnCode("OK", "option no browser")
  
 def get_last_log_file(logDir, notShownCommands):
-    '''Used in case of last option. Get the last log command file path.
+    """\
+    Used in case of last option. 
+    Get the last log command file path.
     
     :param logDir str: The directory where to search the log files
     :param notShownCommands list: the list of commands to ignore
     :return: the path to the last log file
     :rtype: str
-    '''
+    """
     last = (_, 0)
     for fileName in os.listdir(logDir):
         # YYYYMMDD_HHMMSS_namecmd.xml
-        sExpr = src.logger.log_macro_command_file_expression
+        sExpr = UTS._log_macro_command_file_expression
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
             # get date and hour and format it
@@ -362,7 +367,7 @@ def show_product_last_logs(logger, config, product_log_dir):
         if x > 0:
             (__, file_name) =  sorted(l_time_file)[x-1]
             log_file_path = os.path.join(product_log_dir, file_name)
-            src.system.show_in_editor(config.USER.editor, log_file_path, logger)
+            SYSS.show_in_editor(config.USER.editor, log_file_path, logger)
         
 def ask_value(nb):
     '''Ask for an int n. 0<n<nb

@@ -17,22 +17,25 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 '''
-In this file : all functions that do a system call, 
+All utilities method doing a system call, 
 like open a browser or an editor, or call a git command
+
+usage:
+  >> import src.system as SYSS
 '''
 
 import subprocess
 import os
 import tarfile
-
-from . import printcolors
+import src.returnCode as RCO
 
 def show_in_editor(editor, filePath, logger):
-    '''open filePath using editor.
+    """\
+    open filePath using editor.
     
     :param editor str: The editor to use.
     :param filePath str: The path to the file to open.
-    '''
+    """
     # default editor is vi
     if editor is None or len(editor) == 0:
         editor = 'vi'
@@ -43,16 +46,20 @@ def show_in_editor(editor, filePath, logger):
     try:
         # launch cmd using subprocess.Popen
         cmd = editor % filePath
-        logger.write('Launched command:\n' + cmd + '\n', 5)
+        msg = "show_in_editor command: '%s'" % cmd
+        logger.debug(msg)
         p = subprocess.Popen(cmd, shell=True)
         p.communicate()
+        return RCO.ReturnCode("OK", msg)
     except:
-        logger.write(printcolors.printcError(
-            _("Unable to edit file %s\n") % filePath), 1)
+        msg = _("Unable to edit file '%s'") % filePath
+        logger.error(msg)
+        return RCO.ReturnCode("KO", msg)
 
 
 def git_extract(from_what, tag, where, logger, environment=None):
-    '''Extracts sources from a git repository.
+    """\
+    Extracts sources from a git repository.
     
     :param from_what str: The remote git repository.
     :param tag str: The tag.
@@ -62,7 +69,7 @@ def git_extract(from_what, tag, where, logger, environment=None):
                                                 extracting.
     :return: True if the extraction is successful
     :rtype: boolean
-    '''
+    """
     if not where.exists():
         where.make()
     if tag == "master" or tag == "HEAD":
@@ -79,7 +86,7 @@ def git_extract(from_what, tag, where, logger, environment=None):
                              'where': str(where), 
                              'where_git': where_git }
 
-    logger.write(command + "\n", 5)
+    logger.debug("git_extract \n" + command)
 
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
@@ -92,26 +99,28 @@ def git_extract(from_what, tag, where, logger, environment=None):
     return (res == 0)
 
 def archive_extract(from_what, where, logger):
-    '''Extracts sources from an archive.
+    """\
+    Extracts sources from an archive.
     
     :param from_what str: The path to the archive.
     :param where str: The path where to extract.
     :param logger Logger: The logger instance to use.
     :return: True if the extraction is successful
     :rtype: boolean
-    '''
+    """
     try:
         archive = tarfile.open(from_what)
         for i in archive.getmembers():
             archive.extract(i, path=str(where))
         return True, os.path.commonprefix(archive.getnames())
     except Exception as exc:
-        logger.write("archive_extract: %s\n" % exc)
+        logger.error("archive_extract: %s\n" % exc)
         return False, None
 
 def cvs_extract(protocol, user, server, base, tag, product, where,
                 logger, checkout=False, environment=None):
-    '''Extracts sources from a cvs repository.
+    """\
+    Extracts sources from a cvs repository.
     
     :param protocol str: The cvs protocol.
     :param user str: The user to be used.
@@ -126,7 +135,7 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
                                                 extracting.
     :return: True if the extraction is successful
     :rtype: boolean
-    '''
+    """
 
     opttag = ''
     if tag is not None and len(tag) > 0:
@@ -170,7 +179,8 @@ def svn_extract(user,
                 logger,
                 checkout=False,
                 environment=None):
-    '''Extracts sources from a svn repository.
+    """\
+    Extracts sources from a svn repository.
     
     :param user str: The user to be used.
     :param from_what str: The remote git repository.
@@ -182,7 +192,7 @@ def svn_extract(user,
                                                 extracting.
     :return: True if the extraction is successful
     :rtype: boolean
-    '''
+    """
     if not where.exists():
         where.make()
 

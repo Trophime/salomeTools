@@ -28,6 +28,7 @@ import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
+import src.system as SYSS
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -101,13 +102,13 @@ Optional: dictionary to generate the configuration for salomeTools.
         logger.error(msg_miss % "target")
         return 1
 
-    if "APPLICATION" in runner.cfg:
+    if "APPLICATION" in config:
         msg = _("This command does not use a product.\n")
         logger.error(msg)
         return 1
 
     if options.info:
-        return get_template_info(runner.cfg, options.template, logger)
+        return get_template_info(config, options.template, logger)
 
     if options.name is None:
         logger.error(msg_miss % "name")
@@ -121,7 +122,7 @@ Component name must contains only alphanumeric characters and no spaces\n""")
 
     # CNC inutile
     # Ask user confirmation if a module of the same name already exists
-    #if options.name in runner.cfg.PRODUCTS and not runner.options.batch:
+    #if options.name in config.PRODUCTS and not runner.options.batch:
     #    logger.write(UTS.red(
     #                _("A module named '%s' already exists." % options.name)), 1)
     #    logger.write("\n", 1)
@@ -168,7 +169,7 @@ Component name must contains only alphanumeric characters and no spaces\n""")
                 return 1
             conf_values[param_def[0].strip()] = param_def[1].strip()
     
-    retcode = prepare_from_template(runner.cfg, options.name, options.template,
+    retcode = prepare_from_template(config, options.name, options.template,
         target_dir, conf_values, logger)
 
     if retcode == 0:
@@ -363,7 +364,7 @@ def prepare_from_template(config,
         logger.write("  " + _(
                         "Extract template %s\n") % UTS.info(
                                                                    template), 4)
-        src.system.archive_extract(template_src_dir, target_dir)
+        SYSS.archive_extract(template_src_dir, target_dir)
     else:
         logger.write("  " + _(
                         "Copy template %s\n") % UTS.info(
@@ -482,7 +483,7 @@ def get_template_info(config, template_name, logger):
     if os.path.isdir(sources):
         shutil.copytree(sources, tmpdir)
     else:
-        src.system.archive_extract(sources, tmpdir)
+        SYSS.archive_extract(sources, tmpdir)
         settings_file = os.path.join(tmpdir, "template.info")
 
     if not os.path.exists(settings_file):
