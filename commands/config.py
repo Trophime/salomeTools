@@ -113,7 +113,7 @@ If a name is given the new config file takes the given name."""))
                         level=0, show_full_path=False)
 
     if options.debug:
-        print_debug(config, str(options.debug), not options.no_label, logger, 
+        CFGMGR.print_debug(config, str(options.debug), logger, not options.no_label, 
                     level=0, show_full_path=False)
     
     # case : edit user pyconf file or application file

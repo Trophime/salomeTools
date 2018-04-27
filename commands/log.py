@@ -223,14 +223,14 @@ class Command(_BaseCommand):
     # Create or update the hat xml that gives access to all the commands log files
     logger.info(_("Generating the hat log file (can be long) ... "))
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.logger.update_hat_xml(logDir, 
-                              application = config.VARS.application, 
-                              notShownCommands = notShownCommands)
+    UTS.update_hat_xml(logDir, 
+                       application = config.VARS.application, 
+                       notShownCommands = notShownCommands)
     logger.info("<OK>\n")
     
     # open the hat xml in the user editor
     if not options.no_browser:
-        logger.info(_("\nOpening the log file\n"))
+        logger.info(_("Opening the log file"))
         res =  SYSS.show_in_editor(config.USER.browser, xmlHatFilePath, logger)
         return res
     

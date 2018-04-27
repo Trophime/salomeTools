@@ -394,7 +394,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         """Performs a build with a script."""
         # script found
         self.logger.info(_("Compile %s using script %s\n") % \
-                          (self.product_info.name, UTS.label(script) )
+                          (self.product_info.name, UTS.label(script)) )
         try:
             import imp
             product = self.product_info.name

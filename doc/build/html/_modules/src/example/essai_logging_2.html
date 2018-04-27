@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.example.essai_logging_2 &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.example.essai_logging_2</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">http://sametmax.com/ecrire-des-logs-en-python/</span>
+<span class="sd">https://docs.python.org/3/library/time.html#time.strftime</span>
+
+<span class="sd">essai utilisation logger un handler format different </span>
+<span class="sd">sur info() pas de format et su other format</span>
+
+<span class="sd">    /usr/lib/python2.7/logging/__init__.pyc</span>
+
+<span class="sd">    init MyLogger, fmt=&#39;%(asctime)s :: %(levelname)-8s :: %(message)s&#39;, level=&#39;20&#39;</span>
+
+<span class="sd">    test logger info</span>
+<span class="sd">    2018-03-11 18:51:51 :: WARNING  :: test logger warning</span>
+<span class="sd">    2018-03-11 18:51:51 :: ERROR    :: test logger error</span>
+<span class="sd">    2018-03-11 18:51:51 :: CRITICAL :: test logger critical</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+
+<span class="nb">print</span> <span class="n">logging</span><span class="o">.</span><span class="vm">__file__</span>
+
+<div class="viewcode-block" id="MyFormatter"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_2.MyFormatter">[docs]</a><span class="k">class</span> <span class="nc">MyFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+<div class="viewcode-block" id="MyFormatter.format"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_2.MyFormatter.format">[docs]</a>  <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+    <span class="c1"># print &quot;&quot;, record.levelname #type(record), dir(record)</span>
+    <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span> <span class="o">==</span> <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="initMyLogger"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_2.initMyLogger">[docs]</a><span class="k">def</span> <span class="nf">initMyLogger</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="c1"># http://sametmax.com/ecrire-des-logs-en-python/</span>
+  <span class="c1"># https://docs.python.org/3/library/time.html#time.strftime</span>
+  <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">init MyLogger, fmt=&#39;</span><span class="si">%s</span><span class="s2">&#39;, level=&#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  <span class="n">logger</span> <span class="o">=</span> <span class="n">getMyLogger</span><span class="p">()</span>
+  <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span> <span class="c1"># Logging vers console</span>
+  <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># formatter = logging.Formatter(fmt, &quot;%Y-%m-%d %H:%M:%S&quot;)</span>
+    <span class="n">formatter</span> <span class="o">=</span><span class="n">MyFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span> <span class="c1"># ou DEBUG</span></div>
+  <span class="c1"># logger.info(&#39;\n&#39; + PP.pformat(dir(logger)))</span>
+  
+<div class="viewcode-block" id="getMyLogger"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_2.getMyLogger">[docs]</a><span class="k">def</span> <span class="nf">getMyLogger</span><span class="p">():</span>
+  <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;MyLogger&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="testLogger1"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_2.testLogger1">[docs]</a><span class="k">def</span> <span class="nf">testLogger1</span><span class="p">():</span>
+  <span class="n">logger</span> <span class="o">=</span> <span class="n">getMyLogger</span><span class="p">()</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;test logger debug&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;test logger info&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;test logger warning&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;test logger error&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;test logger critical&#39;</span><span class="p">)</span></div>
+  
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+  <span class="n">initMyLogger</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> :: </span><span class="si">%(levelname)-8s</span><span class="s1"> :: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+  <span class="n">testLogger1</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

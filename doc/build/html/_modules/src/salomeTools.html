@@ -1,0 +1,600 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.salomeTools &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.salomeTools</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2018  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">This file is the main entry file to salomeTools</span>
+<span class="sd">NO __main__ entry allowed, use &#39;sat&#39; (in parent directory)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># NO __main__ entry allowed, use sat</span>
+<span class="c1">########################################################################</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ERROR: &#39;salomeTools.py&#39; is not main command entry for sat: use &#39;sat&#39; instead.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">KOSYS</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># avoid import src</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">KOSYS</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">imp</span>
+<span class="kn">import</span> <span class="nn">gettext</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">SP</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+
+<span class="kn">import</span> <span class="nn">src</span> <span class="c1"># for __version__</span>
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span> <span class="c1"># Easy print stderr (for DEBUG only)</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span> <span class="c1"># Easy (ok/ko, why) return methods code</span>
+<span class="kn">from</span> <span class="nn">src.options</span> <span class="k">import</span> <span class="n">Options</span>
+<span class="kn">import</span> <span class="nn">configManager</span> <span class="k">as</span> <span class="nn">CFGMGR</span>
+
+<span class="c1"># get path to src</span>
+<span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;sat rootdir&quot;</span><span class="p">,</span> <span class="n">rootdir</span><span class="p">)</span>  
+<span class="n">srcdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">)</span>
+<span class="n">cmdsdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="s2">&quot;commands&quot;</span><span class="p">)</span>
+
+<span class="c1"># load resources for internationalization</span>
+<span class="n">gettext</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;salomeTools&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="s2">&quot;i18n&quot;</span><span class="p">))</span>
+
+<span class="c1"># The possible hooks : </span>
+<span class="c1"># pre is for hooks to be executed before commands</span>
+<span class="c1"># post is for hooks to be executed after commands</span>
+<span class="n">C_PRE_HOOK</span> <span class="o">=</span> <span class="s2">&quot;pre&quot;</span>
+<span class="n">C_POST_HOOK</span> <span class="o">=</span> <span class="s2">&quot;post&quot;</span>
+
+<span class="n">_LANG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LANG&quot;</span><span class="p">]</span> <span class="c1"># original locale</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># utility methods</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="find_command_list"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.find_command_list">[docs]</a><span class="k">def</span> <span class="nf">find_command_list</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse files in dirPath that end with &#39;.py&#39; : it gives commands list</span>
+<span class="sd">    </span>
+<span class="sd">    :param dirPath str: The directory path where to search the commands</span>
+<span class="sd">    :return: cmd_list : the list containing the commands name </span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cmd_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;__init__.py&quot;</span><span class="p">]:</span> <span class="c1">#avoid theses files</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">):</span>
+            <span class="n">cmd_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">)</span></div>
+
+<span class="c1"># The list of valid salomeTools commands from cmdsdir</span>
+<span class="c1"># [&#39;config&#39;, &#39;compile&#39;, &#39;prepare&#39;, ...]</span>
+<span class="n">_COMMANDS_NAMES</span> <span class="o">=</span> <span class="n">find_command_list</span><span class="p">(</span><span class="n">cmdsdir</span><span class="p">)</span>
+
+<div class="viewcode-block" id="getCommandsList"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.getCommandsList">[docs]</a><span class="k">def</span> <span class="nf">getCommandsList</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Gives commands list (as basename of files .py in directory commands&quot;&quot;&quot;</span> 
+    <span class="k">return</span> <span class="n">_COMMANDS_NAMES</span></div>
+
+<div class="viewcode-block" id="launchSat"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.launchSat">[docs]</a><span class="k">def</span> <span class="nf">launchSat</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    launch sat as subprocess popen</span>
+<span class="sd">    command as string (&#39;sat --help&#39; for example)</span>
+<span class="sd">    used for unittest, or else...</span>
+<span class="sd">    returns tuple (stdout, stderr)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;sat&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Not a valid command for launchSat: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">command</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span> <span class="c1"># copy</span>
+    <span class="c1"># theorically useless, in user environ $PATH,</span>
+    <span class="c1"># on ne sait jamais</span>
+    <span class="c1"># https://docs.python.org/2/library/os.html</span>
+    <span class="c1"># On some platforms, including FreeBSD and Mac OS X, </span>
+    <span class="c1"># setting environ may cause memory leaks.</span>
+    <span class="c1"># see test/initializeTest.py</span>
+    <span class="k">if</span> <span class="n">rootdir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
+      <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rootdir</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+    <span class="c1"># TODO setLocale not &#39;fr&#39; on subprocesses, why not?</span>
+    <span class="c1"># env[&quot;LANG&quot;] == &#39;&#39;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">SP</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">SP</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">SP</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="setNotLocale"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.setNotLocale">[docs]</a><span class="k">def</span> <span class="nf">setNotLocale</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;force english at any moment&quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LANG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">gettext</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;salomeTools&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="s2">&quot;i18n&quot;</span><span class="p">))</span>
+    <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setNotLocale&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LANG&quot;</span><span class="p">])</span></div>
+    
+<div class="viewcode-block" id="setLocale"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.setLocale">[docs]</a><span class="k">def</span> <span class="nf">setLocale</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    reset initial locale at any moment </span>
+<span class="sd">    &#39;fr&#39; or else (TODO) from initial environment var &#39;$LANG&#39;</span>
+<span class="sd">    &#39;i18n&#39; as &#39;internationalization&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LANG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_LANG</span>
+    <span class="n">gettext</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;salomeTools&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="s2">&quot;i18n&quot;</span><span class="p">))</span>
+    <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setLocale&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LANG&quot;</span><span class="p">])</span></div>
+    
+<div class="viewcode-block" id="getVersion"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.getVersion">[docs]</a><span class="k">def</span> <span class="nf">getVersion</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;get version number as string&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">src</span><span class="o">.</span><span class="n">__version__</span></div>
+ 
+<div class="viewcode-block" id="assumeAsList"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.assumeAsList">[docs]</a><span class="k">def</span> <span class="nf">assumeAsList</span><span class="p">(</span><span class="n">strOrList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return a list as sys.argv if string&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">strOrList</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">strOrList</span><span class="p">)</span> <span class="c1"># copy</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="n">strOrList</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">res</span> <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="c1"># supposed string to split for convenience</span></div>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># _BaseCmd class</span>
+<span class="c1">########################################################################</span>
+<span class="k">class</span> <span class="nc">_BaseCommand</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    _BaseCmd is the base class for all inherited commands of salomeTools</span>
+<span class="sd">    instancied as classes &#39;Command&#39; in files &#39;.../commands/*.py&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+  
+    <span class="c1"># supposed never seen, set &quot;config&quot;, &quot;prepare&quot;... in inherited commands</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;salomeTools&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">):</span>
+        <span class="c1"># runner (as caller) usually as Sat instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span> <span class="o">=</span> <span class="n">runner</span>
+        <span class="c1"># config pyconf usually loaded in runner, but sometimes local value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># logger (from caller) usually as Sat instance logger, but sometimes local value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="k">def</span> <span class="nf">getClassName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns &#39;config.Command&#39; or prepare.Command&#39; for example </span>
+<span class="sd">        as inherited classes &#39;Command&#39; in files</span>
+<span class="sd">        &#39;.../commands/config.py&#39; or &#39;.../commands/prepare.py&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">(),</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        virtual example method for Command instance</span>
+<span class="sd">        have to return RCO.ReturnCode()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="s2">&quot;_BaseCommand.run() have not to be instancied and called&quot;</span><span class="p">)</span>
+           
+    <span class="k">def</span> <span class="nf">setLogger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set logger for run command&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="c1"># supposed logger.debug for future</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;change logger for </span><span class="si">%s</span><span class="s2">, are you sure&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            
+    <span class="k">def</span> <span class="nf">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> instance needs self._logger not None, fix it.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span>
+
+    <span class="k">def</span> <span class="nf">getOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> instance needs self._option not None, fix it.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
+    
+    <span class="k">def</span> <span class="nf">getParserWithHelp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns elementary parser with help option set&quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;shows help on command.&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">parser</span>
+
+    <span class="k">def</span> <span class="nf">getRunner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> instance needs self.runner not None, fix it.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span>
+
+    <span class="k">def</span> <span class="nf">getConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        supposedly (for now) no multiply local config(s)</span>
+<span class="sd">        only one config in runner.config</span>
+<span class="sd">        may be some for future...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> instance have runner.config None, fix it.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassName</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="k">def</span> <span class="nf">assumeAsList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strOrList</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">assumeAsList</span><span class="p">(</span><span class="n">strOrList</span><span class="p">)</span>
+                  
+    <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;_BaseCmd class have not to be instancied, only for inheritage&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parseArguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        smart parse command arguments skip</span>
+<span class="sd">        first argument name appli to load, if present</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.Command arguments&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">argList</span><span class="p">)</span>
+        <span class="n">commandOptions</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.Command options&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">commandOptions</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.Command remainders arguments&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">remaindersArgs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remaindersArgs</span> <span class="o">!=</span> <span class="p">[]:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.Command have unknown remainders arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">remaindersArgs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">commandOptions</span><span class="p">,</span> <span class="n">remaindersArgs</span>
+    
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        method called when salomeTools have &#39;--help&#39; argument.</span>
+<span class="sd">        returns The text to display for the command description</span>
+<span class="sd">        which is current Command class docstring &#39;self.__doc__&#39;,</span>
+<span class="sd">        with traduction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        method called when salomeTools processes command(s) parameters&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;_BaseCmd class have not to be instancied, useful only for inheritage&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints help for a command. Function called with </span>
+<span class="sd">        &#39;sat --help &lt;command&gt;&#39; or</span>
+<span class="sd">        &#39;sat --help &lt;command&gt; --help&#39; or</span>
+<span class="sd">        &#39;sat &lt;command&gt;&#39; without any trailing arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_help</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">get_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get string help for inherited Command classes&quot;&quot;&quot;</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">getVersion</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="c1"># salomeTools version</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&lt;header&gt;Version:&lt;reset&gt; &quot;</span> <span class="o">+</span> <span class="n">version</span>
+        <span class="c1"># description of the command that is done in the command.py file</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;header&gt;Description:&lt;reset&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># description of the command options</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParser</span><span class="p">()</span><span class="o">.</span><span class="n">get_help</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">msg</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Sat class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Sat"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat">[docs]</a><span class="k">class</span> <span class="nc">Sat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The main class that stores all the commands of salomeTools</span>
+<span class="sd">    (usually known as &#39;runner&#39; argument in Command classes)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param logger: The logger to use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Read the salomeTools prefixes options before the &#39;commands&#39; tag</span>
+        <span class="c1"># sat &lt;options&gt; &lt;args&gt;</span>
+        <span class="c1"># (the list of possible options is at the beginning of this file)</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;sat-config.pyconf&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># the config Manager that will be used to set self.config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># the config that will be read using pyconf module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="c1"># the logger that will be use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># args are postfixes options: args[0] is the &#39;commands&#39; command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># the options passed to salomeTools</span>
+        
+        <span class="c1"># the directory that contain all the external </span>
+        <span class="c1"># data (like software pyconf and software scripts)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datadir</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># default value will be &lt;salomeTools root&gt;/data</span>
+        
+        <span class="c1"># contains commands classes needed (think micro commands)</span>
+        <span class="c1"># if useful &#39;a la demande&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameCommandToLoad</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameAppliToLoad</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandArguments</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameAppliLoaded</span> <span class="o">=</span> <span class="kc">None</span>
+      
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getParser</span><span class="p">()</span>
+                
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">aDict</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span> 
+          <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span>
+          <span class="s2">&quot;datadir&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span>
+          <span class="s2">&quot;commands&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="p">}</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">aDict</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;Sat(</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">res</span>
+    
+<div class="viewcode-block" id="Sat.getLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getLogger">[docs]</a>    <span class="k">def</span> <span class="nf">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># could use owner Sat instance logger</span>
+          <span class="kn">import</span> <span class="nn">src.loggingSat</span> <span class="k">as</span> <span class="nn">LOG</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">=</span><span class="n">LOG</span><span class="o">.</span><span class="n">getDefaultLogger</span><span class="p">()</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Sat logger not set, unexpected situation, fixed as default&quot;</span><span class="p">)</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="k">else</span><span class="p">:</span>                   <span class="c1"># could use local logger</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span></div>
+        
+<div class="viewcode-block" id="Sat.getConfig"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getConfig">[docs]</a>    <span class="k">def</span> <span class="nf">getConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span></div>
+        
+<div class="viewcode-block" id="Sat.assumeAsList"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.assumeAsList">[docs]</a>    <span class="k">def</span> <span class="nf">assumeAsList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strOrList</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">assumeAsList</span><span class="p">(</span><span class="n">strOrList</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define all possible &lt;options&gt; for salomeTools/sat command: &#39;sat &lt;options&gt; &lt;args&gt;&#39;</span>
+<span class="sd">        (internal use only)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;shows global help or help on a specific command.&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;overwrites a configuration parameters.&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;debug_mode&#39;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;run salomeTools in debug mode.&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s2">&quot;output_verbose_level&quot;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;change output verbose level (default is 3).&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;batch&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s2">&quot;batch&quot;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;batch mode (no question).&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;all_in_terminal&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s2">&quot;all_in_terminal&quot;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;all traces in the terminal (for example compilation logs).&quot;</span><span class="p">))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;logs_paths_in_file&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s2">&quot;logs_paths_in_file&quot;</span><span class="p">,</span> 
+                          <span class="n">_</span><span class="p">(</span><span class="s2">&quot;put the command result and paths to log files.&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">parser</span>
+ 
+     
+<div class="viewcode-block" id="Sat.parseArguments"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.parseArguments">[docs]</a>    <span class="k">def</span> <span class="nf">parseArguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+        <span class="n">genericOptions</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Sat generic options&quot;</span><span class="p">,</span> <span class="n">genericOptions</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Sat remainders arguments&quot;</span><span class="p">,</span> <span class="n">remaindersArgs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">genericOptions</span><span class="p">,</span> <span class="n">remaindersArgs</span></div>
+               
+    
+    <span class="k">def</span> <span class="nf">_getModule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        load and add module Command &#39;name&#39; in dict self.commands</span>
+<span class="sd">        have to be called only one time maximum for each module Command</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_COMMANDS_NAMES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;module command not valid: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;module command existing yet: &#39;</span><span class="si">%s</span><span class="s2">&#39;, use getModule&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">file_</span><span class="p">,</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">cmdsdir</span><span class="p">])</span>
+        <span class="c1"># could raise Exception in load (catched in sat, logger.critical)</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">file_</span><span class="p">,</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span> <span class="c1"># store module loaded (only one time)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sat load module command </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">module</span>
+      
+<div class="viewcode-block" id="Sat.getModule"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getModule">[docs]</a>    <span class="k">def</span> <span class="nf">getModule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns only-one-time loaded module Command &#39;name&#39;</span>
+<span class="sd">        assume load if not done yet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getModule</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Sat.getCommandInstance"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getCommandInstance">[docs]</a>    <span class="k">def</span> <span class="nf">getCommandInstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        returns inherited instance of Command(_BaseCmd) for command &#39;name&#39;</span>
+<span class="sd">        if module not loaded yet, load it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getModule</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">commandInstance</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># set runner as &#39;parent&#39; (and logger...)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Problem instance </span><span class="si">%s</span><span class="s2">.Command(): </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sat new instance </span><span class="si">%s</span><span class="s2">.Command()&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">commandInstance</span>                          </div>
+
+<div class="viewcode-block" id="Sat.execute_cli"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.execute_cli">[docs]</a>    <span class="k">def</span> <span class="nf">execute_cli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cli_arguments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;select first argument as a command in directory &#39;commands&#39;, and launch on arguments</span>
+<span class="sd">        </span>
+<span class="sd">        :param args str or list, The sat cli arguments (as sys.argv)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cli_arguments</span><span class="p">)</span>
+
+        <span class="c1"># print general help and returns</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat --help&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">remainderArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        
+        <span class="c1"># if the help option has been called, print command help and returns</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Option --help&quot;</span><span class="p">)</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameCommandToLoad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameAppliToLoad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandArguments</span> <span class="o">=</span> \
+             <span class="bp">self</span><span class="o">.</span><span class="n">getCommandAndAppli</span><span class="p">(</span><span class="n">remainderArgs</span><span class="p">)</span>
+             
+        <span class="n">cfgManager</span> <span class="o">=</span> <span class="n">CFGMGR</span><span class="o">.</span><span class="n">ConfigManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">cfgManager</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+                        <span class="n">application</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameAppliToLoad</span><span class="p">,</span>
+                        <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span>
+                        <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameCommandToLoad</span><span class="p">,</span>
+                        <span class="n">datadir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        
+        <span class="c1"># create/get dynamically the command instance to call its &#39;run&#39; method</span>
+        <span class="n">cmdInstance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCommandInstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameCommandToLoad</span><span class="p">)</span>
+        
+        <span class="c1"># Run the command using the arguments</span>
+        <span class="n">returnCode</span> <span class="o">=</span> <span class="n">cmdInstance</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commandArguments</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">returnCode</span></div>
+        
+<div class="viewcode-block" id="Sat.getCommandAndAppli"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getCommandAndAppli">[docs]</a>    <span class="k">def</span> <span class="nf">getCommandAndAppli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+        <span class="n">namecmd</span><span class="p">,</span> <span class="n">nameAppli</span><span class="p">,</span> <span class="n">remainderArgs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">iremain</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+          <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="o">!=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> 
+            <span class="n">namecmd</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">iremain</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+          <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="o">!=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> 
+            <span class="n">nameAppli</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">iremain</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">remainderArgs</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">iremain</span><span class="p">:]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">namecmd</span><span class="p">,</span> <span class="n">nameAppli</span><span class="p">,</span> <span class="n">remainderArgs</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;getCommandAndAppli&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+        
+      
+<div class="viewcode-block" id="Sat.get_help"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.get_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get general help colored string&quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getColoredVersion</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;header&gt;Usage:&lt;reset&gt;  sat [generic_options] &lt;command&gt; [product] [command_options]</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getParser</span><span class="p">()</span><span class="o">.</span><span class="n">get_help</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;header&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Available commands are:&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;reset&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">_COMMANDS_NAMES</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; - </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="c1"># how to get the help for a specific command</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;header&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Getting the help for a specific command: &quot;</span><span class="p">)</span> <span class="o">+</span> \
+               <span class="s2">&quot;&lt;reset&gt;sat &lt;command&gt; --help</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">msg</span></div>
+    
+<div class="viewcode-block" id="Sat.print_help"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.print_help">[docs]</a>    <span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;prints salomeTools general help&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_help</span><span class="p">())</span></div>
+          
+<div class="viewcode-block" id="Sat.getConfigManager"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getConfigManager">[docs]</a>    <span class="k">def</span> <span class="nf">getConfigManager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">src.configManager</span> <span class="k">as</span> <span class="nn">CFGMGR</span>
+        <span class="k">return</span> <span class="n">CFGMGR</span><span class="o">.</span><span class="n">ConfigManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Sat.getColoredVersion"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.salomeTools.Sat.getColoredVersion">[docs]</a>    <span class="k">def</span> <span class="nf">getColoredVersion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get colored salomeTools version message&quot;&quot;&quot;</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">getVersion</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="c1"># verify coherency with config.INTERNAL.sat_version</span>
+          <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">sat_version</span> <span class="o">!=</span> <span class="n">version</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;verify version with INTERNAL.sat_version&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&lt;header&gt;Version:&lt;reset&gt; &quot;</span> <span class="o">+</span> <span class="n">version</span>
+        <span class="k">return</span> <span class="n">msg</span></div></div>
+   
+       
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

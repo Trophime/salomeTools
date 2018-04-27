@@ -17,7 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-echo "TODO: OBSOLETE: to set as python script, may be"
+echo "TODO: SAT5.1 OBSOLETE: to set as python script, may be"
 echo "Begin date:"
 date
 echo

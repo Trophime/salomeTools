@@ -1,21 +1,32 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Command config &#8212; salomeTools 5.0.0dev documentation</title>
+    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
     <link rel="next" title="Command prepare" href="prepare.html" />
     <link rel="prev" title="Usage of SAlomeTools" href="../usage_of_sat.html" />
    
@@ -24,7 +35,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body role="document">
   
 
     <div class="document">
@@ -42,33 +54,33 @@ It allows display, manipulation and operation on configuration files</p>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p class="first">Edit the user personal configuration file <code class="docutils literal notranslate"><span class="pre">$HOME/.salomeTools/SAT.pyconf</span></code>. It is used to store the user personal choices, like the favorite editor, browser, pdf viewer:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">--</span><span class="n">edit</span>
+<li><p class="first">Edit the user personal configuration file <code class="docutils literal"><span class="pre">$HOME/.salomeTools/SAT.pyconf</span></code>. It is used to store the user personal choices, like the favorite editor, browser, pdf viewer:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">--</span><span class="n">edit</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">List the available applications (they come from the sat projects defined in <code class="docutils literal notranslate"><span class="pre">data/local.pyconf</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">--</span><span class="nb">list</span>
+<li><p class="first">List the available applications (they come from the sat projects defined in <code class="docutils literal"><span class="pre">data/local.pyconf</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">--</span><span class="nb">list</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Edit the configuration of an application:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">&lt;</span><span class="n">application</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">edit</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">&lt;</span><span class="n">application</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">edit</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Copy an application configuration file into the user personal directory:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">&lt;</span><span class="n">application</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">copy</span> <span class="p">[</span><span class="n">new_name</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="o">&lt;</span><span class="n">application</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">copy</span> <span class="p">[</span><span class="n">new_name</span><span class="p">]</span>
 </pre></div>
 </div>
 </li>
 <li><div class="first line-block">
 <div class="line">Print the value of a configuration parameter.</div>
 <div class="line">Use the automatic completion to get recursively the parameter names.</div>
-<div class="line">Use <em>–no_label</em> option to get <em>only</em> the value, <em>without</em> label (useful in automatic scripts).</div>
+<div class="line">Use <em>--no_label</em> option to get <em>only</em> the value, <em>without</em> label (useful in automatic scripts).</div>
 <div class="line">Examples (with <em>SALOME-xx</em> as <em>SALOME-8.4.0</em> ):</div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># sat config --value &lt;parameter_path&gt;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># sat config --value &lt;parameter_path&gt;</span>
 sat config --value .         <span class="c1"># all the configuration</span>
 sat config --value LOCAL
 sat config --value LOCAL.workdir
@@ -85,26 +97,26 @@ sat config SALOME-xx --no_label --value APPLICATION.workdir
 <div class="line">This is a debug mode, useful for developers.</div>
 <div class="line">Prints the parameter path, the source expression if any, and the final value:</div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">-</span><span class="n">g</span> <span class="n">USER</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">-</span><span class="n">g</span> <span class="n">USER</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>And so, <em>not only for fun</em>, to get <strong>all expressions</strong> of configuration</p>
-<div class="last highlight-bash notranslate"><div class="highlight"><pre><span></span>sat config SALOME-xx -g . <span class="p">|</span> grep -e <span class="s2">&quot;--&gt;&quot;</span>
+<div class="last highlight-bash"><div class="highlight"><pre><span></span>sat config SALOME-xx -g . <span class="p">|</span> grep -e <span class="s2">&quot;--&gt;&quot;</span>
 </pre></div>
 </div>
 </div>
 </li>
 <li><p class="first">Print the patches that are applied:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">--</span><span class="n">show_patchs</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">--</span><span class="n">show_patchs</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Get information on a product configuration:</p>
 </li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># sat config &lt;application&gt; --info &lt;product&gt;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># sat config &lt;application&gt; --info &lt;product&gt;</span>
 sat config SALOME-xx --info KERNEL
 sat config SALOME-xx --info qt
 </pre></div>
@@ -118,7 +130,7 @@ sat config SALOME-xx --info qt
 <li><strong>USER</strong>: To get user preferences (editor, pdf viewer, web browser, default working dir).</li>
 </ul>
 <p>sat commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">-</span><span class="n">v</span> <span class="n">PATHS</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">-</span><span class="n">v</span> <span class="n">PATHS</span>
 <span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">-</span><span class="n">v</span> <span class="n">USERS</span>
 </pre></div>
 </div>
@@ -155,20 +167,18 @@ sat config SALOME-xx --info qt
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/commands/config.rst.txt"
+      <li><a href="../_sources/commands/config.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -179,11 +189,11 @@ sat config SALOME-xx --info qt
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="../_sources/commands/config.rst.txt"
+      <a href="../_sources/commands/config.txt"
           rel="nofollow">Page source</a>
     </div>
 

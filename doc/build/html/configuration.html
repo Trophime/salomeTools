@@ -1,21 +1,32 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Configuration &#8212; salomeTools 5.0.0dev documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="index.html" />
     <link rel="next" title="Usage of SAlomeTools" href="usage_of_sat.html" />
     <link rel="prev" title="Installation" href="installation_of_sat.html" />
    
@@ -24,7 +35,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body role="document">
   
 
     <div class="document">
@@ -46,12 +58,12 @@ Then, this object is passed to all command scripts.</p>
 <li><strong>{}</strong> define a dictionary,</li>
 <li><strong>[]</strong> define a list,</li>
 <li><strong>&#64;</strong> can be used to include a file,</li>
-<li><strong>$prefix</strong> reference to another parameter (ex: <code class="docutils literal notranslate"><span class="pre">$PRODUCT.name</span></code>),</li>
+<li><strong>$prefix</strong> reference to another parameter (ex: <code class="docutils literal"><span class="pre">$PRODUCT.name</span></code>),</li>
 <li><strong>#</strong> comments.</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">in this documentation a reference to a configuration parameter will be noted <code class="docutils literal notranslate"><span class="pre">XXX.YYY</span></code>.</p>
+<p class="last">in this documentation a reference to a configuration parameter will be noted <code class="docutils literal"><span class="pre">XXX.YYY</span></code>.</p>
 </div>
 </div>
 <div class="section" id="description">
@@ -62,7 +74,7 @@ Then, this object is passed to all command scripts.</p>
 <div class="line">This section is dynamically created by salomeTools at run time.</div>
 <div class="line">It contains information about the environment: date, time, OS, architecture etc.</div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
 <span class="n">sat</span> <span class="n">config</span> <span class="o">--</span><span class="n">value</span> <span class="n">VARS</span>
 </pre></div>
 </div>
@@ -73,7 +85,7 @@ Then, this object is passed to all command scripts.</p>
 <div class="line">This section is defined in the product file.</div>
 <div class="line">It contains instructions on how to build a version of SALOME (list of prerequisites-products and versions)</div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
 <span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">--</span><span class="n">value</span> <span class="n">PRODUCTS</span>
 </pre></div>
 </div>
@@ -84,7 +96,7 @@ Then, this object is passed to all command scripts.</p>
 <div class="line">This section is optional, it is also defined in the product file.</div>
 <div class="line">It gives additional parameters to create an application based on SALOME, as versions of products to use.</div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
 <span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">--</span><span class="n">value</span> <span class="n">APPLICATION</span>
 </pre></div>
 </div>
@@ -92,8 +104,8 @@ Then, this object is passed to all command scripts.</p>
 <div class="section" id="user-section">
 <span id="id2"></span><h3>USER section<a class="headerlink" href="#user-section" title="Permalink to this headline">¶</a></h3>
 <p>This section is defined by the user configuration file,
-<code class="docutils literal notranslate"><span class="pre">~/.salomeTools/salomeTools.pyconf</span></code>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">USER</span></code> section defines some parameters (not exhaustive):</p>
+<code class="docutils literal"><span class="pre">~/.salomeTools/salomeTools.pyconf</span></code>.</p>
+<p>The <code class="docutils literal"><span class="pre">USER</span></code> section defines some parameters (not exhaustive):</p>
 <ul>
 <li><p class="first"><strong>workDir</strong> :</p>
 <blockquote>
@@ -110,7 +122,7 @@ Then, this object is passed to all command scripts.</p>
 <li><p class="first">and other user preferences.</p>
 </li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># to get the current setting</span>
 <span class="n">sat</span> <span class="n">config</span> <span class="n">SALOME</span><span class="o">-</span><span class="n">xx</span> <span class="o">--</span><span class="n">value</span> <span class="n">USER</span>
 </pre></div>
 </div>
@@ -153,20 +165,18 @@ Then, this object is passed to all command scripts.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/configuration.rst.txt"
+      <li><a href="_sources/configuration.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -177,11 +187,11 @@ Then, this object is passed to all command scripts.</p>
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="_sources/configuration.rst.txt"
+      <a href="_sources/configuration.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -17,9 +17,10 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-'''This file is the main entry file to salomeTools
+"""\
+This file is the main entry file to salomeTools
 NO __main__ entry allowed, use 'sat' (in parent directory)
-'''
+"""
 
 ########################################################################
 # NO __main__ entry allowed, use sat
@@ -86,11 +87,11 @@ def find_command_list(dirPath):
 _COMMANDS_NAMES = find_command_list(cmdsdir)
 
 def getCommandsList():
-    """Gives commands list (as basename of files cmdsdir/*.py)""" 
+    """Gives commands list (as basename of files .py in directory commands""" 
     return _COMMANDS_NAMES
 
 def launchSat(command):
-    """
+    """\
     launch sat as subprocess popen
     command as string ('sat --help' for example)
     used for unittest, or else...
@@ -119,7 +120,8 @@ def setNotLocale():
     DBG.write("setNotLocale", os.environ["LANG"])
     
 def setLocale():
-    """reset initial locale at any moment 
+    """\
+    reset initial locale at any moment 
     'fr' or else (TODO) from initial environment var '$LANG'
     'i18n' as 'internationalization'
     """
@@ -402,7 +404,7 @@ class Sat(object):
           return self._getModule(name)
         
     def getCommandInstance(self, name):
-        """
+        """\
         returns inherited instance of Command(_BaseCmd) for command 'name'
         if module not loaded yet, load it.
         """

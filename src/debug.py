@@ -19,9 +19,9 @@
 
 """
 This file assume DEBUG functionalities use
-- print salomeTools debug messages in sys.stderr
-- show pretty print debug representation from instances of SAT classes
-  (pretty print src.pyconf.Config)
+Print salomeTools debug messages in sys.stderr.
+Show pretty print debug representation from instances of SAT classes 
+(pretty print src.pyconf.Config)
 
 WARNING: supposedly show messages in SAT development phase, not production
 
@@ -86,9 +86,12 @@ def pop_debug():
 ###############################################
 
 class OutStream(SIO.StringIO):
-    """utility class for pyconf.Config output iostream"""
+    """\
+    utility class for pyconf.Config output iostream
+    """
     def close(self):
-      """because Config.__save__ calls close() stream as file
+      """\
+      because Config.__save__ calls close() stream as file
       keep value before lost as self.value
       """
       self.value = self.getvalue()
@@ -147,7 +150,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       order = object.__getattribute__(config, 'order')
       data = object.__getattribute__(config, 'data')
     except:
-      aStream.write("%s%s : '%s'\n" % (indstr, path, str(config)))
+      aStream.write("<blue>%s%s<reset> : '%s'\n" % (indstr, path, str(config)))
       return     
     for key in sorted(order):
       value = data[key]
@@ -166,21 +169,21 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       if "Expression" in strType:
         try:
           evaluate = value.evaluate(config)
-          aStream.write("%s%s.%s : %s --> '%s'\n" % (indstr, path, key, str(value), evaluate))
+          aStream.write("<blue>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:      
-          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, e.message))     
+          aStream.write("<blue>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
         continue
       if "Reference" in strType:
         try:
           evaluate = value.resolve(config)
-          aStream.write("%s%s.%s : %s --> '%s'\n" % (indstr, path, key, str(value), evaluate))
+          aStream.write("<blue>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:  
-          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, e.message))     
+          aStream.write("<blue>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
         continue
       if type(value) in [str, bool, int, type(None), unicode]:
-        aStream.write("%s%s.%s : '%s'\n" % (indstr, path, key, str(value)))
+        aStream.write("<blue>%s%s.%s<reset> : '%s'\n" % (indstr, path, key, str(value)))
         continue
       try:
         aStream.write("!!! TODO fix that %s %s%s.%s : %s\n" % (type(value), indstr, path, key, str(value)))
       except Exception as e:      
-        aStream.write("%s%s.%s : !!! %s\n" % (indstr, path, key, e.message))
+        aStream.write("<blue>%s%s.%s<reset> : <red>!!! %s<reset>\n" % (indstr, path, key, e.message))

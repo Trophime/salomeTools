@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.coloringSat &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.coloringSat</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">simple tagging as &#39;&lt;color&gt;&#39; for simple coloring log messages on terminal(s)</span>
+<span class="sd">window or unix or ios using backend colorama</span>
+
+<span class="sd">using &#39;&lt;color&gt;&#39; because EZ human readable</span>
+<span class="sd">so &#39;&lt;color&gt;&#39; are not supposed existing in log message</span>
+<span class="sd">&quot;{}&quot;.format() is not choosen because &quot;{}&quot; are present</span>
+<span class="sd">in log messages of contents of python dict (as JSON) etc.</span>
+
+<span class="sd">example:</span>
+<span class="sd">&gt;&gt; log(&quot;this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?&quot;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+
+<span class="n">_verbose</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;coloringSat&quot;</span>
+
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">https://github.com/tartley/colorama</span>
+<span class="sd">init(wrap=True):</span>
+
+<span class="sd">On Windows, colorama works by replacing sys.stdout and sys.stderr </span>
+<span class="sd">with proxy objects, which override the .write() method to do their work. </span>
+<span class="sd">If this wrapping causes you problems, </span>
+<span class="sd">then this can be disabled by passing init(wrap=False). </span>
+<span class="sd">The default behaviour is to wrap if autoreset or strip or convert are True.</span>
+
+<span class="sd">When wrapping is disabled, colored printing on non-Windows platforms </span>
+<span class="sd">will continue to work as normal. </span>
+<span class="sd">To do cross-platform colored output, </span>
+<span class="sd">you can use Colorama&#39;s AnsiToWin32 proxy directly:</span>
+
+<span class="sd">example:</span>
+<span class="sd">  import sys</span>
+<span class="sd">  from colorama import init, AnsiToWin32, Fore</span>
+<span class="sd">  init(wrap=False)</span>
+<span class="sd">  stream = AnsiToWin32(sys.stderr).stream</span>
+<span class="sd">  # Python 2</span>
+<span class="sd">  print &gt;&gt;stream, Fore.BLUE + &#39;blue text on stderr&#39;</span>
+<span class="sd">  # Python 3</span>
+<span class="sd">  print(Fore.BLUE + &#39;blue text on stderr&#39;, file=stream)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">colorama</span> <span class="k">as</span> <span class="nn">CLRM</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Fore</span> <span class="k">as</span> <span class="n">FG</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Style</span> <span class="k">as</span> <span class="n">ST</span>
+<span class="c1">#from colorama import AnsiToWin32</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">AnsiToWin32</span> <span class="c1"># debug is os.name == &#39;nt&#39; ?</span>
+
+<span class="n">CLRM</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># choose NO wrapping</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">from colorama:</span>
+<span class="sd">Available formatting constants are:</span>
+<span class="sd">Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.</span>
+<span class="sd">Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.</span>
+<span class="sd">Style: DIM, NORMAL, BRIGHT, RESET_ALL</span>
+
+<span class="sd">n.b. DIM is not assumed in win32</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># dir(ST)</span>
+
+<span class="c1"># order matters for items replaces forward to color</span>
+<span class="n">_tags</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;black&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">BLACK</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;red&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">RED</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;green&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">GREEN</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;yellow&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;blue&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">BLUE</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;magenta&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">MAGENTA</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;cyan&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">CYAN</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;white&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">WHITE</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;bright&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;normal&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;reset&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;info&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;header&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">BLUE</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;label&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">CYAN</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;success&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">GREEN</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;warning&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">RED</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;error&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;critical&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;OK&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;OK&quot;</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;KO&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;KO&quot;</span> <span class="o">+</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># _tagsNone = ((i, &quot;&quot;) for i,j in _tags) # to clean tags when log not tty</span>
+<span class="c1"># reversed order matters for item replaces backward to no color</span>
+<span class="n">_tagsNone</span> <span class="o">=</span> <span class="nb">reversed</span><span class="p">(</span> <span class="p">(</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;black&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;red&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;green&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;yellow&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;blue&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;magenta&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;cyan&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;white&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;bright&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;normal&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;reset&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;info&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;header&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;label&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;success&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;warning&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;error&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;critical&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;OK&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;KO&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;KO&quot;</span><span class="p">),</span>
+<span class="p">)</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;indent nb car (spaces) multi lines message except first one&quot;&quot;&quot;</span>
+  <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">car</span><span class="o">*</span><span class="n">nb</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;elementary log stdout for debug if _verbose&quot;&quot;&quot;</span>
+  <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.log: &quot;</span> <span class="o">%</span> <span class="n">_name</span>
+  <span class="n">nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">_verbose</span><span class="p">:</span> 
+    <span class="n">ini</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">toColor</span><span class="p">(</span><span class="n">ini</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="n">ini</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="n">res</span> <span class="o">+</span> <span class="n">toColor</span><span class="p">(</span><span class="s2">&quot;&lt;reset&gt;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="ColoringStream"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream">[docs]</a><span class="k">class</span> <span class="nc">ColoringStream</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  write my stream class</span>
+<span class="sd">  only write and flush are used for the streaming</span>
+<span class="sd">  https://docs.python.org/2/library/logging.handlers.html</span>
+<span class="sd">  https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="ColoringStream.write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">astr</span><span class="p">):</span>
+    <span class="c1"># log(&quot;UnittestStream.write(&#39;%s&#39;)&quot; % astr)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logs</span> <span class="o">+=</span> <span class="n">astr</span></div>
+
+<div class="viewcode-block" id="ColoringStream.flush"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream.flush">[docs]</a>  <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+  <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span></div>
+
+<div class="viewcode-block" id="toColor"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.toColor">[docs]</a><span class="k">def</span> <span class="nf">toColor</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  automatically clean the message of color tags &#39;&lt;red&gt; ... </span>
+<span class="sd">  if the terminal output stdout is redirected by user</span>
+<span class="sd">  if not, replace tags with ansi color codes</span>
+<span class="sd">  </span>
+<span class="sd">  example:</span>
+<span class="sd">  &gt;&gt; sat compile SALOME &gt; log.txt</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;isatty&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">()):</span>
+    <span class="c1"># clean the message color (if the terminal is redirected by user)</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tagsNone</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="cleanColors"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.cleanColors">[docs]</a><span class="k">def</span> <span class="nf">cleanColors</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;clean the message of color tags &#39;&lt;red&gt; ... &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tagsNone</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="toColor_AnsiToWin32"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.toColor_AnsiToWin32">[docs]</a><span class="k">def</span> <span class="nf">toColor_AnsiToWin32</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;for test debug no wrapping&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;isatty&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">()):</span>
+    <span class="c1"># clean the message color if the terminal is redirected by user</span>
+    <span class="c1"># ex: sat compile appli &gt; log.txt</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tagsNone</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">msgAnsi</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
+    <span class="n">streamOut</span> <span class="o">=</span> <span class="n">ColoringStream</span><span class="p">()</span>
+    <span class="n">atw</span> <span class="o">=</span> <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">streamOut</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">streamIn</span> <span class="o">=</span> <span class="n">atw</span><span class="o">.</span><span class="n">stream</span>
+    <span class="nb">print</span> <span class="s2">&quot;should_wrap&quot;</span><span class="p">,</span><span class="n">atw</span><span class="o">.</span><span class="n">should_wrap</span><span class="p">(),</span><span class="n">atw</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span><span class="n">atw</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span><span class="n">atw</span><span class="o">.</span><span class="n">autoreset</span>
+    <span class="n">streamIn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msgAnsi</span><span class="p">)</span>
+    <span class="c1">#AnsiToWin32(streamOut).write_and_convert(msgAnsi)</span>
+    <span class="c1"># print &quot;streamOut&quot;,str(streamOut)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">streamOut</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="replace"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.replace">[docs]</a><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+  <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span>
+  <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">s</span></div>
+  
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>  
+  <span class="c1">#log(FG.BLUE + &#39;blue text on stdout&#39;+ ST.RESET_ALL)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;import &lt;green&gt;colorama at &lt;blue&gt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CLRM</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;import &lt;green&gt;colorama&lt;reset&gt; in &lt;blue&gt;</span><span class="si">%s</span><span class="s2">: &lt;OK&gt;&quot;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;import &lt;green&gt;colorama&lt;reset&gt; in &lt;blue&gt;</span><span class="si">%s</span><span class="s2">: &lt;KO&gt;&quot;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;import &lt;green&gt;colorama in &lt;blue&gt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;set &lt;green&gt;green and not reset...&quot;</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;...and here is not green because appended reset at end of message&quot;</span><span class="p">)</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;dir(FG):</span><span class="se">\n</span><span class="s2">&lt;blue&gt;</span><span class="si">%s</span><span class="s2"> ... &lt;OK&gt; or &lt;KO&gt; ??&quot;</span> <span class="o">%</span> <span class="nb">dir</span><span class="p">(</span><span class="n">FG</span><span class="p">))</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;dir(ST):</span><span class="se">\n</span><span class="s2">&lt;blue&gt;</span><span class="si">%s</span><span class="s2"> ... &lt;OK&gt; or &lt;KO&gt; ??&quot;</span> <span class="o">%</span> <span class="nb">dir</span><span class="p">(</span><span class="n">ST</span><span class="p">))</span>
+
+  
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

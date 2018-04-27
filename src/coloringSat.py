@@ -158,8 +158,9 @@ def toColor(msg):
   automatically clean the message of color tags '<red> ... 
   if the terminal output stdout is redirected by user
   if not, replace tags with ansi color codes
+  
   example:
-    >> sat compile SALOME > log.txt
+  >> sat compile SALOME > log.txt
   """
   if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
     # clean the message color (if the terminal is redirected by user)

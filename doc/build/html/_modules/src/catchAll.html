@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.catchAll &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.catchAll</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-20xx CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">define class as a simple dictionary with keys</span>
+<span class="sd">with pretty print __str__ and __repr__ (indented as recursive)</span>
+<span class="sd">and jsonDumps()</span>
+
+<span class="sd">usage:</span>
+<span class="sd">  &gt;&gt; import catchAll as CAA</span>
+<span class="sd">  &gt;&gt; a = CAA.CatchAll()</span>
+<span class="sd">  &gt;&gt; a.tintin = &quot;reporter&quot;</span>
+<span class="sd">  &gt;&gt; a.milou = &quot;dog&quot;</span>
+<span class="sd">  &gt;&gt; print(&quot;a=%s&quot; % a)</span>
+<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="c1">########################################################################################</span>
+<span class="c1"># json utils</span>
+<span class="c1">########################################################################################</span>
+<div class="viewcode-block" id="dumper"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.dumper">[docs]</a><span class="k">def</span> <span class="nf">dumper</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;to json explore subclass object as dict&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span></div>
+
+<div class="viewcode-block" id="dumperType"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.dumperType">[docs]</a><span class="k">def</span> <span class="nf">dumperType</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    to get a &quot;_type&quot; to trace json subclass object,</span>
+<span class="sd">    but ignore all attributes begining with &#39;_&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">typeatt</span> <span class="o">=</span> <span class="s2">&quot;_type&quot;</span>
+    <span class="n">aDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="n">typeatt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">aDict</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">typeatt</span><span class="p">):</span> <span class="n">aDict</span><span class="p">[</span><span class="n">typeatt</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">return</span> <span class="n">aDict</span></div>
+
+<div class="viewcode-block" id="jsonDumps"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.jsonDumps">[docs]</a><span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;to get direct default jsonDumps method&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">dumperType</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<span class="c1">########################################################################################</span>
+<div class="viewcode-block" id="CatchAll"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.CatchAll">[docs]</a><span class="k">class</span> <span class="nc">CatchAll</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  class as simple dynamic dictionary </span>
+<span class="sd">  with predefined keys as properties in</span>
+<span class="sd">  inherited classes through __init__ method. Or NOT. </span>
+<span class="sd">  with pretty print __str__ and __repr__ (indented as recursive)</span>
+<span class="sd">  with jsonDumps()</span>
+<span class="sd">  </span>
+<span class="sd">  usage:</span>
+<span class="sd">  </span>
+<span class="sd">  &gt;&gt; import catchAll as CAA</span>
+<span class="sd">  &gt;&gt; a = CAA.CatchAll()</span>
+<span class="sd">  &gt;&gt; a.tintin = &quot;reporter&quot;</span>
+<span class="sd">  &gt;&gt; a.milou = &quot;dog&quot;</span>
+<span class="sd">  &gt;&gt; print(&quot;a=%s&quot; % a)</span>
+<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
+
+<span class="sd">  as</span>
+<span class="sd">  </span>
+<span class="sd">  &gt;&gt; a = {}</span>
+<span class="sd">  &gt;&gt; a[&quot;tintin&quot;] = &quot;reporter&quot;</span>
+<span class="sd">  &gt;&gt; a[&quot;milou&quot;] = &quot;dog&quot;</span>
+<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a[&quot;tintin&quot;]</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="k">def</span> <span class="nf">__repr__asList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    goal is to be unambiguous</span>
+<span class="sd">    an ordered list representation is better for test (and visualize) (in)equality</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+      <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+        <span class="n">aList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>  <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="n">aList</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;goal is to be unambiguous, easy human readeable&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reprIndent</span><span class="p">()</span>
+  
+  <span class="k">def</span> <span class="nf">_reprIndent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">newIndent</span> <span class="o">=</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">2</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+      <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+        <span class="n">kk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">CatchAll</span><span class="p">,</span> <span class="n">kk</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+          <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">*</span><span class="n">newIndent</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">kk</span><span class="o">.</span><span class="n">_reprIndent</span><span class="p">(</span><span class="n">newIndent</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">skk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indent</span><span class="p">(</span><span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">kk</span><span class="p">),</span> <span class="n">newIndent</span><span class="p">)</span>
+          <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">*</span><span class="n">newIndent</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">skk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">res</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+  
+  <span class="k">def</span> <span class="nf">_indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">indent</span><span class="p">):</span>
+    <span class="n">txts</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">*</span><span class="n">indent</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">txts</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">txt</span>
+    
+
+<div class="viewcode-block" id="CatchAll.jsonDumps"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.CatchAll.jsonDumps">[docs]</a>  <span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jsonDumps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

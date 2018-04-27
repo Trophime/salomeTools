@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.loggingSat &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.loggingSat</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">http://sametmax.com/ecrire-des-logs-en-python/</span>
+<span class="sd">https://docs.python.org/3/library/time.html#time.strftime</span>
+
+<span class="sd">use logging package for salometools</span>
+
+<span class="sd">handler:</span>
+<span class="sd">  on info() no format</span>
+<span class="sd">  on other formatted indented on multi lines messages</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+<span class="kn">import</span> <span class="nn">src.coloringSat</span> <span class="k">as</span> <span class="nn">COLS</span>
+
+<span class="n">_verbose</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;loggingSat&quot;</span>
+
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;indent nb car (spaces) multi lines message except first one&quot;&quot;&quot;</span>
+  <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">car</span><span class="o">*</span><span class="n">nb</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="indentUnittest"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.indentUnittest">[docs]</a><span class="k">def</span> <span class="nf">indentUnittest</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot; | &quot;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  indent car multi lines message except first one</span>
+<span class="sd">  car default is less spaces for size logs files</span>
+<span class="sd">  keep human readable</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">prefix</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;elementary log when no logger yet&quot;&quot;&quot;</span>
+  <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.log: &quot;</span> <span class="o">%</span> <span class="n">_name</span>
+  <span class="n">nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">_verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">))</span></div>
+
+<span class="n">log</span><span class="p">(</span><span class="s2">&quot;import logging on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">logging</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+
+<span class="n">_loggerDefaultName</span> <span class="o">=</span> <span class="s1">&#39;SatDefaultLogger&#39;</span>
+<span class="n">_loggerUnittestName</span> <span class="o">=</span> <span class="s1">&#39;SatUnittestLogger&#39;</span>
+
+
+<div class="viewcode-block" id="getDefaultLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.getDefaultLogger">[docs]</a><span class="k">def</span> <span class="nf">getDefaultLogger</span><span class="p">():</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;getDefaultLogger </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_loggerDefaultName</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">_loggerDefaultName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getUnittestLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.getUnittestLogger">[docs]</a><span class="k">def</span> <span class="nf">getUnittestLogger</span><span class="p">():</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;getUnittestLogger </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_loggerUnittestName</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">_loggerUnittestName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dirLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.dirLogger">[docs]</a><span class="k">def</span> <span class="nf">dirLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">):</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;dir(logger name=</span><span class="si">%s</span><span class="s1">):</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">logger</span><span class="p">)))</span></div>
+
+<span class="n">_loggerDefault</span> <span class="o">=</span> <span class="n">getDefaultLogger</span><span class="p">()</span>
+<span class="n">_loggerUnittest</span> <span class="o">=</span> <span class="n">getUnittestLogger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="DefaultFormatter"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.DefaultFormatter">[docs]</a><span class="k">class</span> <span class="nc">DefaultFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+  
+  <span class="c1"># to set color prefix, problem with indent format</span>
+  <span class="n">_ColorLevelname</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;blue&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;green&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;red&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;yellow&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;yellow&gt;&quot;</span><span class="p">,</span>
+  <span class="p">}</span>
+  
+<div class="viewcode-block" id="DefaultFormatter.format"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.DefaultFormatter.format">[docs]</a>  <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span> <span class="o">==</span> <span class="s2">&quot;INFO&quot;</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1">#record.levelname = self.setColorLevelname(record.levelname)</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="n">indent</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">DefaultFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">COLS</span><span class="o">.</span><span class="n">toColor</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="DefaultFormatter.setColorLevelname"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.DefaultFormatter.setColorLevelname">[docs]</a>  <span class="k">def</span> <span class="nf">setColorLevelname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">levelname</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ColorLevelname</span><span class="p">[</span><span class="n">levelname</span><span class="p">]</span> <span class="o">+</span> <span class="n">levelname</span> <span class="o">+</span> <span class="s2">&quot;&lt;reset&gt;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="UnittestFormatter"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestFormatter">[docs]</a><span class="k">class</span> <span class="nc">UnittestFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+<div class="viewcode-block" id="UnittestFormatter.format"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestFormatter.format">[docs]</a>  <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+    <span class="c1"># print &quot;&quot;, record.levelname #type(record), dir(record)</span>
+    <span class="c1"># nb = len(&quot;2018-03-17 12:15:41 :: INFO     :: &quot;)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">indentUnittest</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">UnittestFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="s2">&quot; | &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">COLS</span><span class="o">.</span><span class="n">toColor</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="UnittestStream"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestStream">[docs]</a><span class="k">class</span> <span class="nc">UnittestStream</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  write my stream class</span>
+<span class="sd">  only write and flush are used for the streaming</span>
+<span class="sd">  https://docs.python.org/2/library/logging.handlers.html</span>
+<span class="sd">  https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    
+<div class="viewcode-block" id="UnittestStream.getLogs"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestStream.getLogs">[docs]</a>  <span class="k">def</span> <span class="nf">getLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span></div>
+  
+<div class="viewcode-block" id="UnittestStream.getLogsAndClear"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestStream.getLogsAndClear">[docs]</a>  <span class="k">def</span> <span class="nf">getLogsAndClear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="UnittestStream.write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestStream.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">astr</span><span class="p">):</span>
+    <span class="c1"># log(&quot;UnittestStream.write(&#39;%s&#39;)&quot; % astr)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span> <span class="o">+=</span> <span class="n">astr</span></div>
+
+<div class="viewcode-block" id="UnittestStream.flush"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.UnittestStream.flush">[docs]</a>  <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+  <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logs</span></div>
+
+
+<div class="viewcode-block" id="initLoggerAsDefault"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.initLoggerAsDefault">[docs]</a><span class="k">def</span> <span class="nf">initLoggerAsDefault</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  init logger as prefixed message and indented message if multi line</span>
+<span class="sd">  exept info() outed &#39;as it&#39; without any format</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;initLoggerAsDefault name=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">fmt=&#39;</span><span class="si">%s</span><span class="s2">&#39; level=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">level</span><span class="p">))</span>
+  <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span> <span class="c1"># Logging vers console</span>
+  <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># formatter = logging.Formatter(fmt, &quot;%Y-%m-%d %H:%M:%S&quot;)</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">DefaultFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="s2">&quot;%y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span></div>
+
+  
+<div class="viewcode-block" id="initLoggerAsUnittest"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.initLoggerAsUnittest">[docs]</a><span class="k">def</span> <span class="nf">initLoggerAsUnittest</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  init logger as silent on stdout/stderr</span>
+<span class="sd">  used for retrieve messages in memory for post execution unittest</span>
+<span class="sd">  https://docs.python.org/2/library/logging.handlers.html</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;initLoggerAsUnittest name=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">fmt=&#39;</span><span class="si">%s</span><span class="s2">&#39; level=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">level</span><span class="p">))</span>
+  <span class="n">stream</span> <span class="o">=</span> <span class="n">UnittestStream</span><span class="p">()</span>
+  <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span> <span class="c1"># Logging vers stream</span>
+  <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># formatter = logging.Formatter(fmt, &quot;%Y-%m-%d %H:%M:%S&quot;)</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">UnittestFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">getLogs</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">getLogs</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">getLogsAndClear</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">getLogsAndClear</span>
+  <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span></div>
+
+  
+<div class="viewcode-block" id="testLogger_1"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.loggingSat.testLogger_1">[docs]</a><span class="k">def</span> <span class="nf">testLogger_1</span><span class="p">(</span><span class="n">logger</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;small test&quot;&quot;&quot;</span>
+  <span class="c1"># dirLogger(logger)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;test logger debug&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;test logger info&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;test logger warning&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;test logger error&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;test logger critical&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">test logger info: no indent</span><span class="se">\n</span><span class="s1">- second line</span><span class="se">\n</span><span class="s1">- third line</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+  <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;test logger warning:</span><span class="se">\n</span><span class="s1">- second line</span><span class="se">\n</span><span class="s1">- third line&#39;</span><span class="p">)</span></div>
+
+  
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**** DEFAULT logger&quot;</span><span class="p">)</span>
+  <span class="n">logdef</span> <span class="o">=</span> <span class="n">getDefaultLogger</span><span class="p">()</span>
+  <span class="c1"># problem if add +2? if append 2 setColorLevelname &lt;color&gt;&lt;reset&gt;, not fixed</span>
+  <span class="n">initLoggerAsDefault</span><span class="p">(</span><span class="n">logdef</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%(levelname)-8s</span><span class="s1"> :: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+  <span class="n">testLogger_1</span><span class="p">(</span><span class="n">logdef</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**** UNITTEST logger&quot;</span><span class="p">)</span>
+  <span class="n">loguni</span> <span class="o">=</span> <span class="n">getUnittestLogger</span><span class="p">()</span>
+  <span class="n">initLoggerAsUnittest</span><span class="p">(</span><span class="n">loguni</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> :: </span><span class="si">%(levelname)-8s</span><span class="s1"> :: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+  <span class="n">testLogger_1</span><span class="p">(</span><span class="n">loguni</span><span class="p">)</span> <span class="c1"># is silent</span>
+  <span class="c1"># log(&quot;loguni.streamUnittest:\n%s&quot; % loguni.streamUnittest)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loguni.streamUnittest:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">loguni</span><span class="o">.</span><span class="n">streamUnittest</span><span class="p">)</span>
+  
+  <span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Fore</span> <span class="k">as</span> <span class="n">FG</span>
+  <span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Style</span> <span class="k">as</span> <span class="n">ST</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;this is </span><span class="si">%s</span><span class="s2">colored in green</span><span class="si">%s</span><span class="s2"> !!!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">FG</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">))</span>
+  
+<span class="k">else</span><span class="p">:</span>  
+  <span class="n">_loggerDefault</span> <span class="o">=</span> <span class="n">getDefaultLogger</span><span class="p">()</span>
+  <span class="n">_loggerUnittest</span> <span class="o">=</span> <span class="n">getUnittestLogger</span><span class="p">()</span>
+  <span class="n">initLoggerAsDefault</span><span class="p">(</span><span class="n">_loggerDefault</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%(levelname)-8s</span><span class="s1"> :: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+  <span class="n">initLoggerAsUnittest</span><span class="p">(</span><span class="n">_loggerUnittest</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> :: </span><span class="si">%(levelname)-8s</span><span class="s1"> :: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

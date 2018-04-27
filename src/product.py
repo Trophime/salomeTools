@@ -30,7 +30,8 @@ config_expression = "^config-\d+$"
 VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
-    '''Get the specific configuration of a product from the global configuration
+    """\
+    Get the specific configuration of a product from the global configuration
     
     :param config Config: The global configuration
     :param product_name str: The name of the product
@@ -39,7 +40,7 @@ def get_product_config(config, product_name, with_install_dir=True):
                                      of the function check_config_exists)
     :return: the specific configuration of the product
     :rtype: Config
-    '''
+    """
     
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
@@ -119,9 +120,8 @@ def get_product_config(config, product_name, with_install_dir=True):
             if version == "native":
                 prod_info.get_source = "native"
             elif prod_info.get_source == "native":
-                msg = _("The product %(prod)s has version %(ver)s but is "
-                        "declared as native in its definition") % \
-                      {'prod': prod_info.name, 'ver': version}
+                msg = _("The product %s has version %s but is declared as native in its definition") % \
+                      (prod_info.name, version)
                 raise Exception(msg)
 
     # If there is no definition but the product is declared as native,
@@ -334,20 +334,16 @@ def get_product_section(config, product_name, version, section=None):
     return None
     
 def get_install_dir(config, base, version, prod_info):
-    '''Compute the installation directory of a given product 
+    """\
+    Compute the installation directory of a given product 
     
     :param config Config: The global configuration
-    :param base str: This corresponds to the value given by user in its 
-                     application.pyconf for the specific product. If "yes", the
-                    user wants the product to be in base. If "no", he wants the
-                    product to be in the application workdir
+    :param base str: This corresponds to the value given by user in its application.pyconf for the specific product. If "yes", the user wants the product to be in base. If "no", he wants the product to be in the application workdir
     :param version str: The version of the product
-    :param product_info Config: The configuration specific to 
-                               the product
-    
+    :param product_info Config: The configuration specific to the product
     :return: The path of the product installation
     :rtype: str
-    '''
+    """
     install_dir = ""
     in_base = False
     if (("install_dir" in prod_info and prod_info.install_dir == "base") 

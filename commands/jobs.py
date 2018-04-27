@@ -292,8 +292,9 @@ Use the --list option to get the possible files.\n""") % config_file
   
 
 class Machine(object):
-    '''Class to manage a ssh connection on a machine
-    '''
+    """\
+    Manage a ssh connection on a machine
+    """
     def __init__(self,
                  name,
                  host,
@@ -315,9 +316,8 @@ class Machine(object):
     def connect(self, logger):
         '''Initiate the ssh connection to the remote machine
         
-        :param logger src.logger.Logger: The logger instance 
+        :param logger: The logger instance 
         :return: Nothing
-        :rtype: N\A
         '''
 
         self._connection_successful = False
@@ -347,7 +347,7 @@ class Machine(object):
         """\
         Verify if the connection to the remote machine has succeed
         
-        :param logger src.logger.Logger: The logger instance 
+        :param logger: The logger instance 
         :return: True if the connection has succeed, False if not
         :rtype: bool
         """
@@ -422,7 +422,7 @@ whereas there were no connection request""" % \
         '''Execute the command on the remote machine
         
         :param command str: The command to be run
-        :param logger src.logger.Logger: The logger instance 
+        :param logger: The logger instance 
         :return: the stdin, stdout, and stderr of the executing command,
                  as a 3-tuple
         :rtype: (paramiko.channel.ChannelFile, paramiko.channel.ChannelFile,
@@ -458,7 +458,7 @@ whereas there were no connection request""" % \
         Prints the informations relative to the machine in the logger 
         (terminal traces and log file)
         
-        :param logger src.logger.Logger: The logger instance
+        :param logger: The logger instance
         :return: Nothing
         :rtype: N\A
         """

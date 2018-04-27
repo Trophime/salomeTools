@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.returnCode &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.returnCode</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2018-20xx  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file contains ReturnCode class</span>
+<span class="sd">usage:</span>
+<span class="sd">&gt;&gt; import returnCode as RCO</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+
+<span class="c1">#####################################################</span>
+<div class="viewcode-block" id="ReturnCode"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode">[docs]</a><span class="k">class</span> <span class="nc">ReturnCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  assume simple return code for methods, with explanation as &#39;why&#39;</span>
+<span class="sd">  obviously why is why it is not OK, </span>
+<span class="sd">  but also why is why it is OK (if you want). </span>
+<span class="sd">  and optionnaly contains a return value as self.getValue()</span>
+<span class="sd">  </span>
+<span class="sd">  usage:</span>
+<span class="sd">    &gt;&gt; import returnCode as RCO</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt; aValue = doSomethingToReturn()</span>
+<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is no problem here&quot;, aValue)</span>
+<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is a problem here because etc&quot;, None)</span>
+<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;TIMEOUT_STATUS&quot;, &quot;too long here because etc&quot;)</span>
+<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;NA&quot;, &quot;not applicable here because etc&quot;)</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt; rc = doSomething()</span>
+<span class="sd">    &gt;&gt; print(&quot;short returnCode string&quot;, str(rc))</span>
+<span class="sd">    &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rc))</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)</span>
+<span class="sd">    &gt;&gt; rc2 = RCO.ReturnCode(&quot;KO&quot;, ...)</span>
+<span class="sd">    &gt;&gt; rcFinal = rc1 + rc2</span>
+<span class="sd">    &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">OK_STATUS</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
+  <span class="n">KO_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KO&quot;</span>
+  <span class="n">NA_STATUS</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span> <span class="c1"># not applicable</span>
+  <span class="n">UNKNOWN_STATUS</span> <span class="o">=</span> <span class="s2">&quot;ND&quot;</span> <span class="c1"># not defined</span>
+  <span class="n">KNOWNFAILURE_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KF&quot;</span>
+  <span class="n">TIMEOUT_STATUS</span> <span class="o">=</span> <span class="s2">&quot;TIMEOUT&quot;</span>
+
+  <span class="c1"># integer for sys.exit(anInt)</span>
+  <span class="c1"># OKSYS and KOSYS seems equal on linux or windows</span>
+  <span class="n">OKSYS</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># OK </span>
+  <span class="n">KOSYS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># KO</span>
+  <span class="n">NASYS</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># KO not applicable return code</span>
+  <span class="n">NDSYS</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># KO not defined return code</span>
+  <span class="n">KFSYS</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># KO known failure return code</span>
+  <span class="n">TOSYS</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># KO time out</span>
+  
+  <span class="n">_TOSYS</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="n">OK_STATUS</span><span class="p">:</span> <span class="n">OKSYS</span><span class="p">,</span>
+    <span class="n">KO_STATUS</span><span class="p">:</span> <span class="n">KOSYS</span><span class="p">,</span>
+    <span class="n">NA_STATUS</span><span class="p">:</span> <span class="n">NASYS</span><span class="p">,</span>
+    <span class="n">UNKNOWN_STATUS</span><span class="p">:</span> <span class="n">NDSYS</span><span class="p">,</span>
+    <span class="n">KNOWNFAILURE_STATUS</span><span class="p">:</span> <span class="n">KFSYS</span><span class="p">,</span>
+    <span class="n">TIMEOUT_STATUS</span><span class="p">:</span> <span class="n">TOSYS</span><span class="p">,</span> 
+  <span class="p">}</span>
+  <span class="n">_DEFAULT_WHY</span> <span class="o">=</span> <span class="s2">&quot;No given explanation&quot;</span>
+  <span class="n">_DEFAULT_VALUE</span> <span class="o">=</span> <span class="s2">&quot;Not set&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">why</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_why</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_WHY</span> 
+    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_VALUE</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNKNOWN_STATUS</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">setStatus</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">why</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;complete with value, &#39;ok, why, value&#39; message&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: &quot;</span><span class="si">%s</span><span class="s1">&quot; for value: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span><span class="p">,</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span>
+  
+  <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;without value, only simple &#39;ok, why&#39; message&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+<div class="viewcode-block" id="ReturnCode.indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.indent">[docs]</a>  <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ch</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;indent multi lines message&quot;&quot;&quot;</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="n">amount</span> <span class="o">*</span> <span class="n">ch</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padding</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="n">amount</span><span class="p">:]</span></div>
+
+  <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rc2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;allows expression &#39;returnCode1 + returnCode2 + ...&#39; &quot;&quot;&quot;</span>
+    <span class="n">isOk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isOk</span><span class="p">()</span> <span class="ow">and</span> <span class="n">rc2</span><span class="o">.</span><span class="n">isOk</span><span class="p">()</span>
+    <span class="n">newWhy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getWhy</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toList</span><span class="p">(</span><span class="n">rc2</span><span class="o">.</span><span class="n">getWhy</span><span class="p">())</span>
+    <span class="n">newValue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toList</span><span class="p">(</span><span class="n">rc2</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span>    
+    <span class="k">if</span> <span class="n">isOk</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="n">newWhy</span><span class="p">,</span> <span class="n">newValue</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">newWhy</span><span class="p">,</span> <span class="n">newValue</span> <span class="p">)</span> 
+    
+  <span class="k">def</span> <span class="nf">_toList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strOrList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;internal use&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">strOrList</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="p">[</span><span class="n">strOrList</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">strOrList</span>
+
+<div class="viewcode-block" id="ReturnCode.toSys"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.toSys">[docs]</a>  <span class="k">def</span> <span class="nf">toSys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">NA_STATUS</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="ReturnCode.getWhy"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.getWhy">[docs]</a>  <span class="k">def</span> <span class="nf">getWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span></div>
+    
+<div class="viewcode-block" id="ReturnCode.setWhy"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setWhy">[docs]</a>  <span class="k">def</span> <span class="nf">setWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">why</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_why</span> <span class="o">=</span> <span class="n">why</span></div>
+    
+<div class="viewcode-block" id="ReturnCode.getValue"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.getValue">[docs]</a>  <span class="k">def</span> <span class="nf">getValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div>
+    
+<div class="viewcode-block" id="ReturnCode.setValue"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setValue">[docs]</a>  <span class="k">def</span> <span class="nf">setValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span></div>
+    
+<div class="viewcode-block" id="ReturnCode.setStatus"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setStatus">[docs]</a>  <span class="k">def</span> <span class="nf">setStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">why</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">why</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> 
+      <span class="n">aWhy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_WHY</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">aWhy</span> <span class="o">=</span> <span class="n">why</span>
+      
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_why</span> <span class="o">=</span> <span class="n">aWhy</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NA_STATUS</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_why</span> <span class="o">=</span> <span class="s2">&quot;Error status &#39;</span><span class="si">%s</span><span class="s2">&#39; for &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">aWhy</span><span class="p">)</span>
+      
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_VALUE</span></div>
+
+<div class="viewcode-block" id="ReturnCode.isOk"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.isOk">[docs]</a>  <span class="k">def</span> <span class="nf">isOk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

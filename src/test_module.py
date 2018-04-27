@@ -654,9 +654,9 @@ class Test:
             sp = "." * (35 - len(script_info.name))
             self.logger.info(self.write_test_margin(3))
             self.logger.info("script %s %s %s %s\n" % \
-                (UTS.label(script_info.name),sp,script_info.res,exectime)
+                (UTS.label(script_info.name), sp, script_info.res, exectime))
             if script_info and len(callback) > 0:
-                self.logger.error("Exception in %s\n%s\n" % \
+                self.logger.error("Exception in %s\n%s" % \
                     (script_info.name, UTS.red(callback)))
 
             if script_info.res == src.OK_STATUS:
@@ -717,7 +717,7 @@ class Test:
         for session_ in sessions:
             if not os.path.exists(os.path.join(grid_path, session_)):
                 self.logger.info(self.write_test_margin(2))
-                self.logger.warning("Session %s not found" % session_))
+                self.logger.warning("Session %s not found" % session_)
             else:
                 self.currentsession = session_
                 self.run_session_tests()
@@ -735,7 +735,7 @@ class Test:
         DBG.tofix("fix what the hell is the pythonpath ?", os.environ['PYTHONPATH'], True)
         
         os.environ['TT_BASE_RESSOURCES'] = res_dir
-        logger.debug("  %s = %s\n" % ("TT_BASE_RESSOURCES", res_dir)
+        logger.debug("  %s = %s\n" % ("TT_BASE_RESSOURCES", res_dir))
 
         self.logger.info(self.write_test_margin(0))
         testbase_label = "Test base = %s\n" % UTS.label(self.currentTestBase)
@@ -778,7 +778,7 @@ class Test:
         for grid in grids:
             if not os.path.exists(os.path.join(self.currentDir, grid)):
                 self.logger.info(self.write_test_margin(1))
-                self.logger.error("grid %s does not exist" % grid))
+                self.logger.error("grid %s does not exist" % grid)
             else:
                 self.currentgrid = grid
                 self.run_grid_tests()
@@ -793,10 +793,10 @@ class Test:
             if not os.path.exists(script):
                 self.logger.warning("script not found: %s" % script)
             else:
-                self.logger.info("----------- start %s\n" % script_name))
+                self.logger.info("----------- start %s\n" % script_name)
                 self.logger.info("Run script: %s\n" % script)
                 subprocess.Popen(script, shell=True).wait()
-                self.logger.info("----------- end %s\n" % script_name))
+                self.logger.info("----------- end %s\n" % script_name)
 
     def run_all_tests(self):
         initTime = datetime.datetime.now()
