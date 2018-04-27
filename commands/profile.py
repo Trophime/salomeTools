@@ -214,9 +214,7 @@ def update_pyconf( config, options, logger ):
     #Save previous version
     pyconf = config.VARS.product + '.pyconf'
     pyconfBackup = config.VARS.product + '-backup.pyconf'
-    logger.write(
-      _("Updating %(new)s (previous version saved as %(old)s)." ) % \
-      { "new": pyconf, "old": pyconfBackup }, 3)
+    logger.info( _("Updating %s (previous version saved as %s." ) % (pyconf, pyconfBackup)
     path = config.getPath( pyconf )
     shutil.copyfile( os.path.join( path, pyconf ),
                      os.path.join( path, pyconfBackup ) )

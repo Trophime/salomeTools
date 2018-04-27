@@ -99,8 +99,7 @@ class Test:
                             symlinks=True)
 
     def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
-        self.logger.write(_("get test base from dir: %s\n") % \
-                          UTS.label(testbase_dir), 3)
+        self.logger.info(_("get test base from dir: %s\n") % UTS.label(testbase_dir))
         if not os.access(testbase_dir, os.X_OK):
             raise Exception(
               _("testbase %(name)s (%(dir)s) does not exist ...\n") % \
@@ -113,11 +112,8 @@ class Test:
                                   testbase_name,
                                   testbase_base,
                                   testbase_tag):
-        self.logger.write(
-            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % \
-              { "testbase" : UTS.label(testbase_name),
-                "tag" : UTS.label(testbase_tag) },
-            3)
+        self.logger.info( _("get test base '%s' with '%s' tag from git\n") % \
+                           (UTS.label(testbase_name), UTS.label(testbase_tag)) )
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -135,7 +131,7 @@ class Test:
                          'base': testbase_base,
                          'dir': testbase_name }
 
-            self.logger.write("> %s\n" % cmd, 5)
+            self.logger.debug("> %s" % cmd)
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
@@ -161,8 +157,7 @@ class Test:
             sys.exit(0)
 
     def prepare_testbase_from_svn(self, user, testbase_name, testbase_base):
-        self.logger.write(_("get test base '%s' from svn\n") %
-                          UTS.label(testbase_name), 3)
+        self.logger.info(_("get test base '%s' from svn\n") % UTS.label(testbase_name))
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -175,12 +170,12 @@ class Test:
                          'dir': testbase_name }
             
             # Get the application environment
-            self.logger.write(_("Set the application environment\n"), 5)
+            self.logger.debug(_("Set the application environment"))
             env_appli = src.environment.SalomeEnviron(self.config,
                                       src.environment.Environ(dict(os.environ)))
             env_appli.set_application_env(self.logger)
             
-            self.logger.write("> %s\n" % cmd, 5)
+            self.logger.debug("> %s" % cmd)
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
@@ -610,7 +605,7 @@ class Test:
                 log=logWay,
                 delaiapp=time_out_salome)
 
-        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed), 5)
+        self.logger.debug("status = %s, elapsed = %s\n" % (status, elapsed))
 
         # create the test result to add in the config object
         test_info = PYCONF.Mapping(self.config)
@@ -681,9 +676,8 @@ class Test:
     # Runs all tests of a session.
     def run_session_tests(self):
        
-        self.logger.write(self.write_test_margin(2), 3)
-        self.logger.write("Session = %s\n" % \
-             UTS.label(self.currentsession), 3, False)
+        self.logger.info(self.write_test_margin(2))
+        self.logger.info("Session = %s\n" % UTS.label(self.currentsession))
 
         # prepare list of tests to run
         tests = os.listdir(os.path.join(self.currentDir,
@@ -704,9 +698,8 @@ class Test:
     ##
     # Runs all tests of a grid.
     def run_grid_tests(self):
-        self.logger.write(self.write_test_margin(1), 3)
-        self.logger.write("grid = %s\n" % \
-             UTS.label(self.currentgrid), 3, False)
+        self.logger.info(self.write_test_margin(1))
+        self.logger.info("grid = %s\n" % UTS.label(self.currentgrid))
 
         grid_path = os.path.join(self.currentDir, self.currentgrid)
 
@@ -723,9 +716,8 @@ class Test:
         sessions = sorted(sessions, key=str.lower)
         for session_ in sessions:
             if not os.path.exists(os.path.join(grid_path, session_)):
-                self.logger.write(self.write_test_margin(2), 3)
-                self.logger.write(
-                     UTS.red("Session %s not found" % session_) + "\n", 3, False)
+                self.logger.info(self.write_test_margin(2))
+                self.logger.warning("Session %s not found" % session_))
             else:
                 self.currentsession = session_
                 self.run_session_tests()
@@ -744,26 +736,23 @@ class Test:
         
         os.environ['TT_BASE_RESSOURCES'] = res_dir
         logger.debug("  %s = %s\n" % ("TT_BASE_RESSOURCES", res_dir)
-        self.logger.write("\n", 4, False)
 
-        self.logger.write(self.write_test_margin(0), 3)
+        self.logger.info(self.write_test_margin(0))
         testbase_label = "Test base = %s\n" % UTS.label(self.currentTestBase)
-        self.logger.write(testbase_label, 3, False)
-        self.logger.write("-" * len(UTS.cleancolor(testbase_label)), 3)
-        self.logger.write("\n", 3, False)
+        self.logger.info(testbase_label)
+        self.logger.info("-" * len(UTS.cleancolor(testbase_label)))
 
         # load settings
         settings_file = os.path.join(res_dir, "test_settings.py")
         if os.path.exists(settings_file):
             gdic, ldic = {}, {}
             execfile(settings_file, gdic, ldic)
-            self.logger.write(_("Load test settings\n"), 3)
+            self.logger.info(_("Load test settings"))
             self.settings = ldic['settings_dic']
             self.ignore_tests = ldic['known_failures_list']
             if isinstance(self.ignore_tests, list):
                 self.ignore_tests = {}
-                self.logger.write(UTS.red("known_failur"
-                  "es_list must be a dictionary (not a list)") + "\n", 1, False)
+                self.logger.error("known failures must be a dictionary (not a list)")
         else:
             self.ignore_tests = {}
             self.settings.clear()
@@ -782,18 +771,14 @@ class Test:
             grids = self.grids # given by user
         else:
             # select all the grids (i.e. directories) in the directory
-            grids = filter(lambda l: l not in C_IGNORE_GRIDS,
-                             os.listdir(self.currentDir))
-            grids = filter(lambda l: os.path.isdir(
-                                        os.path.join(self.currentDir, l)),
-                             grids)
+            grids = filter(lambda l: l not in C_IGNORE_GRIDS, os.listdir(self.currentDir))
+            grids = filter(lambda l: os.path.isdir(os.path.join(self.currentDir, l)), grids)
 
         grids = sorted(grids, key=str.lower)
         for grid in grids:
             if not os.path.exists(os.path.join(self.currentDir, grid)):
-                self.logger.write(self.write_test_margin(1), 3)
-                self.logger.write(UTS.red(
-                            "grid %s does not exist\n" % grid), 3, False)
+                self.logger.info(self.write_test_margin(1))
+                self.logger.error("grid %s does not exist" % grid))
             else:
                 self.currentgrid = grid
                 self.run_grid_tests()
@@ -805,7 +790,6 @@ class Test:
             if len(script) == 0:
                 return
 
-            self.logger.write("\n", 2, False)
             if not os.path.exists(script):
                 self.logger.warning("script not found: %s" % script)
             else:
@@ -827,22 +811,20 @@ class Test:
         # calculate total execution time
         totalTime = datetime.datetime.now() - initTime
         totalTime -= datetime.timedelta(microseconds=totalTime.microseconds)
-        self.logger.write("\n\n" + _("=== END TESTS %s\n") % str(totalTime))
+        self.logger.info("\n\n" + _("=== END TESTS %s\n") % str(totalTime))
 
         # Start the tests
         self.run_script('test_cleanup')
-        self.logger.write("\n", 2, False)
 
         # evaluate results
-        res_count = "(%d/%d)" % \
-             (self.nb_succeed, self.nb_run - self.nb_acknoledge)
-
+        res_count = "(%d/%d)" % (self.nb_succeed, self.nb_run - self.nb_acknoledge)
         res_out = _("Tests Results: (%d/%d)\n") % (self.nb_succeed, self.nb_run)
+        
         if self.nb_succeed == self.nb_run:
-
             res_out = UTS.green(res_out)
         else:
             res_out = UTS.red(res_out)
+        
         self.logger.info(res_out)
 
         if self.nb_timeout > 0:

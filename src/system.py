@@ -157,7 +157,7 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
             { 'root': server, 'base': base, 'where': str(where.base()),
               'tag': opttag, 'product': product, 'command': cmd }
 
-    logger.write(command + "\n", 5)
+    logger.debug(command)
 
     if not where.dir().exists():
         where.dir().make()
@@ -214,7 +214,7 @@ def svn_extract(user,
     
     logger.logTxtFile.write(command + "\n")
     
-    logger.write(command + "\n", 5)
+    logger.debug(command)
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
     res = subprocess.call(command,

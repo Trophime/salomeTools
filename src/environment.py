@@ -305,10 +305,11 @@ class SalomeEnviron:
         self.python_lib1 = self.get('PYTHON_LIBDIR1')
 
     def get_names(self, lProducts):
-        """Get the products name to add in SALOME_MODULES environment variable
-           It is the name of the product, except in the case where the is a 
-           component name. And it has to be in SALOME_MODULES variable only 
-           if the product has the property has_salome_hui = "yes"
+        """\
+        Get the products name to add in SALOME_MODULES environment variable
+        It is the name of the product, except in the case where the is a 
+        component name. And it has to be in SALOME_MODULES variable only 
+        if the product has the property has_salome_hui = "yes"
         
         :param lProducts list: List of products to potentially add
         """
@@ -356,8 +357,9 @@ class SalomeEnviron:
                 self.add_line(1)       
 
     def set_salome_minimal_product_env(self, product_info, logger):
-        """Sets the minimal environment for a SALOME product.
-           xxx_ROOT_DIR and xxx_SRC_DIR
+        """\
+        Sets the minimal environment for a SALOME product.
+        xxx_ROOT_DIR and xxx_SRC_DIR
         
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages        
@@ -368,11 +370,9 @@ class SalomeEnviron:
             if 'install_dir' in product_info and product_info.install_dir:
                 self.set(root_dir, product_info.install_dir)
             elif not self.silent:
-                logger.write("  " + _("No install_dir for product %s\n") %
-                              product_info.name, 5)
+                logger.warning(_("No install_dir for product %s\n") % product_info.name)
         
-        source_in_package = src.get_property_in_product_cfg(product_info,
-                                                           "sources_in_package")
+        source_in_package = src.get_property_in_product_cfg(product_info, "sources_in_package")
         if not self.for_package or source_in_package == "yes":
             # set source dir, unless no source dir
             if not src.product.product_is_fixed(product_info):
@@ -381,9 +381,8 @@ class SalomeEnviron:
                     if not self.for_package:
                         self.set(src_dir, product_info.source_dir)
                     else:
-                        self.set(src_dir, os.path.join("out_dir_Path",
-                                                       "SOURCES",
-                                                       product_info.name))
+                        srcDir = os.path.join("out_dir_Path", "SOURCES", product_info.name)
+                        self.set(src_dir, srcDir)
 
     def set_salome_generic_product_env(self, pi):
         """Sets the generic environment for a SALOME product.
@@ -513,12 +512,10 @@ class SalomeEnviron:
         pi = src.product.get_product_config(self.cfg, product)
         
         if self.for_package:
-            pi.install_dir = os.path.join("out_dir_Path",
-                                          self.for_package,
-                                          pi.name)
+            pi.install_dir = os.path.join("out_dir_Path", self.for_package, pi.name)
 
         if not self.silent:
-            logger.write(_("Setting environment for %s\n") % product, 4)
+            logger.info(_("Setting environment for %s\n") % product)
 
         self.add_line(1)
         self.add_comment('setting environ for ' + product)
@@ -581,7 +578,8 @@ class SalomeEnviron:
             
 
     def run_env_script(self, product_info, logger=None, native=False):
-        """Runs an environment script. 
+        """\
+        Runs an environment script. 
         
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages
@@ -590,11 +588,10 @@ class SalomeEnviron:
         env_script = product_info.environ.env_script
         # Check that the script exists
         if not os.path.exists(env_script):
-            raise Exception(
-                _("Environment script not found: %s") % env_script)
+            raise Exception(_("Environment script not found: %s") % env_script)
 
         if not self.silent and logger is not None:
-            logger.write("  ** load %s\n" % env_script, 4)
+            logger.info("  ** load %s\n" % env_script)
 
         # import the script and run the set_env function
         try:
@@ -602,14 +599,12 @@ class SalomeEnviron:
             pyproduct = imp.load_source(product_info.name + "_env_script",
                                         env_script)
             if not native:
-                pyproduct.set_env(self,
-                                  product_info.install_dir,
-                                  product_info.version)
+                pyproduct.set_env(self, product_info.install_dir, product_info.version)
             else:
                 if "set_nativ_env" in dir(pyproduct):
                     pyproduct.set_nativ_env(self)
         except:
-            __, exceptionValue, exceptionTraceback = sys.exc_info()
+            tmp , exceptionValue, exceptionTraceback = sys.exc_info()
             print(exceptionValue)
             import traceback
             traceback.print_tb(exceptionTraceback)
@@ -626,11 +621,10 @@ class SalomeEnviron:
             return
         # Check that the script exists
         if not os.path.exists(script_path):
-            raise Exception(
-                _("Environment script not found: %s") % script_path)
+            raise Exception(_("Environment script not found: %s") % script_path)
 
         if not self.silent and logger is not None:
-            logger.write("  ** load %s\n" % script_path, 4)
+            logger.info("  ** load %s\n" % script_path)
 
         script_basename = os.path.basename(script_path)
         if script_basename.endswith(".py"):
@@ -690,14 +684,14 @@ class FileEnvWriter:
     """Class to dump the environment to a file.
     """
     def __init__(self, config, logger, out_dir, src_root, env_info=None):
-        '''Initialization.
+        """Initialization
 
         :param cfg Config: the global config
         :param logger Logger: The logger instance to display messages
         :param out_dir str: The directory path where t put the output files
         :param src_root str: The application working directory
         :param env_info str: The list of products to add in the files.
-        '''
+        """
         self.config = config
         self.logger = logger
         self.out_dir = out_dir
@@ -715,14 +709,11 @@ class FileEnvWriter:
         :rtype: str
         """
         if not self.silent:
-            self.logger.write(_("Create environment file %s\n") % 
-                              UTS.label(filename), 3)
+            self.logger.info(_("Create environment file %s\n") % UTS.label(filename))
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
-        tmp = src.fileEnviron.get_file_environ(env_file,
-                                               shell,
-                                               {})
+        tmp = src.fileEnviron.get_file_environ(env_file, shell, {})
         env = SalomeEnviron(self.config, tmp, forBuild, for_package=for_package)
         env.silent = self.silent
 
@@ -735,11 +726,10 @@ class FileEnvWriter:
             
             # The list of products to launch
             lProductsName = env.get_names(self.config.APPLICATION.products.keys())
-            env.set( "SALOME_MODULES",    ','.join(lProductsName))
+            env.set( "SALOME_MODULES", ','.join(lProductsName))
             
-            # set the products
-            env.set_products(self.logger,
-                            src_root=self.src_root)
+            # set the product
+            env.set_products(self.logger, src_root=self.src_root)
 
         # add cleanup and close
         env.finish(True)
@@ -762,8 +752,7 @@ class FileEnvWriter:
                                 designed for a package. 
         """
         if not self.silent:
-            self.logger.write(_("Create configuration file %s\n") % 
-                              UTS.label(filename.name), 3)
+            self.logger.info(_("Create configuration file %s\n") % UTS.label(filename.name))
 
         # create then env object
         tmp = src.fileEnviron.get_file_environ(filename, 
@@ -774,7 +763,7 @@ class FileEnvWriter:
                             tmp,
                             forBuild=False,
                             for_package=for_package,
-                            enable_simple_env_script = with_commercial)
+                            enable_simple_env_script=with_commercial)
         env.silent = self.silent
 
         if self.env_info is not None:
@@ -785,7 +774,7 @@ class FileEnvWriter:
 
             # The list of products to launch
             lProductsName = env.get_names(self.config.APPLICATION.products.keys())
-            env.set( "SALOME_MODULES",    ','.join(lProductsName))
+            env.set( "SALOME_MODULES", ','.join(lProductsName))
 
             # set the products
             env.set_products(self.logger,
@@ -800,14 +789,15 @@ class FileEnvWriter:
         env.finish(True)
 
 class Shell:
-    """Definition of a Shell.
+    """\
+    Definition of a Shell.
     """
     def __init__(self, name, extension):
-        '''Initialization.
+        """Initialization.
 
         :param name str: the shell name
         :param extension str: the shell extension
-        '''
+        """
         self.name = name
         self.extension = extension
 

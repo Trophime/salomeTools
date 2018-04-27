@@ -19,7 +19,7 @@ Here are the basic requirements that must be followed in this file in order to a
 Basic requirements
 ==================
 
-.. warning :: THIS IS OBSOLETE FOR SAT 5.1
+.. warning:: ALL THIS IS OBSOLETE FOR SAT 5.1
 
 By adding a file *mycommand.py* in the ``commands`` directory, salomeTools will define a new command named ``mycommand``.
 
@@ -91,19 +91,16 @@ The *runner* variable gives also access to other commands of salomeTools:
 HowTo logger
 ==============
 
-The logger variable is an instance of the Logger class. 
-It gives access to the write method.
+The logger variable is an instance of the python ``logging`` package class. 
+It gives access to ``debug, info, warning, error, critical`` methods.
 
-When this method is called, the message passed as parameter 
+Using these methods, the message passed as parameter 
 will be displayed in the terminal and written in an xml log file.
 
 .. code-block:: python
 
-    logger.write("My message", 3) # 3 as default
+    logger.info("My message")
 
-The second argument defines the level of verbosity 
-that is wanted for this message. 
-It has to be between 1 and 5 (the most verbose level).
 
 HELLO example
 ==============
