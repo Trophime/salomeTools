@@ -421,6 +421,12 @@ def info(msg):
 def header(msg):
     return "<info>"+msg+"<reset>"
 
+def label(msg):
+    return "<label>"+msg+"<reset>"
+
+def success(msg):
+    return "<success>"+msg+"<reset>"
+
 def warning(msg):
     return "<warning>"+msg+"<reset>"
 
@@ -493,11 +499,10 @@ def parse_date(date):
 
 
 ##############################################################################
-# log utilities (TODO: set in loggingSat class ? ...)
+# log utilities (TODO: set in loggingSat class, later, changing tricky xml ?
 ##############################################################################
 
-_log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
-        
+    
 def date_to_datetime(date):
     """\
     From a string date in format YYYYMMDD_HHMMSS
@@ -528,6 +533,9 @@ def timedelta_total_seconds(timedelta):
         timedelta.microseconds + 0.0 +
         (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
         
+_log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+_log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+
 def show_command_log(logFilePath, cmd, application, notShownCommands):
     """\
     Used in updateHatXml. 
@@ -547,13 +555,16 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     """
     # When the command is not in notShownCommands, no need to go further :
     # Do not show
+    
+    import src.xmlManager as XMLMGR # avoid import cross utilsSat
+    
     if cmd in notShownCommands:
         return RCO.ReturnCode("KO", "in notShownCommands", None)
  
     # Get the application of the log file
-    try:
-        logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
-    except Exception as e:
+    if True: #try:
+        logFileXml = XMLMGR.ReadXmlFile(logFilePath)
+    else: #except Exception as e:
         msg = _("The log file '%s' cannot be read:" % logFilePath)
         return RCO.ReturnCode("KO", msg, None)
 
@@ -624,9 +635,11 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     :param application str: the name of the application if there is any
     """
     # Create an instance of XmlLogFile class to create hat.xml file
+    
+    import src.xmlManager as XMLMGR # avoid import cross utilsSat 
+    
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath,
-                                    "LOGlist", {"application" : application})
+    xmlHat = XMLMGR.XmlLogFile(xmlHatFilePath, "LOGlist", {"application" : application})
     # parse the log directory to find all the command logs, 
     # then add it to the xml file
     lLogFile = list_log_file(logDir, _log_macro_command_file_expression)

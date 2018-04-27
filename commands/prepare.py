@@ -94,26 +94,28 @@ class Command(_BaseCommand):
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)
         if len(l_products_not_getted) > 0:
-            msg = _("Do not get the source of the following products in development mode\n"
-                    "  Use the --force option to overwrite it.\n")
-            logger.write(UTS.red(msg), 1)
+            msg = _("""\
+Do not get the source of the following products in development mode.
+Use the --force option to overwrite it.
+""")
+            logger.error(UTS.red(msg))
             args_product_opt_clean = remove_products(args_product_opt_clean,
                                                      l_products_not_getted,
                                                      logger)
-            logger.write("\n", 1)
 
     
     args_product_opt_patch = args_product_opt
     if not options.force_patch and len(ldev_products) > 0:
         l_products_with_patchs = find_products_with_patchs(ldev_products)
         if len(l_products_with_patchs) > 0:
-            msg = _("do not patch the following products in development mode\n"
-                    "  Use the --force_patch option to overwrite it.\n")
-            logger.write(UTS.red(msg), 1)
+            msg = _("""
+Do not patch the following products in development mode.
+Use the --force_patch option to overwrite it.
+""")
+            logger.error(UTS.red(msg))
             args_product_opt_patch = remove_products(args_product_opt_patch,
                                                      l_products_with_patchs,
                                                      logger)
-            logger.write("\n", 1)
 
     # Construct the final commands arguments
     args_clean = args_appli + args_product_opt_clean + " --sources"
@@ -138,25 +140,25 @@ class Command(_BaseCommand):
     # Call the commands using the API
     if do_clean:
         msg = _("Clean the source directories ...")
-        logger.write(msg, 3)
-        logger.flush()
+        logger.info(msg)
         DBG.tofix("args_clean and TODO remove returns", args_clean, True)
         res_clean = runner.getCommand("clean").run(args_clean)
         return res_clean + res_source + res_patch
     if do_source:
         msg = _("Get the sources of the products ...")
-        logger.write(msg, 5)
+        logger.debug(msg)
         res_source = runner.getCommand("source").run(args_source)
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
-        logger.write(msg, 5)
+        logger.debug(msg)
         res_patch = runner.getCommand("patch").run(args_patch)
     
     return res_clean + res_source + res_patch
 
 
 def remove_products(arguments, l_products_info, logger):
-    '''function that removes the products in l_products_info from arguments list.
+    """
+    function that removes the products in l_products_info from arguments list.
     
     :param arguments str: The arguments from which to remove products
     :param l_products_info list: List of 
@@ -164,14 +166,14 @@ def remove_products(arguments, l_products_info, logger):
     :param logger Logger: The logger instance to use for the display and logging
     :return: The updated arguments.
     :rtype: str
-    '''
+    """
     args = arguments
     for i, (product_name, __) in enumerate(l_products_info):
         args = args.replace(',' + product_name, '')
         end_text = ', '
         if i+1 == len(l_products_info):
             end_text = '\n'            
-        logger.write(product_name + end_text, 1)
+        logger.info(product_name + end_text)
     return args
 
 def find_products_already_getted(l_products):

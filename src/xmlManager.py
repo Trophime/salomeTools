@@ -16,6 +16,12 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""Utilities to read xml logging files
+
+usage:
+  >> import src.xmlManager as XMLMGR
+"""
+
 import os
 try: # For python2
     import sys
@@ -24,8 +30,8 @@ try: # For python2
 except:
     pass
 
-import src.utilsSat as UTS
 import src.ElementTree as etree
+import src.utilsSat as UTS
 
 class XmlLogFile(object):
     '''Class to manage writing in salomeTools xml log file

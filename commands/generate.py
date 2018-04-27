@@ -71,26 +71,25 @@ class Command(_BaseCommand):
     # Check that the command has been called with an application
     src.check_config_has_application(config)
     
-    logger.write(_('Generation of SALOME modules for application %s\n') % \
-        UTS.label(config.VARS.application), 1)
+    logger.info( _('Generation of SALOME modules for application %s\n') % \
+        UTS.label(config.VARS.application) )
 
     status = src.KO_STATUS
 
     # verify that YACSGEN is available
-    yacsgen_dir = check_yacsgen(config, options.yacsgen, logger)
+    returnCode = check_yacsgen(config, options.yacsgen, logger)
     
-    if isinstance(yacsgen_dir, tuple):
-        # The check failed
-        __, error = yacsgen_dir
-        msg = _("check yacsgen: %s\n") % error
-        logger.error(msg)
-        return 1
-    
+    if not returnCode.isOk():
+        logger.error(returnCode.getWhy())
+        return returnCode
+    else:
+        yacsgen_dir = returnCode.getValue()
+        
     # Make the generator module visible by python
     sys.path.insert(0, yacsgen_dir)
-
+    
     logger.info(" insert directory PATH %s = %s\n" % \
-                ("YACSGEN", UTS.blue(yacsgen_dir)
+                ("YACSGEN", UTS.blue(yacsgen_dir)) )
 
     products = config.APPLICATION.products
     if options.products:
@@ -100,19 +99,19 @@ class Command(_BaseCommand):
     nbgen = 0
 
     context = build_context(config, logger)
+    lprod = UTS.label(product)
     for product in products:
-        header = _("Generating %s") % UTS.label(product)
+        header = _("Generating %s") % lprod
         header += " %s " % ("." * (20 - len(product)))
-        logger.write(header, 3)
-        logger.flush()
+        logger.info(header)
 
         if product not in config.PRODUCTS:
-            logger.write(_("Unknown product\n"), 3, False)
+            logger.error(_("Unknown product %s") % lprod)
             continue
 
         pi = src.product.get_product_config(config, product)
         if not src.product.product_is_generated(pi):
-            logger.write(_("not a generated product\n"), 3, False)
+            logger.info(_("not a generated product %s") % lprod)
             continue
 
         nbgen += 1
@@ -125,19 +124,15 @@ class Command(_BaseCommand):
             result = _("ERROR: %s") % result
             details.append([product, result])
 
-    if len(details) == 0:
-        status = src.OK_STATUS
-    else: #if config.USER.output_level != 3:
-        logger.write("\n", 2, False)
-        logger.write(_("The following modules were not generated correctly:\n"), 2)
+    if len(details) != 0:
+        msg = _("The following modules were not generated correctly:\n")
         for d in details:
-            logger.write("  %s: %s\n" % (d[0], d[1]), 2, False)
-    logger.write("\n", 2, False)
+          msg += "  %s: %s\n" % (d[0], d[1])
+        logger.error(msg)
+        return RCO.ReturnCode("KO", msg)
+    else:
+        return RCO.ReturnCode("OK", "generate command done")
 
-    if status == src.OK_STATUS:
-        return 0
-    return len(details)
-  
 
 def generate_component_list(config, product_info, context, logger):
     res = "?"
@@ -201,7 +196,7 @@ def generate_component(config, compo, product_info, context, header, logger):
 
     # delete previous generated directory if it already exists
     if os.path.exists(compo_info.source_dir):
-        logger.write("  delete %s\n" % compo_info.source_dir, 4)
+        logger.debug("  delete %s" % compo_info.source_dir)
         shutil.rmtree(compo_info.source_dir)
 
     # generate generates in the current directory => change for generate dir
@@ -309,11 +304,9 @@ def build_context(config, logger):
         val = os.getenv(prod_env)
         if os.getenv(prod_env) is None:
             if p not in config.APPLICATION.products:
-                warn = _("product %(product)s is not defined. Include it in the"
-                         " application or define $%(env)s.") % \
-                    { "product": p, "env": prod_env}
-                logger.write(UTS.red(warn), 1)
-                logger.write("\n", 3, False)
+                msg = _("product %s is not defined. Include it in the application or define $%s.") % \
+                       (p, prod_env)
+                logger.error(UTS.red(msg))
                 val = ""
             val = ctxenv.environ.environ[prod_env]
         dicdir[p] = val
@@ -363,8 +356,7 @@ def check_yacsgen(config, directory, logger):
     :param config Config: The global configuration.
     :param directory str: The directory given by option --yacsgen
     :param logger Logger: The logger instance
-    :return: The path to yacsgen directory
-    :rtype: str
+    :return: RCO.ReturnCode with value The path to yacsgen directory if ok
     """
     # first check for YACSGEN (command option, then product, then environment)
     yacsgen_dir = None
@@ -381,31 +373,28 @@ def check_yacsgen(config, directory, logger):
         yacs_src = _("Using YACSGEN from environment")
 
     if yacsgen_dir is None:
-        return (False, _("The generate command requires YACSGEN."))
+        RCO.ReturnCode("KO", _("The generate command requires YACSGEN."))
     
-    logger.write("  %s\n" % yacs_src, 2, True)
-    logger.write("  %s\n" % yacsgen_dir, 5, True)
+    logger.info("  %s in %s" % (yacs_src, yacsgen_dir)
 
     if not os.path.exists(yacsgen_dir):
-        message = _("YACSGEN directory not found: '%s'") % yacsgen_dir
-        return (False, _(message))
+        msg = _("YACSGEN directory not found: '%s'") % yacsgen_dir
+        RCO.ReturnCode("KO", msg)
     
     # load module_generator
     c = check_module_generator(yacsgen_dir)
     if c is not None:
-        return c
+        return RCO.ReturnCode("OK", "check_module_generator on %s" % yacsgen_dir, c)
     
     pv = os.getenv("PYTHON_VERSION")
     if pv is None:
         python_info = src.product.get_product_config(config, "Python")
         pv = '.'.join(python_info.version.split('.')[:2])
     assert pv is not None, "$PYTHON_VERSION not defined"
-    yacsgen_dir = os.path.join(yacsgen_dir, "lib", "python%s" % pv,
-                               "site-packages")
+    yacsgen_dir = os.path.join(yacsgen_dir, "lib", "python%s" % pv, "site-packages")
     c = check_module_generator(yacsgen_dir)
     if c is not None:
-        return c
+        return RCO.ReturnCode("OK", "check_module_generator on %s" % yacsgen_dir, c)
 
-    return (False,
-            _("The python module module_generator was not found in YACSGEN"))
+    return RCO.ReturnCode("KO", _("The python module module_generator was not found in YACSGEN"))
 

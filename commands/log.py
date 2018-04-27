@@ -28,8 +28,9 @@ import stat
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
-from src.salomeTools import _BaseCommand
+import src.xmlManager as XMLMGR
 import src.system as SYSS
+from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -110,7 +111,7 @@ class Command(_BaseCommand):
     if options.clean:
         nbClean = options.clean
         # get the list of files to remove
-        lLogs = UTS.list_log_file(logDir, UTS.log_all_command_file_expression)
+        lLogs = UTS.list_log_file(logDir, UTS._log_all_command_file_expression)
         nbLogFiles = len(lLogs)
         # Delete all if the invoked number is bigger than the number of log files
         if nbClean > nbLogFiles:
@@ -204,8 +205,7 @@ class Command(_BaseCommand):
         # loop on all files and print it with date, time and command name 
         for __, date, hour, cmd, cmdAppli in lLogsFiltered:          
             num = UTS.label("%2d" % (nb_logs - index))
-            logger.write("%s: %13s %s %s %s\n" % 
-                         (num, cmd, date, hour, cmdAppli), 1, False)
+            logger.info("%s: %13s %s %s %s\n" % (num, cmd, date, hour, cmdAppli))
             index += 1
         
         # ask the user what for what command he wants to be displayed
@@ -273,8 +273,7 @@ def remove_log_file(filePath, logger):
     :param logger Logger: the logger instance to use for the print 
     '''
     if os.path.exists(filePath):
-        logger.write(UTS.red("Removing ")
-                     + filePath + "\n", 5)
+        logger.debug(UTS.red("Removing %s\n" % filePath))
         os.remove(filePath)
 
 def print_log_command_in_terminal(filePath, logger):
@@ -286,21 +285,21 @@ def print_log_command_in_terminal(filePath, logger):
     '''
     logger.debug(_("Reading %s\n") % filePath)
     # Instantiate the ReadXmlFile class that reads xml files
-    xmlRead = src.xmlManager.ReadXmlFile(filePath)
+    xmlRead = XMLMGR.ReadXmlFile(filePath)
     # Get the attributes containing the context (user, OS, time, etc..)
     dAttrText = xmlRead.get_attrib('Site')
     # format dAttrText and print the context
     lAttrText = []
     for attrib in dAttrText:
         lAttrText.append((attrib, dAttrText[attrib]))
-    logger.write("\n", 1)
+    
     UTS.logger_info_tuples(logger, lAttrText)
     # Get the traces
     command_traces = xmlRead.get_node_text('Log')
     # Print it if there is any
     if command_traces:
-        logger.info(UTS.header(_("Here are the command traces :\n")))
-        logger.info(command_traces + "\n" )
+      msg = _("Here are the command traces :\n%s\n") % command_traces
+      logger.info(msg)
         
 def getMaxFormat(aListOfStr, offset=1):
     """returns format for columns width as '%-30s"' for example"""
@@ -314,7 +313,7 @@ def show_last_logs(logger, config, log_dirs):
     # list the logs
     nb = len(log_dirs)
     fmt1, maxLen = getMaxFormat(log_dirs, offset=1)
-    fmt2 = "%s: " + fmt1 # "%s: %-30s" for example
+    fmt2 = "%s: " + fmt1 + "\n"  # "%s: %-30s\n" for example
     nb_cols = 5
     # line ~ no more 100 chars
     if maxLen > 20: nb_cols = 4
@@ -323,14 +322,15 @@ def show_last_logs(logger, config, log_dirs):
     if maxLen > 50: nb_cols = 1
     col_size = (nb / nb_cols) + 1
     for index in range(0, col_size):
+        msg = ""
         for i in range(0, nb_cols):
             k = index + i * col_size
             if k < nb:
                 l = log_dirs[k]
                 str_indice = UTS.label("%2d" % (k+1))
                 log_name = l
-                logger.write(fmt2 % (str_indice, log_name), 1, False)
-        logger.write("\n", 1, False)
+                msg += fmt2 % (str_indice, log_name)
+        logger.info(msg + "\n")
 
     # loop till exit
     x = -1
@@ -357,8 +357,8 @@ def show_product_last_logs(logger, config, product_log_dir):
         opt.append(str(datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME])))
         
         opt.append("(%8.2f)" % (my_stat[stat.ST_SIZE] / 1024.0))
-        logger.write(" %-35s" % " ".join(opt), 1, False)
-        logger.write("%s: %-30s\n" % (str_indice, file_name), 1, False)
+        logger.info(" %-35s" % " ".join(opt))
+        logger.info("%s: %-30s\n" % (str_indice, file_name))
         
     # loop till exit
     x = -1

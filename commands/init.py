@@ -76,8 +76,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
    
     # Print some informations
-    logger.write(_('Local Settings of SAT %s\n\n') % \
-                UTS.label(config.VARS.salometoolsway), 1)
+    logger.info(_('Local Settings of SAT %s') % UTS.label(config.VARS.salometoolsway))
 
     res = 0
     
@@ -128,10 +127,10 @@ def set_local_value(config, key, value, logger):
     except Exception as e:
         err = str(e)
         msg = _("Unable to update the local.pyconf file: %s\n") % err
-        logger.write(msg, 1)
-        return 1
+        logger.error(msg)
+        return RCO.ReturnCode("KO", msg)
     
-    return 0
+    return RCO.ReturnCode("OK")
     
 def display_local_values(config, logger):
     """ Display the base path

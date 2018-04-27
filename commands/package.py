@@ -182,7 +182,7 @@ Use one of the following options:
         src.check_config_has_application(config)
 
         # Display information
-        logger.write(_("Packaging application %s\n") % \
+        logger.info(_("Packaging application %s\n") % \
             UTS.label(config.VARS.application), 1)
         
         # Get the default directory where to put the packages
@@ -257,17 +257,12 @@ check if at least one of the following options was selected:
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
-    tmp_working_dir = os.path.join(config.VARS.tmp_root,
-                                   config.VARS.datehour)
+    tmp_working_dir = os.path.join(config.VARS.tmp_root, config.VARS.datehour)
     UTS.ensure_path_exists(tmp_working_dir)
-    logger.write("\n", 5)
-    logger.write(_("The temporary working directory: %s\n") % tmp_working_dir, 5)
+    logger.debug(_("The temporary working directory: %s\n") % tmp_working_dir)
     
-    logger.write("\n", 3)
-
     msg = _("Preparation of files to add to the archive")
-    logger.write(UTS.label(msg), 2)
-    logger.write("\n", 2)
+    logger.info(UTS.label(msg))
 
     d_files_to_add={}  # content of the archive
 
@@ -275,10 +270,7 @@ check if at least one of the following options was selected:
     d_paths_to_substitute={}  
 
     if options.binaries:
-        d_bin_files_to_add = binary_package(config,
-                                            logger,
-                                            options,
-                                            tmp_working_dir)
+        d_bin_files_to_add = binary_package(config, logger, options, tmp_working_dir)
         # for all binaries dir, store the substitution that will be required 
         # for extra compilations
         for key in d_bin_files_to_add:
@@ -308,9 +300,8 @@ check if at least one of the following options was selected:
                                                       d_paths_to_substitute,
                                                       "install_bin.sh")
             d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
-            logger.write("substitutions that need to be done later : \n", 5)
-            logger.write(str(d_paths_to_substitute), 5)
-            logger.write("\n", 5)
+            logger.debug("substitutions to be done later:\n%s\n" % str(d_paths_to_substitute))
+
     else:
         # --salomeTool option is not considered when --sources is selected, as this option
         # already brings salomeTool!
@@ -322,7 +313,7 @@ check if at least one of the following options was selected:
         d_files_to_add.update(project_package(options.project, tmp_working_dir))
 
     if not(d_files_to_add):
-        msg = _("Empty dictionnary to build the archive.\n")
+        msg = _("Empty dictionary to build the archive.\n")
         logger.error(msg)
         return 1
 
@@ -334,15 +325,13 @@ check if at least one of the following options was selected:
     if options.add_files:
         for file_path in options.add_files:
             if not os.path.exists(file_path):
-                msg = _("WARNING: the file %s is not accessible.\n") % file_path
+                msg = _("The file %s is not accessible.\n") % file_path
                 continue
             file_name = os.path.basename(file_path)
             d_files_to_add[file_name] = (file_path, file_name)
 
-    logger.write("\n", 2)
-
-    logger.write(UTS.label(_("Actually do the package")), 2)
-    logger.write("\n", 2)
+    msg = UTS.label(_("Actually do the package"))
+    logger.info("\n%s\n" % msg)
     
     try:
         # Creating the object tarfile
@@ -373,8 +362,9 @@ check if at least one of the following options was selected:
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
-    '''Create an archive containing all directories and files that are given in
-       the d_content argument.
+    """\
+    Create an archive containing all directories and files that are given 
+    in the d_content argument.
     
     :param tar tarfile: The tarfile instance used to make the archive.
     :param name_archive str: The name of the archive to make.
@@ -386,7 +376,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     :param f_exclude Function: the function that filters
     :return: 0 if success, 1 if not.
     :rtype: int
-    '''
+    """
     # get the max length of the messages in order to make the display
     max_len = len(max(d_content.keys(), key=len))
     
@@ -395,7 +385,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     for name in d_content.keys():
         # display information
         len_points = max_len - len(name)
-        logger.write(name + " " + len_points * "." + " ", 3)
+        logger.info(name + " " + len_points * "." + " ")
         # Get the local path and the path in archive 
         # of the directory or file to add
         local_path, archive_path = d_content[name]
@@ -410,13 +400,14 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     return success
 
 def exclude_VCS_and_extensions(filename):
-    ''' The function that is used to exclude from package the link to the 
-        VCS repositories (like .git)
+    """\
+    The function that is used to exclude from package the link to the 
+    VCS repositories (like .git)
 
     :param filename Str: The filname to exclude (or not).
     :return: True if the file has to be exclude
     :rtype: Boolean
-    '''
+    """
     for dir_name in IGNORED_DIRS:
         if dir_name in filename:
             return True
@@ -853,27 +844,25 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     '''
     
     # Get all the products that are prepared using an archive
-    logger.write("Find archive products ... ")
+    logger.info("Find archive products ... ")
     d_archives, l_pinfo_vcs = get_archives(config, logger)
-    logger.write("Done\n")
+    logger.info("Done\n")
     d_archives_vcs = {}
     if not options.with_vcs and len(l_pinfo_vcs) > 0:
         # Make archives with the products that are not prepared using an archive
         # (git, cvs, svn, etc)
-        logger.write("Construct archives for vcs products ... ")
+        logger.info("Construct archives for vcs products ... ")
         d_archives_vcs = get_archives_vcs(l_pinfo_vcs,
                                           sat,
                                           config,
                                           logger,
                                           tmp_working_dir)
-        logger.write("Done\n")
+        logger.info("Done\n")
 
     # Create a project
-    logger.write("Create the project ... ")
-    d_project = create_project_for_src_package(config,
-                                                tmp_working_dir,
-                                                options.with_vcs)
-    logger.write("Done\n")
+    logger.info("Create the project ... ")
+    d_project = create_project_for_src_package(config, tmp_working_dir, options.with_vcs)
+    logger.info("Done\n")
     
     # Add salomeTools
     tmp_sat = add_salomeTools(config, tmp_working_dir)
@@ -991,13 +980,13 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
     # clean
-    logger.write(_("clean sources\n"))
+    logger.info(_("clean sources\n"))
     args_clean = config.VARS.application
     args_clean += " --sources --products "
     args_clean += ",".join(l_prod_names)
     sat.clean(args_clean, batch=True, verbose=0, logger_add_link = logger)
     # source
-    logger.write(_("get sources"))
+    logger.info(_("get sources"))
     args_source = config.VARS.application
     args_source += " --products "
     args_source += ",".join(l_prod_names)

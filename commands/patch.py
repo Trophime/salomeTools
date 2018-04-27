@@ -94,66 +94,65 @@ class Command(_BaseCommand):
                                              product_info,
                                              max_product_name_len,
                                              logger)
-        logger.write(patch_res, 1, False)
+        logger.info(patch_res)
         if return_code:
             good_result += 1
     
     # Display the results (how much passed, how much failed, etc...)
 
-    logger.write("\n", 2, False)
+    logger.info("\n")
     if good_result == len(products_infos):
-        status = "<OK>"
+        status = "OK"
     else:
-        status = "<KO>"
+        status = "KO"
     
     # write results
-    logger.info(_("\nPatching sources of the application: %s (%d/%d)\n") % \
-                  (status, good_result, len(products_infos)))    
+    msg = ("\nPatching sources of the application: <%s> (%d/%d)\n") % \
+                  (status, good_result, len(products_infos))
+    logger.info(msg)    
 
-    return len(products_infos) - good_result
+    return RCO.ReturnCode(status, msg)
      
 
 def apply_patch(config, product_info, max_product_name_len, logger):
-    '''The method called to apply patches on a product
+    """\
+    The method called to apply patches on a product
 
     :param config Config: The global configuration
     :param product_info Config: The configuration specific to 
                                the product to be patched
     :param logger Logger: The logger instance to use for the display and logging
-    :return: (True if it succeed, else False, message to display)
-    :rtype: (boolean, str)
-    '''
+    :return: RCO.ReturnCode
+    """
 
     # if the product is native, do not apply patch
     if src.product.product_is_native(product_info):
         # display and log
-        logger.write('%s: ' % UTS.label(product_info.name), 4)
-        logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
-        logger.write("\n", 4, False)
-        msg = _("The %s product is native. Do not apply any patch.") % product_info.name
-        logger.write(msg, 4)
-        logger.write("\n", 4)
-        return True, ""       
+        logger.info('%s: ' % UTS.label(product_info.name))
+        logger.info(' ' * (max_product_name_len - len(product_info.name)))
+        logger.info("\n")
+        msg = _("The %s product is native. Do not apply any patch") % product_info.name
+        logger.info(msg + "\n")
+        return RCO.ReturnCode("OK", msg)     
 
     if not "patches" in product_info or len(product_info.patches) == 0:
         # display and log
-        logger.write('%s: ' % UTS.label(product_info.name), 4)
-        logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
-        logger.write("\n", 4, False)
+        logger.info('%s: ' % UTS.label(product_info.name))
+        logger.info(' ' * (max_product_name_len - len(product_info.name)))
+        logger.info("\n")
         msg = _("No patch for the %s product") % product_info.name
-        logger.write(msg, 4)
-        logger.write("\n", 4)
-        return True, ""
+        logger.info(msg + "\n")
+        return RCO.ReturnCode("OK", msg) 
     else:
         # display and log
-        logger.write('%s: ' % UTS.label(product_info.name), 3)
-        logger.write(' ' * (max_product_name_len - len(product_info.name)), 3, False)
-        logger.write("\n", 4, False)
+        logger.info('%s: ' % UTS.label(product_info.name))
+        logger.info(' ' * (max_product_name_len - len(product_info.name)))
+        logger.info("\n")
 
     if not os.path.exists(product_info.source_dir):
-        msg = _("No sources found for the %s product\n") % product_info.name
-        logger.write(UTS.red(msg), 1)
-        return False, ""
+        msg = _("No sources found for the %s product") % product_info.name
+        logger.error(UTS.red(msg))
+        return RCO.ReturnCode("KO", msg)
 
     # At this point, there one or more patches and the source directory exists
     retcode = []
@@ -167,7 +166,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
             patch_cmd = "patch -p1 < %s" % patch
             
             # Write the command in the terminal if verbose level is at 5
-            logger.write(("    >%s\n" % patch_cmd),5)
+            logger.info("    >%s\n" % patch_cmd)
             
             # Write the command in the log file (can be seen using 'sat log')
             logger.logTxtFile.write("\n    >%s\n" % patch_cmd)
@@ -201,6 +200,9 @@ def apply_patch(config, product_info, max_product_name_len, logger):
         if len(details) > 0:
             retcode.extend(details)
 
-    res = not (False in res)
+    if False in res: 
+      rc = "KO"
+    else:
+      rc = "OK"
     
-    return res, "\n".join(retcode) + "\n"
+    return RCO.ReturnCode(rc, "\n".join(retcode))

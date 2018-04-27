@@ -120,16 +120,6 @@ Component name must contains only alphanumeric characters and no spaces\n""")
         logger.error(msg)
         return 1
 
-    # CNC inutile
-    # Ask user confirmation if a module of the same name already exists
-    #if options.name in config.PRODUCTS and not runner.options.batch:
-    #    logger.write(UTS.red(
-    #                _("A module named '%s' already exists." % options.name)), 1)
-    #    logger.write("\n", 1)
-    #    rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #    if rep.upper() != _("YES"):
-    #        return 1
-
     if options.target is None:
         logger.error(msg_miss % "target")
         return 1
@@ -139,17 +129,6 @@ Component name must contains only alphanumeric characters and no spaces\n""")
         msg = _("The target already exists: %s\n") % target_dir
         logger.error(msg)
         return 1
-
-    # CNC inutile
-    #if options.template == "Application":
-    #    if "_APPLI" not in options.name and not runner.options.batch:
-    #        msg = _("An Application module named '..._APPLI' "
-    #                "is usually recommended.")
-    #        logger.write(UTS.red(msg), 1)
-    #        logger.write("\n", 1)
-    #        rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #        if rep.upper() != _("YES"):
-    #            return 1
 
     msg = ""
     msg += _('Create sources from template\n')
@@ -348,29 +327,26 @@ def search_template(config, template):
         raise Exception(_("Template not found: %s") % template)
 
     return template_src_dir
-##
-# Prepares a module from a template.
+
+
 def prepare_from_template(config,
                           name,
                           template,
                           target_dir,
                           conf_values,
                           logger):
+    """Prepares a module from a template."""
     template_src_dir = search_template(config, template)
     res = 0
 
     # copy the template
     if os.path.isfile(template_src_dir):
-        logger.write("  " + _(
-                        "Extract template %s\n") % UTS.info(
-                                                                   template), 4)
+        logger.info(_("Extract template %s\n") % UTS.info(template))
         SYSS.archive_extract(template_src_dir, target_dir)
     else:
-        logger.write("  " + _(
-                        "Copy template %s\n") % UTS.info(
-                                                                   template), 4)
+        logger.info(_("Copy template %s\n") % UTS.info(template))
         shutil.copytree(template_src_dir, target_dir)
-    logger.write("\n", 5)
+    
 
     compo_name = name
     if name.endswith("CPP"):
@@ -383,7 +359,7 @@ def prepare_from_template(config,
     tsettings = TemplateSettings(compo_name, settings_file, target_dir)
 
     # first rename the files
-    logger.write("  " + UTS.label(_("Rename files\n")), 4)
+    logger.debug(UTS.label(_("Rename files\n"))
     for root, dirs, files in os.walk(target_dir):
         for fic in files:
             ff = fic.replace(tsettings.file_subst, compo_name)
@@ -392,13 +368,11 @@ def prepare_from_template(config,
                     raise Exception(
                         _("Destination file already exists: %s") % \
                         os.path.join(root, ff) )
-                logger.write("    %s -> %s\n" % (fic, ff), 5)
+                logger.debug("    %s -> %s\n" % (fic, ff))
                 os.rename(os.path.join(root, fic), os.path.join(root, ff))
 
     # rename the directories
-    logger.write("\n", 5)
-    logger.write("  " + UTS.label(_("Rename directories\n")),
-                 4)
+    logger.debug(UTS.label(_("Rename directories\n")))
     for root, dirs, files in os.walk(target_dir, topdown=False):
         for rep in dirs:
             dd = rep.replace(tsettings.file_subst, compo_name)
@@ -407,32 +381,26 @@ def prepare_from_template(config,
                     raise Exception(
                         _("Destination directory already exists: %s") % \
                         os.path.join(root, dd) )
-                logger.write("    %s -> %s\n" % (rep, dd), 5)
+                logger.debug("    %s -> %s\n" % (rep, dd))
                 os.rename(os.path.join(root, rep), os.path.join(root, dd))
 
     # ask for missing parameters
-    logger.write("\n", 5)
-    logger.write("  " + UTS.label(
-                                        _("Make substitution in files\n")), 4)
-    logger.write("    " + _("Delimiter =") + " %s\n" % tsettings.delimiter_char,
-                 5)
-    logger.write("    " + _("Ignore Filters =") + " %s\n" % ', '.join(
-                                                   tsettings.ignore_filters), 5)
+    logger.debug(UTS.label(_("Make substitution in files\n")))
+    logger.debug(_("Delimiter =") + " %s\n" % tsettings.delimiter_char)
+    logger.debug(_("Ignore Filters =") + " %s\n" % ', '.join(tsettings.ignore_filters))
     dico = tsettings.get_parameters(conf_values)
-    logger.write("\n", 3)
 
     # override standard string.Template class to use the desire delimiter
     class CompoTemplate(string.Template):
         delimiter = tsettings.delimiter_char
 
     # do substitution
-    logger.write("\n", 5, True)
     pathlen = len(target_dir) + 1
     for root, dirs, files in os.walk(target_dir):
         for fic in files:
             fpath = os.path.join(root, fic)
             if not tsettings.check_file_for_substitution(fpath[pathlen:]):
-                logger.write("  - %s\n" % fpath[pathlen:], 5)
+                logger.debug("  - %s\n" % fpath[pathlen:])
                 continue
             # read the file
             m = file(fpath, 'r').read()
@@ -444,26 +412,21 @@ def prepare_from_template(config,
             if d != m:
                 changed = "*"
                 file(fpath, 'w').write(d)
-            logger.write("  %s %s\n" % (changed, fpath[pathlen:]), 5)
+            logger.debug("  %s %s\n" % (changed, fpath[pathlen:]))
 
     if not tsettings.has_pyconf:
-        logger.write(UTS.red(_(
-                   "Definition for sat not found in settings file.")) + "\n", 2)
+        logger.error(_("Definition for sat not found in settings file."))
     else:
         definition = tsettings.pyconf % dico
         pyconf_file = os.path.join(target_dir, name + '.pyconf')
         f = open(pyconf_file, 'w')
         f.write(definition)
         f.close
-        logger.write(_(
-            "Create configuration file: ") + UTS.info(
-                                                         pyconf_file) + "\n", 2)
+        logger.info(_("Create configuration file: ") + pyconf_file)
 
     if len(tsettings.post_command) > 0:
         cmd = tsettings.post_command % dico
-        logger.write("\n", 5, True)
-        logger.write(_(
-              "Run post command: ") + UTS.info(cmd) + "\n", 3)
+        logger.info(_("Run post command: ") + cmd)
         
         p = subprocess.Popen(cmd, shell=True, cwd=target_dir)
         p.wait()

@@ -73,7 +73,7 @@ class Command(_BaseCommand):
     
     # Print the input command
     msg = _("Command to execute:\n%s\nExecution ... ") % options.command
-    logger.write(msg, 3)
+    logger.info(msg)
     
     # Call the input command
     res = subprocess.call(options.command,
@@ -83,9 +83,9 @@ class Command(_BaseCommand):
    
     # Format the result to be 0 (success) or 1 (fail)
     if res != 0:
-        res = 1
-        logger.info("<KO>\n")
+        status = "KO"
     else:
-        logger.info("<OK>\n")
-    
-    return res
+        status = "OK"
+        
+    logger.info("<%s>\n" % status)
+    return RCO.ReturnCode(status, "shell command done")

@@ -54,22 +54,20 @@ class Builder:
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
 
-    ##
-    # Shortcut method to log in log file.
     def log(self, text, level, showInfo=True):
-        self.logger.write(text, level, showInfo)
+        """Shortcut method to log in log file."""
+        self.logger.info(text)
         self.logger.logTxtFile.write(UTS.cleancolor(text))
-        self.logger.flush()
 
-    ##
-    # Shortcut method to log a command.
     def log_command(self, command):
+        """Shortcut method to log a command."""
         self.log("> %s\n" % command, 5)
 
-    ##
-    # Prepares the environment.
-    # Build two environment: one for building and one for testing (launch).
     def prepare(self):
+        """\
+        Prepares the environment.
+        Build two environment: one for building and one for testing (launch).
+        """
 
         if not self.build_dir.exists():
             # create build dir
@@ -392,13 +390,11 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         return self.get_result()
 
-    ##
-    # Performs a build with a script.
     def do_python_script_build(self, script, nb_proc):
+        """Performs a build with a script."""
         # script found
-        self.logger.write(_("Compile %(product)s using script %(script)s\n") %
-            { 'product': self.product_info.name,
-              'script': UTS.label(script) }, 4)
+        self.logger.info(_("Compile %s using script %s\n") % \
+                          (self.product_info.name, UTS.label(script) )
         try:
             import imp
             product = self.product_info.name
@@ -407,14 +403,13 @@ CC=\\"hack_libtool\\"%g" libtool'''
             retcode = pymodule.compil(self.config, self, self.logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
-            self.logger.write(str(exceptionValue), 1)
+            self.logger.error(str(exceptionValue))
             import traceback
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
             retcode = 1
         finally:
             self.put_txt_log_in_appli_log_dir("script")
-
         return retcode
 
     def complete_environment(self, make_options):

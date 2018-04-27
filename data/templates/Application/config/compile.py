@@ -18,7 +18,7 @@ def compil(config, builder, logger):
     command = "which lrelease" 
     res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,env=builder.build_environ.environ.environ).communicate()
     if res[1] != "": #an error occured
-        logger.write("ERROR: %s" % res[1])
+        logger.error(res[1])
         builder.log(res[1]+"\n")
         return 1
     

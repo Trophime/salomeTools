@@ -161,9 +161,9 @@ def generate_launch_file(config,
     # Display some information
     if display:
         # Write the launcher file
-        logger.write(_("Generating launcher for %s :\n") % 
-                     UTS.label(config.VARS.application), 1)
-        logger.write("  %s\n" % UTS.label(filepath), 1)
+        msg = _("Generating launcher for %s :\n  %s\n") % \
+              (UTS.label(config.VARS.application), UTS.label(filepath))
+        logger.info(msg)
     
     # open the file and write into it
     launch_file = open(filepath, "w")

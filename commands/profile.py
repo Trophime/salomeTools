@@ -91,8 +91,8 @@ class Command(_BaseCommand):
 
     if options.prefix is None:
         msg = _("The --%s argument is required\n") % "prefix"
-        logger.write(UTS.red(msg), 1)
-        return 1
+        logger.error(msg)
+        return RCO.ReturnCode("KO", msg)
     
     retcode = generate_profile_sources(config, options, logger)
 
@@ -148,9 +148,10 @@ def get_profile_name ( options, config ):
         res = config.APPLICATION.name + "_PROFILE"
     return res
 
-##
-# Generates the sources of the profile
 def generate_profile_sources( config, options, logger ):
+    """
+    Generates the sources of the profile
+    """
     #Check script app-quickstart.py exists
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
     kernel_root_dir = kernel_cfg.install_dir
@@ -158,8 +159,7 @@ def generate_profile_sources( config, options, logger ):
         raise Exception(_("KERNEL is not installed"))
     script = os.path.join(kernel_root_dir,"bin","salome","app-quickstart.py")
     if not os.path.exists( script ):
-        raise Exception(
-            _("KERNEL's install has not the script app-quickstart.py") )
+        raise Exception( _("KERNEL's install has not the script app-quickstart.py") )
 
     # Check that GUI is installed
     gui_cfg = src.product.get_product_config(config, "GUI")
@@ -188,7 +188,7 @@ def generate_profile_sources( config, options, logger ):
         command += " --force"
     if options.slogan :
         command += " --slogan=%s" % options.slogan
-    logger.write("\n>" + command + "\n", 5, False)
+    logger.debug("\n>" + command + "\n")
 
     #Run command
     os.environ["KERNEL_ROOT_DIR"] = kernel_root_dir
@@ -202,13 +202,14 @@ def generate_profile_sources( config, options, logger ):
     if res != 0:
         raise Exception(_("Cannot create application, code = %d\n") % res)
     else:
-        logger.write(
-            _("Profile sources were generated in directory %s.\n" % prefix), 3 )
+        logger.info( _("Profile sources were generated in directory %s.\n" % prefix) )
     return res
 
-##
-# Updates the pyconf
+
 def update_pyconf( config, options, logger ):
+    """
+    Updates the pyconf
+    """
 
     #Save previous version
     pyconf = config.VARS.product + '.pyconf'

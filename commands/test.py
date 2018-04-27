@@ -29,7 +29,7 @@ import src.returnCode as RCO
 import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.ElementTree as etree
-from src.xmlManager import add_simple_node
+import src.xmlManager as XMLMGR
 
 try:
     from hashlib import sha1
@@ -116,9 +116,8 @@ Optional: set the display where to launch SALOME.
     # the test base is specified either by the application, or by the --base option
     with_application = False
     if config.VARS.application != 'None':
-        logger.write(
-            _('Running tests on application %s\n') % 
-            UTS.label(config.VARS.application), 1)
+        logger.info(_('Running tests on application %s\n') % 
+                     UTS.label(config.VARS.application))
         with_application = True
     elif not options.base:
         raise Exception(
@@ -128,16 +127,15 @@ Optional: set the display where to launch SALOME.
     if with_application:
         # check if environment is loaded
         if 'KERNEL_ROOT_DIR' in os.environ:
-            logger.write( UTS.red(
-               _("WARNING: SALOME environment already sourced")) + "\n", 1 )
-            
-        
+            logger.warning(_("SALOME environment already sourced"))
+              
     elif options.launcher:
-        logger.write(UTS.red(_("Running SALOME application.")) + "\n\n", 1)
+        logger.info(_("Running SALOME application."))
     else:
         msg = _("""\
 Impossible to find any launcher.
-Please specify an application or a launcher\n""")
+Please specify an application or a launcher
+""")
         logger.error(msg)
         return 1
 
@@ -251,10 +249,9 @@ Please specify an application or a launcher\n""")
     retcode = test_runner.run_all_tests()
     logger.allowPrintLevel = True
 
-    logger.write(_("Tests finished"), 1)
-    logger.write("\n", 2, False)
+    logger.info(_("Tests finished\n"))
     
-    logger.write(_("\nGenerate the specific test log\n"), 5)
+    logger.debug(_("Generate the specific test log\n"))
     log_dir = UTS.get_log_path(config)
     out_dir = os.path.join(log_dir, "TEST")
     UTS.ensure_path_exists(out_dir)
@@ -283,9 +280,7 @@ Please specify an application or a launcher\n""")
     # Add the historic files into the log files list of the command
     logger.l_logFiles.append(historic_xml_path)
     
-    logger.write(
-        _("Removing the temporary directory: %s\n" % 
-        test_runner.tmp_working_dir), 5 )
+    logger.debug(_("Removing the temporary directory: %s") % test_runner.tmp_working_dir)
     if os.path.exists(test_runner.tmp_working_dir):
         shutil.rmtree(test_runner.tmp_working_dir)
 
@@ -335,7 +330,7 @@ def move_test_results(in_dir, what, out_dir, logger):
     while not pathIsOk:
         try:
             # create test results directory if necessary
-            #logger.write("FINAL = %s\n" % finalPath, 5)
+            #logger.debug("FINAL = %s\n" % finalPath)
             if not os.access(finalPath, os.F_OK):
                 #shutil.rmtree(finalPath)
                 os.makedirs(finalPath)
@@ -351,9 +346,7 @@ def move_test_results(in_dir, what, out_dir, logger):
         if not os.access(os.path.join(finalPath, '.objects'), os.F_OK):
             os.makedirs(os.path.join(finalPath, '.objects'))
 
-        logger.write(_('copy tests results to %s ... ') % finalPath, 3)
-        logger.flush()
-        #logger.write("\n", 5)
+        logger.info(_('copy tests results to %s ... ') % finalPath)
 
         # copy env_info.py
         shutil.copy2(os.path.join(in_dir, what, 'env_info.py'),
@@ -369,7 +362,7 @@ def move_test_results(in_dir, what, out_dir, logger):
                 continue
 
             os.makedirs(outtestbase)
-            #logger.write("  copy testbase %s\n" % testbase, 5)
+            #logger.debug("copy testbase %s\n" % testbase)
 
             for grid_ in [m for m in os.listdir(intestbase) if os.path.isdir(
                                                 os.path.join(intestbase, m))]:
@@ -380,7 +373,7 @@ def move_test_results(in_dir, what, out_dir, logger):
                 outgrid = os.path.join(outtestbase, grid_)
                 ingrid = os.path.join(intestbase, grid_)
                 os.makedirs(outgrid)
-                #logger.write("    copy grid %s\n" % grid_, 5)
+                #logger.debug("copy grid %s" % grid_)
 
                 if grid_ == 'RESSOURCES':
                     for file_name in os.listdir(ingrid):
@@ -464,23 +457,24 @@ def create_test_report(config,
     #               de remontee de log des tests
     print "TRACES OP - test.py/create_test_report() : xml_history_path = '#%s#'" %xml_history_path
     
+    ASNODE = XMLMGR.add_simple_node # shortcut
+    
     if withappli:
         if not first_time:
             for node in (prod_node.findall("version_to_download") + 
                          prod_node.findall("out_dir")):
                 prod_node.remove(node)
                 
-        add_simple_node(prod_node, "version_to_download",
-                        config.APPLICATION.name)
+        ASNODE(prod_node, "version_to_download", config.APPLICATION.name)
         
-        add_simple_node(prod_node, "out_dir", config.APPLICATION.workdir)
+        ASNODE(prod_node, "out_dir", config.APPLICATION.workdir)
 
     # add environment
     if not first_time:
         for node in prod_node.findall("exec"):
                 prod_node.remove(node)
         
-    exec_node = add_simple_node(prod_node, "exec")
+    exec_node = ASNODE(prod_node, "exec")
     exec_node.append(etree.Element("env", name="Host", value=config.VARS.node))
     exec_node.append(etree.Element("env", name="Architecture",
                                    value=config.VARS.dist))
@@ -495,10 +489,10 @@ def create_test_report(config,
 
     if 'TESTS' in config:
         if first_time:
-            tests = add_simple_node(prod_node, "tests")
-            known_errors = add_simple_node(prod_node, "known_errors")
-            new_errors = add_simple_node(prod_node, "new_errors")
-            amend = add_simple_node(prod_node, "amend")
+            tests = ASNODE(prod_node, "tests")
+            known_errors = ASNODE(prod_node, "known_errors")
+            new_errors = ASNODE(prod_node, "new_errors")
+            amend = ASNODE(prod_node, "amend")
         else:
             tests = prod_node.find("tests")
             known_errors = prod_node.find("known_errors")
@@ -514,7 +508,7 @@ def create_test_report(config,
         
         for testbase in tt.keys():
             if first_time:
-                gn = add_simple_node(tests, "testbase")
+                gn = ASNODE(tests, "testbase")
             else:
                 gn = tests.find("testbase")
                 # initialize all grids and session to "not executed"
@@ -542,7 +536,7 @@ def create_test_report(config,
             for test in tt[testbase]:
                 if not grids.has_key(test.grid):
                     if first_time:
-                        mn = add_simple_node(gn, "grid")
+                        mn = ASNODE(gn, "grid")
                         mn.attrib['name'] = test.grid
                     else:
                         l_mn = gn.findall("grid")
@@ -552,7 +546,7 @@ def create_test_report(config,
                                 mn = grid_node
                                 break
                         if mn == None:
-                            mn = add_simple_node(gn, "grid")
+                            mn = ASNODE(gn, "grid")
                             mn.attrib['name'] = test.grid
                     
                     grids[test.grid] = mn
@@ -561,7 +555,7 @@ def create_test_report(config,
                 
                 if not sessions.has_key("%s/%s" % (test.grid, test.session)):
                     if first_time:
-                        tyn = add_simple_node(mn, "session")
+                        tyn = ASNODE(mn, "session")
                         tyn.attrib['name'] = test.session
                     else:
                         l_tyn = mn.findall("session")
@@ -571,7 +565,7 @@ def create_test_report(config,
                                 tyn = session_node
                                 break
                         if tyn == None:
-                            tyn = add_simple_node(mn, "session")
+                            tyn = ASNODE(mn, "session")
                             tyn.attrib['name'] = test.session
                         
                     sessions["%s/%s" % (test.grid, test.session)] = tyn
@@ -580,12 +574,12 @@ def create_test_report(config,
 
                 for script in test.script:
                     if first_time:
-                        tn = add_simple_node(sessions[
+                        tn = ASNODE(sessions[
                                            "%s/%s" % (test.grid, test.session)],
                                              "test")
                         tn.attrib['session'] = test.session
                         tn.attrib['script'] = script.name
-                        hn = add_simple_node(tn, "history")
+                        hn = ASNODE(tn, "history")
                     else:
                         l_tn = sessions["%s/%s" % (test.grid, test.session)].findall(
                                                                          "test")
@@ -596,23 +590,23 @@ def create_test_report(config,
                                 break
                         
                         if tn == None:
-                            tn = add_simple_node(sessions[
+                            tn = ASNODE(sessions[
                                            "%s/%s" % (test.grid, test.session)],
                                              "test")
                             tn.attrib['session'] = test.session
                             tn.attrib['script'] = script.name
-                            hn = add_simple_node(tn, "history")
+                            hn = ASNODE(tn, "history")
                         else:
                             # Get or create the history node for the current test
                             if len(tn.findall("history")) == 0:
-                                hn = add_simple_node(tn, "history")
+                                hn = ASNODE(tn, "history")
                             else:
                                 hn = tn.find("history")
                             # Put the last test data into the history
                             if 'res' in tn.attrib:
                                 attributes = {"date_hour" : date_hour,
                                               "res" : tn.attrib['res'] }
-                                add_simple_node(hn,
+                                ASNODE(hn,
                                                 "previous_test",
                                                 attrib=attributes)
                             for node in tn:
@@ -621,7 +615,7 @@ def create_test_report(config,
                     
                     if 'callback' in script:
                         try:
-                            cnode = add_simple_node(tn, "callback")
+                            cnode = ASNODE(tn, "callback")
                             if src.architecture.is_windows():
                                 import string
                                 cnode.text = filter(
@@ -634,19 +628,19 @@ def create_test_report(config,
                             zz = (script.callback[:exc.start] +
                                   '?' +
                                   script.callback[exc.end-2:])
-                            cnode = add_simple_node(tn, "callback")
+                            cnode = ASNODE(tn, "callback")
                             cnode.text = zz.decode("UTF-8")
                     
                     # Add the script content
-                    cnode = add_simple_node(tn, "content")
+                    cnode = ASNODE(tn, "content")
                     cnode.text = script.content
                     
                     # Add the script execution log
-                    cnode = add_simple_node(tn, "out")
+                    cnode = ASNODE(tn, "out")
                     cnode.text = script.out
                     
                     if 'amend' in script:
-                        cnode = add_simple_node(tn, "amend")
+                        cnode = ASNODE(tn, "amend")
                         cnode.text = script.amend.decode("UTF-8")
 
                     if script.time < 0:
@@ -656,7 +650,7 @@ def create_test_report(config,
                     tn.attrib['res'] = script.res
 
                     if "amend" in script:
-                        amend_test = add_simple_node(amend, "atest")
+                        amend_test = ASNODE(amend, "atest")
                         amend_test.attrib['name'] = os.path.join(test.grid,
                                                                  test.session,
                                                                  script.name)
@@ -671,7 +665,7 @@ def create_test_report(config,
                     else: nb_not_run += 1
 
                     if "known_error" in script:
-                        kf_script = add_simple_node(known_errors, "error")
+                        kf_script = ASNODE(known_errors, "error")
                         kf_script.attrib['name'] = os.path.join(test.grid,
                                                                 test.session,
                                                                 script.name)
@@ -688,7 +682,7 @@ def create_test_report(config,
                             kf_script.attrib['overdue'] = str(overdue)
                         
                     elif script.res == src.KO_STATUS:
-                        new_err = add_simple_node(new_errors, "new_error")
+                        new_err = ASNODE(new_errors, "new_error")
                         script_path = os.path.join(test.grid,
                                                    test.session, script.name)
                         new_err.attrib['name'] = script_path
@@ -718,12 +712,8 @@ def create_test_report(config,
     if not xmlname.endswith(".xml"):
         xmlname += ".xml"
 
-    src.xmlManager.write_report(os.path.join(dest_path, xmlname),
-                                root,
-                                "test.xsl")
-    src.xmlManager.write_report(xml_history_path,
-                                root,
-                                "test_history.xsl")
+    XMLMGR.write_report(os.path.join(dest_path, xmlname), root, "test.xsl")
+    XMLMGR.write_report(xml_history_path, root, "test_history.xsl")
     return src.OK_STATUS
 
 def generate_history_xml_path(config, test_base):

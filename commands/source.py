@@ -72,7 +72,7 @@ class Command(_BaseCommand):
     src.check_config_has_application( config )
 
     # Print some informations
-    logger.write(_('Getting sources of the application %s\n') % \
+    logger.info(_('Getting sources of the application %s\n') % \
                 UTS.label(config.VARS.application), 1)
     logger.info("  workdir = %s\n" % config.APPLICATION.workdir)
        
@@ -103,7 +103,8 @@ class Command(_BaseCommand):
 
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
-    '''The method called if the product is in development mode
+    """\
+    Called if the product is in development mode
     
     :param config Config: The global configuration
     :param product_info Config: The configuration specific to 
@@ -114,7 +115,7 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     :param pad int: The gap to apply for the terminal display
     :return: True if it succeed, else False
     :rtype: boolean
-    '''
+    """
        
     # Call the function corresponding to get the sources with True checkout
     retcode = get_product_sources(config, 
@@ -124,13 +125,9 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
                                  logger, 
                                  pad, 
                                  checkout=True)
-    logger.write("\n", 3, False)
     # +2 because product name is followed by ': '
-    logger.write(" " * (pad+2), 3, False) 
-    
-    logger.write('dev: %s ... ' % \
-                 UTS.info(product_info.source_dir), 3, False)
-    logger.flush()
+    logger.info("\n" + " " * (pad+2)) 
+    logger.info('dev: %s ... ' % UTS.info(product_info.source_dir))
     
     return retcode
 
@@ -140,7 +137,8 @@ def get_source_from_git(product_info,
                         pad,
                         is_dev=False,
                         environ = None):
-    '''The method called if the product is to be get in git mode
+    """\
+    Called if the product is to be get in git mode
     
     :param product_info Config: The configuration specific to 
                                the product to be prepared
@@ -153,7 +151,7 @@ def get_source_from_git(product_info,
                                                 extracting.
     :return: True if it succeed, else False
     :rtype: boolean
-    '''
+    """
     # The str to display
     coflag = 'git'
 
@@ -170,7 +168,7 @@ def get_source_from_git(product_info,
     msg += " " * (pad + 50 - len(repo_git))
     msg += " tag:%s" % product_info.git_info.tag
     msg += "%s. " % "." * (10 - len(product_info.git_info.tag))
-    logger.write("\n" + msg)
+    logger.info("\n" + msg)
     
     # Call the system function that do the extraction in git mode
     retcode = SYSS.git_extract(repo_git,
@@ -194,10 +192,7 @@ def get_source_from_archive(product_info, source_dir, logger):
         raise Exception(_("Archive not found: '%s'") % \
                                product_info.archive_info.archive_name)
 
-    logger.write('arc:%s ... ' % \
-                 UTS.info(product_info.archive_info.archive_name),
-                 3, False)
-    logger.flush()
+    logger.info('arc:%s ... ' % UTS.info(product_info.archive_info.archive_name))
     # Call the system function that do the extraction in archive mode
     retcode, NameExtractedDirectory = SYSS.archive_extract(
                                     product_info.archive_info.archive_name,
@@ -234,11 +229,8 @@ def get_source_from_dir(product_info, source_dir, logger):
         logger.error(msg)
         return False
     
-    logger.write('DIR: %s ... ' % UTS.info(
-                                           product_info.dir_info.dir), 3)
-
-    retcode = src.Path(product_info.dir_info.dir).copy(source_dir)
-    
+    logger.info('DIR: %s ... ' % UTS.info(product_info.dir_info.dir))
+    retcode = src.Path(product_info.dir_info.dir).copy(source_dir) 
     return retcode
     
 def get_source_from_cvs(user,
@@ -290,7 +282,7 @@ def get_source_from_cvs(user,
     # at least one '.' is visible
     msg += " %s. " % ("." * (10 - len(product_info.cvs_info.tag)))
                  
-    logger.write(msg)
+    logger.info(msg)
 
     # Call the system function that do the extraction in cvs mode
     retcode = SYSS.cvs_extract(protocol, user,
@@ -324,16 +316,16 @@ def get_source_from_svn(user,
     coflag = 'svn'
     if checkout: coflag = coflag.upper()
 
-    logger.write('%s:%s ... ' % (coflag, product_info.svn_info.repo)
+    logger.info('%s:%s ... ' % (coflag, product_info.svn_info.repo))
 
     # Call the system function that do the extraction in svn mode
     retcode = SYSS.svn_extract(user, 
-                                     product_info.svn_info.repo, 
-                                     product_info.svn_info.tag,
-                                     source_dir, 
-                                     logger, 
-                                     checkout,
-                                     environ)
+                               product_info.svn_info.repo, 
+                               product_info.svn_info.tag,
+                               source_dir, 
+                               logger, 
+                               checkout,
+                               environ)
     return retcode
 
 def get_product_sources(config, 
@@ -402,19 +394,19 @@ def get_product_sources(config,
     if product_info.get_source == "native":
         # skip
         msg = "<OK>" + _("\ndo nothing because the product is of type 'native'.\n")
-        logger.write(msg)
+        logger.info(msg)
         return True        
 
     if product_info.get_source == "fixed":
         # skip
         msg = "<OK>" + _("\ndo nothing because the product is of type 'fixed'.\n")
-        logger.write(msg)
+        logger.info(msg)
         return True  
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]
     msg = _("Unknown get source method '%s' for product %s") % \
                  ( product_info.get_source, product_info.name) 
-    logger.write("%s ... " % msg)
+    logger.info("%s ... " % msg)
     return False
 
 def get_all_product_sources(config, products, logger):
@@ -447,9 +439,8 @@ def get_all_product_sources(config, products, logger):
             source_dir = src.Path('')
 
         # display and log
-        logger.write('%s: ' % UTS.label(product_name), 3)
-        logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
-        logger.write("\n", 4, False)
+        logger.info('%s: ' % UTS.label(product_name))
+        logger.info(' ' * (max_product_name_len - len(product_name)))
         
         # Remove the existing source directory if 
         # the product is not in development mode

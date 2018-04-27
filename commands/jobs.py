@@ -34,8 +34,9 @@ import src.ElementTree as etree
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
-from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
+import src.xmlManager as XMLMGR
+from src.salomeTools import _BaseCommand
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -137,14 +138,14 @@ class Command(_BaseCommand):
                 if not f.endswith('.pyconf'):
                     continue
                 cfilename = f[:-7]
-                logger.write("%s\n" % cfilename)
-        return 0
+                logger.info("%s\n" % cfilename)
+        return RCO.ReturnCode("OK", "jobs command done")
 
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
-        message = _("The option --jobs_config is required\n")      
+        msg = _("The option --jobs_config is required\n")      
         logger.error(message)
-        return 1
+        return RCO.ReturnCode("KO", msg)
     
     # Find the file in the directories, unless it is a full path
     # merge all in a config
@@ -158,7 +159,7 @@ class Command(_BaseCommand):
 The file configuration %s was not found.
 Use the --list option to get the possible files.\n""") % config_file
             logger.error(msg)
-            return 1
+            return RCO.ReturnCode("KO", msg)
         l_conf_files_path.append(file_jobs_cfg)
         # Read the config that is in the file
         one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
@@ -197,22 +198,17 @@ Use the --list option to get the possible files.\n""") % config_file
                                            logger.txtFileName))
     
     # Initialization
-    today_jobs = Jobs(runner,
-                      logger,
-                      path_pyconf,
-                      config_jobs)
+    today_jobs = Jobs(runner, logger, path_pyconf, config_jobs)
     
     # SSH connection to all machines
     today_jobs.ssh_connection_all_machines()
     if options.test_connection:
-        return 0
+        return RCO.ReturnCode("OK", "jobs ssh_connection done")
     
     gui = None
     if options.publish:
-        logger.write(UTS.info(
-                                        _("Initialize the xml boards : ")), 5)
-        logger.flush()
-        
+        logger.debug(_("Initialize the xml boards : "))
+
         # Copy the stylesheets in the log directory 
         log_dir = log_dir
         xsl_dir = os.path.join(config.VARS.srcDir, 'xsl')
@@ -238,16 +234,15 @@ Use the --list option to get the possible files.\n""") % config_file
         logger.debug("<OK>\n\n")
         
         # Display the list of the xml files
-        logger.write(UTS.info(("Here is the list of published"
-                                                 " files :\n")), 4)
-        logger.write("%s\n" % gui.xml_global_file.logFile, 4)
+        logger.info(("List of published files:\n%s\n") % gui.xml_global_file.logFile)
+        msg = ""
         for board in gui.d_xml_board_files.keys():
             file_path = gui.d_xml_board_files[board].logFile
             file_name = os.path.basename(file_path)
-            logger.write("%s\n" % file_path, 4)
+            msg += "%s\n" % file_path
             logger.add_link(file_name, "board", 0, board)
               
-        logger.write("\n", 4)
+        logger.info(msg)
         
     today_jobs.gui = gui
     
@@ -257,31 +252,31 @@ Use the --list option to get the possible files.\n""") % config_file
         today_jobs.run_jobs()
     except KeyboardInterrupt:
         interruped = True
-        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n"))
+        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption")))
     except Exception as e:
          # verbose debug message with traceback
-        msg = _("Exception raised, the jobs loop has been interrupted:\n\n%s\n")
-        import traceback
-        logger.critical( msg % UTS.yellow(traceback.format_exc()))
-        
+        msg = _("Exception raised, the jobs loop has been interrupted:\n\n%s")
+        logger.critical(msg % UTS.yellow(traceback.format_exc()))    
     finally:
-        res = 0
+        # make clear kill subprocess
+        res = RCO.ReturnCode("OK", "jobs command finally done")
         if interruped:
-            res = 1
             msg = _("Killing the running jobs and trying to get the corresponding logs\n")
-            logger.write(UTS.red(msg))
+            logger.warning(UTS.red(msg))
+            res = RCO.ReturnCode("KO", msg)
             
         # find the potential not finished jobs and kill them
         for jb in today_jobs.ljobs:
             if not jb.has_finished():
-                res = 1
+                res += RCO.ReturnCode("KO", "job %s has not finished" % jb.name)
                 try:
                     jb.kill_remote_process()
                 except Exception as e:
-                    msg = _("Failed to kill job %(1)s: %(2)s\n") % {"1": jb.name, "2": e}
-                    logger.write(UTS.red(msg))
+                    msg = _("Failed to kill job %s: %s\n") % (jb.name, e)
+                    logger.warning(UTS.red(msg))
+                    res += RCO.ReturnCode("KO", msg)
             if jb.res_job != "0":
-                res = 1
+                res += RCO.ReturnCode("KO", "job %s fail" % jb.name)
         if interruped:
             if today_jobs.gui:
                 today_jobs.gui.last_update(_("Forced interruption"))
@@ -349,24 +344,24 @@ class Machine(object):
         return message
     
     def successfully_connected(self, logger):
-        '''Verify if the connection to the remote machine has succeed
+        """\
+        Verify if the connection to the remote machine has succeed
         
         :param logger src.logger.Logger: The logger instance 
         :return: True if the connection has succeed, False if not
         :rtype: bool
-        '''
+        """
         if self._connection_successful == None:
             message = _("""\
-WARNING : trying to ask if the connection to 
-          (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
-          whereas there were no connection request""" % 
-              {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
-            logger.write( UTS.red(message))
+Ask if the connection
+(name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
+whereas there were no connection request""" % \
+   {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
+            logger.critical(UTS.red(message))
         return self._connection_successful
 
     def copy_sat(self, sat_local_path, job_file):
-        '''Copy salomeTools to the remote machine in self.sat_path
-        '''
+        """Copy salomeTools to the remote machine in self.sat_path"""
         res = 0
         try:
             # open a sftp connection
@@ -378,8 +373,7 @@ WARNING : trying to ask if the connection to
             # put the job configuration file in order to make it reachable 
             # on the remote machine
             remote_job_file_name = ".%s" % os.path.basename(job_file)
-            self.sftp.put(job_file, os.path.join(self.sat_path,
-                                                 remote_job_file_name))
+            self.sftp.put(job_file, os.path.join(self.sat_path, remote_job_file_name))
         except Exception as e:
             res = str(e)
             self._connection_successful = False
@@ -460,26 +454,28 @@ WARNING : trying to ask if the connection to
         self.ssh.close()
      
     def write_info(self, logger):
-        '''Prints the informations relative to the machine in the logger 
-           (terminal traces and log file)
+        """\
+        Prints the informations relative to the machine in the logger 
+        (terminal traces and log file)
         
         :param logger src.logger.Logger: The logger instance
         :return: Nothing
         :rtype: N\A
-        '''
-        logger.write("host : " + self.host + "\n")
-        logger.write("port : " + str(self.port) + "\n")
-        logger.write("user : " + str(self.user) + "\n")
+        """
         if self.successfully_connected(logger):
-            status = src.OK_STATUS
+            msg = "<OK>"
         else:
-            status = src.KO_STATUS
-        logger.write("Connection : " + status + "\n\n") 
+            msg = "<KO>"
+        msg += "host: %s, " % self.host
+        msg += "port: %s, " % str(self.port)
+        msg += "user: %s" % str(self.user)
+       logger.info("Connection %s" % msg ) 
 
 
 class Job(object):
-    '''Class to manage one job
-    '''
+    """\
+    Class to manage one job
+    """
     def __init__(self,
                  name,
                  machine,
@@ -608,22 +604,21 @@ class Job(object):
         return self._has_finished
           
     def get_log_files(self):
-        """Get the log files produced by the command launched 
-           on the remote machine, and put it in the log directory of the user,
-           so they can be accessible from 
+        """\
+        Get the log files produced by the command launched 
+        on the remote machine, and put it in the log directory of the user,
+        so they can be accessible from 
         """
         # Do not get the files if the command is not finished
         if not self.has_finished():
             msg = _("Trying to get log files whereas the job is not finished.")
-            self.logger.write(UTS.red(msg))
+            self.logger.warning(UTS.red(msg))
             return
         
         # First get the file that contains the list of log files to get
         tmp_file_path = src.get_tmp_filename(self.config, "list_log_files.txt")
         remote_path = os.path.join(self.machine.sat_path, "list_log_files.txt")
-        self.machine.sftp.get(
-                    remote_path,
-                    tmp_file_path)
+        self.machine.sftp.get(remote_path, tmp_file_path)
         
         # Read the file and get the result of the command and all the log files
         # to get
@@ -774,12 +769,10 @@ class Job(object):
         
         # Prevent multiple run
         if self.has_begun():
-            msg = _("WARNING: A job can only be launched one time")
-            msg2 = _("Trying to launch the job \"%s\" whereas it has "
-                     "already been launched.") % self.name
-            self.logger.write(
-                UTS.red("%s\n%s\n" % (msg,msg2)) )
-            return
+            msg = _("A job can only be launched one time")
+            msg2 = _("Trying to launch the job '%s' whereas it has already been launched.") % self.name
+            self.logger.warning( UTS.red("%s\n%s\n" % (msg,msg2)) )
+            return RCO.ReturnCode("KO", msg2)
         
         # Do not execute the command if the machine could not be reached
         if not self.machine.successfully_connected(self.logger):
@@ -812,33 +805,31 @@ class Job(object):
         """\
         Display on the terminal all the job's information
         """
-        self.logger.write("name : " + self.name + "\n")
-        if self.after:
-            self.logger.write("after : %s\n" % self.after)
-        self.logger.write("Time elapsed : %4imin %2is \n" % 
-                     (self.total_duration()//60 , self.total_duration()%60))
+        msg = "name : %s\n" % self.name
+        if self.after: 
+          msg += "after : %s\n" % self.after
+        msg += "Time elapsed : %4imin %2is \n" % (self.total_duration()//60 , self.total_duration()%60)
         if self._T0 != -1:
-            self.logger.write("Begin time : %s\n" % 
-                         time.strftime('%Y-%m-%d %H:%M:%S', 
-                                       time.localtime(self._T0)) )
+            msg += "Begin time : %s\n" % 
+                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))
         if self._Tf != -1:
-            self.logger.write("End time   : %s\n\n" % 
-                         time.strftime('%Y-%m-%d %H:%M:%S', 
-                                       time.localtime(self._Tf)) )
+            msg += "End time   : %s\n\n" % 
+                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+        
+        self.logger.info(msg)
         
         machine_head = "Informations about connection :\n"
         underline = (len(machine_head) - 2) * "-"
-        self.logger.write(UTS.info(
-                                                machine_head+underline+"\n"))
+        self.logger.info(machine_head+underline)
         self.machine.write_info(self.logger)
         
-        self.logger.write(UTS.info("out : \n"))
+        msg = "out : \n"
         if self.out == "":
-            self.logger.write("Unable to get output\n")
+            msg += "Unable to get output\n"
         else:
-            self.logger.write(self.out + "\n")
-        self.logger.write(UTS.info("err : \n"))
-        self.logger.write(self.err + "\n")
+            msg += self.out + "\n"
+        msg += "err :\n%s\n" % .err
+        self.logger.info(msg)
         
     def get_status(self):
         """\
@@ -854,14 +845,11 @@ class Job(object):
         if self.cancelled:
             return "Cancelled"
         if self.is_running():
-            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S',
-                                                    time.localtime(self._T0))        
+            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))        
         if self.has_finished():
             if self.is_timeout():
-                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S',
-                                                    time.localtime(self._Tf))
-            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S',
-                                                     time.localtime(self._Tf))
+                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
     
 class Jobs(object):
     """\
@@ -954,9 +942,10 @@ class Jobs(object):
                 
             if not "machine" in job_def:
                 msg = _("""\
-WARNING: The job '%s' do not have the key 'machine'.
-         This job is ignored.\n""") % job_def.name
-                self.logger.write(UTS.red(msg))
+The job '%s' do not have the key 'machine'.
+This job is ignored.
+""") % job_def.name
+                self.logger.warning(msg)
                 continue
             name_machine = job_def.machine
             
@@ -1009,11 +998,11 @@ WARNING: The job '%s' do not have the key 'machine'.
                 
                 if a_machine == None:
                     msg = _("""\
-WARNING: The job '%(job)s' requires the machine '%(machine)s'.
-         This machine is not defined in the configuration file.
-         The job will not be launched.
+The job '%(job)s' requires the machine '%(machine)s'.
+This machine is not defined in the configuration file.
+The job will not be launched.
 """) % {"job" : job_def.name, "machine" : name_machine}
-                    self.logger.write(UTS.red(msg))
+                    self.logger.warning(msg)
                     continue
                                   
             a_job = self.define_job(job_def, a_machine)
@@ -1026,14 +1015,13 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
         self.lhosts = host_list
         
     def ssh_connection_all_machines(self, pad=50):
-        '''Function that do the ssh connection to every machine 
-           to be used today.
+        """\
+        Do the ssh connection to every machine to be used today.
 
         :return: Nothing
         :rtype: N\A
-        '''
-        self.logger.write(UTS.info((
-                        "Establishing connection with all the machines :\n")))
+        """
+        self.logger.info( "Establishing connection with all the machines :\n")
         for machine in self.lmachines:
             # little algorithm in order to display traces
             begin_line = (_("Connection to %s: ") % machine.name)
@@ -1043,26 +1031,23 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                 endline = (pad - len(begin_line)) * "." + " "
             
             step = "SSH connection"
-            self.logger.write( begin_line + endline + step)
-            self.logger.flush()
+            self.logger.info( begin_line + endline + step)
             # the call to the method that initiate the ssh connection
             msg = machine.connect(self.logger)
             
             # Copy salomeTools to the remote machine
             if machine.successfully_connected(self.logger):
                 step = _("Remove SAT")
-                self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "),3)
-                self.logger.write('\r%s%s%s' % (begin_line, endline, step), 3)
+                self.logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
+                self.logger.info('\r%s%s%s' % (begin_line, endline, step))
                 (__, out_dist, __) = machine.exec_command(
-                                                "rm -rf %s" % machine.sat_path,
-                                                self.logger)
+                            "rm -rf %s" % machine.sat_path, self.logger)
                 out_dist.read()
                 
-                self.logger.flush()
                 step = _("Copy SAT")
-                self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "),3)
-                self.logger.write('\r%s%s%s' % (begin_line, endline, step), 3)
-                self.logger.flush()
+                self.logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
+                self.logger.info('\r%s%s%s' % (begin_line, endline, step))
+
                 res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway,
                                             self.job_file_path)
 
@@ -1085,19 +1070,19 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                 
                 # Print the status of the copy
                 if res_copy == 0:
-                    self.logger.write('\r%s' % \
-                                ((len(begin_line)+len(endline)+20) * " "), 3)
+                    self.logger.info('\r%s' % \
+                                ((len(begin_line)+len(endline)+20) * " "))
                     self.logger.info('\r%s%s%s' % (begin_line, endline, "<OK>"))
                 else:
-                    self.logger.write('\r%s' % \
+                    self.logger.info('\r%s' % \
                             ((len(begin_line)+len(endline)+20) * " "), 3)
                     self.logger.info('\r%s%s%s %s' % \
                         (begin_line, endline, "<KO>",
                          _("Copy of SAT failed: %s") % res_copy))
             else:
-                self.logger.write('\r%s' % 
-                                  ((len(begin_line)+len(endline)+20) * " "), 3)
-                self.logger.write('\r%s%s%s %s' % (begin_line, endline, "<KO>", msg))
+                self.logger.info('\r%s' % 
+                                  ((len(begin_line)+len(endline)+20) * " "))
+                self.logger.info('\r%s%s%s %s' % (begin_line, endline, "<KO>", msg))
             self.logger.info("\n")
                 
         self.logger.info("\n")
@@ -1191,16 +1176,15 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
         return text_out
     
     def display_status(self, len_col):
-        '''Takes a lenght and construct the display of the current status 
-           of the jobs in an array that has a column for each host.
-           It displays the job that is currently running on the host 
-           of the column.
+        """\
+        Takes a lenght and construct the display of the current status 
+        of the jobs in an array that has a column for each host.
+        It displays the job that is currently running on the host of the column.
         
         :param len_col int: the size of the column 
         :return: Nothing
         :rtype: N\A
-        '''
-        
+        """  
         display_line = ""
         for host_port in self.lhosts:
             jb = self.is_occupied(host_port)
@@ -1211,24 +1195,22 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                 display_line += "|" + UTS.info(
                                         self.str_of_length(jb.name, len_col))
         
-        self.logger.write("\r" + display_line + "|")
-        self.logger.flush()
+        self.logger.info("\r" + display_line + "|")
     
 
     def run_jobs(self):
-        '''The main method. Runs all the jobs on every host. 
-           For each host, at a given time, only one job can be running.
-           The jobs that have the field after (that contain the job that has
-           to be run before it) are run after the previous job.
-           This method stops when all the jobs are finished.
+        """\
+        The main method. Runs all the jobs on every host. 
+        For each host, at a given time, only one job can be running.
+        The jobs that have the field after (that contain the job that has
+        to be run before it) are run after the previous job.
+        This method stops when all the jobs are finished.
         
         :return: Nothing
         :rtype: N\A
-        '''
-
+        """
         # Print header
-        self.logger.write(
-            UTS.info(_('Executing the jobs :\n')) )
+        self.logger.info(_('Executing the jobs :\n'))
         text_line = ""
         for host_port in self.lhosts:
             host = host_port[0]
@@ -1240,10 +1222,7 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
                                 "("+host+", "+str(port)+")", self.len_columns)
         
         tiret_line = " " + "-"*(len(text_line)-1) + "\n"
-        self.logger.write(tiret_line)
-        self.logger.write(text_line + "|\n")
-        self.logger.write(tiret_line)
-        self.logger.flush()
+        self.logger.info(tiret_line + text_line + "|\n" + tiret_line)
         
         # The infinite loop that runs the jobs
         l_jobs_not_started = src.deepcopy_list(self.ljobs)
@@ -1288,32 +1267,29 @@ WARNING: The job '%(job)s' requires the machine '%(machine)s'.
             # Make sure that the proc is not entirely busy
             time.sleep(0.001)
         
-        self.logger.write("\n")    
-        self.logger.write(tiret_line)                   
-        self.logger.write("\n\n")
+        self.logger.info("\n" + tiret_line + "\n\n")
         
         if self.gui:
             self.gui.update_xml_files(self.ljobs)
             self.gui.last_update()
 
     def write_all_results(self):
-        '''Display all the jobs outputs.
+        """\
+        Display all the jobs outputs.
         
         :return: Nothing
         :rtype: N\A
-        '''
-        
+        """
         for jb in self.ljobs:
-            self.logger.write(UTS.label(
-                        "#------- Results for job %s -------#\n" % jb.name))
+            self.logger.info("#------- Results for job %s -------#\n" % jb.name)
             jb.write_results()
-            self.logger.write("\n\n")
+            self.logger.info("\n\n")
 
 class Gui(object):
-    '''Class to manage the the xml data that can be displayed in a browser to
-       see the jobs states
-    '''
-   
+    """\
+    Class to manage the the xml data that can be displayed in a browser 
+    to see the jobs states
+    """
     def __init__(self,
                  xml_dir_path,
                  l_jobs,
@@ -1321,15 +1297,14 @@ class Gui(object):
                  prefix,
                  logger,
                  file_boards=""):
-        '''Initialization
+        """\
+        Initialization
         
-        :param xml_dir_path str: The path to the directory where to put 
-                                 the xml resulting files
+        :param xml_dir_path str: The path to the directory where to put the xml resulting files
         :param l_jobs List: the list of jobs that run today
         :param l_jobs_not_today List: the list of jobs that do not run today
-        :param file_boards str: the file path from which to read the
-                                   expected boards
-        '''
+        :param file_boards str: the file path from which to read the expected boards
+        """
         # The logging instance
         self.logger = logger
         
@@ -1351,8 +1326,7 @@ class Gui(object):
         self.global_name = "global_report"
         xml_global_path = os.path.join(self.xml_dir_path,
                                        self.global_name + ".xml")
-        self.xml_global_file = src.xmlManager.XmlLogFile(xml_global_path,
-                                                         "JobsReport")
+        self.xml_global_file = XMLMGR.XmlLogFile(xml_global_path, "JobsReport")
 
         # Find history for each job
         self.history = {}
@@ -1373,19 +1347,19 @@ class Gui(object):
         :param name str: the board name
         '''
         xml_board_path = os.path.join(self.xml_dir_path, name + ".xml")
-        self.d_xml_board_files[name] =  src.xmlManager.XmlLogFile(
-                                                    xml_board_path,
-                                                    "JobsReport")
+        self.d_xml_board_files[name] =  XMLMGR.XmlLogFile(xml_board_path,"JobsReport")
         self.d_xml_board_files[name].add_simple_node("distributions")
         self.d_xml_board_files[name].add_simple_node("applications")
         self.d_xml_board_files[name].add_simple_node("board", text=name)
            
     def initialize_boards(self, l_jobs, l_jobs_not_today):
-        '''Get all the first information needed for each file and write the 
-           first version of the files   
+        """\
+        Get all the first information needed for each file and write the 
+        first version of the files 
+        
         :param l_jobs List: the list of jobs that run today
         :param l_jobs_not_today List: the list of jobs that do not run today
-        '''
+        """
         # Get the boards to fill and put it in a dictionary
         # {board_name : xml instance corresponding to the board}
         for job in l_jobs + l_jobs_not_today:
@@ -1399,8 +1373,7 @@ class Gui(object):
             if board not in self.d_xml_board_files:
                 self.add_xml_board(board)
             root_node = self.d_xml_board_files[board].xmlroot
-            src.xmlManager.append_node_attrib(root_node, 
-                                              {"input_file" : self.file_boards})
+            XMLMGR.append_node_attrib(root_node, {"input_file" : self.file_boards})
         
         # Loop over all jobs in order to get the lines and columns for each 
         # xml file
@@ -1411,6 +1384,8 @@ class Gui(object):
             d_application[board] = []
             
         l_hosts_ports = []
+        
+        ASNODE = XMLMGR.add_simple_node # shortcut
             
         for job in l_jobs + l_jobs_not_today:
             
@@ -1428,22 +1403,15 @@ class Gui(object):
                     if (distrib not in [None, ''] and 
                                             distrib not in d_dist[board]):
                         d_dist[board].append(distrib)
-                        src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find(
-                                                            'distributions'),
-                                                   "dist",
-                                                   attrib={"name" : distrib})
+                        ASNODE( self.d_xml_board_files[board].xmlroot.find('distributions'),
+                                "dist",  attrib={"name" : distrib} )
                     
                 if board_job == board:
                     if (application not in [None, ''] and 
                                     application not in d_application[board]):
                         d_application[board].append(application)
-                        src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find(
-                                                                'applications'),
-                                                   "application",
-                                                   attrib={
-                                                        "name" : application})
+                        ASNODE( self.d_xml_board_files[board].xmlroot.find('applications'),
+                                "application", attrib={"name" : application} )
         
         # Verify that there are no missing application or distribution in the
         # xml board files (regarding the input boards)
@@ -1453,41 +1421,30 @@ class Gui(object):
                 continue
             for dist in self.d_input_boards[board]["rows"]:
                 if dist not in l_dist:
-                    src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find(
-                                                            'distributions'),
-                                                   "dist",
-                                                   attrib={"name" : dist})
+                    ASNODE( self.d_xml_board_files[board].xmlroot.find('distributions'),
+                            "dist", attrib={"name" : dist} )
             l_appli = d_application[board]
             for appli in self.d_input_boards[board]["columns"]:
                 if appli not in l_appli:
-                    src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find(
-                                                                'applications'),
-                                                   "application",
-                                                   attrib={"name" : appli})
+                    ASNODE( self.d_xml_board_files[board].xmlroot.find('applications'),
+                            "application", attrib={"name" : appli} )
                 
         # Initialize the hosts_ports node for the global file
-        self.xmlhosts_ports = self.xml_global_file.add_simple_node(
-                                                                "hosts_ports")
+        self.xmlhosts_ports = self.xml_global_file.add_simple_node( "hosts_ports")
         for host, port in l_hosts_ports:
             host_port = "%s:%i" % (host, port)
-            src.xmlManager.add_simple_node(self.xmlhosts_ports,
-                                           "host_port",
-                                           attrib={"name" : host_port})
+            ASNODE(self.xmlhosts_ports, "host_port", attrib={"name" : host_port})
         
         # Initialize the jobs node in all files
-        for xml_file in [self.xml_global_file] + list(
-                                            self.d_xml_board_files.values()):
+        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             xml_jobs = xml_file.add_simple_node("jobs")      
             # Get the jobs present in the config file but 
             # that will not be launched today
             self.put_jobs_not_today(l_jobs_not_today, xml_jobs)
             
             # add also the infos node
-            xml_file.add_simple_node("infos",
-                                     attrib={"name" : "last update",
-                                             "JobsCommandStatus" : "running"})
+            xml_file.add_simple_node( 
+                "infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"} )
             
             # and put the history node
             history_node = xml_file.add_simple_node("history")
@@ -1500,10 +1457,7 @@ class Gui(object):
                 if oExpr.search(file_name):
                     date = os.path.basename(file_name).split("_")[0]
                     file_path = os.path.join(self.xml_dir_path, file_name)
-                    src.xmlManager.add_simple_node(history_node,
-                                                   "link",
-                                                   text=file_path,
-                                                   attrib={"date" : date})      
+                    ASNODE(history_node, "link", text=file_path, attrib={"date" : date})      
             
                 
         # Find in each board the squares that needs to be filled regarding the
@@ -1511,8 +1465,7 @@ class Gui(object):
         for board in self.d_input_boards.keys():
             xml_root_board = self.d_xml_board_files[board].xmlroot
             # Find the missing jobs for today
-            xml_missing = src.xmlManager.add_simple_node(xml_root_board,
-                                                 "missing_jobs")
+            xml_missing = ASNODE(xml_root_board, "missing_jobs")
             for row, column in self.d_input_boards[board]["jobs"]:
                 found = False
                 for job in l_jobs:
@@ -1521,14 +1474,9 @@ class Gui(object):
                         found = True
                         break
                 if not found:
-                    src.xmlManager.add_simple_node(xml_missing,
-                                            "job",
-                                            attrib={"distribution" : row,
-                                                    "application" : column })
+                    ASNODE(xml_missing, "job", attrib={"distribution" : row, "application" : column })
             # Find the missing jobs not today
-            xml_missing_not_today = src.xmlManager.add_simple_node(
-                                                 xml_root_board,
-                                                 "missing_jobs_not_today")
+            xml_missing_not_today = ASNODE( xml_root_board, "missing_jobs_not_today")
             for row, column in self.d_input_boards[board]["jobs_not_today"]:
                 found = False
                 for job in l_jobs_not_today:
@@ -1537,10 +1485,8 @@ class Gui(object):
                         found = True
                         break
                 if not found:
-                    src.xmlManager.add_simple_node(xml_missing_not_today,
-                                            "job",
-                                            attrib={"distribution" : row,
-                                                    "application" : column })
+                    ASNODE( xml_missing_not_today, "job",
+                            attrib={"distribution" : row, "application" : column } )
 
     def find_history(self, l_jobs, l_jobs_not_today):
         """find, for each job, in the existent xml boards the results for the 
@@ -1559,13 +1505,12 @@ class Gui(object):
             if oExpr.search(file_name):
                 file_path = os.path.join(self.xml_dir_path, file_name)
                 try:
-                    global_xml = src.xmlManager.ReadXmlFile(file_path)
+                    global_xml = XMLMGR.ReadXmlFile(file_path)
                     l_globalxml.append(global_xml)
                 except Exception as e:
-                    msg = _("WARNING: the file '%(1)s' can not be read, it will be "
-                            "ignored\n%(2)s") % {"1": file_path, "2": e}
-                    self.logger.write("%s\n" % UTS.red(
-                                                                        msg), 5)
+                    msg = _("The file '%s' can not be read, it will be ignored\n%s") % \
+                           (file_path, e})
+                    self.logger.warning("%s\n" % msg)
                     
         # Construct the dictionnary self.history 
         for job in l_jobs + l_jobs_not_today:
@@ -1573,11 +1518,8 @@ class Gui(object):
             for global_xml in l_globalxml:
                 date = os.path.basename(global_xml.filePath).split("_")[0]
                 global_root_node = global_xml.xmlroot.find("jobs")
-                job_node = src.xmlManager.find_node_by_attrib(
-                                                              global_root_node,
-                                                              "job",
-                                                              "name",
-                                                              job.name)
+                job_node = XMLMGR.find_node_by_attrib(
+                  global_root_node, "job", "name", job.name )
                 if job_node:
                     if job_node.find("remote_log_file_path") is not None:
                         link = job_node.find("remote_log_file_path").text
@@ -1588,47 +1530,37 @@ class Gui(object):
             self.history[job.name] = l_links
   
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
-        '''Get all the first information needed for each file and write the 
-           first version of the files   
+        """\
+        Get all the first information needed for each file and write the 
+        first version of the files   
 
         :param xml_node_jobs etree.Element: the node corresponding to a job
         :param l_jobs_not_today List: the list of jobs that do not run today
-        '''
+        """
+        
+        ASNODE = XMLMGR.add_simple_node # shortcut
+        
         for job in l_jobs_not_today:
-            xmlj = src.xmlManager.add_simple_node(xml_node_jobs,
-                                                 "job",
-                                                 attrib={"name" : job.name})
-            src.xmlManager.add_simple_node(xmlj, "application", job.application)
-            src.xmlManager.add_simple_node(xmlj,
-                                           "distribution",
-                                           job.machine.distribution)
-            src.xmlManager.add_simple_node(xmlj, "board", job.board)
-            src.xmlManager.add_simple_node(xmlj,
-                                       "commands", " ; ".join(job.commands))
-            src.xmlManager.add_simple_node(xmlj, "state", "Not today")
-            src.xmlManager.add_simple_node(xmlj, "machine", job.machine.name)
-            src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
-            src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
-            src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
-            src.xmlManager.add_simple_node(xmlj, "sat_path",
-                                                        job.machine.sat_path)
-            xml_history = src.xmlManager.add_simple_node(xmlj, "history")
+            xmlj = ASNODE(xml_node_jobs, "job", attrib={"name" : job.name})
+            ASNODE(xmlj, "application", job.application)
+            ASNODE(xmlj, "distribution", job.machine.distribution)
+            ASNODE(xmlj, "board", job.board)
+            ASNODE(xmlj, "commands", " ; ".join(job.commands))
+            ASNODE(xmlj, "state", "Not today")
+            ASNODE(xmlj, "machine", job.machine.name)
+            ASNODE(xmlj, "host", job.machine.host)
+            ASNODE(xmlj, "port", str(job.machine.port))
+            ASNODE(xmlj, "user", job.machine.user)
+            ASNODE(xmlj, "sat_path", job.machine.sat_path)
+            xml_history = ASNODE(xmlj, "history")
             for i, (date, res_job, link) in enumerate(self.history[job.name]):
                 if i==0:
                     # tag the first one (the last one)
-                    src.xmlManager.add_simple_node(xml_history,
-                                                   "link",
-                                                   text=link,
-                                                   attrib={"date" : date,
-                                                           "res" : res_job,
-                                                           "last" : "yes"})
+                    ASNODE( xml_history, "link", text=link,
+                            attrib={"date" : date, "res" : res_job, "last" : "yes"} )
                 else:
-                    src.xmlManager.add_simple_node(xml_history,
-                                                   "link",
-                                                   text=link,
-                                                   attrib={"date" : date,
-                                                           "res" : res_job,
-                                                           "last" : "no"})
+                    ASNODE( xml_history, "link", text=link,
+                            attrib={"date" : date, "res" : res_job, "last" : "no"} )
 
     def parse_csv_boards(self, today):
         """ Parse the csv file that describes the boards to produce and fill 
@@ -1719,56 +1651,41 @@ class Gui(object):
                                        time.localtime(job._Tf))
             
             # recreate the job node
-            xmlj = src.xmlManager.add_simple_node(xml_node_jobs,
-                                                  "job",
-                                                  attrib={"name" : job.name})
-            src.xmlManager.add_simple_node(xmlj, "machine", job.machine.name)
-            src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
-            src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
-            src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
-            xml_history = src.xmlManager.add_simple_node(xmlj, "history")
+            xmlj = ASNODE(xml_node_jobs, "job", attrib={"name" : job.name})
+            ASNODE(xmlj, "machine", job.machine.name)
+            ASNODE(xmlj, "host", job.machine.host)
+            ASNODE(xmlj, "port", str(job.machine.port))
+            ASNODE(xmlj, "user", job.machine.user)
+            xml_history = ASNODE(xmlj, "history")
             for date, res_job, link in self.history[job.name]:
-                src.xmlManager.add_simple_node(xml_history,
-                                               "link",
-                                               text=link,
-                                               attrib={"date" : date,
-                                                       "res" : res_job})
+                ASNODE( xml_history, "link", text=link,
+                        attrib={"date" : date, "res" : res_job} )
 
-            src.xmlManager.add_simple_node(xmlj, "sat_path",
-                                           job.machine.sat_path)
-            src.xmlManager.add_simple_node(xmlj, "application", job.application)
-            src.xmlManager.add_simple_node(xmlj, "distribution",
-                                           job.machine.distribution)
-            src.xmlManager.add_simple_node(xmlj, "board", job.board)
-            src.xmlManager.add_simple_node(xmlj, "timeout", str(job.timeout))
-            src.xmlManager.add_simple_node(xmlj, "commands",
-                                           " ; ".join(job.commands))
-            src.xmlManager.add_simple_node(xmlj, "state", job.get_status())
-            src.xmlManager.add_simple_node(xmlj, "begin", T0)
-            src.xmlManager.add_simple_node(xmlj, "end", Tf)
-            src.xmlManager.add_simple_node(xmlj, "out", UTS.cleancolor(job.out))
-            src.xmlManager.add_simple_node(xmlj, "err", UTS.cleancolor(job.err))
-            src.xmlManager.add_simple_node(xmlj, "res", str(job.res_job))
+            ASNODE(xmlj, "sat_path", job.machine.sat_path)
+            ASNODE(xmlj, "application", job.application)
+            ASNODE(xmlj, "distribution", job.machine.distribution)
+            ASNODE(xmlj, "board", job.board)
+            ASNODE(xmlj, "timeout", str(job.timeout))
+            ASNODE(xmlj, "commands", " ; ".join(job.commands))
+            ASNODE(xmlj, "state", job.get_status())
+            ASNODE(xmlj, "begin", T0)
+            ASNODE(xmlj, "end", Tf)
+            ASNODE(xmlj, "out", UTS.cleancolor(job.out))
+            ASNODE(xmlj, "err", UTS.cleancolor(job.err))
+            ASNODE(xmlj, "res", str(job.res_job))
             if len(job.remote_log_files) > 0:
-                src.xmlManager.add_simple_node(xmlj,
-                                               "remote_log_file_path",
-                                               job.remote_log_files[0])
+                ASNODE(xmlj, "remote_log_file_path", job.remote_log_files[0])
             else:
-                src.xmlManager.add_simple_node(xmlj,
-                                               "remote_log_file_path",
-                                               "nothing")           
+                ASNODE(xmlj, "remote_log_file_path", "nothing")           
             # Search for the test log if there is any
             l_test_log_files = self.find_test_log(job.remote_log_files)
-            xml_test = src.xmlManager.add_simple_node(xmlj,
-                                                      "test_log_file_path")
+            xml_test = ASNODE(xmlj, "test_log_file_path")
             for test_log_path, res_test, nb_fails in l_test_log_files:
-                test_path_node = src.xmlManager.add_simple_node(xml_test,
-                                               "path",
-                                               test_log_path)
+                test_path_node = ASNODE(xml_test, "path", test_log_path)
                 test_path_node.attrib["res"] = res_test
                 test_path_node.attrib["nb_fails"] = nb_fails
             
-            xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
+            xmlafter = ASNODE(xmlj, "after", job.after)
             # get the job father
             if job.after is not None:
                 job_father = None
@@ -1781,7 +1698,7 @@ class Gui(object):
                     link = job_father.remote_log_files[0]
                 else:
                     link = "nothing"
-                src.xmlManager.append_node_attrib(xmlafter, {"link" : link})
+                XMLMGR.append_node_attrib(xmlafter, {"link" : link})
             
             # Verify that the job is to be done today regarding the input csv
             # files
@@ -1791,21 +1708,16 @@ class Gui(object):
                     if (job.machine.distribution == dist 
                         and job.application == appli):
                         found = True
-                        src.xmlManager.add_simple_node(xmlj,
-                                               "extra_job",
-                                               "no")
+                        ASNODE(xmlj, "extra_job", "no")
                         break
                 if not found:
-                    src.xmlManager.add_simple_node(xmlj,
-                                               "extra_job",
-                                               "yes")
+                    ASNODE(xmlj, "extra_job", "yes")
             
         
         # Update the date
         xml_node_infos = xml_file.xmlroot.find('infos')
-        src.xmlManager.append_node_attrib(xml_node_infos,
-                    attrib={"value" : 
-                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        XMLMGR.append_node_attrib( xml_node_infos,
+           attrib={"value" : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} )
                
 
     def find_test_log(self, l_remote_log_files):
@@ -1821,7 +1733,7 @@ class Gui(object):
         for file_path in l_remote_log_files:
             dirname = os.path.basename(os.path.dirname(file_path))
             file_name = os.path.basename(file_path)
-            regex = src.logger.log_all_command_file_expression
+            regex = UTS._log_all_command_file_expression
             oExpr = re.compile(regex)
             if dirname == "TEST" and oExpr.search(file_name):
                 # find the res of the command
@@ -1844,7 +1756,7 @@ class Gui(object):
         '''
         for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             xml_node_infos = xml_file.xmlroot.find('infos')
-            src.xmlManager.append_node_attrib(xml_node_infos,
+            XMLMGR.append_node_attrib(xml_node_infos,
                         attrib={"JobsCommandStatus" : finish_status})
         # Write the file
         self.write_xml_files()

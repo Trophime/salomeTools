@@ -80,7 +80,7 @@ class Command(_BaseCommand):
     # Print some informations
     msg = ('Executing the script in the build directories of the application %s\n') % \
                 UTS.label(config.VARS.application)
-    logger.write(msg, 1)
+    logger.info(msg)
     
     info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
     UTS.logger_info_tuples(logger, info)
@@ -144,10 +144,9 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 20), 3)
-    logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % UTS.info(step), 4)
-    logger.flush()
+    logger.info("\r%s%s" % (header, " " * 20))
+    logger.info("\r%s%s" % (header, step))
+    logger.debug("\n==== %s \n" % UTS.info(step))
 
 def log_res_step(logger, res):
     if res == 0:
@@ -192,21 +191,17 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     p_name, p_info = p_name_info
     
     # Logging
-    logger.write("\n", 4, False)
-    logger.write("################ ", 4)
     header = _("Running script of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
-    logger.write(header, 3)
-    logger.write("\n", 4, False)
-    logger.flush()
+    logger.info("\n" + header)
 
     # Do nothing if he product is not compilable or has no compilation script
-    if ( ("properties" in p_info and 
-          "compilation" in p_info.properties and 
-          p_info.properties.compilation == "no") or
-         (not src.product.product_has_script(p_info)) ):
+    test1 = "properties" in p_info and \
+            "compilation" in p_info.properties and \
+            p_info.properties.compilation == "no"
+    if ( test1 or (not src.product.product_has_script(p_info)) ):
         log_step(logger, header, "ignored")
-        logger.write("\n", 3, False)
+        logger.info("\n")
         return 0
 
     # Instantiate the class that manages all the construction commands
@@ -228,13 +223,13 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     
     # Log the result
     if res > 0:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + "<KO>")
+        logger.info("\r%s%s" % (header, " " * len_end_line))
+        logger.info("\r" + header + "<KO>")
         logger.debug("==== <KO> in script execution of %s\n" %  p_name)
     else:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + "<OK>"))
+        logger.info("\r%s%s" % (header, " " * len_end_line))
+        logger.info("\r" + header + "<OK>")
         logger.debug("==== <OK> in script execution of %s\n" %  p_name)
-    logger.write("\n")
+    logger.info("\n")
 
     return res

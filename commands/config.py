@@ -229,4 +229,4 @@ If a name is given the new config file takes the given name."""))
         for product_name in config.APPLICATION.products.keys():
             logger.info("%s\n" % product_name)
           
-    return RCO.ReturnCode("OK")
+    return RCO.ReturnCode("OK", "config command done")

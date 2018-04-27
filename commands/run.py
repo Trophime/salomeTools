@@ -98,11 +98,10 @@ Did you run the command 'sat launcher' ?\n""") % launcher_path
                     stdout=logger.logTxtFile,
                     stderr=subprocess.STDOUT)
     
-    # Display information : how to get the logs
-    messageFirstPart = _("\nEnd of execution. To see the traces, "
-                         "please tap the following command :\n")
-    messageSecondPart = UTS.label( config.VARS.salometoolsway + os.sep + 
-                                   "sat log " + config.VARS.application + "\n")
-    logger.write("  %s\n" %(messageFirstPart + messageSecondPart), 2)
+    # Display information: how to get the logs
+    msg1 = _("End of 'sat run'. To see traces, type:")
+    msg2 = UTS.label("sat log " + config.VARS.application)
+    msg = "%s\n%s\n" % (msg1, msg2)
+    logger.info(msg)
     
-    return 0
+    return RCO.ReturnCode("OK", msg)

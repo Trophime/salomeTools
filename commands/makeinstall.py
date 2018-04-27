@@ -73,8 +73,8 @@ class Command(_BaseCommand):
     products_infos = get_products_list(options, config, logger)
 
     # Print some informations
-    logger.write(_('Executing the make install command in the build directories of the application %s\n') % 
-                UTS.label(config.VARS.application), 1)
+    logger.info(_('Executing the make install command in the build directories of the application %s\n') % \
+                UTS.label(config.VARS.application))
     
     info = [(_("BUILD directory"),
              os.path.join(config.APPLICATION.workdir, 'BUILD'))]
@@ -87,14 +87,14 @@ class Command(_BaseCommand):
     # Print the final state
     nb_products = len(products_infos)
     if res == 0:
-        final_status = "<OK>"
+        final_status = "OK"
     else:
-        final_status = "<KO>"
+        final_status = "KO"
    
-    logger.info(_("\nMake install: %s (%d/%d)\n") % \
-                  (final_status, nb_products - res, nb_products))    
+    msg = _("\nMake install: <%s> (%d/%d)\n") % (final_status, nb_products - res, nb_products)
+    logger.info(msg)    
     
-    return res 
+    return RCO.ReturnCode(final_status, msg)
    
 
 def get_products_list(options, cfg, logger):
@@ -131,10 +131,9 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 20), 3)
-    logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % UTS.info(step), 4)
-    logger.flush()
+    logger.info("\r%s%s" % (header, " " * 20), 3)
+    logger.info("\r%s%s" % (header, step), 3)
+    logger.debug("\n==== %s \n" % UTS.info(step), 4)
 
 def log_res_step(logger, res):
     if res == 0:
@@ -175,20 +174,16 @@ def makeinstall_product(p_name_info, config, logger):
     p_name, p_info = p_name_info
     
     # Logging
-    logger.write("\n", 4, False)
-    logger.write("################ ", 4)
     header = _("Make install of %s") % UTS.label(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
-    logger.write(header, 3)
-    logger.write("\n", 4, False)
-    logger.flush()
+    logger.info(header)
 
     # Do nothing if he product is not compilable
-    if ("properties" in p_info and "compilation" in p_info.properties and 
-                                        p_info.properties.compilation == "no"):
+    if ("properties" in p_info and \
+        "compilation" in p_info.properties and \
+        p_info.properties.compilation == "no"):
         log_step(logger, header, "ignored")
-        logger.write("\n", 3, False)
-        return 0
+        return RCO.ReturnCode("OK", "product %s is not compilable" % p_name)
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
@@ -210,13 +205,13 @@ def makeinstall_product(p_name_info, config, logger):
     
     # Log the result
     if res > 0:
-        logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + "<KO>")
-        logger.error("==== <KO> in make install of s\n" % p_name)
+        logger.info("\r%s%s" % (header, " " * 20))
+        logger.info("\r" + header + "<KO>")
+        logger.debug("==== <KO> in make install of s\n" % p_name)
     else:
-        logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + "<OK>")
-        logger.write("==== <OK> in make install of %s\n" % p_name)
-    logger.write("\n", 3, False)
+        logger.info("\r%s%s" % (header, " " * 20))
+        logger.info("\r" + header + "<OK>")
+        logger.debug("==== <OK> in make install of %s\n" % p_name)
+    logger.info("\n")
 
     return res

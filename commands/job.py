@@ -116,8 +116,7 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
             found = True
             break
     if not found:
-        msg = _("Impossible to find the job %s in %s\n" % \
-                (options.job, file_jobs_cfg)
+        msg = _("Impossible to find the job %s in %s\n") % (options.job, file_jobs_cfg)
         logger.error(msg)
         return 1
     
@@ -158,7 +157,6 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
                     "." * (len_max_command - len(command)) + " ")
         
         error = ""
-        stack = ""
         # Execute the command
         code = sat_command(end_cmd,
                            options = options,
@@ -173,18 +171,14 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
         else:
             if sat_command_name != "test":
                 res = 1
-            logger.write('<KO>: %s\n' % error)
-
-            if len(stack) > 0:
-                logger.write('stack: %s\n' % stack, 3)
+            logger.info('<KO>: %s\n' % error)
     
     # Print the final state
     if res == 0:
-        final_status = "<OK>"
+        final_status = "OK"
     else:
-        final_status = "<KO>"
-   
-    logger.info(_("\nCommands: %s (%d/%d)\n") % \
-                 (final_status, nb_pass, len(commands)))
-    
-    return res
+        final_status = "KO"
+        
+    msg = "Commands: <%s> (%d/%d)" % (final_status, nb_pass, len(commands))
+    logger.info(msg)   
+    return RCO.ReturnCode(final_status, msg)

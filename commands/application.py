@@ -365,11 +365,7 @@ def create_application(config, appli_dir, catalog, logger, display=True):
                 logger.warning(msg)
 
     # generate the launch file
-    retcode = generate_launch_file(config,
-                                   appli_dir,
-                                   catalog,
-                                   logger,
-                                   SALOME_modules)
+    retcode = generate_launch_file(config, appli_dir, catalog, logger, SALOME_modules)
     
     if retcode == 0:
         cmd = UTS.label("%s/salome" % appli_dir)
