@@ -83,7 +83,7 @@
 
 <span class="nb">print</span> <span class="n">logging</span><span class="o">.</span><span class="vm">__file__</span>
 
-<div class="viewcode-block" id="initMyLogger"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_1.initMyLogger">[docs]</a><span class="k">def</span> <span class="nf">initMyLogger</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="initMyLogger"><a class="viewcode-back" href="../../../apidoc_src/src.example.html#src.example.essai_logging_1.initMyLogger">[docs]</a><span class="k">def</span> <span class="nf">initMyLogger</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="c1"># http://sametmax.com/ecrire-des-logs-en-python/</span>
   <span class="c1"># https://docs.python.org/3/library/time.html#time.strftime</span>
   <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">init MyLogger, fmt=&#39;</span><span class="si">%s</span><span class="s2">&#39;, level=&#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
@@ -99,10 +99,10 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span> <span class="c1"># ou DEBUG</span></div>
   <span class="c1"># logger.info(&#39;\n&#39; + PP.pformat(dir(logger)))</span>
   
-<div class="viewcode-block" id="getMyLogger"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_1.getMyLogger">[docs]</a><span class="k">def</span> <span class="nf">getMyLogger</span><span class="p">():</span>
+<div class="viewcode-block" id="getMyLogger"><a class="viewcode-back" href="../../../apidoc_src/src.example.html#src.example.essai_logging_1.getMyLogger">[docs]</a><span class="k">def</span> <span class="nf">getMyLogger</span><span class="p">():</span>
   <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;MyLogger&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="testLogger1"><a class="viewcode-back" href="../../../commands/apidoc/src.example.html#src.example.essai_logging_1.testLogger1">[docs]</a><span class="k">def</span> <span class="nf">testLogger1</span><span class="p">():</span>
+<div class="viewcode-block" id="testLogger1"><a class="viewcode-back" href="../../../apidoc_src/src.example.html#src.example.essai_logging_1.testLogger1">[docs]</a><span class="k">def</span> <span class="nf">testLogger1</span><span class="p">():</span>
   <span class="n">logger</span> <span class="o">=</span> <span class="n">getMyLogger</span><span class="p">()</span>
   <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;test logger debug&#39;</span><span class="p">)</span>
   <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;test logger info&#39;</span><span class="p">)</span>

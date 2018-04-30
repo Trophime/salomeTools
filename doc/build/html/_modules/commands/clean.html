@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.clean &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.clean</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2018  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1"># Compatibility python 2/3 for input function</span>
+<span class="c1"># input stays input for python 3 and input = raw_input for python 2</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">raw_input</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span> 
+    <span class="k">pass</span>
+
+<span class="n">PROPERTY_EXPRESSION</span> <span class="o">=</span> <span class="s2">&quot;^.+:.+$&quot;</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The clean command suppresses the source, build, or install directories </span>
+<span class="sd">  of the application products.</span>
+<span class="sd">  Use the options to define what directories you want to suppress and </span>
+<span class="sd">  to reduce the list of products</span>
+
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat clean SALOME --build --install --properties is_salome_module:yes</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;clean&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for the command &#39;sat clean &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="s1">&#39;list2&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: Products to clean. This option can be&#39;</span>
+        <span class="s1">&#39; passed several time to clean several products.&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;properties&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;properties&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: Filter the products by their properties.</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Syntax: --properties &lt;property&gt;:&lt;value&gt;&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;sources&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;sources&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Clean the product source directories.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Clean the product build directories.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Clean the product install directories.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Clean the product source, build and install directories.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;sources_without_dev&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;sources_without_dev&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: do not clean the products in development mode.&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span>    </div>
+
+  
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat clean &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="c1"># check that the command has been called with an application</span>
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+
+    <span class="c1"># Verify the --properties option</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+        <span class="n">oExpr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PROPERTY_EXPRESSION</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">oExpr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">properties</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">The &#39;--properties&#39; options must have the following syntax:</span>
+<span class="s2">  --properties &lt;property&gt;:&lt;value&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span>
+            
+
+    <span class="c1"># Get the list of products to threat</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_products_list</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># Construct the list of directories to suppress</span>
+    <span class="n">l_dir_to_suppress</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+        <span class="n">l_dir_to_suppress</span> <span class="o">+=</span> <span class="p">(</span><span class="n">get_source_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">,</span> 
+                                            <span class="n">options</span><span class="o">.</span><span class="n">sources_without_dev</span><span class="p">)</span> <span class="o">+</span>
+                             <span class="n">get_build_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">)</span> <span class="o">+</span> 
+                             <span class="n">get_install_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">install</span><span class="p">:</span>
+            <span class="n">l_dir_to_suppress</span> <span class="o">+=</span> <span class="n">get_install_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">build</span><span class="p">:</span>
+            <span class="n">l_dir_to_suppress</span> <span class="o">+=</span> <span class="n">get_build_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sources</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">sources_without_dev</span><span class="p">:</span>
+            <span class="n">l_dir_to_suppress</span> <span class="o">+=</span> <span class="n">get_source_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">,</span> 
+                                                <span class="n">options</span><span class="o">.</span><span class="n">sources_without_dev</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_dir_to_suppress</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sat_command</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;sat -h clean&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Nothing to suppress, Please specify what you want to suppress.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">see: &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sat_command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="s2">&quot;specify what you want to suppress&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Check with the user if he really wants to suppress the directories</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">runner</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">batch</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Remove the following directories ?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">l_dir_to_suppress</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Are you sure you want to continue? [Yes/No] &quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rep</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;YES&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;user do not want to continue&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Suppress the list of paths</span>
+    <span class="n">suppress_directories</span><span class="p">(</span><span class="n">l_dir_to_suppress</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;clean done&quot;</span><span class="p">)</span></div></div>
+    
+
+<div class="viewcode-block" id="get_source_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.get_source_directories">[docs]</a><span class="k">def</span> <span class="nf">get_source_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">,</span> <span class="n">without_dev</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the list of directory source paths corresponding to the list of </span>
+<span class="sd">    product information given as input. If without_dev (bool), then</span>
+<span class="sd">    the dev products are ignored.</span>
+<span class="sd">    </span>
+<span class="sd">    :param products_infos: (list) </span>
+<span class="sd">      The list of (name, config) corresponding to one product.</span>
+<span class="sd">    :param without_dev: (boolean) If True, then ignore the dev products.</span>
+<span class="sd">    :return: (list) the list of source paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_dir_source</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">without_dev</span><span class="p">):</span>
+            <span class="n">l_dir_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">l_dir_source</span></div>
+
+<div class="viewcode-block" id="get_build_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.get_build_directories">[docs]</a><span class="k">def</span> <span class="nf">get_build_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the list of directory build paths corresponding to the list of </span>
+<span class="sd">    product information given as input.</span>
+<span class="sd">    </span>
+<span class="sd">    :param products_infos: (list)</span>
+<span class="sd">      The list of (name, config) corresponding to one product.</span>
+<span class="sd">    :return: (list) the list of build paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_dir_build</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;build_dir&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
+                <span class="n">l_dir_build</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_dir</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">l_dir_build</span></div>
+
+<div class="viewcode-block" id="get_install_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.get_install_directories">[docs]</a><span class="k">def</span> <span class="nf">get_install_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the list of directory install paths corresponding to the list of </span>
+<span class="sd">    product information given as input.</span>
+<span class="sd">    </span>
+<span class="sd">    :param products_infos: (list) </span>
+<span class="sd">      The list of (name, config) corresponding to one product.</span>
+<span class="sd">    :return: (list) the list of install paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_dir_install</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+            <span class="n">l_dir_install</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">l_dir_install</span></div>
+
+<div class="viewcode-block" id="product_has_dir"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.product_has_dir">[docs]</a><span class="k">def</span> <span class="nf">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">without_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a boolean at True if there is a source, build and install</span>
+<span class="sd">    directory corresponding to the product described by product_info.</span>
+<span class="sd">    </span>
+<span class="sd">    :param products_info: (Config) </span>
+<span class="sd">      The config corresponding to the product.</span>
+<span class="sd">    :return: (bool)</span>
+<span class="sd">      True if there is a source, build and install</span>
+<span class="sd">      directory corresponding to the product described by product_info.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+                            <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">without_dev</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+    
+<div class="viewcode-block" id="suppress_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.suppress_directories">[docs]</a><span class="k">def</span> <span class="nf">suppress_directories</span><span class="p">(</span><span class="n">l_paths</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Suppress the paths given in the list in l_paths.</span>
+<span class="sd">    </span>
+<span class="sd">    :param l_paths: (list) The list of Path to be suppressed</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">l_paths</span><span class="p">:</span>
+        <span class="n">strpath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The path </span><span class="si">%s</span><span class="s2"> does not exists (or is not a directory)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">strpath</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Removing </span><span class="si">%s</span><span class="s2"> ...&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">strpath</span> <span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">rm</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&lt;OK&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

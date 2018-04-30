@@ -70,7 +70,8 @@ Code documentation
 .. toctree::
    :maxdepth: 1
 
-   SAT modules <commands/apidoc/modules.rst>
+   SAT src modules <apidoc_src/modules.rst>
+   SAT commands modules <apidoc_commands/modules.rst>
 
 
 Release Notes

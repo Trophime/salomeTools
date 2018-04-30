@@ -91,7 +91,7 @@
 
 <span class="c1"># Get directory to be used for the temporary files.</span>
 <span class="c1">#</span>
-<div class="viewcode-block" id="getTmpDirDEFAULT"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.getTmpDirDEFAULT">[docs]</a><span class="k">def</span> <span class="nf">getTmpDirDEFAULT</span><span class="p">():</span>
+<div class="viewcode-block" id="getTmpDirDEFAULT"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.getTmpDirDEFAULT">[docs]</a><span class="k">def</span> <span class="nf">getTmpDirDEFAULT</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
         <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TEMP&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -99,7 +99,7 @@
         <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">directory</span></div>
 
-<div class="viewcode-block" id="Test"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test">[docs]</a><span class="k">class</span> <span class="nc">Test</span><span class="p">:</span>
+<div class="viewcode-block" id="Test"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test">[docs]</a><span class="k">class</span> <span class="nc">Test</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">config</span><span class="p">,</span>
                  <span class="n">logger</span><span class="p">,</span>
@@ -144,7 +144,7 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span>
                             <span class="n">symlinks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Test.prepare_testbase_from_dir"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.prepare_testbase_from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">testbase_name</span><span class="p">,</span> <span class="n">testbase_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.prepare_testbase_from_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.prepare_testbase_from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">testbase_name</span><span class="p">,</span> <span class="n">testbase_dir</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;get test base from dir: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">testbase_dir</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">testbase_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
@@ -154,7 +154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_copy_dir</span><span class="p">(</span><span class="n">testbase_dir</span><span class="p">,</span>
                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;BASES&#39;</span><span class="p">,</span> <span class="n">testbase_name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Test.prepare_testbase_from_git"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.prepare_testbase_from_git">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_git</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Test.prepare_testbase_from_git"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.prepare_testbase_from_git">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_git</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                   <span class="n">testbase_name</span><span class="p">,</span>
                                   <span class="n">testbase_base</span><span class="p">,</span>
                                   <span class="n">testbase_tag</span><span class="p">):</span>
@@ -202,7 +202,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;git is not installed. exiting...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Test.prepare_testbase_from_svn"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.prepare_testbase_from_svn">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_svn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">testbase_name</span><span class="p">,</span> <span class="n">testbase_base</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.prepare_testbase_from_svn"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.prepare_testbase_from_svn">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase_from_svn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">testbase_name</span><span class="p">,</span> <span class="n">testbase_base</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;get test base &#39;</span><span class="si">%s</span><span class="s2">&#39; from svn</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">testbase_name</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">set_signal</span><span class="p">():</span> <span class="c1"># pragma: no cover</span>
@@ -249,7 +249,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Configure tests base.</span>
-<div class="viewcode-block" id="Test.prepare_testbase"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.prepare_testbase">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_base_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.prepare_testbase"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.prepare_testbase">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_base_name</span><span class="p">):</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Test base&quot;</span><span class="p">),</span> <span class="n">test_base_name</span><span class="p">))</span>
 
@@ -298,7 +298,7 @@
     <span class="c1">##</span>
     <span class="c1"># Searches if the script is declared in known errors pyconf.</span>
     <span class="c1"># Update the status if needed.</span>
-<div class="viewcode-block" id="Test.search_known_errors"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.search_known_errors">[docs]</a>    <span class="k">def</span> <span class="nf">search_known_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">test_grid</span><span class="p">,</span> <span class="n">test_session</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.search_known_errors"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.search_known_errors">[docs]</a>    <span class="k">def</span> <span class="nf">search_known_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">test_grid</span><span class="p">,</span> <span class="n">test_session</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
         <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_grid</span><span class="p">,</span> <span class="n">test_session</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">config_has_application</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="p">[]</span>
@@ -339,7 +339,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Read the *.result.py files.</span>
-<div class="viewcode-block" id="Test.read_results"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.read_results">[docs]</a>    <span class="k">def</span> <span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">has_timed_out</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.read_results"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.read_results">[docs]</a>    <span class="k">def</span> <span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">has_timed_out</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">listTest</span><span class="p">:</span>
             <span class="n">resfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span>
@@ -413,7 +413,7 @@
     <span class="c1"># Generates the script to be run by Salome.</span>
     <span class="c1"># This python script includes init and close statements and a loop</span>
     <span class="c1"># calling all the scripts of a single directory.</span>
-<div class="viewcode-block" id="Test.generate_script"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.generate_script">[docs]</a>    <span class="k">def</span> <span class="nf">generate_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">script_path</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.generate_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.generate_script">[docs]</a>    <span class="k">def</span> <span class="nf">generate_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">script_path</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
         <span class="c1"># open template file</span>
         <span class="n">template_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span>
                                           <span class="s2">&quot;test_module&quot;</span><span class="p">,</span>
@@ -442,7 +442,7 @@
 
     <span class="c1"># Find the getTmpDir function that gives access to *pidict file directory.</span>
     <span class="c1"># (the *pidict file exists when SALOME is launched) </span>
-<div class="viewcode-block" id="Test.get_tmp_dir"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.get_tmp_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_tmp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.get_tmp_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.get_tmp_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_tmp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Rare case where there is no KERNEL in grid list </span>
         <span class="c1"># (for example MED_STANDALONE)</span>
         <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> 
@@ -518,14 +518,14 @@
                 <span class="n">file_</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Test.get_test_timeout"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.get_test_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_test_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">default_value</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.get_test_timeout"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.get_test_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_test_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">default_value</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;timeout&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="ow">and</span> 
                 <span class="n">test_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">]):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">][</span><span class="n">test_name</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">default_value</span></div>
 
-<div class="viewcode-block" id="Test.generate_launching_commands"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.generate_launching_commands">[docs]</a>    <span class="k">def</span> <span class="nf">generate_launching_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.generate_launching_commands"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.generate_launching_commands">[docs]</a>    <span class="k">def</span> <span class="nf">generate_launching_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Case where &quot;sat test&quot; is launched in an existing SALOME environment</span>
         <span class="k">if</span> <span class="s1">&#39;KERNEL_ROOT_DIR&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">binSalome</span> <span class="o">=</span> <span class="s2">&quot;runSalome&quot;</span>
@@ -596,7 +596,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs tests of a session (using a single instance of Salome).</span>
-<div class="viewcode-block" id="Test.run_tests"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
         <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">)</span>
@@ -720,7 +720,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs all tests of a session.</span>
-<div class="viewcode-block" id="Test.run_session_tests"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_session_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_session_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_session_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_session_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_session_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
        
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_test_margin</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Session = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">))</span>
@@ -743,7 +743,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs all tests of a grid.</span>
-<div class="viewcode-block" id="Test.run_grid_tests"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_grid_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_grid_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_grid_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_grid_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_grid_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_test_margin</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">))</span>
 
@@ -769,7 +769,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">run_session_tests</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Test.run_testbase_tests"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_testbase_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_testbase_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_testbase_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_testbase_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_testbase_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs test testbase&quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">res_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span> <span class="s2">&quot;RESSOURCES&quot;</span><span class="p">)</span>
@@ -829,7 +829,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span> <span class="o">=</span> <span class="n">grid</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">run_grid_tests</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Test.run_script"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_name</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> 
                 <span class="n">script_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="p">):</span>
             <span class="n">script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="p">[</span><span class="n">script_name</span><span class="p">]</span>
@@ -844,7 +844,7 @@
                 <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;----------- end </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">script_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Test.run_all_tests"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.run_all_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_all_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.run_all_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_all_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_all_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">initTime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_script</span><span class="p">(</span><span class="s1">&#39;test_setup&#39;</span><span class="p">)</span>
@@ -891,7 +891,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_run</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_succeed</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_acknoledge</span></div>
 
     <span class="c1"># Write margin to show test results.</span>
-<div class="viewcode-block" id="Test.write_test_margin"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.test_module.Test.write_test_margin">[docs]</a>    <span class="k">def</span> <span class="nf">write_test_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">):</span>
+<div class="viewcode-block" id="Test.write_test_margin"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.write_test_margin">[docs]</a>    <span class="k">def</span> <span class="nf">write_test_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;indent with &#39;| ... +&#39; to show test results.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">tab</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>

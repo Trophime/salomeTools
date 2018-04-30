@@ -25,19 +25,20 @@ import src.returnCode as RCO
 from src.salomeTools import _BaseCommand
 import src.system as SYSS
 
+
 ########################################################################
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The source command gets the sources of the application products
   from cvs, git or an archive.
   
   examples:
-    >> sat source SALOME --products KERNEL,GUI
+  >> sat source SALOME --products KERNEL,GUI
   """
   
-  name = "sourcre"
+  name = "source"
   
   def getParser(self):
     """Define all options for command 'sat source <options>'"""
@@ -106,15 +107,15 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     """\
     Called if the product is in development mode
     
-    :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :param pad int: The gap to apply for the terminal display
-    :return: True if it succeed, else False
-    :rtype: boolean
+    :param config: (Config) The global configuration
+    :param product_info: (Config) 
+      The configuration specific to the product to be prepared
+    :param source_dir: (Path)
+      The Path instance corresponding to the directory where to put the sources
+    :param logger: (Logger)
+      The logger instance to use for the display and logging
+    :param pad: (int) The gap to apply for the terminal display
+    :return: (bool) True if it succeed, else False
     """
        
     # Call the function corresponding to get the sources with True checkout
@@ -137,20 +138,21 @@ def get_source_from_git(product_info,
                         pad,
                         is_dev=False,
                         environ = None):
-    """\
+    """
     Called if the product is to be get in git mode
     
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :param pad int: The gap to apply for the terminal display
-    :param is_dev boolean: True if the product is in development mode
-    :param environ src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if it succeed, else False
-    :rtype: boolean
+    :param product_info: (Config) 
+      The configuration specific to the product to be prepared
+    :param source_dir: (Path)
+      The Path instance corresponding to the
+      directory where to put the sources
+    :param logger Logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param pad: (int) The gap to apply for the terminal display
+    :param is_dev: (bool) True if the product is in development mode
+    :param environ: (src.environment.Environ)
+      The environment to source when extracting.
+    :return: (bool) True if it succeed, else False
     """
     # The str to display
     coflag = 'git'
@@ -177,16 +179,18 @@ def get_source_from_git(product_info,
     return retcode
 
 def get_source_from_archive(product_info, source_dir, logger):
-    '''The method called if the product is to be get in archive mode
+    """The method called if the product is to be get in archive mode
     
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
+    :param product_info: (Config)
+      The configuration specific to 
+      the product to be prepared
+    :param source_dir: (Path)
+      The Path instance corresponding to the directory
+      where to put the sources
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (bool) True if it succeed, else False
+    """
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
         raise Exception(_("Archive not found: '%s'") % \
@@ -240,21 +244,23 @@ def get_source_from_cvs(user,
                         logger,
                         pad,
                         environ = None):
-    '''The method called if the product is to be get in cvs mode
+    """
+    The method called if the product is to be get in cvs mode
     
-    :param user str: The user to use in for the cvs command
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param checkout boolean: If True, get the source in checkout mode
-    :param logger Logger: The logger instance to use for the display and logging
-    :param pad int: The gap to apply for the terminal display
-    :param environ src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
+    :param user: (str) The user to use in for the cvs command
+    :param product_info: (Config) 
+      The configuration specific to the product to be prepared
+    :param source_dir: (Path) 
+      The Path instance corresponding to the directory 
+      where to put the sources
+    :param checkout: (bool) If True, get the source in checkout mode
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param pad: (int) The gap to apply for the terminal display
+    :param environ: (src.environment.Environ) 
+      The environment to source when extracting.
+    :return: (bool) True if it succeed, else False
+    """
     # Get the protocol to use in the command
     if "protocol" in product_info.cvs_info:
         protocol = product_info.cvs_info.protocol
@@ -299,20 +305,22 @@ def get_source_from_svn(user,
                         checkout,
                         logger,
                         environ = None):
-    '''The method called if the product is to be get in svn mode
+    """The method called if the product is to be get in svn mode
     
-    :param user str: The user to use in for the svn command
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param checkout boolean: If True, get the source in checkout mode
-    :param logger Logger: The logger instance to use for the display and logging
-    :param environ src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
+    :param user: (str) The user to use in for the svn command
+    :param product_info: (Config)
+      The configuration specific to the product to be prepared
+    :param source_dir: (Path)
+      The Path instance corresponding to the directory 
+      where to put the sources
+    :param checkout: (boolean) 
+      If True, get the source in checkout mode
+    :param logger: (Logger)
+      The logger instance to use for the display and logging
+    :param environ: (src.environment.Environ)
+      The environment to source when extracting.
+    :return: (bool) True if it succeed, else False
+    """
     coflag = 'svn'
     if checkout: coflag = coflag.upper()
 
@@ -335,20 +343,21 @@ def get_product_sources(config,
                        logger, 
                        pad, 
                        checkout=False):
-    '''Get the product sources.
+    """Get the product sources.
     
-    :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param is_dev boolean: True if the product is in development mode
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :param pad int: The gap to apply for the terminal display
-    :param checkout boolean: If True, get the source in checkout mode
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
+    :param config: (Config) The global configuration
+    :param product_info: (Config) 
+      The configuration specific to the product to be prepared
+    :param is_dev: (bool) True if the product is in development mode
+    :param source_dir: (Path) 
+      The Path instance corresponding to the directory 
+      where to put the sources
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param pad: (int) The gap to apply for the terminal display
+    :param checkout: (bool) If True, get the source in checkout mode
+    :return: (bool) True if it succeed, else False
+    """
     
     # Get the application environment
     logger.info(_("Set the application environment\n"))
@@ -410,14 +419,16 @@ def get_product_sources(config,
     return False
 
 def get_all_product_sources(config, products, logger):
-    '''Get all the product sources.
+    """Get all the product sources.
     
-    :param config Config: The global configuration
-    :param products List: The list of tuples (product name, product informations)
-    :param logger Logger: The logger instance to be used for the logging
-    :return: the tuple (number of success, dictionary product_name/success_fail)
-    :rtype: (int,dict)
-    '''
+    :param config: (Config) The global configuration
+    :param products: (list) 
+      The list of tuples (product name, product informations)
+    :param logger: (Logger) 
+      The logger instance to be used for the logging
+    :return: (int,dict) 
+      The tuple (number of success, dictionary product_name/success_fail)
+    """
 
     # Initialize the variables that will count the fails and success
     results = dict()
@@ -462,11 +473,11 @@ def get_all_product_sources(config, products, logger):
                                      max_product_name_len, 
                                      checkout=False)
         
-        '''
+        """
         if 'no_rpath' in product_info.keys():
             if product_info.no_rpath:
                 hack_no_rpath(config, product_info, logger)
-        '''
+        """
         
         # Check that the sources are correctly get using the files to be tested
         # in product information
@@ -496,14 +507,17 @@ def get_all_product_sources(config, products, logger):
     return good_result, results
 
 def check_sources(product_info, logger):
-    '''Check that the sources are correctly get, using the files to be tested
-       in product information
+    """
+    Check that the sources are correctly get, 
+    using the files to be tested in product information
     
-    :param product_info Config: The configuration specific to 
-                                the product to be prepared
-    :return: True if the files exists (or no files to test is provided).
-    :rtype: boolean
-    '''
+    :param product_info: (Config)
+      The configuration specific to the product to be prepared
+    :param logger: (Logger) 
+      The logger instance to be used for the logging
+    :return: (bool) 
+      True if the files exists (or no files to test is provided).
+    """
     # Get the files to test if there is any
     if ("present_files" in product_info and 
         "source" in product_info.present_files):

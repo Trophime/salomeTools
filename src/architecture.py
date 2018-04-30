@@ -16,27 +16,27 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-'''
-In this file : all the stuff that can change with the architecture 
+"""
+Contains all the stuff that can change with the architecture 
 on which SAT is running
-'''
+"""
 
 import os
 import sys
 import platform
 
 def is_windows():
-    '''method that checks windows OS
+    """Checks windows OS
       
-    :rtype: boolean
-    '''
+    :return: (bool) True if system is Windows
+    """
     return platform.system() == 'Windows'
 
 def get_user():
-    '''method that gets the username that launched sat  
+    """Gets the username that launched sat  
     
-    :rtype: str
-    '''
+    :return: (str) environ var USERNAME
+    """
     # In windows case, the USERNAME environment variable has to be set
     if is_windows():
         if not os.environ.has_key('USERNAME'):
@@ -47,12 +47,11 @@ def get_user():
         return pwd.getpwuid(os.getuid())[0]
 
 def _lsb_release(args):
-    '''Get system information with lsb_release.
+    """Get system information with lsb_release.
     
-    :param args str: The arguments to give to lsb_release.
-    :return: The distribution.
-    :rtype: str
-    '''
+    :param args: (str) The CLI arguments to give to lsb_release.
+    :return: (str) The distribution.
+    """
     try:
         path = '/usr/local/bin:/usr/bin:/bin'
         lsb_path = os.getenv("LSB_PATH")
@@ -73,13 +72,14 @@ def _lsb_release(args):
         sys.exit(-1)
 
 def get_distribution(codes):
-    '''Gets the code for the distribution
+    """Gets the code for the distribution
     
-    :param codes L{Mapping}: The map containing distribution correlation table.
-    :return: The distribution on which salomeTools is running, regarding the 
-             distribution correlation table contained in codes variable.
-    :rtype: str
-    '''
+    :param codes: (L{Mapping}) 
+      The map containing distribution correlation table.
+    :return: (str)
+      The distribution on which salomeTools is running, regarding the 
+      distribution correlation table contained in codes variable.
+    """
     if is_windows():
         return "Win"
 
@@ -97,15 +97,17 @@ def get_distribution(codes):
 
 
 def get_distrib_version(distrib, codes):
-    '''Gets the version of the distribution
+    """Gets the version of the distribution
     
-    :param distrib str: The distribution on which the version will be found.
-    :param codes L{Mapping}: The map containing distribution correlation table.
-    :return: The version of the distribution on which salomeTools is running, 
-             regarding the distribution correlation table contained in codes 
-             variable.
-    :rtype: str
-    '''
+    :param distrib: (str) 
+      The distribution on which the version will be found.
+    :param codes: (L{Mapping}) 
+      The map containing distribution correlation table.
+    :return: (str)
+      The version of the distribution on which 
+      salomeTools is running, regarding the distribution 
+      correlation table contained in codes variable.
+    """
 
     if is_windows():
         return platform.release()
@@ -121,22 +123,21 @@ def get_distrib_version(distrib, codes):
     return version
 
 def get_python_version():
-    '''Gets the version of the running python.
+    """Gets the version of the running python.
     
-    :return: the version of the running python.
-    :rtype: str
-    '''
+    :return: (str) The version of the running python.
+    """
     
     # The platform python module gives the answer
     return platform.python_version()
 
 def get_nb_proc():
-    '''Gets the number of processors of the machine 
-       on which salomeTools is running.
+    """
+    Gets the number of processors of the machine 
+    on which salomeTools is running.
     
-    :return: the number of processors.
-    :rtype: str
-    '''
+    :return: (str) The number of processors.
+    """
     
     try :
         import multiprocessing

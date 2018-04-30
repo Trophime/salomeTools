@@ -16,13 +16,13 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-'''
+"""
 All utilities method doing a system call, 
 like open a browser or an editor, or call a git command
 
 usage:
   >> import src.system as SYSS
-'''
+"""
 
 import subprocess
 import os
@@ -30,11 +30,10 @@ import tarfile
 import src.returnCode as RCO
 
 def show_in_editor(editor, filePath, logger):
-    """\
-    open filePath using editor.
+    """open filePath using editor.
     
-    :param editor str: The editor to use.
-    :param filePath str: The path to the file to open.
+    :param editor: (str) The editor to use.
+    :param filePath: (str) The path to the file to open.
     """
     # default editor is vi
     if editor is None or len(editor) == 0:
@@ -58,17 +57,15 @@ def show_in_editor(editor, filePath, logger):
 
 
 def git_extract(from_what, tag, where, logger, environment=None):
-    """\
-    Extracts sources from a git repository.
+    """Extracts sources from a git repository.
     
-    :param from_what str: The remote git repository.
-    :param tag str: The tag.
-    :param where str: The path where to extract.
-    :param logger Logger: The logger instance to use.
-    :param environment src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if the extraction is successful
-    :rtype: boolean
+    :param from_what: (str) The remote git repository.
+    :param tag: (str) The tag.
+    :param where: (str) The path where to extract.
+    :param logger: (Logger) The logger instance to use.
+    :param environment: (Environ) 
+      The environment to source when extracting.
+    :return: (bool) True if the extraction is successful
     """
     if not where.exists():
         where.make()
@@ -99,14 +96,12 @@ def git_extract(from_what, tag, where, logger, environment=None):
     return (res == 0)
 
 def archive_extract(from_what, where, logger):
-    """\
-    Extracts sources from an archive.
+    """Extracts sources from an archive.
     
-    :param from_what str: The path to the archive.
-    :param where str: The path where to extract.
-    :param logger Logger: The logger instance to use.
-    :return: True if the extraction is successful
-    :rtype: boolean
+    :param from_what: (str) The path to the archive.
+    :param where: (str) The path where to extract.
+    :param logger: (Logger) The logger instance to use.
+    :return: (bool) True if the extraction is successful
     """
     try:
         archive = tarfile.open(from_what)
@@ -119,22 +114,20 @@ def archive_extract(from_what, where, logger):
 
 def cvs_extract(protocol, user, server, base, tag, product, where,
                 logger, checkout=False, environment=None):
-    """\
-    Extracts sources from a cvs repository.
+    """Extracts sources from a cvs repository.
     
-    :param protocol str: The cvs protocol.
-    :param user str: The user to be used.
-    :param server str: The remote cvs server.
-    :param base str: .
-    :param tag str: The tag.
-    :param product str: The product.
-    :param where str: The path where to extract.
-    :param logger Logger: The logger instance to use.
-    :param checkout boolean: If true use checkout cvs.
-    :param environment src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if the extraction is successful
-    :rtype: boolean
+    :param protocol: (str) The cvs protocol.
+    :param user: (str) The user to be used.
+    :param server: (str) The remote cvs server.
+    :param base: (str) .
+    :param tag: (str) The tag.
+    :param product: (str) The product.
+    :param where: (str) The path where to extract.
+    :param logger: (Logger) The logger instance to use.
+    :param checkout: (bool) If true use checkout cvs.
+    :param environment: (Environ) 
+      The environment to source when extracting.
+    :return: (bool) True if the extraction is successful
     """
 
     opttag = ''
@@ -179,19 +172,17 @@ def svn_extract(user,
                 logger,
                 checkout=False,
                 environment=None):
-    """\
-    Extracts sources from a svn repository.
+    """Extracts sources from a svn repository.
     
-    :param user str: The user to be used.
-    :param from_what str: The remote git repository.
-    :param tag str: The tag.
-    :param where str: The path where to extract.
-    :param logger Logger: The logger instance to use.
-    :param checkout boolean: If true use checkout svn.
-    :param environment src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if the extraction is successful
-    :rtype: boolean
+    :param user: (str) The user to be used.
+    :param from_what: (str) The remote git repository.
+    :param tag: (str) The tag.
+    :param where: (str) The path where to extract.
+    :param logger: (Logger) The logger instance to use.
+    :param checkout: (bool) If true use checkout svn.
+    :param environment: (Environ)
+      The environment to source when extracting.
+    :return: (bool) True if the extraction is successful
     """
     if not where.exists():
         where.make()

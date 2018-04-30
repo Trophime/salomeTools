@@ -34,11 +34,11 @@ class Command(_BaseCommand):
   
   examples: 
   >> sat profile [PRODUCT] 
-                 [-p | --prefix (string)] 
-                 [-n | --name (string)] 
-                 [-f | --force] 
-                 [-v | --version (string)] 
-                 [-s | --slogan (string)] 
+  >> sat profile --prefix (string)
+  >> sat profile --name (string)
+  >> sat profile --force
+  >> sat profile --version (string) 
+  >> sat profile --slogan (string) 
   """
   
   name = "profile"
@@ -210,11 +210,10 @@ def update_pyconf( config, options, logger ):
     """
     Updates the pyconf
     """
-
     #Save previous version
     pyconf = config.VARS.product + '.pyconf'
     pyconfBackup = config.VARS.product + '-backup.pyconf'
-    logger.info( _("Updating %s (previous version saved as %s." ) % (pyconf, pyconfBackup)
+    logger.info( _("Updating %s (previous version saved as %s." ) % (pyconf, pyconfBackup))
     path = config.getPath( pyconf )
     shutil.copyfile( os.path.join( path, pyconf ),
                      os.path.join( path, pyconfBackup ) )

@@ -72,7 +72,7 @@
 <span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
 
 <span class="c1">#####################################################</span>
-<div class="viewcode-block" id="ReturnCode"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode">[docs]</a><span class="k">class</span> <span class="nc">ReturnCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode">[docs]</a><span class="k">class</span> <span class="nc">ReturnCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">  assume simple return code for methods, with explanation as &#39;why&#39;</span>
@@ -144,7 +144,7 @@
     <span class="n">res</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">res</span>
 
-<div class="viewcode-block" id="ReturnCode.indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.indent">[docs]</a>  <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ch</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.indent"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.indent">[docs]</a>  <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ch</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;indent multi lines message&quot;&quot;&quot;</span>
     <span class="n">padding</span> <span class="o">=</span> <span class="n">amount</span> <span class="o">*</span> <span class="n">ch</span>
     <span class="n">res</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padding</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
@@ -167,25 +167,25 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">strOrList</span>
 
-<div class="viewcode-block" id="ReturnCode.toSys"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.toSys">[docs]</a>  <span class="k">def</span> <span class="nf">toSys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.toSys"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.toSys">[docs]</a>  <span class="k">def</span> <span class="nf">toSys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">]</span>
     <span class="k">except</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">NA_STATUS</span><span class="p">]</span></div>
     
-<div class="viewcode-block" id="ReturnCode.getWhy"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.getWhy">[docs]</a>  <span class="k">def</span> <span class="nf">getWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.getWhy"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.getWhy">[docs]</a>  <span class="k">def</span> <span class="nf">getWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span></div>
     
-<div class="viewcode-block" id="ReturnCode.setWhy"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setWhy">[docs]</a>  <span class="k">def</span> <span class="nf">setWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">why</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.setWhy"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.setWhy">[docs]</a>  <span class="k">def</span> <span class="nf">setWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">why</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_why</span> <span class="o">=</span> <span class="n">why</span></div>
     
-<div class="viewcode-block" id="ReturnCode.getValue"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.getValue">[docs]</a>  <span class="k">def</span> <span class="nf">getValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.getValue"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.getValue">[docs]</a>  <span class="k">def</span> <span class="nf">getValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div>
     
-<div class="viewcode-block" id="ReturnCode.setValue"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setValue">[docs]</a>  <span class="k">def</span> <span class="nf">setValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.setValue"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.setValue">[docs]</a>  <span class="k">def</span> <span class="nf">setValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span></div>
     
-<div class="viewcode-block" id="ReturnCode.setStatus"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.setStatus">[docs]</a>  <span class="k">def</span> <span class="nf">setStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">why</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.setStatus"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.setStatus">[docs]</a>  <span class="k">def</span> <span class="nf">setStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">why</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">why</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> 
       <span class="n">aWhy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_WHY</span>
     <span class="k">else</span><span class="p">:</span>
@@ -203,7 +203,7 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_VALUE</span></div>
 
-<div class="viewcode-block" id="ReturnCode.isOk"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.returnCode.ReturnCode.isOk">[docs]</a>  <span class="k">def</span> <span class="nf">isOk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnCode.isOk"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.isOk">[docs]</a>  <span class="k">def</span> <span class="nf">isOk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">)</span></div></div>
 </pre></div>
 

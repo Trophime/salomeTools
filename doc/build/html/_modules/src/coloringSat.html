@@ -162,13 +162,13 @@
   <span class="p">(</span><span class="s2">&quot;&lt;KO&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;KO&quot;</span><span class="p">),</span>
 <span class="p">)</span> <span class="p">)</span>
 
-<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;indent nb car (spaces) multi lines message except first one&quot;&quot;&quot;</span>
   <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">car</span><span class="o">*</span><span class="n">nb</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;elementary log stdout for debug if _verbose&quot;&quot;&quot;</span>
   <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.log: &quot;</span> <span class="o">%</span> <span class="n">_name</span>
   <span class="n">nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
@@ -179,7 +179,7 @@
       <span class="n">res</span> <span class="o">=</span> <span class="n">res</span> <span class="o">+</span> <span class="n">toColor</span><span class="p">(</span><span class="s2">&quot;&lt;reset&gt;&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
   
-<div class="viewcode-block" id="ColoringStream"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream">[docs]</a><span class="k">class</span> <span class="nc">ColoringStream</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ColoringStream"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.ColoringStream">[docs]</a><span class="k">class</span> <span class="nc">ColoringStream</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  write my stream class</span>
 <span class="sd">  only write and flush are used for the streaming</span>
@@ -189,17 +189,17 @@
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-<div class="viewcode-block" id="ColoringStream.write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">astr</span><span class="p">):</span>
+<div class="viewcode-block" id="ColoringStream.write"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.ColoringStream.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">astr</span><span class="p">):</span>
     <span class="c1"># log(&quot;UnittestStream.write(&#39;%s&#39;)&quot; % astr)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logs</span> <span class="o">+=</span> <span class="n">astr</span></div>
 
-<div class="viewcode-block" id="ColoringStream.flush"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.ColoringStream.flush">[docs]</a>  <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ColoringStream.flush"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.ColoringStream.flush">[docs]</a>  <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
   <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span></div>
 
-<div class="viewcode-block" id="toColor"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.toColor">[docs]</a><span class="k">def</span> <span class="nf">toColor</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<div class="viewcode-block" id="toColor"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.toColor">[docs]</a><span class="k">def</span> <span class="nf">toColor</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  automatically clean the message of color tags &#39;&lt;red&gt; ... </span>
 <span class="sd">  if the terminal output stdout is redirected by user</span>
@@ -214,11 +214,11 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="cleanColors"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.cleanColors">[docs]</a><span class="k">def</span> <span class="nf">cleanColors</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<div class="viewcode-block" id="cleanColors"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.cleanColors">[docs]</a><span class="k">def</span> <span class="nf">cleanColors</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;clean the message of color tags &#39;&lt;red&gt; ... &quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">_tagsNone</span><span class="p">)</span></div>
   
-<div class="viewcode-block" id="toColor_AnsiToWin32"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.toColor_AnsiToWin32">[docs]</a><span class="k">def</span> <span class="nf">toColor_AnsiToWin32</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<div class="viewcode-block" id="toColor_AnsiToWin32"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.toColor_AnsiToWin32">[docs]</a><span class="k">def</span> <span class="nf">toColor_AnsiToWin32</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;for test debug no wrapping&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;isatty&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">()):</span>
     <span class="c1"># clean the message color if the terminal is redirected by user</span>
@@ -235,7 +235,7 @@
     <span class="c1"># print &quot;streamOut&quot;,str(streamOut)</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">streamOut</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="replace"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.coloringSat.replace">[docs]</a><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+<div class="viewcode-block" id="replace"><a class="viewcode-back" href="../../apidoc_src/src.html#src.coloringSat.replace">[docs]</a><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
   <span class="n">s</span> <span class="o">=</span> <span class="n">msg</span>
   <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>

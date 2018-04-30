@@ -43,11 +43,11 @@ except NameError:
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The log command gives access to the logs produced by the salomeTools commands.
 
   examples:
-    >> sat log
+  >> sat log
   """
   
   name = "log"
@@ -237,14 +237,13 @@ class Command(_BaseCommand):
     return RCO.ReturnCode("OK", "option no browser")
  
 def get_last_log_file(logDir, notShownCommands):
-    """\
+    """
     Used in case of last option. 
     Get the last log command file path.
     
-    :param logDir str: The directory where to search the log files
-    :param notShownCommands list: the list of commands to ignore
-    :return: the path to the last log file
-    :rtype: str
+    :param logDir: (str) The directory where to search the log files
+    :param notShownCommands: (list) the list of commands to ignore
+    :return: (str) the path to the last log file
     """
     last = (_, 0)
     for fileName in os.listdir(logDir):
@@ -267,22 +266,22 @@ def get_last_log_file(logDir, notShownCommands):
     return res
 
 def remove_log_file(filePath, logger):
-    '''if it exists, print a warning and remove the input file
+    """if it exists, print a warning and remove the input file
     
     :param filePath: the path of the file to delete
-    :param logger Logger: the logger instance to use for the print 
-    '''
+    :param logger: (Logger) the logger instance to use for the print 
+    """
     if os.path.exists(filePath):
         logger.debug(UTS.red("Removing %s\n" % filePath))
         os.remove(filePath)
 
 def print_log_command_in_terminal(filePath, logger):
-    '''Print the contain of filePath. It contains a command log in xml format.
+    """Print the contain of filePath. It contains a command log in xml format.
     
-    :param filePath: The command xml file from which extract the commands 
-                     context and traces
-    :param logger Logger: the logging instance to use in order to print.  
-    '''
+    :param filePath: 
+      The command xml file from which extract the commands context and traces
+    :param logger: (Logger) the logging instance to use in order to print.  
+    """
     logger.debug(_("Reading %s\n") % filePath)
     # Instantiate the ReadXmlFile class that reads xml files
     xmlRead = XMLMGR.ReadXmlFile(filePath)
@@ -370,12 +369,12 @@ def show_product_last_logs(logger, config, product_log_dir):
             SYSS.show_in_editor(config.USER.editor, log_file_path, logger)
         
 def ask_value(nb):
-    '''Ask for an int n. 0<n<nb
+    """Ask for an int n. 0<n<nb
     
-    :param nb int: The maximum value of the value to be returned by the user.
-    :return: the value entered by the user. Return -1 if it is not as expected
-    :rtype: int
-    '''
+    :param nb: (int) The maximum value of the value to be returned by the user.
+    :return: (int) 
+      the value entered by the user. Return -1 if it is not as expected
+    """
     try:
         # ask for a value
         rep = input(_("Which one (enter or 0 to quit)? "))

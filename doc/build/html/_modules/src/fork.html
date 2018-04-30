@@ -69,28 +69,28 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 
 
-<div class="viewcode-block" id="show_progress"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.show_progress">[docs]</a><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delai</span><span class="p">,</span> <span class="n">ss</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="show_progress"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fork.show_progress">[docs]</a><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delai</span><span class="p">,</span> <span class="n">ss</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;shortcut function to display the progression</span>
 <span class="sd">    </span>
-<span class="sd">    :param logger Logger: The logging instance</span>
-<span class="sd">    :param top int: the number to display</span>
-<span class="sd">    :param delai int: the number max</span>
-<span class="sd">    :param ss str: the string to display</span>
+<span class="sd">    :param logger: (Logger) The logging instance</span>
+<span class="sd">    :param top: (int) the number to display</span>
+<span class="sd">    :param delai: (int) the number max</span>
+<span class="sd">    :param ss: (str) the string to display</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s</span><span class="se">\r</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> / </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">((</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">),</span> <span class="n">ss</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="p">(</span><span class="n">delai</span> <span class="o">-</span> <span class="n">top</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="write_back"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.write_back">[docs]</a><span class="k">def</span> <span class="nf">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="write_back"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fork.write_back">[docs]</a><span class="k">def</span> <span class="nf">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;shortcut function to write at the begin of the line</span>
 <span class="sd">    </span>
-<span class="sd">    :param logger Logger: The logging instance</span>
-<span class="sd">    :param message str: the text to display</span>
-<span class="sd">    :param level int: the level of verbosity</span>
+<span class="sd">    :param logger: (Logger) The logging instance</span>
+<span class="sd">    :param message: (str) the text to display</span>
+<span class="sd">    :param level: (int) the level of verbosity</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s</span><span class="se">\r</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">),</span> <span class="n">message</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="launch_command"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.launch_command">[docs]</a><span class="k">def</span> <span class="nf">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="launch_command"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fork.launch_command">[docs]</a><span class="k">def</span> <span class="nf">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Launch command&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
         <span class="n">log</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
@@ -106,7 +106,7 @@
     <span class="k">return</span> <span class="n">prs</span></div>
 
 
-<div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delai</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sommeil</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fork.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delai</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sommeil</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Launch a batch&quot;&quot;&quot;</span>
     <span class="n">proc</span> <span class="o">=</span> <span class="n">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
     <span class="n">top</span> <span class="o">=</span> <span class="mi">0</span>
@@ -130,7 +130,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">top</span></div>
 
 
-<div class="viewcode-block" id="batch_salome"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.batch_salome">[docs]</a><span class="k">def</span> <span class="nf">batch_salome</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">getTmpDir</span><span class="p">,</span>
+<div class="viewcode-block" id="batch_salome"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fork.batch_salome">[docs]</a><span class="k">def</span> <span class="nf">batch_salome</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">getTmpDir</span><span class="p">,</span>
     <span class="n">pendant</span><span class="o">=</span><span class="s2">&quot;SALOME_Session_Server&quot;</span><span class="p">,</span> <span class="n">fin</span><span class="o">=</span><span class="s2">&quot;killSalome.py&quot;</span><span class="p">,</span>
     <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delai</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sommeil</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delaiapp</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Launch a salome process&quot;&quot;&quot;</span>

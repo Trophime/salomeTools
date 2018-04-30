@@ -484,7 +484,7 @@ class Mapping(Container):
 
     __getattr__ = __getitem__
     
-    '''
+    """
     def __getattribute__(self, name):
         if name == "__dict__":
             return {}
@@ -501,7 +501,7 @@ class Mapping(Container):
             if rv is None:
                 raise AttributeError(name)
         return rv
-    '''
+    """
 
     def iteritems(self):
         for key in self.keys():

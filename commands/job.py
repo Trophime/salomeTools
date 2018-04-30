@@ -31,7 +31,7 @@ class Command(_BaseCommand):
   in the jobs configuration file\
   
   examples:
-    >> sat job --jobs_config my_jobs --name my_job"
+  >> sat job --jobs_config my_jobs --name my_job"
   """
   
   name = "job"

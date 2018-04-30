@@ -74,7 +74,7 @@ Optional: set the display where to launch SALOME.
   def check_option(self, options):
     """Check the options
     
-    :param options: The options
+    :param options: (Options) The options
     :return: None
     """
     if not options.launcher:
@@ -288,7 +288,8 @@ Please specify an application or a launcher
    
 
 def ask_a_path():
-    """ 
+    """
+    interactive as using 'raw_input'
     """
     path = raw_input("enter a path where to save the result: ")
     if path == "":
@@ -425,13 +426,15 @@ def check_remote_machine(machine_name, logger):
     else:
         logger.debug("<OK>\n")
 
-##
-# Creates the XML report for a product.
+
 def create_test_report(config,
                        xml_history_path,
                        dest_path,
                        retcode,
                        xmlname=""):
+    """
+    Creates the XML report for a product.
+    """
     # get the date and hour of the launching of the command, in order to keep
     # history
     date_hour = config.VARS.datehour
@@ -452,10 +455,6 @@ def create_test_report(config,
     
     prod_node.attrib["history_file"] = os.path.basename(xml_history_path)
     prod_node.attrib["global_res"] = retcode
-
-    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
-    print "TRACES OP - test.py/create_test_report() : xml_history_path = '#%s#'" %xml_history_path
     
     ASNODE = XMLMGR.add_simple_node # shortcut
     
@@ -717,13 +716,13 @@ def create_test_report(config,
     return src.OK_STATUS
 
 def generate_history_xml_path(config, test_base):
-    """Generate the name of the xml file that contain the history of the tests
-       on the machine with the current APPLICATION and the current test base.
+    """
+    Generate the name of the xml file that contain the history of the tests
+    on the machine with the current APPLICATION and the current test base.
     
-    :param config Config: The global configuration
-    :param test_base Str: The test base name (or path)
-    :return: the full path of the history xml file
-    :rtype: Str
+    :param config: (Config) The global configuration
+    :param test_base: (str) The test base name (or path)
+    :return: (str) the full path of the history xml file
     """
     history_xml_name = ""
     if "APPLICATION" in config:

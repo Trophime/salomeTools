@@ -62,7 +62,7 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The Options class that manages the access to all options passed as </span>
 <span class="sd">parameters in salomeTools command lines</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -74,43 +74,44 @@
 <span class="kn">import</span> <span class="nn">src</span>
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span> <span class="c1"># Easy print stderr (for DEBUG only)</span>
 
-<div class="viewcode-block" id="OptResult"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.OptResult">[docs]</a><span class="k">class</span> <span class="nc">OptResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="OptResult"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.OptResult">[docs]</a><span class="k">class</span> <span class="nc">OptResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An instance of this class will be the object manipulated</span>
 <span class="sd">    in code of all salomeTools commands</span>
 <span class="sd">    The aim of this class is to have an elegant syntax to manipulate the options.</span>
 <span class="sd">    </span>
 <span class="sd">    example: </span>
-<span class="sd">      &gt;&gt; print(options.level)</span>
-<span class="sd">      &gt;&gt; 5</span>
+<span class="sd">    &gt;&gt; print(options.level)</span>
+<span class="sd">    &gt;&gt; 5</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Initialization</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Overwrite of the __getattr__ function </span>
-<span class="sd">           to customize it for option usage</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overwrite of the __getattr__ function </span>
+<span class="sd">        to customize it for option usage</span>
 <span class="sd">        </span>
-<span class="sd">        :param name str: The attribute to get the value.</span>
-<span class="sd">        :return: the value corresponding to the attribute.</span>
-<span class="sd">        :rtype: str,int,list,boolean,level</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param name: (str) The attribute to get the value.</span>
+<span class="sd">        :return: (str int list boolean level)</span>
+<span class="sd">          the value corresponding to the attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot; is not a valid option&quot;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Overwrite of the __setattr__ function </span>
-<span class="sd">           to customize it for option usage</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overwrite of the __setattr__ function </span>
+<span class="sd">        to customize it for option usage</span>
 <span class="sd">        </span>
-<span class="sd">        :param name str: The attribute to set.</span>
-<span class="sd">        :param value str: The value  corresponding to the attribute.</span>
-<span class="sd">        :return: Nothing.</span>
-<span class="sd">        :rtype: N\A</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param name: (str) The attribute to set.</span>
+<span class="sd">        :param value: (str) The value  corresponding to the attribute.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -118,12 +119,14 @@
         <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">aStr</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="Options"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options">[docs]</a><span class="k">class</span> <span class="nc">Options</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class to manage all salomeTools options</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Options"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options">[docs]</a><span class="k">class</span> <span class="nc">Options</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to manage all salomeTools options</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Initialization</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># The options field stocks all options of a command </span>
         <span class="c1"># in a list that contains dicts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
@@ -132,22 +135,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="Options.add_option"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.add_option">[docs]</a>    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortName</span><span class="p">,</span> <span class="n">longName</span><span class="p">,</span>
+<div class="viewcode-block" id="Options.add_option"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.add_option">[docs]</a>    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortName</span><span class="p">,</span> <span class="n">longName</span><span class="p">,</span>
                     <span class="n">optionType</span><span class="p">,</span> <span class="n">destName</span><span class="p">,</span> <span class="n">helpString</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Method to add an option to a command. It gets all attributes</span>
-<span class="sd">           of an option and append it in the options field</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an option to a command. It gets all attributes</span>
+<span class="sd">        of an option and append it in the options field</span>
 <span class="sd">        </span>
-<span class="sd">        :param shortName str: The short name of the option</span>
-<span class="sd">                              (ex &quot;l&quot; for level option).</span>
-<span class="sd">        :param longName str: The long name of the option </span>
-<span class="sd">                             (ex &quot;level&quot; for level option).</span>
-<span class="sd">        :param optionType str: The type of the option (ex &quot;int&quot;).</span>
-<span class="sd">        :param destName str: The name that will be used in the code.</span>
-<span class="sd">        :param helpString str: The text to display </span>
-<span class="sd">                               when user ask for help on a command.     </span>
-<span class="sd">        :return: Nothing.</span>
-<span class="sd">        :rtype: N\A</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param shortName: (str) </span>
+<span class="sd">          The short name of the option</span>
+<span class="sd">          (as &#39;-l&#39; for level option).</span>
+<span class="sd">        :param longName: (str) </span>
+<span class="sd">          The long name of the option </span>
+<span class="sd">          (as &#39;--level&#39; for level option).</span>
+<span class="sd">        :param optionType: (str) The type of the option (ex &quot;int&quot;).</span>
+<span class="sd">        :param destName: (str) The name that will be used in the code.</span>
+<span class="sd">        :param helpString: (str) </span>
+<span class="sd">          The text to display when user ask for help on a command.     </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">shortName</span> <span class="ow">in</span> <span class="n">tmp</span><span class="p">:</span> 
           <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;option &#39;-</span><span class="si">%s</span><span class="s2">&#39; existing yet&quot;</span> <span class="o">%</span> <span class="n">shortName</span><span class="p">)</span>
@@ -170,9 +175,11 @@
         
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span></div>
         
-<div class="viewcode-block" id="Options.getDetailOption"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.getDetailOption">[docs]</a>    <span class="k">def</span> <span class="nf">getDetailOption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;for convenience </span>
-<span class="sd">        returns (shortName, longName, optionType, helpString&#39;)</span>
+<div class="viewcode-block" id="Options.getDetailOption"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.getDetailOption">[docs]</a>    <span class="k">def</span> <span class="nf">getDetailOption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        for convenience </span>
+<span class="sd">        </span>
+<span class="sd">        :return: (tuple) 4-elements (shortName, longName, optionType, helpString)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oos</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span>
         <span class="n">ool</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span>
@@ -181,13 +188,13 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">oos</span><span class="p">,</span> <span class="n">ool</span><span class="p">,</span> <span class="n">oot</span><span class="p">,</span> <span class="n">ooh</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Options.get_help"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.get_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Method that returns all options stored in self.options </span>
+<div class="viewcode-block" id="Options.get_help"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.get_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all options stored in self.options </span>
 <span class="sd">        as help message colored string</span>
 <span class="sd">        </span>
-<span class="sd">        :return: colored string</span>
-<span class="sd">        :rtype: N\A</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :return: (str) colored string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># Do nothing if there are no options</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -206,22 +213,22 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">ooh</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span></div>
         
-<div class="viewcode-block" id="Options.indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.indent">[docs]</a>    <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Options.indent"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.indent">[docs]</a>    <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;indent multi lines message&quot;&quot;&quot;</span>
         <span class="n">padding</span> <span class="o">=</span> <span class="n">amount</span> <span class="o">*</span> <span class="n">car</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padding</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
                
 
-<div class="viewcode-block" id="Options.parse_args"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Method that instantiates the class OptResult </span>
-<span class="sd">           that gives access to all options in the code</span>
+<div class="viewcode-block" id="Options.parse_args"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiates the class OptResult </span>
+<span class="sd">        that gives access to all options in the code</span>
 <span class="sd">        </span>
-<span class="sd">        :param argList list: the raw list of arguments that were passed</span>
-<span class="sd">        :return: optResult, args : optResult is the option instance </span>
-<span class="sd">                                   to manipulate in the code. args </span>
-<span class="sd">                                   is the full raw list of passed options </span>
-<span class="sd">        :rtype: (class &#39;common.options.OptResult&#39;,list)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param argList: (list) the raw list of arguments that were passed</span>
+<span class="sd">        :return: (OptResult, list) as (optResult, args) </span>
+<span class="sd">          optResult is the option instance to manipulate in the code. </span>
+<span class="sd">          args is the full raw list of passed options </span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># see https://pymotw.com/2/getopt/</span>
         <span class="k">if</span> <span class="n">argList</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">argList</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -295,16 +302,18 @@
         <span class="k">return</span> <span class="n">optResult</span><span class="p">,</span> <span class="n">args</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
-        <span class="sd">&#39;&#39;&#39;repr for only self.options and self.results (if present)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        repr for only self.options and self.results (if present)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">aDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">}</span>
         <span class="n">aStr</span> <span class="o">=</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">aDict</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">aStr</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">res</span>
         
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
-        <span class="sd">&#39;&#39;&#39;str for only resume expected self.options</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        str for only resume expected self.options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#aDict = [(k[&quot;longName&quot;], k[&quot;shortName&quot;, k[&quot;helpString&quot;]) for k in self.options}</span>
         <span class="c1">#aList = [(k, self.options[k]) for k in sorted(self.options.keys())]</span>
         <span class="n">aDict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -314,7 +323,7 @@
         <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">aStr</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">res</span>
         
-<div class="viewcode-block" id="Options.debug_write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.debug_write">[docs]</a>    <span class="k">def</span> <span class="nf">debug_write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Options.debug_write"><a class="viewcode-back" href="../../apidoc_src/src.html#src.options.Options.debug_write">[docs]</a>    <span class="k">def</span> <span class="nf">debug_write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;options and results&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div></div>
 
 

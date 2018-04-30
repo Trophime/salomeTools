@@ -30,17 +30,17 @@ import src.system as SYSS
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The config command allows manipulation and operation on config '.pyconf' files.
 
-  examples:
-    >> sat config --list
-    >> sat config SALOME --edit
-    >> sat config SALOME --copy SALOME-new
-    >> sat config SALOME --value VARS
-    >> sat config SALOME --debug VARS
-    >> sat config SALOME --info ParaView
-    >> sat config SALOME --show_patchs
+  | examples:
+  | >> sat config --list
+  | >> sat config SALOME --edit
+  | >> sat config SALOME --copy SALOME-new
+  | >> sat config SALOME --value VARS
+  | >> sat config SALOME --debug VARS
+  | >> sat config SALOME --info ParaView
+  | >> sat config SALOME --show_patchs
   """
   
   name = "config"

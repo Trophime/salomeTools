@@ -36,15 +36,15 @@ from src.salomeTools import _BaseCommand
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The application command creates a SALOME application. 
 
-  WARNING: 
-    It works only for SALOME 6.
-    Use the 'launcher' command for newer versions of SALOME
-
-  examples:
-    >> sat application SALOME-6.6.0
+  | Warning:
+  |   It works only for SALOME 6.
+  |   Use the 'launcher' command for newer versions of SALOME
+  |
+  | Examples:
+  | >> sat application SALOME-6.6.0
   """
   
   name = "application"
@@ -349,7 +349,7 @@ def get_step(logger, message, pad=50):
     returns 'message ........ ' with pad 50 by default
     avoid colors '<color>' for now in message
     """
-    return "%s %s " % (message, '.' * (pad - len(message.decode("UTF-8")))
+    return "%s %s " % (message, '.' * (pad - len(message.decode("UTF-8"))))
 
 ##
 # Creates a SALOME application.
@@ -371,7 +371,7 @@ def create_application(config, appli_dir, catalog, logger, display=True):
         cmd = UTS.label("%s/salome" % appli_dir)
 
     if display:
-        msg = _("To launch the application, type:"))
+        msg = _("To launch the application, type:")
         logger.info("\n%s\n  %s\n" % (msg, cmd))
     return retcode
 
@@ -422,7 +422,7 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     # build the application (the name depends upon salome version
     env_file = os.path.join(config.APPLICATION.workdir, "env_launch." + env_ext)
 
-    logger.info(get_step(_("Building application"))
+    logger.info(get_step(_("Building application")))
     cf = create_config_file(config, l_SALOME_modules, env_file, logger)
 
     # create the application directory

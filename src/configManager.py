@@ -35,10 +35,11 @@ class ConfigOpener:
     in all the possible directories (pathList)
     """
     def __init__(self, pathList):
-        '''Initialization
+        """Initialization
         
-        :param pathList list: The list of paths where to search a pyconf.
-        '''
+        :param pathList: (list) 
+          The list of paths where to search a pyconf.
+        """
         self.pathList = pathList
 
     def __call__(self, name):
@@ -49,17 +50,18 @@ class ConfigOpener:
                         open(os.path.join( self.get_path(name), name ), 'rb') )
         raise IOError(_("Configuration file '%s' not found") % name)
 
-    def get_path( self, name ):
-        '''The method that returns the entire path of the pyconf searched
-        :param name str: The name of the searched pyconf.
-        '''
+    def get_path( self, name):
+        """The method that returns the entire path of the pyconf searched
+        
+        :param name: (str) The name of the searched pyconf.
+        """
         for path in self.pathList:
             if os.path.exists(os.path.join(path, name)):
                 return path
         raise IOError(_("Configuration file '%s' not found") % name)
 
 class ConfigManager:
-    """\
+    """
     Class that manages the read of all the config .pyconf files of salomeTools
     """
     def __init__(self, runner):
@@ -68,15 +70,16 @@ class ConfigManager:
         self.datadir = None
 
     def _create_vars(self, application=None, command=None, datadir=None):
-        """\
+        """
         Create a dictionary that stores all information about machine,
         user, date, repositories, etc...
         
-        :param application str: The application for which salomeTools is called.
-        :param command str: The command that is called.
-        :param datadir str: The repository that contain external data for salomeTools.
-        :return: The dictionary that stores all information.
-        :rtype: dict
+        :param application: (str) 
+          The application for which salomeTools is called.
+        :param command: (str) The command that is called.
+        :param datadir: (str) 
+          The repository that contain external data for salomeTools.
+        :return: (dict) The dictionary that stores all information.
         """
         var = {}      
         var['user'] = ARCH.get_user()
@@ -154,14 +157,14 @@ class ConfigManager:
         return var
 
     def get_command_line_overrides(self, options, sections):
-        '''get all the overwrites that are in the command line
+        """get all the overwrites that are in the command line
         
-        :param options: the options from salomeTools class 
-                        initialization (like -l5 or --overwrite)
-        :param sections str: The config section to overwrite.
-        :return: The list of all the overwrites to apply.
-        :rtype: list
-        '''
+        :param options:
+          The options from salomeTools class initialization 
+          (as '-l5' or '--overwrite')
+        :param sections: (str) The config section to overwrite.
+        :return: (list) The list of all the overwrites to apply.
+        """
         # when there are no options or not the overwrite option, 
         # return an empty list
         if options is None or options.overwrite is None:
@@ -176,15 +179,17 @@ class ConfigManager:
 
     def get_config(self, application=None, options=None, command=None,
                     datadir=None):
-        """\
-        get the config from all the configuration files.
+        """get the config from all the configuration files.
         
-        :param application str: The application for which salomeTools is called.
-        :param options class Options: The general salomeTools options (--overwrite or -v5, for example)
-        :param command str: The command that is called.
-        :param datadir str: The repository that contain external data for salomeTools.
-        :return: The final config.
-        :rtype: class 'PYCONF.Config'
+        :param application: (str) 
+          The application for which salomeTools is called.
+        :param options: (Options) 
+          The general salomeTools options 
+          (as '--overwrite' or '-v5')
+        :param command: (str) The command that is called.
+        :param datadir: (str) 
+          The repository that contain external data for salomeTools.
+        :return: (Config) The final config.
         """        
         msgPb = _("Problem in configuration file: <red>%s\n<yellow>%s<reset>\n") # % (filename, exception)
         # create a ConfigMerger to handle merge
@@ -411,11 +416,12 @@ class ConfigManager:
         return cfg
 
     def set_user_config_file(self, config):
-        """\
+        """
         Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
         
-        :param config class 'PYCONF.Config': The global config (containing all pyconf).
+        :param config: (Config) 
+          The global config (containing all pyconf).
         """
         # get the expected name and path of the file
         self.config_file_name = 'SAT.pyconf'
@@ -427,13 +433,13 @@ class ConfigManager:
             self.create_config_file(config)
     
     def create_config_file(self, config):
-        """\
+        """
         This method is called when there are no user config file. 
         It build it from scratch.
         
-        :param config class 'PYCONF.Config': The global config.
-        :return: the config corresponding to the file created.
-        :rtype: config class 'PYCONF.Config'
+        :param config: (Config) The global config.
+        :return: (Config) 
+          The config corresponding to the file created.
         """
         
         cfg_name = self.get_user_config_file()
@@ -463,8 +469,7 @@ class ConfigManager:
     def get_user_config_file(self):
         """Get the user config file
         
-        :return: path to the user config file.
-        :rtype: str
+        :return: (str) path to the user config file.
         """
         if not self.user_config_file_path:
             raise Exception(_("get_user_config_file: missing user config file path"))
@@ -473,10 +478,10 @@ class ConfigManager:
 def check_path(path, ext=[]):
     """Construct a text with the input path and "not found" if it does not exist.
     
-    :param path Str: the path to check.
-    :param ext List: An extension. Verify that the path extension is in the list
-    :return: The string of the path with information
-    :rtype: Str
+    :param path: (str) The path to check.
+    :param ext: (list) 
+      An extension. Verify that the path extension is in the list
+    :return: (str) The string of the path with information
     """
     # check if file exists
     if not os.path.exists(path):
@@ -493,9 +498,9 @@ def check_path(path, ext=[]):
 def show_product_info(config, name, logger):
     """Display on the terminal and logger information about a product.
     
-    :param config Config: the global configuration.
-    :param name Str: The name of the product
-    :param logger Logger: The logger instance to use for the display
+    :param config: (Config) the global configuration.
+    :param name: (str) The name of the product
+    :param logger: (Logger) The logger instance to use for the display
     """
     
     def msgAdd(label, value):
@@ -595,8 +600,9 @@ def show_product_info(config, name, logger):
 def show_patchs(config, logger):
     """Prints all the used patchs in the application.
     
-    :param config Config: the global configuration.
-    :param logger Logger: The logger instance to use for the display
+    :param config: (Config) the global configuration.
+    :param logger: (Logger) 
+      The logger instance to use for the display
     """
     len_max = max([len(p) for p in config.APPLICATION.products]) + 2
     msg = ""
@@ -614,16 +620,18 @@ def show_patchs(config, logger):
     return
 
 def getConfigColored(config, path, stream, show_label=False, level=0, show_full_path=False):
-    """\
+    """
     Get a colored representation value from a config pyconf instance.
     used recursively from the initial path.
     
-    :param config class 'PYCONF.Config': The configuration from which the value is displayed.
-    :param path str: the path in the configuration of the value to print.
-    :param show_label boolean: if True, do a basic display. (useful for bash completion)
-    :param stream: the output stream used
-    :param level int: The number of spaces to add before display.
-    :param show_full_path: display full path, else relative
+    :param config: (Config) 
+      The configuration from which the value is displayed.
+    :param path: (str) The path in the configuration of the value to print.
+    :param show_label: (bool) 
+      If True, do a basic display. (useful for bash completion)
+    :param stream: The output stream used
+    :param level: (int) The number of spaces to add before display.
+    :param show_full_path: (bool) Display full path, else relative
     """           
     
     # Make sure that the path does not ends with a point
@@ -668,11 +676,11 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
         stream.write("%s\n" % val)
         
 def print_value(config, path, logger, show_label=False, level=0, show_full_path=False):
-    """\
+    """
     print a colored representation value from a config pyconf instance.
     used recursively from the initial path.
     
-    :param see getConfigColored
+    :param: as getConfigColored
     """ 
     outStream = DBG.OutStream()
     getConfigColored(config, path, outStream, show_label, level, show_full_path)
@@ -682,7 +690,7 @@ def print_value(config, path, logger, show_label=False, level=0, show_full_path=
 
      
 def print_debug(config, aPath, logger, show_label=False, level=0, show_full_path=False):
-    """\
+    """
     logger output for debugging a config/pyconf
     lines contains: path : expression --> 'evaluation'
     
@@ -706,11 +714,11 @@ def print_debug(config, aPath, logger, show_label=False, level=0, show_full_path
 
 
 def get_config_children(config, args):
-    """\
+    """
     Gets the names of the children of the given parameter.
     Useful only for completion mechanism
     
-    :param config Config: The configuration where to read the values
+    :param config: (Config) The configuration where to read the values
     :param args: The path in the config from which get the keys
     """
     vals = []
@@ -744,7 +752,7 @@ def get_config_children(config, args):
 
 
 def _getConfig(self, appliToLoad):
-        """\
+        """
         Load the configuration (all pyconf)
         and returns the config from some files .pyconf
         """
@@ -815,15 +823,16 @@ Here is the error:""")
         return config
 
 def get_products_list(self, options, cfg, logger):
-        """\
+        """
         Gives the product list with their informations from 
         configuration regarding the passed options.
         
-        :param options Options: The Options instance that stores the commands arguments
-        :param config Config: The global configuration
-        :param logger Logger: The logger instance to use for the display and logging
-        :return: The list of (product name, product_informations).
-        :rtype: List
+        :param options: (Options) 
+          The Options instance that stores the commands arguments
+        :param config: (Config) The global configuration
+        :param logger: (Logger) 
+          The logger instance to use for the display and logging
+        :return: (list) The list of (product name, product_informations).
         """
         # Get the products to be prepared, regarding the options
         if options.products is None:

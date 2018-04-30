@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.init &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.init</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  The init command Changes the local settings of SAT</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;init&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat init &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;base&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The path to the products base&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;workdir&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;workdir&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The path to the working directory &#39;</span>
+                        <span class="s1">&#39;(where to install the applications&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;archive_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;archive_dir&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The path to the local archive directory &#39;</span>
+                        <span class="s1">&#39;(where to install local source archives&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;VCS&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;VCS&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The address of the repository of SAT &#39;</span>
+                        <span class="s1">&#39;(only informative)&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The tag of SAT (only informative)&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;log_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;log_dir&#39;</span><span class="p">,</span> 
+                      <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: The directory where to put all the logs of SAT&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat init &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+   
+    <span class="c1"># Print some informations</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Local Settings of SAT </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">salometoolsway</span><span class="p">))</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Set the options corresponding to a directory</span>
+    <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;base&quot;</span> <span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">base</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;workdir&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">workdir</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;log_dir&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">log_dir</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">archive_dir</span><span class="p">)]:</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">opt</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">res_check</span> <span class="o">=</span> <span class="n">check_path</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">res_check</span>
+            <span class="k">if</span> <span class="n">res_check</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">res_set</span> <span class="o">=</span> <span class="n">set_local_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="n">res_set</span>
+
+    <span class="c1"># Set the options corresponding to an informative value            </span>
+    <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;VCS&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">VCS</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">tag</span><span class="p">)]:</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">opt</span>
+        <span class="n">res_set</span> <span class="o">=</span> <span class="n">set_local_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="n">res_set</span>
+    
+    <span class="n">display_local_values</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">res</span></div></div>
+
+
+<div class="viewcode-block" id="set_local_value"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.set_local_value">[docs]</a><span class="k">def</span> <span class="nf">set_local_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Edit the site.pyconf file and change a value.</span>
+
+<span class="sd">    :param config: (Config) The global configuration.    </span>
+<span class="sd">    :param key: (str) The key from which to change the value.</span>
+<span class="sd">    :param value: (str) The path to change.</span>
+<span class="sd">    :param logger: (Logger) The logger instance.</span>
+<span class="sd">    :return: (int) 0 if all is OK, else 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span> <span class="s2">&quot;local.pyconf&quot;</span><span class="p">)</span>
+    <span class="c1"># Update the local.pyconf file</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">local_cfg</span> <span class="o">=</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span>
+        <span class="n">local_cfg</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">ff</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">local_cfg</span><span class="o">.</span><span class="n">__save__</span><span class="p">(</span><span class="n">ff</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ff</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;log_dir&quot;</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unable to update the local.pyconf file: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">err</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="display_local_values"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.display_local_values">[docs]</a><span class="k">def</span> <span class="nf">display_local_values</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Display the base path</span>
+
+<span class="sd">    :param config: (Config) The global configuration.</span>
+<span class="sd">    :param key: (str) The key from which to change the value.</span>
+<span class="sd">    :param logger: (Logger) The logger instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">base</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;workdir&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">workdir</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;log_dir&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">log_dir</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">archive_dir</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;VCS&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">VCS</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">tag</span><span class="p">)]</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="check_path"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.init.check_path">[docs]</a><span class="k">def</span> <span class="nf">check_path</span><span class="p">(</span><span class="n">path_to_check</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Verify that the given path is not a file and can be created.</span>
+<span class="sd">    </span>
+<span class="sd">    :param path_to_check: (str) The path to check.</span>
+<span class="sd">    :param logger: (Logger) The logger instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path_to_check</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    
+    <span class="c1"># Get the path</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_to_check</span><span class="p">)</span>
+    
+    <span class="c1"># If it is a file, do nothing and return error</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">():</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">The given path is a file: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">Please provide a path to a directory</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">blue</span><span class="p">(</span><span class="n">path_to_check</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+      
+    <span class="c1"># Try to create the given path</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">ensure_path_exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Unable to create the directory </span><span class="si">%s</span><span class="s2">:</span>
+
+<span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">blue</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)),</span> <span class="n">UTS</span><span class="o">.</span><span class="n">yellow</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    
+    <span class="k">return</span> <span class="mi">0</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

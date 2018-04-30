@@ -272,10 +272,10 @@ def getParser():
   )
   parser.add_argument(
     '-r', '--rootPath', 
-    help='''\
+    help="""\
 dir name with absolute or relative path stand for root directory
 of recursive searching unittest python files
-''',
+""",
    default=satdir,
    metavar='dirPath'
   )
@@ -294,7 +294,8 @@ of recursive searching unittest python files
   )
   parser.add_argument(
     '-n', '--name', 
-    help="""(only for type xml)
+    help="""\
+(only for type xml)
 name of directory output: ['test_reports'|...].
 If name = 'stdout' then all-in-one xml output at 'sys.stdout'. For pipe redirection:
 '>> AllTestLauncher.py -t xml -n stdout > tmp.xml'

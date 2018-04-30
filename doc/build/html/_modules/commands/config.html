@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.config &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.config</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.configManager</span> <span class="k">as</span> <span class="nn">CFGMGR</span>
+<span class="kn">import</span> <span class="nn">src.system</span> <span class="k">as</span> <span class="nn">SYSS</span>
+
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.config.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The config command allows manipulation and operation on config &#39;.pyconf&#39; files.</span>
+
+<span class="sd">  | examples:</span>
+<span class="sd">  | &gt;&gt; sat config --list</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --edit</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --copy SALOME-new</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --value VARS</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --debug VARS</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --info ParaView</span>
+<span class="sd">  | &gt;&gt; sat config SALOME --show_patchs</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;config&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.config.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat config &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: print the value of CONFIG_VARIABLE.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: print the debugging value of CONFIG_VARIABLE.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;edit&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;edit&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: edit the product configuration file.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: get information on a product.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: list all available applications.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;show_patchs&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;show_patchs&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: synthetic view of all patches used in the application&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Optional: copy a config file (.pyconf) to the personal config files directory.</span>
+<span class="s2">Warning: the included files are not copied.</span>
+<span class="s2">If a name is given the new config file takes the given name.&quot;&quot;&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;no_label&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;no_label&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Internal use: do not print labels, Works only with --value and --list.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;completion&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;completion&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Internal use: print only keys, works only with --value.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;schema&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;schema&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Internal use.&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.config.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat config &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="s2">&quot;config is None&quot;</span><span class="p">)</span>
+      
+    <span class="c1"># Only useful for completion mechanism : print the keys of the config</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">schema</span><span class="p">:</span>
+        <span class="n">get_config_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;completion mechanism&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># case : print a value of the config</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+            <span class="c1"># if argument is &quot;.&quot;, print all the config</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">CFGMGR</span><span class="o">.</span><span class="n">print_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_label</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">CFGMGR</span><span class="o">.</span><span class="n">print_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_label</span><span class="p">,</span> 
+                        <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_full_path</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">CFGMGR</span><span class="o">.</span><span class="n">print_debug</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">),</span> <span class="n">logger</span><span class="p">,</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_label</span><span class="p">,</span> 
+                    <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_full_path</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># case : edit user pyconf file or application file</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">editor</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span>
+            <span class="s1">&#39;open_application&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">):</span> <span class="c1"># edit user pyconf</span>
+            <span class="n">usercfg</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">personalDir</span><span class="p">,</span> <span class="s1">&#39;SAT.pyconf&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Opening </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">usercfg</span><span class="p">)</span>
+            <span class="n">SYSS</span><span class="o">.</span><span class="n">show_in_editor</span><span class="p">(</span><span class="n">editor</span><span class="p">,</span> <span class="n">usercfg</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># search for file &lt;application&gt;.pyconf and open it</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">PATHS</span><span class="o">.</span><span class="n">APPLICATIONPATH</span><span class="p">:</span>
+                <span class="n">pyconf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s2">&quot;.pyconf&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pyconf_path</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Opening </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">pyconf_path</span><span class="p">)</span>
+                    <span class="n">SYSS</span><span class="o">.</span><span class="n">show_in_editor</span><span class="p">(</span><span class="n">editor</span><span class="p">,</span> <span class="n">pyconf_path</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+                    <span class="k">break</span>
+    
+    <span class="c1"># case : give information about the product in parameter</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+            <span class="n">show_product_info</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;options.info&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(product_name)s</span><span class="s2"> is not a product of </span><span class="si">%(application_name)s</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="o">%</span> \
+            <span class="p">{</span><span class="s1">&#39;product_name&#39;</span> <span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="s1">&#39;application_name&#39;</span> <span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">}</span> <span class="p">)</span>
+    
+    <span class="c1"># case : copy an existing &lt;application&gt;.pyconf </span>
+    <span class="c1"># to ~/.salomeTools/Applications/LOCAL_&lt;application&gt;.pyconf</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">copy</span><span class="p">:</span>
+        <span class="c1"># product is required</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+
+        <span class="c1"># get application file path </span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s1">&#39;.pyconf&#39;</span>
+        <span class="n">source_full_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">PATHS</span><span class="o">.</span><span class="n">APPLICATIONPATH</span><span class="p">:</span>
+            <span class="c1"># ignore personal directory</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">personalDir</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># loop on all directories that can have pyconf applications</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zz</span><span class="p">):</span>
+                <span class="n">source_full_path</span> <span class="o">=</span> <span class="n">zz</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_full_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Config file for product </span><span class="si">%s</span><span class="s2"> not found</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">source</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># a name is given as parameter, use it</span>
+                <span class="n">dest</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="s1">&#39;copy_prefix&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+                <span class="c1"># use prefix</span>
+                <span class="n">dest</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy_prefix</span> 
+                        <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># use same name as source</span>
+                <span class="n">dest</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span>
+                
+            <span class="c1"># the full path</span>
+            <span class="n">dest_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">personalDir</span><span class="p">,</span> <span class="s1">&#39;Applications&#39;</span><span class="p">,</span> <span class="n">dest</span> <span class="o">+</span> <span class="s1">&#39;.pyconf&#39;</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_file</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="n">_</span><span class="p">(</span><span class="s2">&quot;A personal application &#39;</span><span class="si">%s</span><span class="s2">&#39; already exists&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">dest</span> <span class="p">)</span>
+            
+            <span class="c1"># perform the copy</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source_full_path</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> has been created.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">dest_file</span><span class="p">)</span>
+    
+    <span class="c1"># case : display all the available pyconf applications</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="n">lproduct</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c1"># search in all directories that can have pyconf applications</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">PATHS</span><span class="o">.</span><span class="n">APPLICATIONPATH</span><span class="p">:</span>
+            <span class="c1"># print a header</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_label</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;header&gt;------ </span><span class="si">%s</span><span class="s2">&lt;reset&gt;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># only one multiline info</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;&lt;red&gt;&quot;</span> <span class="o">+</span>  <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Directory not found&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;reset&gt;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
+                    <span class="c1"># ignore file that does not ends with .pyconf</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pyconf&#39;</span><span class="p">):</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">appliname</span> <span class="o">=</span> <span class="n">f</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.pyconf&#39;</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="n">appliname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lproduct</span><span class="p">:</span>
+                        <span class="n">lproduct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">appliname</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">personalDir</span><span class="p">)</span> \
+                                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_label</span><span class="p">:</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">*</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">appliname</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">appliname</span>
+                            
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># case : give a synthetic view of all patches used in the application</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">show_patchs</span><span class="p">:</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># Print some informations</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Show the patchs of application </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> \
+                     <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">))</span>
+        <span class="n">show_patchs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="c1"># case: print all the products name of the application (internal use for completion)</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">completion</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">product_name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">product_name</span><span class="p">)</span>
+          
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;config command done&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

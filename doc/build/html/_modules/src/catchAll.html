@@ -83,11 +83,11 @@
 <span class="c1">########################################################################################</span>
 <span class="c1"># json utils</span>
 <span class="c1">########################################################################################</span>
-<div class="viewcode-block" id="dumper"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.dumper">[docs]</a><span class="k">def</span> <span class="nf">dumper</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="dumper"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.dumper">[docs]</a><span class="k">def</span> <span class="nf">dumper</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;to json explore subclass object as dict&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span></div>
 
-<div class="viewcode-block" id="dumperType"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.dumperType">[docs]</a><span class="k">def</span> <span class="nf">dumperType</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="dumperType"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.dumperType">[docs]</a><span class="k">def</span> <span class="nf">dumperType</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">    to get a &quot;_type&quot; to trace json subclass object,</span>
 <span class="sd">    but ignore all attributes begining with &#39;_&#39;</span>
@@ -97,13 +97,13 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">aDict</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">typeatt</span><span class="p">):</span> <span class="n">aDict</span><span class="p">[</span><span class="n">typeatt</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="k">return</span> <span class="n">aDict</span></div>
 
-<div class="viewcode-block" id="jsonDumps"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.jsonDumps">[docs]</a><span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="jsonDumps"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.jsonDumps">[docs]</a><span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;to get direct default jsonDumps method&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">dumperType</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
 <span class="c1">########################################################################################</span>
-<div class="viewcode-block" id="CatchAll"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.CatchAll">[docs]</a><span class="k">class</span> <span class="nc">CatchAll</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CatchAll"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.CatchAll">[docs]</a><span class="k">class</span> <span class="nc">CatchAll</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">  class as simple dynamic dictionary </span>
 <span class="sd">  with predefined keys as properties in</span>
@@ -164,7 +164,7 @@
       <span class="k">return</span> <span class="n">txt</span>
     
 
-<div class="viewcode-block" id="CatchAll.jsonDumps"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.catchAll.CatchAll.jsonDumps">[docs]</a>  <span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CatchAll.jsonDumps"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.CatchAll.jsonDumps">[docs]</a>  <span class="k">def</span> <span class="nf">jsonDumps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">jsonDumps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 
 </pre></div>

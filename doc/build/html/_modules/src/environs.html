@@ -85,13 +85,13 @@
       <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">{:&lt;30}</span><span class="s2">   </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> 
         
-<div class="viewcode-block" id="print_split_environs"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.environs.print_split_environs">[docs]</a><span class="k">def</span> <span class="nf">print_split_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="print_split_environs"><a class="viewcode-back" href="../../apidoc_src/src.html#src.environs.print_split_environs">[docs]</a><span class="k">def</span> <span class="nf">print_split_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
   <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span>
   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
       <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">):</span>
         <span class="n">_printOneLineOrNot</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="print_split_pattern_environs"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.environs.print_split_pattern_environs">[docs]</a><span class="k">def</span> <span class="nf">print_split_pattern_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="print_split_pattern_environs"><a class="viewcode-back" href="../../apidoc_src/src.html#src.environs.print_split_pattern_environs">[docs]</a><span class="k">def</span> <span class="nf">print_split_pattern_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
   <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span>
   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
       <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
@@ -102,7 +102,7 @@
       <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ok</span><span class="p">):</span>
         <span class="n">_printOneLineOrNot</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="print_grep_environs"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.environs.print_grep_environs">[docs]</a><span class="k">def</span> <span class="nf">print_grep_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="print_grep_environs"><a class="viewcode-back" href="../../apidoc_src/src.html#src.environs.print_grep_environs">[docs]</a><span class="k">def</span> <span class="nf">print_grep_environs</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
   <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span>
   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
       <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>

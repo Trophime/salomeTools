@@ -1,0 +1,615 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.template &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.template</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.system</span> <span class="k">as</span> <span class="nn">SYSS</span>
+
+<span class="c1"># Compatibility python 2/3 for input function</span>
+<span class="c1"># input stays input for python 3 and input = raw_input for python 2</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">raw_input</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span> 
+    <span class="k">pass</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The template command creates the sources for a SALOME module from a template.</span>
+
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat template --name my_product_name --template PythonComponent --target /tmp</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;template&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat template &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">REQUIRED: the name of the module to create.</span>
+<span class="s2">  The name must be a single word in upper case with only alphanumeric characters.</span>
+<span class="s2">  When generating a c++ component the module&#39;s name must be suffixed with &#39;CPP&#39;.&quot;&quot;&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;template&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;template&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;REQUIRED: the template to use.&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;REQUIRED: where to create the module.&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;param&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;param&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Optional: dictionary to generate the configuration for salomeTools.</span>
+<span class="s2">  Format is: --param param1=value1,param2=value2... (without spaces).</span>
+<span class="s2">  Note that when using this option you must supply all the values,</span>
+<span class="s2">       otherwise an error will be raised.&quot;&quot;&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: Get information on the template.&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat template &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="n">msg_miss</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The --</span><span class="si">%s</span><span class="s2"> argument is required</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">template</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_miss</span> <span class="o">%</span> <span class="s2">&quot;template&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_miss</span> <span class="o">%</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="s2">&quot;APPLICATION&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;This command does not use a product.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_template_info</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_miss</span> <span class="o">%</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isalnum</span><span class="p">():</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Component name must contains only alphanumeric characters and no spaces</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg_miss</span> <span class="o">%</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">target_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target_dir</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The target already exists: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">target_dir</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Create sources from template</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;  destination = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">target_dir</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;  name = %</span><span class="se">\n</span><span class="s1">s&#39;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;  template = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">template</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="n">conf_values</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">conf_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+            <span class="n">param_def</span> <span class="o">=</span> <span class="n">elt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_def</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bad parameter definition: &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">elt</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">1</span>
+            <span class="n">conf_values</span><span class="p">[</span><span class="n">param_def</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">prepare_from_template</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+        <span class="n">target_dir</span><span class="p">,</span> <span class="n">conf_values</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">retcode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The sources were created in </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">target_dir</span><span class="p">))</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Do not forget to put them in your version control system.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>    
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">retcode</span></div></div>
+
+<div class="viewcode-block" id="TParam"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TParam">[docs]</a><span class="k">class</span> <span class="nc">TParam</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_def</span><span class="p">,</span> <span class="n">compo_name</span><span class="p">,</span> <span class="n">dico</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_method</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_def</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">param_def</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_def</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_def</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dico</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">dico</span>
+                <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_def</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_def</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_method</span> <span class="o">=</span> <span class="n">param_def</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;ERROR in template parameter definition&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;value for &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">+=</span> <span class="s2">&quot;? &quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">+=</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+
+<div class="viewcode-block" id="TParam.check_value"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TParam.check_value">[docs]</a>    <span class="k">def</span> <span class="nf">check_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_method</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="get_dico_param"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.get_dico_param">[docs]</a><span class="k">def</span> <span class="nf">get_dico_param</span><span class="p">(</span><span class="n">dico</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dico</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dico</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="TemplateSettings"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings">[docs]</a><span class="k">class</span> <span class="nc">TemplateSettings</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compo_name</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span> <span class="o">=</span> <span class="n">compo_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dico</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+
+        <span class="c1"># read the settings</span>
+        <span class="n">gdic</span><span class="p">,</span> <span class="n">ldic</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+        <span class="n">execfile</span><span class="p">(</span><span class="n">settings_file</span><span class="p">,</span> <span class="n">gdic</span><span class="p">,</span> <span class="n">ldic</span><span class="p">)</span>
+
+        <span class="c1"># check required parameters in template.info</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file_subst&quot;</span><span class="p">,</span> <span class="s2">&quot;parameters&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldic</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">pp</span><span class="p">):</span> <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">pp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bad format in settings file! </span><span class="si">%s</span><span class="s2"> not defined.&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_subst</span> <span class="o">=</span> <span class="n">ldic</span><span class="p">[</span><span class="s2">&quot;file_subst&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">ldic</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">get_dico_param</span><span class="p">(</span><span class="n">ldic</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyconf</span> <span class="o">=</span> <span class="n">get_dico_param</span><span class="p">(</span><span class="n">ldic</span><span class="p">,</span> <span class="s2">&quot;pyconf&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_command</span> <span class="o">=</span> <span class="n">get_dico_param</span><span class="p">(</span><span class="n">ldic</span><span class="p">,</span> <span class="s2">&quot;post_command&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get the delimiter for the template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delimiter_char</span> <span class="o">=</span> <span class="n">get_dico_param</span><span class="p">(</span><span class="n">ldic</span><span class="p">,</span> <span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="s2">&quot;:sat:&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get the ignore filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_filters</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                                  <span class="n">ldic</span><span class="p">[</span><span class="s2">&quot;ignore_filters&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="TemplateSettings.has_pyconf"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings.has_pyconf">[docs]</a>    <span class="k">def</span> <span class="nf">has_pyconf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pyconf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="TemplateSettings.get_pyconf_parameters"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings.get_pyconf_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_pyconf_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pyconf</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;%\((?P&lt;name&gt;\S[^\)]*)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyconf</span><span class="p">)</span></div>
+
+    <span class="c1">##</span>
+    <span class="c1"># Check if the file needs to be parsed.</span>
+<div class="viewcode-block" id="TemplateSettings.check_file_for_substitution"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings.check_file_for_substitution">[docs]</a>    <span class="k">def</span> <span class="nf">check_file_for_substitution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_filters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatchcase</span><span class="p">(</span><span class="n">file_</span><span class="p">,</span> <span class="n">filter_</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="TemplateSettings.check_user_values"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings.check_user_values">[docs]</a>    <span class="k">def</span> <span class="nf">check_user_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># create a list of all parameters (pyconf + list))</span>
+        <span class="n">pnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pyconf_parameters</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="n">tp</span> <span class="o">=</span> <span class="n">TParam</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span><span class="p">)</span>
+            <span class="n">pnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="c1"># reduce the list</span>
+        <span class="n">pnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pnames</span><span class="p">))</span> <span class="c1"># remove duplicates</span>
+
+        <span class="n">known_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_subst</span><span class="p">]</span>
+        <span class="n">known_values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pnames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_values</span><span class="p">:</span>
+                <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Missing parameters: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TemplateSettings.get_parameters"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.TemplateSettings.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dico</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dico</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_user_values</span><span class="p">(</span><span class="n">conf_values</span><span class="p">)</span>
+
+        <span class="c1"># create dictionary with default values</span>
+        <span class="n">dico</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dico</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">dico</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+        <span class="n">dico</span><span class="p">[</span><span class="s2">&quot;NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span>
+        <span class="n">dico</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
+        <span class="n">dico</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">file_subst</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span>
+        <span class="c1"># add user values if any</span>
+        <span class="k">if</span> <span class="n">conf_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">conf_values</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dico</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf_values</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+        <span class="c1"># ask user for values</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="n">tp</span> <span class="o">=</span> <span class="n">TParam</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compo_name</span><span class="p">,</span> <span class="n">dico</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dico</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">continue</span>
+            
+            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">tp</span><span class="o">.</span><span class="n">check_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">raw_input</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">default</span>
+            <span class="n">dico</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># ask for missing value for pyconf</span>
+        <span class="n">pyconfparam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pyconf_parameters</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="ow">not</span> <span class="n">dico</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">pyconfparam</span><span class="p">):</span>
+            <span class="n">rep</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">rep</span> <span class="o">=</span> <span class="n">raw_input</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">? &quot;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">dico</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">rep</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dico</span> <span class="o">=</span> <span class="n">dico</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dico</span></div></div>
+
+<div class="viewcode-block" id="search_template"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.search_template">[docs]</a><span class="k">def</span> <span class="nf">search_template</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+    <span class="c1"># search template</span>
+    <span class="n">template_src_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+            <span class="n">template_src_dir</span> <span class="o">=</span> <span class="n">template</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># look in template directory</span>
+        <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span> <span class="s2">&quot;templates&quot;</span><span class="p">)]:</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">td</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zz</span><span class="p">):</span>
+                <span class="n">template_src_dir</span> <span class="o">=</span> <span class="n">zz</span>
+                <span class="k">break</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">template_src_dir</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Template not found: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">template</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">template_src_dir</span></div>
+
+
+<div class="viewcode-block" id="prepare_from_template"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.prepare_from_template">[docs]</a><span class="k">def</span> <span class="nf">prepare_from_template</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                          <span class="n">name</span><span class="p">,</span>
+                          <span class="n">template</span><span class="p">,</span>
+                          <span class="n">target_dir</span><span class="p">,</span>
+                          <span class="n">conf_values</span><span class="p">,</span>
+                          <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepares a module from a template.&quot;&quot;&quot;</span>
+    <span class="n">template_src_dir</span> <span class="o">=</span> <span class="n">search_template</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># copy the template</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">template_src_dir</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Extract template </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
+        <span class="n">SYSS</span><span class="o">.</span><span class="n">archive_extract</span><span class="p">(</span><span class="n">template_src_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Copy template </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">template_src_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+    
+
+    <span class="n">compo_name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;CPP&quot;</span><span class="p">):</span>
+        <span class="n">compo_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="c1"># read settings</span>
+    <span class="n">settings_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">&quot;template.info&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">settings_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Settings file not found&quot;</span><span class="p">))</span>
+    <span class="n">tsettings</span> <span class="o">=</span> <span class="n">TemplateSettings</span><span class="p">(</span><span class="n">compo_name</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+
+    <span class="c1"># first rename the files</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rename files</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">target_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fic</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">ff</span> <span class="o">=</span> <span class="n">fic</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">file_subst</span><span class="p">,</span> <span class="n">compo_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ff</span> <span class="o">!=</span> <span class="n">fic</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ff</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Destination file already exists: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ff</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;    </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fic</span><span class="p">,</span> <span class="n">ff</span><span class="p">))</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">fic</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ff</span><span class="p">))</span>
+
+    <span class="c1"># rename the directories</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rename directories</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="n">dd</span> <span class="o">=</span> <span class="n">rep</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">file_subst</span><span class="p">,</span> <span class="n">compo_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dd</span> <span class="o">!=</span> <span class="n">rep</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dd</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Destination directory already exists: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dd</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;    </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="n">dd</span><span class="p">))</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">rep</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dd</span><span class="p">))</span>
+
+    <span class="c1"># ask for missing parameters</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Make substitution in files</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delimiter =&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">delimiter_char</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Ignore Filters =&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">ignore_filters</span><span class="p">))</span>
+    <span class="n">dico</span> <span class="o">=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">conf_values</span><span class="p">)</span>
+
+    <span class="c1"># override standard string.Template class to use the desire delimiter</span>
+    <span class="k">class</span> <span class="nc">CompoTemplate</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">):</span>
+        <span class="n">delimiter</span> <span class="o">=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">delimiter_char</span>
+
+    <span class="c1"># do substitution</span>
+    <span class="n">pathlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">target_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fic</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">fic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">check_file_for_substitution</span><span class="p">(</span><span class="n">fpath</span><span class="p">[</span><span class="n">pathlen</span><span class="p">:]):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  - </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fpath</span><span class="p">[</span><span class="n">pathlen</span><span class="p">:])</span>
+                <span class="k">continue</span>
+            <span class="c1"># read the file</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="c1"># make the substitution</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">CompoTemplate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="n">dico</span><span class="p">)</span>
+            <span class="c1"># overwrite the file with substituted content</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+                <span class="n">file</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">changed</span><span class="p">,</span> <span class="n">fpath</span><span class="p">[</span><span class="n">pathlen</span><span class="p">:]))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">has_pyconf</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Definition for sat not found in settings file.&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">definition</span> <span class="o">=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">pyconf</span> <span class="o">%</span> <span class="n">dico</span>
+        <span class="n">pyconf_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.pyconf&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">pyconf_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Create configuration file: &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">pyconf_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">post_command</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">post_command</span> <span class="o">%</span> <span class="n">dico</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Run post command: &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">cmd</span><span class="p">)</span>
+        
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">target_dir</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span>
+
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="get_template_info"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.template.get_template_info">[docs]</a><span class="k">def</span> <span class="nf">get_template_info</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">template_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="n">search_template</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">template_name</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Template = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>  <span class="n">sources</span><span class="p">)</span>
+
+    <span class="c1"># read settings</span>
+    <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">tmp_root</span><span class="p">,</span> <span class="s2">&quot;tmp_template&quot;</span><span class="p">)</span>
+    <span class="n">settings_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;template.info&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">sources</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">SYSS</span><span class="o">.</span><span class="n">archive_extract</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+        <span class="n">settings_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;template.info&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">settings_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Settings file not found&quot;</span><span class="p">))</span>
+    <span class="n">tsettings</span> <span class="o">=</span> <span class="n">TemplateSettings</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+    
+    <span class="n">skip</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">*</span><span class="mi">3</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">skip</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">info</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="s2">&quot;No information for this template.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">info</span>
+
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">= Configuration</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  file substitution key = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">file_subst</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  substitution key = &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">delimiter_char</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">ignore_filters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; Ignore Filter = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tsettings</span><span class="o">.</span><span class="n">ignore_filters</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">skip</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;= Parameters</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">pnames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">TParam</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+        <span class="n">pnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tt</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  Name = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tt</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  Prompt = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tt</span><span class="o">.</span><span class="n">raw_prompt</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  Default value = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tt</span><span class="o">.</span><span class="n">default</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="n">retcode</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">skip</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;= Verification</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">file_subst</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pnames</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;file substitution key not defined as a parameter: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                <span class="n">tsettings</span><span class="o">.</span><span class="n">file_subst</span>
+        <span class="n">retcode</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">reexp</span> <span class="o">=</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">delimiter_char</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="s2">&quot;\$&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;{(?P&lt;name&gt;\S[^}]*)&quot;</span>
+    <span class="n">pathlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fic</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">fic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tsettings</span><span class="o">.</span><span class="n">check_file_for_substitution</span><span class="p">(</span><span class="n">fpath</span><span class="p">[</span><span class="n">pathlen</span><span class="p">:]):</span>
+                <span class="k">continue</span>
+            <span class="c1"># read the file</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">reexp</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">zz</span><span class="p">))</span> <span class="c1"># reduce</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pnames</span><span class="p">,</span> <span class="n">zz</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;Missing definition in </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                      <span class="p">(</span> <span class="n">fpath</span><span class="p">[</span><span class="n">pathlen</span><span class="p">:],</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">retcode</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">retcode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;&quot;</span> <span class="o">+</span> <span class="n">skip</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;KO&gt;&quot;</span> <span class="o">+</span> <span class="n">skip</span><span class="p">)</span>
+
+
+    <span class="c1"># clean up tmp file</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">retcode</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

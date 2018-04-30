@@ -24,33 +24,36 @@ import sys
 import src.pyconf as PYCONF
 
 class Environ:
-    '''Class to manage the environment context
-    '''
+    """
+    Class to manage an environment context
+    """
     def __init__(self, environ=None):
-        '''Initialization. If the environ argument is passed, the environment
-           will be add to it, else it is the external environment.
+        """
+        Initialization.
+        If the environ argument is passed, the environment
+        will be add to it, else it is the external environment.
            
-        :param environ dict:  
-        '''
+        :param environ: (dict) as os.environment
+        """
         if environ is not None:
             self.environ = environ
         else:
             self.environ = os.environ
 
     def __repr__(self):
-        """easy non exhaustive quick resume for debug print
+        """
+        easy non exhaustive quick resume for debug print
         """
         res={}
         res["environ"]=self.environ
         return self.__class__.__name__ + str(res)[0:-1] + " ...etc...}"
 
     def _expandvars(self, value):
-        '''replace some $VARIABLE into its actual value in the environment
+        """replace some $VARIABLE into its actual value in the environment
         
-        :param value str: the string to be replaced
-        :return: the replaced variable
-        :rtype: str
-        '''
+        :param value: (str) the string to be replaced
+        :return: (str) the replaced variable
+        """
         if "$" in value:
             # The string.Template class is a string class 
             # for supporting $-substitutions
@@ -63,12 +66,12 @@ class Environ:
         return value
 
     def append_value(self, key, value, sep=os.pathsep):
-        '''append value to key using sep
+        """append value to key using sep
         
-        :param key str: the environment variable to append
-        :param value str: the value to append to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to append
+        :param value: (str) the value to append to key
+        :param sep: (str) the separator string (usually ':')
+        """
         # check if the key is already in the environment
         if key in self.environ:
             value_list = self.environ[key].split(sep)
@@ -82,12 +85,12 @@ class Environ:
             self.set(key, value)
 
     def append(self, key, value, sep=os.pathsep):
-        '''Same as append_value but the value argument can be a list
+        """Same as append_value but the value argument can be a list
         
-        :param key str: the environment variable to append
-        :param value str or list: the value(s) to append to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to append
+        :param value: (str or list) the value(s) to append to key
+        :param sep: (str) the separator string (usually ':')
+        """
         if isinstance(value, list):
             for v in value:
                 self.append_value(key, v, sep)
@@ -95,12 +98,12 @@ class Environ:
             self.append_value(key, value, sep)
 
     def prepend_value(self, key, value, sep=os.pathsep):
-        '''prepend value to key using sep
+        """prepend value to key using sep
         
-        :param key str: the environment variable to prepend
-        :param value str: the value to prepend to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to prepend
+        :param value: (str) the value to prepend to key
+        :param sep: (str) the separator string (usually ':')
+        """
         if key in self.environ:
             value_list = self.environ[key].split(sep)
             if not value in value_list:
@@ -112,12 +115,12 @@ class Environ:
             self.set(key, value)
 
     def prepend(self, key, value, sep=os.pathsep):
-        '''Same as prepend_value but the value argument can be a list
+        """Same as prepend_value but the value argument can be a list
         
-        :param key str: the environment variable to prepend
-        :param value str or list: the value(s) to prepend to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to prepend
+        :param value: (str or list) the value(s) to prepend to key
+        :param sep: (str) the separator string (usually ':')
+        """
         if isinstance(value, list):
             for v in value:
                 self.prepend_value(key, v, sep)
@@ -125,37 +128,38 @@ class Environ:
             self.prepend_value(key, value, sep)
 
     def is_defined(self, key):
-        '''Check if the key exists in the environment
+        """Check if the key exists in the environment
         
-        :param key str: the environment variable to check
-        '''
+        :param key: (str) the environment variable to check
+        """
         return key in self.environ.keys()
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
-        :param key str: the environment variable to set
-        :param value str: the value
-        '''
+        :param key: (str) the environment variable to set
+        :param value: (str) the value
+        """
         self.environ[key] = self._expandvars(value)
 
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """Get the value of the environment variable "key"
         
-        :param key str: the environment variable
-        '''
+        :param key: (str) the environment variable
+        """
         if key in self.environ:
             return self.environ[key]
         else:
             return ""
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key
+        """
+        Get the value given by the system command "command" 
+        and put it in the environment variable key
         
-        :param key str: the environment variable
-        :param command str: the command to execute
-        '''
+        :param key: (str) the environment variable
+        :param command: (str) the command to execute
+        """
         value = subprocess.Popen(command,
                                  shell=True,
                                  stdout=subprocess.PIPE,
@@ -164,25 +168,26 @@ class Environ:
 
 
 class SalomeEnviron:
-    """Class to manage the environment of SALOME.
     """
-
+    Class to manage the environment of SALOME.
+    """
     def __init__(self,
                  cfg,
                  environ,
                  forBuild=False,
                  for_package=None,
                  enable_simple_env_script = True):
-        '''Initialization.
+        """Initialization.
 
-        :param cfg Config: the global config
-        :param environ Environ: the Environ instance where 
-                                to store the environment variables
-        :param forBuild bool: If true, it is a launch environment, 
-                              else a build one
-        :param for_package str: If not None, produce a relative environment 
-                                designed for a package. 
-        '''
+        :param cfg: (Config) The global config
+        :param environ: (Environ) 
+          The Environ instance where to store the environment variables
+        :param forBuild: (bool) 
+          If true, it is a launch environment, else a build one
+        :param for_package: (str) 
+          If not None, produce a relative environment,
+          (designed for a package)
+        """
         self.environ = environ
         self.cfg = cfg
         self.forBuild = forBuild
@@ -198,43 +203,43 @@ class SalomeEnviron:
         return self.__class__.__name__ + str(res)[0:-1] + " ...etc...}"
 
     def append(self, key, value, sep=os.pathsep):
-        '''append value to key using sep
+        """append value to key using sep
         
-        :param key str: the environment variable to append
-        :param value str: the value to append to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to append
+        :param value: (str) the value to append to key
+        :param sep: (str) the separator string
+        """
         return self.environ.append(key, value, sep)
 
     def prepend(self, key, value, sep=os.pathsep):
-        '''prepend value to key using sep
+        """prepend value to key using sep
         
-        :param key str: the environment variable to prepend
-        :param value str: the value to prepend to key
-        :param sep str: the separator string
-        '''
+        :param key: (str) the environment variable to prepend
+        :param value: (str) the value to prepend to key
+        :param sep: (str) the separator string
+        """
         return self.environ.prepend(key, value, sep)
 
     def is_defined(self, key):
-        '''Check if the key exists in the environment
+        """Check if the key exists in the environment
         
-        :param key str: the environment variable to check
-        '''
+        :param key: (str) the environment variable to check
+        """
         return self.environ.is_defined(key)
 
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """Get the value of the environment variable "key"
         
-        :param key str: the environment variable
-        '''
+        :param key: (str) the environment variable
+        """
         return self.environ.get(key)
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
-        :param key str: the environment variable to set
-        :param value str: the value
-        '''
+        :param key: (str) the environment variable to set
+        :param value: (str) the value
+        """
         # check if value needs to be evaluated
         if value is not None and value.startswith("`") and value.endswith("`"):
             res = subprocess.Popen("echo %s" % value,
@@ -247,7 +252,7 @@ class SalomeEnviron:
     def dump(self, out):
         """Write the environment to out
         
-        :param out file: the stream where to write the environment
+        :param out: (file) the stream where to write the environment
         """
         for k in self.environ.environ.keys():
             try:
@@ -259,7 +264,7 @@ class SalomeEnviron:
     def add_line(self, nb_line):
         """Add empty lines to the out stream (in case of file generation)
         
-        :param nb_line int: the number of empty lines to add
+        :param nb_line: (int) the number of empty lines to add
         """
         if 'add_line' in dir(self.environ):
             self.environ.add_line(nb_line)
@@ -267,7 +272,7 @@ class SalomeEnviron:
     def add_comment(self, comment):
         """Add a commentary to the out stream (in case of file generation)
         
-        :param comment str: the commentary to add
+        :param comment: (str) the commentary to add
         """
         if 'add_comment' in dir(self.environ):
             self.environ.add_comment(comment)
@@ -275,7 +280,7 @@ class SalomeEnviron:
     def add_warning(self, warning):
         """Add a warning to the out stream (in case of file generation)
         
-        :param warning str: the warning to add
+        :param warning: (str) the warning to add
         """
         if 'add_warning' in dir(self.environ):
             self.environ.add_warning(warning)
@@ -283,7 +288,7 @@ class SalomeEnviron:
     def finish(self, required):
         """Add a final instruction in the out file (in case of file generation)
         
-        :param required bool: Do nothing if required is False
+        :param required: (bool) Do nothing if required is False
         """
         if 'finish' in dir(self.environ):
             self.environ.add_line(1)
@@ -305,13 +310,13 @@ class SalomeEnviron:
         self.python_lib1 = self.get('PYTHON_LIBDIR1')
 
     def get_names(self, lProducts):
-        """\
+        """
         Get the products name to add in SALOME_MODULES environment variable
         It is the name of the product, except in the case where the is a 
         component name. And it has to be in SALOME_MODULES variable only 
         if the product has the property has_salome_hui = "yes"
         
-        :param lProducts list: List of products to potentially add
+        :param lProducts: (list) List of products to potentially add
         """
         lProdHasGui = [p for p in lProducts if 'properties' in 
             src.product.get_product_config(self.cfg, p) and
@@ -331,7 +336,7 @@ class SalomeEnviron:
     def set_application_env(self, logger):
         """Sets the environment defined in the APPLICATION file.
         
-        :param logger Logger: The logger instance to display messages
+        :param logger: (Logger) The logger instance to display messages
         """
         
         # Set the variables defined in the "environ" section
@@ -357,12 +362,12 @@ class SalomeEnviron:
                 self.add_line(1)       
 
     def set_salome_minimal_product_env(self, product_info, logger):
-        """\
+        """
         Sets the minimal environment for a SALOME product.
         xxx_ROOT_DIR and xxx_SRC_DIR
         
-        :param product_info Config: The product description
-        :param logger Logger: The logger instance to display messages        
+        :param product_info: (Config) The product description
+        :param logger: (Logger) The logger instance to display messages        
         """
         # set root dir
         root_dir = product_info.name + "_ROOT_DIR"
@@ -387,7 +392,7 @@ class SalomeEnviron:
     def set_salome_generic_product_env(self, pi):
         """Sets the generic environment for a SALOME product.
         
-        :param pi Config: The product description
+        :param pi: (Config) The product description
         """
         # Construct XXX_ROOT_DIR
         env_root_dir = self.get(pi.name + "_ROOT_DIR")
@@ -434,7 +439,7 @@ class SalomeEnviron:
     def set_cpp_env(self, product_info):
         """Sets the generic environment for a SALOME cpp product.
         
-        :param product_info Config: The product description
+        :param product_info: (Config) The product description
         """
         # Construct XXX_ROOT_DIR
         env_root_dir = self.get(product_info.name + "_ROOT_DIR")
@@ -463,7 +468,7 @@ class SalomeEnviron:
     def load_cfg_environment(self, cfg_env):
         """Loads environment defined in cfg_env 
         
-        :param cfg_env Config: A config containing an environment    
+        :param cfg_env: (Config) A config containing an environment    
         """
         # Loop on cfg_env values
         for env_def in cfg_env:
@@ -504,8 +509,8 @@ class SalomeEnviron:
     def set_a_product(self, product, logger):
         """Sets the environment of a product. 
         
-        :param product str: The product name
-        :param logger Logger: The logger instance to display messages
+        :param product: (str) The product name
+        :param logger: (Logger) The logger instance to display messages
         """
 
         # Get the informations corresponding to the product
@@ -578,12 +583,11 @@ class SalomeEnviron:
             
 
     def run_env_script(self, product_info, logger=None, native=False):
-        """\
-        Runs an environment script. 
+        """Runs an environment script. 
         
-        :param product_info Config: The product description
-        :param logger Logger: The logger instance to display messages
-        :param native Boolean: if True load set_native_env instead of set_env
+        :param product_info: (Config) The product description
+        :param logger: (Logger) The logger instance to display messages
+        :param native: (bool) If True load set_native_env instead of set_env
         """
         env_script = product_info.environ.env_script
         # Check that the script exists
@@ -611,11 +615,12 @@ class SalomeEnviron:
             traceback.print_exc()
 
     def run_simple_env_script(self, script_path, logger=None):
-        """Runs an environment script. Same as run_env_script, but with a 
-           script path as parameter.
+        """
+        Runs an environment script. Same as run_env_script, but with a 
+          script path as parameter.
         
-        :param script_path str: a path to an environment script
-        :param logger Logger: The logger instance to display messages
+        :param script_path: (str) A path to an environment script
+        :param logger: (Logger) The logger instance to display messages
         """
         if not self.enable_simple_env_script:
             return
@@ -646,8 +651,8 @@ class SalomeEnviron:
     def set_products(self, logger, src_root=None):
         """Sets the environment for all the products. 
         
-        :param logger Logger: The logger instance to display messages
-        :param src_root src: the application working directory
+        :param logger: (Logger) The logger instance to display messages
+        :param src_root: the application working directory
         """
         self.add_line(1)
         self.add_comment('setting environ for all products')
@@ -665,11 +670,12 @@ class SalomeEnviron:
             self.finish(False)
  
     def set_full_environ(self, logger, env_info):
-        """Sets the full environment for products 
-           specified in env_info dictionary. 
+        """
+        Sets the full environment for products 
+        specified in env_info dictionary. 
         
-        :param logger Logger: The logger instance to display messages
-        :param env_info list: the list of products
+        :param logger: (Logger) The logger instance to display messages
+        :param env_info: (list) the list of products
         """
         # set product environ
         self.set_application_env(logger)
@@ -681,16 +687,17 @@ class SalomeEnviron:
             self.set_a_product(product, logger)
 
 class FileEnvWriter:
-    """Class to dump the environment to a file.
+    """
+    Class to dump the environment to a file.
     """
     def __init__(self, config, logger, out_dir, src_root, env_info=None):
         """Initialization
 
-        :param cfg Config: the global config
-        :param logger Logger: The logger instance to display messages
-        :param out_dir str: The directory path where t put the output files
-        :param src_root str: The application working directory
-        :param env_info str: The list of products to add in the files.
+        :param cfg: (Config) the global config
+        :param logger: (Logger) The logger instance to display messages
+        :param out_dir: (str) The directory path where t put the output files
+        :param src_root: (str) The application working directory
+        :param env_info: (str) The list of products to add in the files.
         """
         self.config = config
         self.logger = logger
@@ -702,11 +709,10 @@ class FileEnvWriter:
     def write_env_file(self, filename, forBuild, shell, for_package = None):
         """Create an environment file.
         
-        :param filename str: the file path
-        :param forBuild bool: if true, the build environment
-        :param shell str: the type of file wanted (.sh, .bat)
-        :return: The path to the generated file
-        :rtype: str
+        :param filename: (str) the file path
+        :param forBuild: (bool) if true, the build environment
+        :param shell: (str) the type of file wanted (.sh, .bat)
+        :return: (str) The path to the generated file
         """
         if not self.silent:
             self.logger.info(_("Create environment file %s\n") % UTS.label(filename))
@@ -742,14 +748,16 @@ class FileEnvWriter:
                             additional_env = {},
                             for_package = None,
                             with_commercial = True):
-        """Append to current opened aFile a cfgForPy 
-           environment (SALOME python launcher).
+        """
+        Append to current opened aFile a cfgForPy 
+        environment (SALOME python launcher).
            
-        :param filename str: the file path
-        :param additional_env dict: a dictionary of additional variables 
-                                    to add to the environment
-        :param for_package str: If not None, produce a relative environment 
-                                designed for a package. 
+        :param filename: (str) the file path
+        :param additional_env: (dict) 
+          a dictionary of additional variables to add to the environment
+        :param for_package: (str) 
+          If not None, produce a relative environment 
+          (designed for a package) 
         """
         if not self.silent:
             self.logger.info(_("Create configuration file %s\n") % UTS.label(filename.name))
@@ -789,14 +797,14 @@ class FileEnvWriter:
         env.finish(True)
 
 class Shell:
-    """\
+    """
     Definition of a Shell.
     """
     def __init__(self, name, extension):
         """Initialization.
 
-        :param name str: the shell name
-        :param extension str: the shell extension
+        :param name: (str) the shell name
+        :param extension: (str) the shell extension
         """
         self.name = name
         self.extension = extension
@@ -804,9 +812,9 @@ class Shell:
 def load_environment(config, build, logger):
     """Loads the environment (used to run the tests, for example).
     
-    :param config Config: the global config
-    :param build bool: build environement if True
-    :param logger Logger: The logger instance to display messages
+    :param config: (Config) the global config
+    :param build: (bool) build environement if True
+    :param logger: (Logger) The logger instance to display messages
     """
     environ = SalomeEnviron(config, Environ(os.environ), build)
     environ.set_application_env(logger)

@@ -125,7 +125,7 @@ class Command(_BaseCommand):
     srcDir = os.path.join(config.APPLICATION.workdir, 'SOURCES')
     buildDir = os.path.join(config.APPLICATION.workdir, 'BUILD')
     
-    msg = _("Application %s, executing compile commands in build directories of products.\n"
+    msg = _("Application %s, executing compile commands in build directories of products.\n")
     logger.info(msg % UTS.label(nameApp))
     
     info = [ (_("SOURCE directory"), srcDir),
@@ -170,17 +170,17 @@ class Command(_BaseCommand):
       
       
 def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
+    """
+    method that gives the product list with their informations from 
+    configuration regarding the passed options.
     
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param cfg Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    '''
+    :param options: (Options) 
+      The Options instance that stores the commands arguments
+    :param cfg: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (list) The list of (product name, product_informations).
+    """
     # Get the products to be prepared, regarding the options
     if options.products is None:
         # No options, get all products sources
@@ -217,15 +217,15 @@ def get_children(config, p_name_p_info):
     return l_res
 
 def get_recursive_children(config, p_name_p_info, without_native_fixed=False):
-    """ Get the recursive list of the product that depend on 
-        the product defined by prod_info
+    """
+    Get the recursive list of the product that depend on 
+    the product defined by prod_info
     
-    :param config Config: The global configuration
-    :param prod_info Config: The specific config of the product
-    :param without_native_fixed boolean: If true, do not include the fixed
-                                         or native products in the result
-    :return: The list of product_informations.
-    :rtype: List
+    :param config: (Config) The global configuration
+    :param prod_info: (Config) The specific config of the product
+    :param without_native_fixed: (bool) 
+      If true, do not include the fixed or native products in the result
+    :return: (list) The list of product_informations.
     """
     p_name, __ = p_name_p_info
     # Initialization of the resulting list
@@ -268,15 +268,15 @@ is not present in application %(appli_name)s.""" %
     return l_children
 
 def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
-    """ Get the recursive list of the dependencies of the product defined by
-        prod_info
+    """
+    Get the recursive list of the dependencies of the product defined 
+    by prod_info
     
-    :param config Config: The global configuration
-    :param prod_info Config: The specific config of the product
-    :param without_native_fixed boolean: If true, do not include the fixed
-                                         or native products in the result
-    :return: The list of product_informations.
-    :rtype: List
+    :param config: (Config) The global configuration
+    :param prod_info: (Config) The specific config of the product
+    :param without_native_fixed: (bool) 
+      If true, do not include the fixed or native products in the result
+    :return: (list) The list of product_informations.
     """
     p_name, p_info = p_name_p_info
     # Initialization of the resulting list
@@ -317,10 +317,11 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
     return l_fathers
 
 def sort_products(config, p_infos):
-    """ Sort the p_infos regarding the dependencies between the products
+    """Sort the p_infos regarding the dependencies between the products
     
-    :param config Config: The global configuration
-    :param p_infos list: List of (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param p_infos: (list) 
+      List of (str, Config) => (product_name, product_info)
     """
     l_prod_sorted = src.deepcopy_list(p_infos)
     for prod in p_infos:
@@ -383,16 +384,16 @@ def log_res_step(logger, res):
 
 
 def compile_all_products(sat, config, options, products_infos, logger):
-    """\
+    """
     Execute the proper configuration commands 
     in each product build directory.
 
-    :param config Config: The global configuration
-    :param products_info list: List of 
-                                 (str, Config) => (product_name, product_info)
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: the number of failing commands.
-    :rtype: int
+    :param config: (Config) The global configuration
+    :param products_info: (list)
+      List of (str, Config) => (product_name, product_info)
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (int) the number of failing commands.
     """
     res = 0
     for p_name_info in products_infos:
@@ -501,12 +502,12 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Log the result
         if res_prod > 0:
             logger.info("\r%s%s" % (header, " " * len_end_line))
-            logger.info("\r" + header + "<KO> ") + error_step)
-            logger.debug("\n==== <KO> in compile of %s\n" % p_name
+            logger.info("\r" + header + "<KO> " + error_step)
+            logger.debug("\n==== <KO> in compile of %s\n" % p_name)
             if error_step == "CHECK":
                 logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
         else:
-            logger.info("\r%s%s" % (header, " " * len_end_line)
+            logger.info("\r%s%s" % (header, " " * len_end_line))
             logger.info("\r" + header + "<OK>")
             logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
             logger.debug("\n==== <OK> in compile of %s\n" % p_name)
@@ -519,18 +520,18 @@ def compile_all_products(sat, config, options, products_infos, logger):
     return res
 
 def compile_product(sat, p_name_info, config, options, logger, header, len_end):
-    '''Execute the proper configuration command(s) 
-       in the product build directory.
+    """
+    Execute the proper configuration command(s) 
+    in the product build directory.
     
-    :param p_name_info tuple: (str, Config) => (product_name, product_info)
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param header Str: the header to display when logging
-    :param len_end Int: the lenght of the the end of line (used in display)
-    :return: 1 if it fails, else 0.
-    :rtype: int
-    '''
+    :param p_name_info: (tuple) (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the lenght of the the end of line (used in display)
+    :return: (int) 1 if it fails, else 0.
+    """
     
     p_name, p_info = p_name_info
           
@@ -593,18 +594,19 @@ def compile_product_cmake_autotools(sat,
                                     logger,
                                     header,
                                     len_end):
-    '''Execute the proper build procedure for autotools or cmake
-       in the product build directory.
+    """
+    Execute the proper build procedure for autotools or cmake
+    in the product build directory.
     
-    :param p_name_info tuple: (str, Config) => (product_name, product_info)
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param header Str: the header to display when logging
-    :param len_end Int: the lenght of the the end of line (used in display)
-    :return: 1 if it fails, else 0.
-    :rtype: int
-    '''
+    :param p_name_info: (tuple) 
+      (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the length of the the end of line (used in display)
+    :return: (int) 1 if it fails, else 0.
+    """
     p_name, p_info = p_name_info
     
     # Execute "sat configure", "sat make" and "sat install"
@@ -671,17 +673,17 @@ def compile_product_script(sat,
                            logger,
                            header,
                            len_end):
-    '''Execute the script build procedure in the product build directory.
+    """Execute the script build procedure in the product build directory.
     
-    :param p_name_info tuple: (str, Config) => (product_name, product_info)
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param header Str: the header to display when logging
-    :param len_end Int: the lenght of the the end of line (used in display)
-    :return: 1 if it fails, else 0.
-    :rtype: int
-    '''
+    :param p_name_info: (tuple) 
+      (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the lenght of the the end of line (used in display)
+    :return: (int) 1 if it fails, else 0.
+    """
     p_name, p_info = p_name_info
     
     # Execute "sat configure", "sat make" and "sat install"
@@ -699,12 +701,13 @@ def compile_product_script(sat,
     return res, len_end_line, error_step 
 
 def add_compile_config_file(p_info, config):
-    '''Execute the proper configuration command(s) 
-       in the product build directory.
+    """
+    Execute the proper configuration command(s) 
+    in the product build directory.
     
-    :param p_info Config: The specific config of the product
-    :param config Config: The global configuration
-    '''
+    :param p_info: (Config) The specific config of the product
+    :param config: (Config) The global configuration
+    """
     # Create the compile config
     compile_cfg = PYCONF.Config()
     for prod_name in p_info.depend:

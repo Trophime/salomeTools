@@ -105,14 +105,13 @@ class Command(_BaseCommand):
 
 
 def set_local_value(config, key, value, logger):
-    """ Edit the site.pyconf file and change a value.
+    """Edit the site.pyconf file and change a value.
 
-    :param config Config: The global configuration.    
-    :param key Str: The key from which to change the value.
-    :param value Str: The path to change.
-    :param logger Logger: The logger instance.
-    :return: 0 if all is OK, else 1
-    :rtype: int
+    :param config: (Config) The global configuration.    
+    :param key: (str) The key from which to change the value.
+    :param value: (str) The path to change.
+    :param logger: (Logger) The logger instance.
+    :return: (int) 0 if all is OK, else 1
     """
     local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
     # Update the local.pyconf file
@@ -133,11 +132,11 @@ def set_local_value(config, key, value, logger):
     return RCO.ReturnCode("OK")
     
 def display_local_values(config, logger):
-    """ Display the base path
+    """Display the base path
 
-    :param config Config: The global configuration.
-    :param key Str: The key from which to change the value.
-    :param logger Logger: The logger instance.
+    :param config: (Config) The global configuration.
+    :param key: (str) The key from which to change the value.
+    :param logger: (Logger) The logger instance.
     """
     info = [("base", config.LOCAL.base),
             ("workdir", config.LOCAL.workdir),
@@ -150,10 +149,10 @@ def display_local_values(config, logger):
     return 0
 
 def check_path(path_to_check, logger):
-    """ Verify that the given path is not a file and can be created.
+    """Verify that the given path is not a file and can be created.
     
-    :param path_to_check Str: The path to check.
-    :param logger Logger: The logger instance.
+    :param path_to_check: (str) The path to check.
+    :param logger: (Logger) The logger instance.
     """
     if path_to_check == "default":
         return 0
@@ -176,7 +175,7 @@ Please provide a path to a directory\n""") % UTS.blue(path_to_check)
         msg = _("""\
 Unable to create the directory %s:
 
-%s\n""") % (UTS.blue(str(path)), UTS.yellow(e)
+%s\n""") % (UTS.blue(str(path)), UTS.yellow(e))
         logger.error(msg)
         return 1
     

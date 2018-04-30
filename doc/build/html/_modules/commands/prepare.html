@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.prepare &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.prepare</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The prepare command gets the sources of the application products </span>
+<span class="sd">  and apply the patches if there is any.</span>
+
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat prepare SALOME --products KERNEL,GUI</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;prepare&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat prepare &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="s1">&#39;list2&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: products to prepare. This option can be&#39;</span>
+        <span class="s1">&#39; passed several time to prepare several products.&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: force to prepare the products in development mode.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;force_patch&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;force_patch&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: force to apply patch to the products in development mode.&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat prepare &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="c1"># check that the command has been called with an application</span>
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_products_list</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># Construct the arguments to pass to the clean, source and patch commands</span>
+    <span class="n">args_appli</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
+    <span class="n">args_product_opt</span> <span class="o">=</span> <span class="s1">&#39;--products &#39;</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p_name</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+            <span class="n">args_product_opt</span> <span class="o">+=</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="n">p_name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+            <span class="n">args_product_opt</span> <span class="o">+=</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="n">p_name</span>
+
+    <span class="n">ldev_products</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products_infos</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">args_product_opt_clean</span> <span class="o">=</span> <span class="n">args_product_opt</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">force</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldev_products</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">l_products_not_getted</span> <span class="o">=</span> <span class="n">find_products_already_getted</span><span class="p">(</span><span class="n">ldev_products</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_products_not_getted</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Do not get the source of the following products in development mode.</span>
+<span class="s2">Use the --force option to overwrite it.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+            <span class="n">args_product_opt_clean</span> <span class="o">=</span> <span class="n">remove_products</span><span class="p">(</span><span class="n">args_product_opt_clean</span><span class="p">,</span>
+                                                     <span class="n">l_products_not_getted</span><span class="p">,</span>
+                                                     <span class="n">logger</span><span class="p">)</span>
+
+    
+    <span class="n">args_product_opt_patch</span> <span class="o">=</span> <span class="n">args_product_opt</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">force_patch</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldev_products</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">l_products_with_patchs</span> <span class="o">=</span> <span class="n">find_products_with_patchs</span><span class="p">(</span><span class="n">ldev_products</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_products_with_patchs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Do not patch the following products in development mode.</span>
+<span class="s2">Use the --force_patch option to overwrite it.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+            <span class="n">args_product_opt_patch</span> <span class="o">=</span> <span class="n">remove_products</span><span class="p">(</span><span class="n">args_product_opt_patch</span><span class="p">,</span>
+                                                     <span class="n">l_products_with_patchs</span><span class="p">,</span>
+                                                     <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># Construct the final commands arguments</span>
+    <span class="n">args_clean</span> <span class="o">=</span> <span class="n">args_appli</span> <span class="o">+</span> <span class="n">args_product_opt_clean</span> <span class="o">+</span> <span class="s2">&quot; --sources&quot;</span>
+    <span class="n">args_source</span> <span class="o">=</span> <span class="n">args_appli</span> <span class="o">+</span> <span class="n">args_product_opt</span>  
+    <span class="n">args_patch</span> <span class="o">=</span> <span class="n">args_appli</span> <span class="o">+</span> <span class="n">args_product_opt_patch</span>
+
+    <span class="c1"># If there is no more any product in the command arguments,</span>
+    <span class="c1"># do not call the concerned command </span>
+    <span class="n">oExpr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^--products *$&quot;</span><span class="p">)</span>
+    <span class="n">do_clean</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">oExpr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">args_product_opt_clean</span><span class="p">))</span>
+    <span class="n">do_source</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">oExpr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">args_product_opt</span><span class="p">))</span>
+    <span class="n">do_patch</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">oExpr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">args_product_opt_patch</span><span class="p">))</span>
+    
+    
+    <span class="c1"># Initialize the results to Ok but nothing done status</span>
+    <span class="n">res_clean</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;nothing done&quot;</span><span class="p">)</span>
+    <span class="n">res_source</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;nothing done&quot;</span><span class="p">)</span>
+    <span class="n">res_patch</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;nothing done&quot;</span><span class="p">)</span>
+
+    <span class="c1"># return res_clean + res_source + res_patch</span>
+
+    <span class="c1"># Call the commands using the API</span>
+    <span class="k">if</span> <span class="n">do_clean</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Clean the source directories ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">tofix</span><span class="p">(</span><span class="s2">&quot;args_clean and TODO remove returns&quot;</span><span class="p">,</span> <span class="n">args_clean</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">res_clean</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">getCommand</span><span class="p">(</span><span class="s2">&quot;clean&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args_clean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res_clean</span> <span class="o">+</span> <span class="n">res_source</span> <span class="o">+</span> <span class="n">res_patch</span>
+    <span class="k">if</span> <span class="n">do_source</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Get the sources of the products ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">res_source</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">getCommand</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args_source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">do_patch</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Patch the product sources (if any) ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">res_patch</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">getCommand</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args_patch</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">res_clean</span> <span class="o">+</span> <span class="n">res_source</span> <span class="o">+</span> <span class="n">res_patch</span></div></div>
+
+
+<div class="viewcode-block" id="remove_products"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.remove_products">[docs]</a><span class="k">def</span> <span class="nf">remove_products</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">l_products_info</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Removes the products in l_products_info from arguments list.</span>
+<span class="sd">    </span>
+<span class="sd">    :param arguments: (str) The arguments from which to remove products</span>
+<span class="sd">    :param l_products_info: (list) </span>
+<span class="sd">      List of (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :return: (str) The updated arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">arguments</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">product_name</span><span class="p">,</span> <span class="n">__</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">l_products_info</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="n">product_name</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">end_text</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_products_info</span><span class="p">):</span>
+            <span class="n">end_text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>            
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">product_name</span> <span class="o">+</span> <span class="n">end_text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="find_products_already_getted"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.find_products_already_getted">[docs]</a><span class="k">def</span> <span class="nf">find_products_already_getted</span><span class="p">(</span><span class="n">l_products</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the list of products that have an existing source directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param l_products: (list) The list of products to check</span>
+<span class="sd">    :return: (list) </span>
+<span class="sd">      The list of product configurations </span>
+<span class="sd">      that have an existing source directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p_name_p_cfg</span> <span class="ow">in</span> <span class="n">l_products</span><span class="p">:</span>
+        <span class="n">__</span><span class="p">,</span> <span class="n">prod_cfg</span> <span class="o">=</span> <span class="n">p_name_p_cfg</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">prod_cfg</span><span class="o">.</span><span class="n">source_dir</span><span class="p">):</span>
+            <span class="n">l_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_p_cfg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l_res</span></div>
+
+<div class="viewcode-block" id="find_products_with_patchs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.prepare.find_products_with_patchs">[docs]</a><span class="k">def</span> <span class="nf">find_products_with_patchs</span><span class="p">(</span><span class="n">l_products</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the list of products that have one or more patches.</span>
+<span class="sd">    </span>
+<span class="sd">    :param l_products: (list) The list of products to check</span>
+<span class="sd">    :return: (list) </span>
+<span class="sd">      The list of product configurations </span>
+<span class="sd">      that have one or more patches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p_name_p_cfg</span> <span class="ow">in</span> <span class="n">l_products</span><span class="p">:</span>
+        <span class="n">__</span><span class="p">,</span> <span class="n">prod_cfg</span> <span class="o">=</span> <span class="n">p_name_p_cfg</span>
+        <span class="n">l_patchs</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="n">prod_cfg</span><span class="p">,</span> <span class="s2">&quot;patches&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_patchs</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">l_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_p_cfg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l_res</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

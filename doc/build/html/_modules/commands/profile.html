@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.profile &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.profile</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  The profile command creates default profile.</span>
+<span class="sd">  </span>
+<span class="sd">  examples: </span>
+<span class="sd">  &gt;&gt; sat profile [PRODUCT] </span>
+<span class="sd">  &gt;&gt; sat profile --prefix (string)</span>
+<span class="sd">  &gt;&gt; sat profile --name (string)</span>
+<span class="sd">  &gt;&gt; sat profile --force</span>
+<span class="sd">  &gt;&gt; sat profile --version (string) </span>
+<span class="sd">  &gt;&gt; sat profile --slogan (string) </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;profile&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat profile &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;prefix&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Where the profile&#39;s sources will be generated.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Name of the profile&#39;s sources. [Default: &#39;$</span><span class="si">{config.PRODUCT.name}</span><span class="s2">_PROFILE]&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Overwrites existing sources.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;no_update&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;no_update&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Does not update pyconf file.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;version&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Version of the application. [Default: 1.0]&quot;</span><span class="p">),</span> <span class="s1">&#39;1.0&#39;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;slogan&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;slogan&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Slogan of the application.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat profile &lt;options&gt;&#39;&quot;&quot;&quot;</span> 
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+  
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The --</span><span class="si">%s</span><span class="s2"> argument is required</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;prefix&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+    
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">generate_profile_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_update</span> <span class="p">:</span>
+        <span class="n">update_pyconf</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">retcode</span></div></div>
+
+
+<span class="c1"># Class that overrides common.Reference</span>
+<span class="c1"># in order to manipulate fields starting with &#39;@&#39;</span>
+<div class="viewcode-block" id="profileReference"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.profileReference">[docs]</a><span class="k">class</span> <span class="nc">profileReference</span><span class="p">(</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Reference</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">tt</span><span class="p">,</span> <span class="n">tv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">tt</span> <span class="o">==</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">DOT</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tv</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;[</span><span class="si">%r</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">tv</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">BACKTICK</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">BACKTICK</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">BACKTICK</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">AT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">AT</span> <span class="o">+</span> <span class="n">s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">DOLLAR</span> <span class="o">+</span> <span class="n">s</span></div>
+
+<span class="c1">##</span>
+<span class="c1"># Class that overrides how fields starting with &#39;@&#39; are read.</span>
+<div class="viewcode-block" id="profileConfigReader"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.profileConfigReader">[docs]</a><span class="k">class</span> <span class="nc">profileConfigReader</span><span class="p">(</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">ConfigReader</span> <span class="p">)</span> <span class="p">:</span>
+<div class="viewcode-block" id="profileConfigReader.parseMapping"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.profileConfigReader.parseMapping">[docs]</a>    <span class="k">def</span> <span class="nf">parseMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">LCURLY</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">PYCONF</span><span class="o">.</span><span class="n">LCURLY</span><span class="p">)</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">rv</span><span class="o">.</span><span class="n">setPath</span><span class="p">(</span>
+               <span class="n">PYCONF</span><span class="o">.</span><span class="n">makePath</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">),</span>
+                                   <span class="n">suffix</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parseMappingBody</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">PYCONF</span><span class="o">.</span><span class="n">RCURLY</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">PYCONF</span><span class="o">.</span><span class="n">AT</span><span class="p">)</span>
+            <span class="n">__</span><span class="p">,</span> <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="n">profileReference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">AT</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span></div></div>
+
+
+
+<span class="c1">##</span>
+<span class="c1"># Gets the profile name</span>
+<div class="viewcode-block" id="get_profile_name"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.get_profile_name">[docs]</a><span class="k">def</span> <span class="nf">get_profile_name</span> <span class="p">(</span> <span class="n">options</span><span class="p">,</span> <span class="n">config</span> <span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_PROFILE&quot;</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="generate_profile_sources"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.generate_profile_sources">[docs]</a><span class="k">def</span> <span class="nf">generate_profile_sources</span><span class="p">(</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates the sources of the profile</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#Check script app-quickstart.py exists</span>
+    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
+    <span class="n">kernel_root_dir</span> <span class="o">=</span> <span class="n">kernel_cfg</span><span class="o">.</span><span class="n">install_dir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL is not installed&quot;</span><span class="p">))</span>
+    <span class="n">script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span><span class="s2">&quot;salome&quot;</span><span class="p">,</span><span class="s2">&quot;app-quickstart.py&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span> <span class="n">script</span> <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL&#39;s install has not the script app-quickstart.py&quot;</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="c1"># Check that GUI is installed</span>
+    <span class="n">gui_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;GUI&quot;</span><span class="p">)</span>
+    <span class="n">gui_root_dir</span> <span class="o">=</span> <span class="n">gui_cfg</span><span class="o">.</span><span class="n">install_dir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">gui_cfg</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;GUI is not installed&quot;</span><span class="p">))</span>
+
+    <span class="c1">#Set prefix option passed to app-quickstart.py</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">get_profile_name</span> <span class="p">(</span> <span class="n">options</span><span class="p">,</span> <span class="n">config</span> <span class="p">)</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">options</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span> <span class="n">prefix</span> <span class="p">)</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">force</span> <span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> 
+              <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The path </span><span class="si">%s</span><span class="s2"> already exists, use option --force to remove it.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">prefix</span> <span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span> <span class="n">prefix</span> <span class="p">)</span>
+
+    <span class="c1">#Set name option passed to app-quickstart.py</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_PROFILE&quot;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">]</span>
+
+    <span class="c1">#Write command line that calls app-quickstart.py</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;python </span><span class="si">%s</span><span class="s2"> --prefix=</span><span class="si">%s</span><span class="s2"> --name=</span><span class="si">%s</span><span class="s2"> --modules=_NO_ --version=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
+              <span class="p">(</span> <span class="n">script</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">version</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">force</span> <span class="p">:</span>
+        <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot; --force&quot;</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">slogan</span> <span class="p">:</span>
+        <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot; --slogan=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">slogan</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&gt;&quot;</span> <span class="o">+</span> <span class="n">command</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1">#Run command</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERNEL_ROOT_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kernel_root_dir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;GUI_ROOT_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gui_root_dir</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span>
+                    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">env</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>
+                    <span class="n">stdout</span><span class="o">=</span><span class="n">logger</span><span class="o">.</span><span class="n">logTxtFile</span><span class="p">,</span>
+                    <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    <span class="c1">#Check result of command</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cannot create application, code = </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">res</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Profile sources were generated in directory </span><span class="si">%s</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">prefix</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="update_pyconf"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.profile.update_pyconf">[docs]</a><span class="k">def</span> <span class="nf">update_pyconf</span><span class="p">(</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the pyconf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#Save previous version</span>
+    <span class="n">pyconf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">product</span> <span class="o">+</span> <span class="s1">&#39;.pyconf&#39;</span>
+    <span class="n">pyconfBackup</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">product</span> <span class="o">+</span> <span class="s1">&#39;-backup.pyconf&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Updating </span><span class="si">%s</span><span class="s2"> (previous version saved as </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">pyconf</span><span class="p">,</span> <span class="n">pyconfBackup</span><span class="p">))</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getPath</span><span class="p">(</span> <span class="n">pyconf</span> <span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span><span class="p">,</span> <span class="n">pyconf</span> <span class="p">),</span>
+                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span><span class="p">,</span> <span class="n">pyconfBackup</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="c1">#Load config</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span> <span class="p">)</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span> <span class="n">cfg</span><span class="p">,</span> <span class="s1">&#39;reader&#39;</span><span class="p">,</span> <span class="n">profileConfigReader</span><span class="p">(</span> <span class="n">cfg</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">load</span><span class="p">(</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">defaultStreamOpener</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span><span class="p">,</span> <span class="n">pyconf</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="c1">#Check if profile is in APPLICATION.products</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile_name</span> <span class="p">(</span> <span class="n">options</span><span class="p">,</span> <span class="n">config</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">profile</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+
+    <span class="c1">#Check if profile is in APPLICATION</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;profile&#39;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;launcher_name&#39;</span><span class="p">,</span>
+                                            <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+
+    <span class="c1">#Check if profile info is in PRODUCTS</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;PRODUCTS&#39;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;PRODUCTS&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+        
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="n">profile</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="p">[</span><span class="n">profile</span><span class="p">]</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(),</span>
+                                          <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">TOOLS</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">module_info</span><span class="p">[</span><span class="n">profile</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;get_source&#39;</span><span class="p">,</span> <span class="s1">&#39;archive&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;build_source&#39;</span><span class="p">,</span> <span class="s1">&#39;cmake&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;archive_info&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> 
+            <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">prefix</span><span class="p">),</span> <span class="n">profile</span><span class="p">),</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION.workdir + $VARS.sep + &#39;SOURCES&#39; + $VARS.sep + $name&quot;</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;source_dir&#39;</span><span class="p">,</span> 
+                        <span class="n">PYCONF</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">DOLLAR</span><span class="p">,</span> <span class="n">tmp</span> <span class="p">),</span>
+                        <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION.workdir + $VARS.sep + &#39;BUILD&#39; + $VARS.sep + $name&quot;</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;build_dir&#39;</span><span class="p">,</span> 
+                         <span class="n">PYCONF</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">DOLLAR</span><span class="p">,</span> <span class="n">tmp</span> <span class="p">),</span>
+                         <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;depend&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Sequence</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">depend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;KERNEL&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">depend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;GUI&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">depend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;Python&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">depend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;Sphinx&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">depend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;qt&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+        <span class="n">prf</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span> <span class="s1">&#39;opt_depend&#39;</span><span class="p">,</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Sequence</span><span class="p">(),</span> <span class="kc">None</span> <span class="p">)</span>
+
+    <span class="c1">#Save config</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span><span class="p">,</span> <span class="n">pyconf</span> <span class="p">)</span> <span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">__save__</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

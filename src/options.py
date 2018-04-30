@@ -16,7 +16,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
+"""
 The Options class that manages the access to all options passed as 
 parameters in salomeTools command lines
 """
@@ -35,36 +35,37 @@ class OptResult(object):
     The aim of this class is to have an elegant syntax to manipulate the options.
     
     example: 
-      >> print(options.level)
-      >> 5
+    >> print(options.level)
+    >> 5
     """
     def __init__(self):
-        '''Initialization
-        '''
+        """Initialization
+        """
         self.__dict__ = dict()
 
     def __getattr__(self, name):
-        '''Overwrite of the __getattr__ function 
-           to customize it for option usage
+        """
+        Overwrite of the __getattr__ function 
+        to customize it for option usage
         
-        :param name str: The attribute to get the value.
-        :return: the value corresponding to the attribute.
-        :rtype: str,int,list,boolean,level
-        '''
+        :param name: (str) The attribute to get the value.
+        :return: (str int list boolean level)
+          the value corresponding to the attribute.
+        """
         if name in self.__dict__:
             return self.__dict__[name]
         else:
             raise AttributeError("--" + name + _(u" is not a valid option"))
 
     def __setattr__(self, name, value):
-        '''Overwrite of the __setattr__ function 
-           to customize it for option usage
+        """
+        Overwrite of the __setattr__ function 
+        to customize it for option usage
         
-        :param name str: The attribute to set.
-        :param value str: The value  corresponding to the attribute.
-        :return: Nothing.
-        :rtype: N\A
-        '''
+        :param name: (str) The attribute to set.
+        :param value: (str) The value  corresponding to the attribute.
+        :return: None
+        """
         object.__setattr__(self, name, value)
 
     def __repr__(self):
@@ -73,11 +74,13 @@ class OptResult(object):
         return res
 
 class Options(object):
-    '''Class to manage all salomeTools options
-    '''
+    """
+    Class to manage all salomeTools options
+    """
     def __init__(self):
-        '''Initialization
-        '''
+        """
+        Initialization
+        """
         # The options field stocks all options of a command 
         # in a list that contains dicts
         self.options = []
@@ -88,20 +91,22 @@ class Options(object):
 
     def add_option(self, shortName, longName,
                     optionType, destName, helpString="", default = None):
-        '''Method to add an option to a command. It gets all attributes
-           of an option and append it in the options field
+        """
+        Add an option to a command. It gets all attributes
+        of an option and append it in the options field
         
-        :param shortName str: The short name of the option
-                              (ex "l" for level option).
-        :param longName str: The long name of the option 
-                             (ex "level" for level option).
-        :param optionType str: The type of the option (ex "int").
-        :param destName str: The name that will be used in the code.
-        :param helpString str: The text to display 
-                               when user ask for help on a command.     
-        :return: Nothing.
-        :rtype: N\A
-        '''
+        :param shortName: (str) 
+          The short name of the option
+          (as '-l' for level option).
+        :param longName: (str) 
+          The long name of the option 
+          (as '--level' for level option).
+        :param optionType: (str) The type of the option (ex "int").
+        :param destName: (str) The name that will be used in the code.
+        :param helpString: (str) 
+          The text to display when user ask for help on a command.     
+        :return: None
+        """
         tmp = [o['shortName'] for o in self.options if o['shortName'] != '']
         if shortName in tmp: 
           raise Exception("option '-%s' existing yet" % shortName)
@@ -125,8 +130,10 @@ class Options(object):
         self.options.append(option)
         
     def getDetailOption(self, option):
-        """for convenience 
-        returns (shortName, longName, optionType, helpString')
+        """
+        for convenience 
+        
+        :return: (tuple) 4-elements (shortName, longName, optionType, helpString)
         """
         oos = option['shortName']
         ool = option['longName']
@@ -136,12 +143,12 @@ class Options(object):
 
 
     def get_help(self):
-        '''Method that returns all options stored in self.options 
+        """
+        Returns all options stored in self.options 
         as help message colored string
         
-        :return: colored string
-        :rtype: N\A
-        '''
+        :return: (str) colored string
+        """
         msg = ""
         # Do nothing if there are no options
         if len(self.options) == 0:
@@ -167,15 +174,15 @@ class Options(object):
                
 
     def parse_args(self, argList=None):
-        '''Method that instantiates the class OptResult 
-           that gives access to all options in the code
+        """
+        Instantiates the class OptResult 
+        that gives access to all options in the code
         
-        :param argList list: the raw list of arguments that were passed
-        :return: optResult, args : optResult is the option instance 
-                                   to manipulate in the code. args 
-                                   is the full raw list of passed options 
-        :rtype: (class 'common.options.OptResult',list)
-        '''
+        :param argList: (list) the raw list of arguments that were passed
+        :return: (OptResult, list) as (optResult, args) 
+          optResult is the option instance to manipulate in the code. 
+          args is the full raw list of passed options 
+        """
         # see https://pymotw.com/2/getopt/
         if argList is None:
             argList = sys.argv[1:]
@@ -249,16 +256,18 @@ class Options(object):
         return optResult, args
 
     def __repr__(self): 
-        '''repr for only self.options and self.results (if present)
-        '''
+        """
+        repr for only self.options and self.results (if present)
+        """
         aDict = {'options': self.options, 'results': self.results}
         aStr = PP.pformat(aDict)
         res = "%s(\n %s\n)" % (self.__class__.__name__, aStr[1:-1])
         return res
         
     def __str__(self): 
-        '''str for only resume expected self.options
-        '''
+        """
+        str for only resume expected self.options
+        """
         #aDict = [(k["longName"], k["shortName", k["helpString"]) for k in self.options}
         #aList = [(k, self.options[k]) for k in sorted(self.options.keys())]
         aDict = {}

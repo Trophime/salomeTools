@@ -1,0 +1,1456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.package &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.package</h1><div class="highlight"><pre>
+<span></span>#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+#  Copyright (C) 2010-2012  CEA/DEN
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+import os
+import stat
+import shutil
+import datetime
+import tarfile
+import codecs
+import string
+import traceback
+
+from commands.application import get_SALOME_modules
+
+import src.debug as DBG
+import src.returnCode as RCO
+import src.utilsSat as UTS
+from src.salomeTools import _BaseCommand
+import src.pyconf as PYCONF
+import src.utilsSat as UTS
+
+BINARY = &quot;binary&quot;
+SOURCE = &quot;Source&quot;
+PROJECT = &quot;Project&quot;
+SAT = &quot;Sat&quot;
+
+ARCHIVE_DIR = &quot;ARCHIVES&quot;
+PROJECT_DIR = &quot;PROJECT&quot;
+
+IGNORED_DIRS = [&quot;.git&quot;, &quot;.svn&quot;]
+IGNORED_EXTENSIONS = []
+
+PROJECT_TEMPLATE = &quot;&quot;&quot;\
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# The path to the archive root directory
+root_path : $PWD + &quot;/../&quot;
+# path to the PROJECT
+project_path : $PWD + &quot;/&quot;
+
+# Where to search the archives of the products
+ARCHIVEPATH : $root_path + &quot;ARCHIVES&quot;
+# Where to search the pyconf of the applications
+APPLICATIONPATH : $project_path + &quot;applications/&quot;
+# Where to search the pyconf of the products
+PRODUCTPATH : $project_path + &quot;products/&quot;
+# Where to search the pyconf of the jobs of the project
+JOBPATH : $project_path + &quot;jobs/&quot;
+# Where to search the pyconf of the machines of the project
+MACHINEPATH : $project_path + &quot;machines/&quot;
+&quot;&quot;&quot;
+
+LOCAL_TEMPLATE = (&quot;&quot;&quot;\
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+  LOCAL :
+  {
+    base : &#39;default&#39;
+    workdir : &#39;default&#39;
+    log_dir : &#39;default&#39;
+    archive_dir : &#39;default&#39;
+    VCS : None
+    tag : None
+  }
+
+PROJECTS :
+{
+project_file_paths : [$VARS.salometoolsway + $VARS.sep + \&quot;..\&quot; + $VARS.sep&quot;&quot;&quot;
+&quot;&quot;&quot; + \&quot;&quot;&quot;&quot; + PROJECT_DIR + &quot;&quot;&quot;\&quot; + $VARS.sep + &quot;project.pyconf&quot;]
+}
+&quot;&quot;&quot;)
+  
+
+########################################################################
+# Command class
+########################################################################
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.Command">[docs]</a>class Command(_BaseCommand):
+  &quot;&quot;&quot;
+  The package command creates an archive.
+  There are 4 kinds of archive, which can be mixed:
+  1- The binary archive. It contains all the product installation directories and a launcher.
+  2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
+  3- The project archive. It contains a project (give the project file path as argument).
+  4- The salomeTools archive. It contains salomeTools.
+  
+  examples:
+  &gt;&gt; sat package SALOME --binaries --sources
+  &quot;&quot;&quot;
+  
+  name = &quot;package&quot;
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.Command.getParser">[docs]</a>  def getParser(self):
+    &quot;&quot;&quot;Define all options for command &#39;sat package &lt;options&gt;&#39;&quot;&quot;&quot;
+    parser = self.getParserWithHelp()
+    parser.add_option(&#39;b&#39;, &#39;binaries&#39;, &#39;boolean&#39;, &#39;binaries&#39;,
+        _(&#39;Optional: Produce a binary package.&#39;), False)
+    parser.add_option(&#39;f&#39;, &#39;force_creation&#39;, &#39;boolean&#39;, &#39;force_creation&#39;,
+        _(&#39;Optional: Only binary package: produce the archive even if &#39;
+          &#39;there are some missing products.&#39;), False)
+    parser.add_option(&#39;s&#39;, &#39;sources&#39;, &#39;boolean&#39;, &#39;sources&#39;,
+        _(&#39;Optional: Produce a compilable archive of the sources of the &#39;
+          &#39;application.&#39;), False)
+    parser.add_option(&#39;&#39;, &#39;with_vcs&#39;, &#39;boolean&#39;, &#39;with_vcs&#39;,
+        _(&#39;Optional: Only source package: do not make archive of vcs products.&#39;),
+        False)
+    parser.add_option(&#39;p&#39;, &#39;project&#39;, &#39;string&#39;, &#39;project&#39;,
+        _(&#39;Optional: Produce an archive that contains a project.&#39;), &quot;&quot;)
+    parser.add_option(&#39;t&#39;, &#39;salometools&#39;, &#39;boolean&#39;, &#39;sat&#39;,
+        _(&#39;Optional: Produce an archive that contains salomeTools.&#39;), False)
+    parser.add_option(&#39;n&#39;, &#39;name&#39;, &#39;string&#39;, &#39;name&#39;,
+        _(&#39;Optional: The name or full path of the archive.&#39;), None)
+    parser.add_option(&#39;&#39;, &#39;add_files&#39;, &#39;list2&#39;, &#39;add_files&#39;,
+        _(&#39;Optional: The list of additional files to add to the archive.&#39;), [])
+    parser.add_option(&#39;&#39;, &#39;without_commercial&#39;, &#39;boolean&#39;, &#39;without_commercial&#39;,
+        _(&#39;Optional: do not add commercial licence.&#39;), False)
+    parser.add_option(&#39;&#39;, &#39;without_property&#39;, &#39;string&#39;, &#39;without_property&#39;,
+        _(&#39;Optional: Filter the products by their properties.\n&#39;
+          &#39;\tSyntax: --without_property &lt;property&gt;:&lt;value&gt;&#39;))
+    return parser</div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.Command.run">[docs]</a>  def run(self, cmd_arguments):
+    &quot;&quot;&quot;method called for command &#39;sat package &lt;options&gt;&#39;&quot;&quot;&quot;
+    argList = self.assumeAsList(cmd_arguments)
+
+    # print general help and returns
+    if len(argList) == 0:
+      self.print_help()
+      return RCO.ReturnCode(&quot;OK&quot;, &quot;No arguments, as &#39;sat %s --help&#39;&quot; % self.name)
+      
+    self._options, remaindersArgs = self.parseArguments(argList)
+    
+    if self._options.help:
+      self.print_help()
+      return RCO.ReturnCode(&quot;OK&quot;, &quot;Done &#39;sat %s --help&#39;&quot; % self.name)
+   
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
+       
+    # Check that a type of package is called, and only one
+    all_option_types = (options.binaries,
+                        options.sources,
+                        options.project not in [&quot;&quot;, None],
+                        options.sat)
+
+    # Check if no option for package type
+    if all_option_types.count(True) == 0:
+        msg = _(&quot;&quot;&quot;\
+Needs a type for the package
+Use one of the following options:
+  &#39;--binaries&#39; &#39;--sources&#39; &#39;--project&#39; or &#39;--salometools&#39;\n&quot;&quot;&quot;)
+        logger.error(msg)
+        return 1
+    
+    # The repository where to put the package if not Binary or Source
+    package_default_path = config.LOCAL.workdir
+    
+    # if the package contains binaries or sources:
+    if options.binaries or options.sources:
+        # Check that the command has been called with an application
+        src.check_config_has_application(config)
+
+        # Display information
+        logger.info(_(&quot;Packaging application %s\n&quot;) % \
+            UTS.label(config.VARS.application), 1)
+        
+        # Get the default directory where to put the packages
+        package_default_path = os.path.join(config.APPLICATION.workdir, &quot;PACKAGE&quot;)
+        UTS.ensure_path_exists(package_default_path)
+        
+    # if the package contains a project:
+    if options.project:
+        # check that the project is visible by SAT
+        if options.project not in config.PROJECTS.project_file_paths:
+            local_path = os.path.join(
+                   config.VARS.salometoolsway, &quot;data&quot;, &quot;local.pyconf&quot;)
+            msg = _(&quot;&quot;&quot;\
+The project %s is not visible by salomeTools.
+Please add it in the %s file.\n&quot;&quot;&quot;) % (options.project, local_path)
+            logger.error(msg)
+            return 1
+    
+    # Remove the products that are filtered by the --without_property option
+    if options.without_property:
+        [prop, value] = options.without_property.split(&quot;:&quot;)
+        update_config(config, prop, value)
+    
+    # get the name of the archive or build it
+    if options.name:
+        if os.path.basename(options.name) == options.name:
+            # only a name (not a path)
+            archive_name = options.name           
+            dir_name = package_default_path
+        else:
+            archive_name = os.path.basename(options.name)
+            dir_name = os.path.dirname(options.name)
+        
+        # suppress extension
+        if archive_name[-len(&quot;.tgz&quot;):] == &quot;.tgz&quot;:
+            archive_name = archive_name[:-len(&quot;.tgz&quot;)]
+        if archive_name[-len(&quot;.tar.gz&quot;):] == &quot;.tar.gz&quot;:
+            archive_name = archive_name[:-len(&quot;.tar.gz&quot;)]
+        
+    else:
+        archive_name=&quot;&quot;
+        dir_name = package_default_path
+        if options.binaries or options.sources:
+            archive_name = config.APPLICATION.name
+
+        if options.binaries:
+            archive_name += &quot;-&quot;+config.VARS.dist
+            
+        if options.sources:
+            archive_name += &quot;-SRC&quot;
+            if options.with_vcs:
+                archive_name += &quot;-VCS&quot;
+
+        if options.project:
+            project_name, __ = os.path.splitext(
+                                            os.path.basename(options.project))
+            archive_name += (&quot;PROJECT-&quot; + project_name)
+ 
+        if options.sat:
+            archive_name += (&quot;salomeTools_&quot; + config.INTERNAL.sat_version)
+        if len(archive_name)==0: # no option worked 
+            msg = _(&quot;&quot;&quot;\
+Cannot name the archive.
+check if at least one of the following options was selected: 
+  &#39;--binaries&#39; &#39;--sources&#39; &#39;--project&#39; or &#39;--salometools&#39;\n&quot;&quot;&quot;)
+            logger.error(msg)
+            return 1
+ 
+    path_targz = os.path.join(dir_name, archive_name + &quot;.tgz&quot;)
+    
+    logger.info(&quot;  Package path = %s\n&quot; % UTS.blue(path_targz))
+
+    # Create a working directory for all files that are produced during the
+    # package creation and that will be removed at the end of the command
+    tmp_working_dir = os.path.join(config.VARS.tmp_root, config.VARS.datehour)
+    UTS.ensure_path_exists(tmp_working_dir)
+    logger.debug(_(&quot;The temporary working directory: %s\n&quot;) % tmp_working_dir)
+    
+    msg = _(&quot;Preparation of files to add to the archive&quot;)
+    logger.info(UTS.label(msg))
+
+    d_files_to_add={}  # content of the archive
+
+    # a dict to hold paths that will need to be substitute for users recompilations
+    d_paths_to_substitute={}  
+
+    if options.binaries:
+        d_bin_files_to_add = binary_package(config, logger, options, tmp_working_dir)
+        # for all binaries dir, store the substitution that will be required 
+        # for extra compilations
+        for key in d_bin_files_to_add:
+            if key.endswith(&quot;(bin)&quot;):
+                source_dir = d_bin_files_to_add[key][0]
+                path_in_archive = d_bin_files_to_add[key][1].replace(&quot;BINARIES-&quot; + config.VARS.dist,&quot;INSTALL&quot;)
+                if os.path.basename(source_dir)==os.path.basename(path_in_archive):
+                    # if basename is the same we will just substitute the dirname 
+                    d_paths_to_substitute[os.path.dirname(source_dir)]=\
+                        os.path.dirname(path_in_archive)
+                else:
+                    d_paths_to_substitute[source_dir]=path_in_archive
+
+        d_files_to_add.update(d_bin_files_to_add)
+
+    if options.sources:
+        d_files_to_add.update(source_package(runner,
+                                        config,
+                                        logger, 
+                                        options,
+                                        tmp_working_dir))
+        if options.binaries:
+            # for archives with bin and sources we provide a shell script able to 
+            # install binaries for compilation
+            file_install_bin=produce_install_bin_file(config,logger,
+                                                      tmp_working_dir,
+                                                      d_paths_to_substitute,
+                                                      &quot;install_bin.sh&quot;)
+            d_files_to_add.update({&quot;install_bin&quot; : (file_install_bin, &quot;install_bin.sh&quot;)})
+            logger.debug(&quot;substitutions to be done later:\n%s\n&quot; % str(d_paths_to_substitute))
+
+    else:
+        # --salomeTool option is not considered when --sources is selected, as this option
+        # already brings salomeTool!
+        if options.sat:
+            d_files_to_add.update({&quot;salomeTools&quot; : (config.VARS.salometoolsway, &quot;&quot;)})
+        
+    
+    if options.project:
+        d_files_to_add.update(project_package(options.project, tmp_working_dir))
+
+    if not(d_files_to_add):
+        msg = _(&quot;Empty dictionary to build the archive.\n&quot;)
+        logger.error(msg)
+        return 1
+
+    # Add the README file in the package
+    local_readme_tmp_path = add_readme(config, options, tmp_working_dir)
+    d_files_to_add[&quot;README&quot;] = (local_readme_tmp_path, &quot;README&quot;)
+
+    # Add the additional files of option add_files
+    if options.add_files:
+        for file_path in options.add_files:
+            if not os.path.exists(file_path):
+                msg = _(&quot;The file %s is not accessible.\n&quot;) % file_path
+                continue
+            file_name = os.path.basename(file_path)
+            d_files_to_add[file_name] = (file_path, file_name)
+
+    msg = UTS.label(_(&quot;Actually do the package&quot;))
+    logger.info(&quot;\n%s\n&quot; % msg)
+    
+    try:
+        # Creating the object tarfile
+        tar = tarfile.open(path_targz, mode=&#39;w:gz&#39;)
+        
+        # get the filtering function if needed
+        filter_function = exclude_VCS_and_extensions
+
+        # Add the files to the tarfile object
+        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
+        tar.close()
+        
+    except KeyboardInterrupt:
+        logger.critical(UTS.red(_(&quot;KeyboardInterrupt forced interruption\n&quot;)))
+        logger.info(_(&quot;Removing the temporary working directory ... &quot;))
+        # remove the working directory
+        shutil.rmtree(tmp_working_dir)
+        logger.info(&quot;&lt;OK&gt;&quot;)
+        return 1
+    
+    # remove the working directory    
+    shutil.rmtree(tmp_working_dir)
+    
+    # Print again the path of the package
+    logger.info(&quot;  Package path = %s\n&quot; % UTS.blue(path_targz))
+    
+    return res</div></div>
+
+
+<div class="viewcode-block" id="add_files"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.add_files">[docs]</a>def add_files(tar, name_archive, d_content, logger, f_exclude=None):
+    &quot;&quot;&quot;
+    Create an archive containing all directories and files that are given 
+    in the d_content argument.
+    
+    :param tar: (tarfile) The tarfile instance used to make the archive.
+    :param name_archive: (str) The name of the archive to make.
+    :param d_content: (dict) 
+      The dictionary that contain all directories and files to add in the archive.
+      d_content[label] = (path_on_local_machine, path_in_archive)
+    :param logger: (Logger) the logging instance
+    :param f_exclude: (function) the function that filters
+    :return: (int) 0 if success, 1 if not.
+    &quot;&quot;&quot;
+    # get the max length of the messages in order to make the display
+    max_len = len(max(d_content.keys(), key=len))
+    
+    success = 0
+    # loop over each directory or file stored in the d_content dictionary
+    for name in d_content.keys():
+        # display information
+        len_points = max_len - len(name)
+        logger.info(name + &quot; &quot; + len_points * &quot;.&quot; + &quot; &quot;)
+        # Get the local path and the path in archive 
+        # of the directory or file to add
+        local_path, archive_path = d_content[name]
+        in_archive = os.path.join(name_archive, archive_path)
+        # Add it in the archive
+        try:
+            tar.add(local_path, arcname=in_archive, exclude=f_exclude)
+            logger.info(&quot;&lt;OK&gt;\n&quot;)
+        except Exception as e:
+            logger.info(&quot;&lt;KO&gt; %s\n&quot; % str(e))
+            success = 1
+    return success</div>
+
+<div class="viewcode-block" id="exclude_VCS_and_extensions"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.exclude_VCS_and_extensions">[docs]</a>def exclude_VCS_and_extensions(filename):
+    &quot;&quot;&quot;
+    The function that is used to exclude from package the link to the 
+    VCS repositories (like .git)
+
+    :param filename: (str) The filname to exclude (or not).
+    :return: (bool) True if the file has to be exclude
+    &quot;&quot;&quot;
+    for dir_name in IGNORED_DIRS:
+        if dir_name in filename:
+            return True
+    for extension in IGNORED_EXTENSIONS:
+        if filename.endswith(extension):
+            return True
+    return False</div>
+
+<div class="viewcode-block" id="produce_relative_launcher"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.produce_relative_launcher">[docs]</a>def produce_relative_launcher(config,
+                              logger,
+                              file_dir,
+                              file_name,
+                              binaries_dir_name,
+                              with_commercial=True):
+    &quot;&quot;&quot;
+    Create a specific SALOME launcher for the binary package.
+    This launcher uses relative paths.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the launcher
+    :param file_name: (str) The launcher name
+    :param binaries_dir_name: (str) 
+      the name of the repository where the binaries are, in the archive.
+    :return: (str) the path of the produced launcher
+    &quot;&quot;&quot;
+    
+    # get KERNEL installation path 
+    kernel_root_dir = os.path.join(binaries_dir_name, &quot;KERNEL&quot;)
+
+    # set kernel bin dir (considering fhs property)
+    kernel_cfg = src.product.get_product_config(config, &quot;KERNEL&quot;)
+    if src.get_property_in_product_cfg(kernel_cfg, &quot;fhs&quot;):
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,&quot;bin&quot;) 
+    else:
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,&quot;bin&quot;,&quot;salome&quot;) 
+
+    # Get the launcher template and do substitutions
+    withProfile = src.fileEnviron.withProfile
+
+    withProfile = withProfile.replace(
+        &quot;ABSOLUTE_APPLI_PATH&#39;] = &#39;KERNEL_INSTALL_DIR&#39;&quot;,
+        &quot;ABSOLUTE_APPLI_PATH&#39;] = out_dir_Path + &#39;&quot; + config.VARS.sep + kernel_root_dir + &quot;&#39;&quot;)
+    withProfile = withProfile.replace(
+        &quot; &#39;BIN_KERNEL_INSTALL_DIR&#39;&quot;,
+        &quot; out_dir_Path + &#39;&quot; + config.VARS.sep + bin_kernel_install_dir + &quot;&#39;&quot;)
+
+    before, after = withProfile.split(
+                                &quot;# here your local standalone environment\n&quot;)
+
+    # create an environment file writer
+    writer = src.environment.FileEnvWriter(config,
+                                           logger,
+                                           file_dir,
+                                           src_root=None)
+    
+    filepath = os.path.join(file_dir, file_name)
+    # open the file and write into it
+    launch_file = open(filepath, &quot;w&quot;)
+    launch_file.write(before)
+    # Write
+    writer.write_cfgForPy_file(launch_file,
+                               for_package = binaries_dir_name,
+                               with_commercial=with_commercial)
+    launch_file.write(after)
+    launch_file.close()
+    
+    # Little hack to put out_dir_Path outside the strings
+    src.replace_in_file(filepath, &#39;r&quot;out_dir_Path&#39;, &#39;out_dir_Path + r&quot;&#39; )
+    
+    # A hack to put a call to a file for distene licence.
+    # It does nothing to an application that has no distene product
+    hack_for_distene_licence(filepath)
+       
+    # change the rights in order to make the file executable for everybody
+    os.chmod(filepath,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+
+    return filepath</div>
+
+<div class="viewcode-block" id="hack_for_distene_licence"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.hack_for_distene_licence">[docs]</a>def hack_for_distene_licence(filepath):
+    &quot;&quot;&quot;Replace the distene licence env variable by a call to a file.
+    
+    :param filepath: (str) The path to the launcher to modify.
+    &quot;&quot;&quot;  
+    shutil.move(filepath, filepath + &quot;_old&quot;)
+    fileout= filepath
+    filein = filepath + &quot;_old&quot;
+    fin = open(filein, &quot;r&quot;)
+    fout = open(fileout, &quot;w&quot;)
+    text = fin.readlines()
+    # Find the Distene section
+    num_line = -1
+    for i,line in enumerate(text):
+        if &quot;# Set DISTENE License&quot; in line:
+            num_line = i
+            break
+    if num_line == -1:
+        # No distene product, there is nothing to do
+        fin.close()
+        for line in text:
+            fout.write(line)
+        fout.close()
+        return
+    del text[num_line +1]
+    del text[num_line +1]
+    text_to_insert =&quot;&quot;&quot;\
+import imp
+try:
+  distene = imp.load_source(&#39;distene_licence&#39;, &#39;/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py&#39;)
+  distene.set_distene_variables(context)
+except:
+  pass
+&quot;&quot;&quot;
+    text.insert(num_line + 1, text_to_insert)
+    for line in text:
+        fout.write(line)
+    fin.close()    
+    fout.close()
+    return</div>
+    
+<div class="viewcode-block" id="produce_relative_env_files"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.produce_relative_env_files">[docs]</a>def produce_relative_env_files(config,
+                              logger,
+                              file_dir,
+                              binaries_dir_name):
+    &quot;&quot;&quot;
+    Create some specific environment files for the binary package.
+    These files use relative paths.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the files
+    :param binaries_dir_name: (str) 
+      The name of the repository where the binaries are, in the archive.
+    :return: (list) The list of path of the produced environment files
+    &quot;&quot;&quot;  
+    # create an environment file writer
+    writer = src.environment.FileEnvWriter(config,
+                                           logger,
+                                           file_dir,
+                                           src_root=None)
+    
+    # Write
+    filepath = writer.write_env_file(&quot;env_launch.sh&quot;,
+                          False, # for launch
+                          &quot;bash&quot;,
+                          for_package = binaries_dir_name)
+
+    # Little hack to put out_dir_Path as environment variable
+    src.replace_in_file(filepath, &#39;&quot;out_dir_Path&#39;, &#39;&quot;${out_dir_Path}&#39; )
+
+    # change the rights in order to make the file executable for everybody
+    os.chmod(filepath,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+    
+    return filepath</div>
+
+<div class="viewcode-block" id="produce_install_bin_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.produce_install_bin_file">[docs]</a>def produce_install_bin_file(config,
+                             logger,
+                             file_dir,
+                             d_sub,
+                             file_name):
+    &quot;&quot;&quot;
+    Create a bash shell script which do substitutions in BIRARIES dir 
+    in order to use it for extra compilations.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the files
+    :param d_sub: (dict) 
+      the dictionnary that contains the substitutions to be done
+    :param file_name: (str) the name of the install script file
+    :return: (str) the produced file
+    &quot;&quot;&quot;  
+    # Write
+    filepath = os.path.join(file_dir, file_name)
+    # open the file and write into it
+    # use codec utf-8 as sat variables are in unicode
+    with codecs.open(filepath, &quot;w&quot;, &#39;utf-8&#39;) as installbin_file:
+        installbin_template_path = os.path.join(config.VARS.internal_dir,
+                                        &quot;INSTALL_BIN.template&quot;)
+        
+        # build the name of the directory that will contain the binaries
+        binaries_dir_name = &quot;BINARIES-&quot; + config.VARS.dist
+        # build the substitution loop
+        loop_cmd = &quot;for f in $(grep -RIl&quot;
+        for key in d_sub:
+            loop_cmd += &quot; -e &quot;+ key
+        loop_cmd += &#39; INSTALL); do\n     sed -i &quot;\n&#39;
+        for key in d_sub:
+            loop_cmd += &quot;        s?&quot; + key + &quot;?$(pwd)/&quot; + d_sub[key] + &quot;?g\n&quot;
+        loop_cmd += &#39;            &quot; $f\ndone&#39;
+
+        d={}
+        d[&quot;BINARIES_DIR&quot;] = binaries_dir_name
+        d[&quot;SUBSTITUTION_LOOP&quot;]=loop_cmd
+        
+        # substitute the template and write it in file
+        content=src.template.substitute(installbin_template_path, d)
+        installbin_file.write(content)
+        # change the rights in order to make the file executable for everybody
+        os.chmod(filepath,
+                 stat.S_IRUSR |
+                 stat.S_IRGRP |
+                 stat.S_IROTH |
+                 stat.S_IWUSR |
+                 stat.S_IXUSR |
+                 stat.S_IXGRP |
+                 stat.S_IXOTH)
+    
+    return filepath</div>
+
+<div class="viewcode-block" id="product_appli_creation_script"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.product_appli_creation_script">[docs]</a>def product_appli_creation_script(config,
+                                  logger,
+                                  file_dir,
+                                  binaries_dir_name):
+    &quot;&quot;&quot;
+    Create a script that can produce an application (EDF style) 
+    in the binary package.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the file
+    :param binaries_dir_name: (str) 
+      The name of the repository where the binaries are, in the archive.
+    :return: (str) The path of the produced script file
+    &quot;&quot;&quot;
+    template_name = &quot;create_appli.py.for_bin_packages.template&quot;
+    template_path = os.path.join(config.VARS.internal_dir, template_name)
+    text_to_fill = open(template_path, &quot;r&quot;).read()
+    text_to_fill = text_to_fill.replace(&quot;TO BE FILLED 1&quot;,
+                                        &#39;&quot;&#39; + binaries_dir_name + &#39;&quot;&#39;)
+    
+    text_to_add = &quot;&quot;
+    for product_name in get_SALOME_modules(config):
+        product_info = src.product.get_product_config(config, product_name)
+       
+        if src.product.product_is_smesh_plugin(product_info):
+            continue
+
+        if &#39;install_dir&#39; in product_info and bool(product_info.install_dir):
+            if src.product.product_is_cpp(product_info):
+                # cpp module
+                for cpp_name in src.product.get_product_components(product_info):
+                    line_to_add = (&quot;&lt;module name=\&quot;&quot; + 
+                                   cpp_name + 
+                                   &quot;\&quot; gui=\&quot;yes\&quot; path=\&quot;&#39;&#39;&#39; + &quot;
+                                   &quot;os.path.join(dir_bin_name, \&quot;&quot; + 
+                                   cpp_name + &quot;\&quot;) + &#39;&#39;&#39;\&quot;/&gt;&quot;)
+            else:
+                # regular module
+                line_to_add = (&quot;&lt;module name=\&quot;&quot; + 
+                               product_name + 
+                               &quot;\&quot; gui=\&quot;yes\&quot; path=\&quot;&#39;&#39;&#39; + &quot;
+                               &quot;os.path.join(dir_bin_name, \&quot;&quot; + 
+                               product_name + &quot;\&quot;) + &#39;&#39;&#39;\&quot;/&gt;&quot;)
+            text_to_add += line_to_add + &quot;\n&quot;
+    
+    filled_text = text_to_fill.replace(&quot;TO BE FILLED 2&quot;, text_to_add)
+    
+    tmp_file_path = os.path.join(file_dir, &quot;create_appli.py&quot;)
+    ff = open(tmp_file_path, &quot;w&quot;)
+    ff.write(filled_text)
+    ff.close()
+    
+    # change the rights in order to make the file executable for everybody
+    os.chmod(tmp_file_path,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+    
+    return tmp_file_path</div>
+
+<div class="viewcode-block" id="binary_package"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.binary_package">[docs]</a>def binary_package(config, logger, options, tmp_working_dir):
+    &quot;&quot;&quot;
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a binary package.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param options: (OptResult) the options of the launched command
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the binary package
+    :return: (dict) 
+      The dictionary that stores all the needed directories and files 
+      to add in a binary package.
+      {label : (path_on_local_machine, path_in_archive)}
+    &quot;&quot;&quot;
+
+    # Get the list of product installation to add to the archive
+    l_products_name = config.APPLICATION.products.keys()
+    l_product_info = src.product.get_products_infos(l_products_name,
+                                                    config)
+    l_install_dir = []
+    l_source_dir = []
+    l_not_installed = []
+    l_sources_not_present = []
+    for prod_name, prod_info in l_product_info:
+
+        # Add the sources of the products that have the property 
+        # sources_in_package : &quot;yes&quot;
+        if src.get_property_in_product_cfg(prod_info,
+                                           &quot;sources_in_package&quot;) == &quot;yes&quot;:
+            if os.path.exists(prod_info.source_dir):
+                l_source_dir.append((prod_name, prod_info.source_dir))
+            else:
+                l_sources_not_present.append(prod_name)
+
+        # ignore the native and fixed products for install directories
+        if (src.product.product_is_native(prod_info) 
+                or src.product.product_is_fixed(prod_info)
+                or not src.product.product_compiles(prod_info)):
+            continue
+        if src.product.check_installation(prod_info):
+            l_install_dir.append((prod_name, prod_info.install_dir))
+        else:
+            l_not_installed.append(prod_name)
+        
+        # Add also the cpp generated modules (if any)
+        if src.product.product_is_cpp(prod_info):
+            # cpp module
+            for name_cpp in src.product.get_product_components(prod_info):
+                install_dir = os.path.join(config.APPLICATION.workdir,
+                                           &quot;INSTALL&quot;, name_cpp) 
+                if os.path.exists(install_dir):
+                    l_install_dir.append((name_cpp, install_dir))
+                else:
+                    l_not_installed.append(name_cpp)
+        
+    # Print warning or error if there are some missing products
+    if len(l_not_installed) &gt; 0:
+        text_missing_prods = &quot;&quot;
+        for p_name in l_not_installed:
+            text_missing_prods += &quot;-&quot; + p_name + &quot;\n&quot;
+        
+        msg = _(&quot;There are missing products installations:\n&quot;)
+        logger.warning(msg + text_missing_prods)
+        if not options.force_creation:
+            return None
+
+    # Do the same for sources
+    if len(l_sources_not_present) &gt; 0:
+        text_missing_prods = &quot;&quot;
+        for p_name in l_sources_not_present:
+            text_missing_prods += &quot;-&quot; + p_name + &quot;\n&quot;
+            
+        msg = _(&quot;There are missing products sources:\n&quot;)
+        logger.warning(msg + text_missing_prods)
+        if not options.force_creation:
+            return None
+ 
+    # construct the name of the directory that will contain the binaries
+    binaries_dir_name = &quot;BINARIES-&quot; + config.VARS.dist
+    
+    # construct the correlation table between the product names, there 
+    # actual install directories and there install directory in archive
+    d_products = {}
+    for prod_name, install_dir in l_install_dir:
+        path_in_archive = os.path.join(binaries_dir_name, prod_name)
+        d_products[prod_name + &quot; (bin)&quot;] = (install_dir, path_in_archive)
+        
+    for prod_name, source_dir in l_source_dir:
+        path_in_archive = os.path.join(&quot;SOURCES&quot;, prod_name)
+        d_products[prod_name + &quot; (sources)&quot;] = (source_dir, path_in_archive)
+
+    # for packages of SALOME applications including KERNEL, 
+    # we produce a salome launcher or a virtual application (depending on salome version)
+    if &#39;KERNEL&#39; in config.APPLICATION.products:
+        VersionSalome = src.get_salome_version(config)
+        # Case where SALOME has the launcher that uses the SalomeContext API
+        if VersionSalome &gt;= 730:
+            # create the relative launcher and add it to the files to add
+            launcher_name = src.get_launcher_name(config)
+            launcher_package = produce_relative_launcher(config,
+                                                 logger,
+                                                 tmp_working_dir,
+                                                 launcher_name,
+                                                 binaries_dir_name,
+                                                 not(options.without_commercial))
+        
+            d_products[&quot;launcher&quot;] = (launcher_package, launcher_name)
+            if options.sources:
+                # if we mix binaries and sources, we add a copy of the launcher, 
+                # prefixed  with &quot;bin&quot;,in order to avoid clashes
+                d_products[&quot;launcher (copy)&quot;] = (launcher_package, &quot;bin&quot;+launcher_name)
+        else:
+            # Provide a script for the creation of an application EDF style
+            appli_script = product_appli_creation_script(config,
+                                                        logger,
+                                                        tmp_working_dir,
+                                                        binaries_dir_name)
+            
+            d_products[&quot;appli script&quot;] = (appli_script, &quot;create_appli.py&quot;)
+
+    # Put also the environment file
+    env_file = produce_relative_env_files(config,
+                                           logger,
+                                           tmp_working_dir,
+                                           binaries_dir_name)
+
+    d_products[&quot;environment file&quot;] = (env_file, &quot;env_launch.sh&quot;)
+      
+    return d_products</div>
+
+<div class="viewcode-block" id="source_package"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.source_package">[docs]</a>def source_package(sat, config, logger, options, tmp_working_dir):
+    &quot;&quot;&quot;
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a source package.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param options: (OptResult) the options of the launched command
+    :param tmp_working_dir: (str)
+      The temporary local directory containing some specific directories
+      or files needed in the binary package
+    :return: (dict)
+      the dictionary that stores all the needed directories and files
+      to add in a source package.
+      {label : (path_on_local_machine, path_in_archive)}
+    &quot;&quot;&quot;
+    
+    # Get all the products that are prepared using an archive
+    logger.info(&quot;Find archive products ... &quot;)
+    d_archives, l_pinfo_vcs = get_archives(config, logger)
+    logger.info(&quot;Done\n&quot;)
+    d_archives_vcs = {}
+    if not options.with_vcs and len(l_pinfo_vcs) &gt; 0:
+        # Make archives with the products that are not prepared using an archive
+        # (git, cvs, svn, etc)
+        logger.info(&quot;Construct archives for vcs products ... &quot;)
+        d_archives_vcs = get_archives_vcs(l_pinfo_vcs,
+                                          sat,
+                                          config,
+                                          logger,
+                                          tmp_working_dir)
+        logger.info(&quot;Done\n&quot;)
+
+    # Create a project
+    logger.info(&quot;Create the project ... &quot;)
+    d_project = create_project_for_src_package(config, tmp_working_dir, options.with_vcs)
+    logger.info(&quot;Done\n&quot;)
+    
+    # Add salomeTools
+    tmp_sat = add_salomeTools(config, tmp_working_dir)
+    d_sat = {&quot;salomeTools&quot; : (tmp_sat, &quot;salomeTools&quot;)}
+    
+    # Add a sat symbolic link if not win
+    if not src.architecture.is_windows():
+        tmp_satlink_path = os.path.join(tmp_working_dir, &#39;sat&#39;)
+        try:
+            t = os.getcwd()
+        except:
+            # In the jobs, os.getcwd() can fail
+            t = config.LOCAL.workdir
+        os.chdir(tmp_working_dir)
+        if os.path.lexists(tmp_satlink_path):
+            os.remove(tmp_satlink_path)
+        os.symlink(os.path.join(&#39;salomeTools&#39;, &#39;sat&#39;), &#39;sat&#39;)
+        os.chdir(t)
+        
+        d_sat[&quot;sat link&quot;] = (tmp_satlink_path, &quot;sat&quot;)
+    
+    d_source = src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
+    return d_source</div>
+
+<div class="viewcode-block" id="get_archives"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.get_archives">[docs]</a>def get_archives(config, logger):
+    &quot;&quot;&quot;
+    Find all the products from an archive and all the products
+    from a VCS (git, cvs, svn) repository.
+    
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) The logging instance
+    :return: (Dict, List)
+      The dictionary 
+      {name_product : (local path of its archive, path in the package of its archive )}
+      and the list of specific configuration corresponding to the vcs products
+    &quot;&quot;&quot;
+    # Get the list of product informations
+    l_products_name = config.APPLICATION.products.keys()
+    l_product_info = src.product.get_products_infos(l_products_name,
+                                                    config)
+    d_archives = {}
+    l_pinfo_vcs = []
+    for p_name, p_info in l_product_info:
+        # ignore the native and fixed products
+        if (src.product.product_is_native(p_info) 
+                or src.product.product_is_fixed(p_info)):
+            continue
+        if p_info.get_source == &quot;archive&quot;:
+            archive_path = p_info.archive_info.archive_name
+            archive_name = os.path.basename(archive_path)
+        else:
+            l_pinfo_vcs.append((p_name, p_info))
+            
+        d_archives[p_name] = (archive_path,
+                              os.path.join(ARCHIVE_DIR, archive_name))
+    return d_archives, l_pinfo_vcs</div>
+
+<div class="viewcode-block" id="add_salomeTools"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.add_salomeTools">[docs]</a>def add_salomeTools(config, tmp_working_dir):
+    &quot;&quot;&quot;
+    Prepare a version of salomeTools that has a specific local.pyconf file 
+    configured for a source package.
+
+    :param config: (Config) The global configuration.
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :return: (str) 
+      The path to the local salomeTools directory to add in the package
+    &quot;&quot;&quot;
+    # Copy sat in the temporary working directory
+    sat_tmp_path = src.Path(os.path.join(tmp_working_dir, &quot;salomeTools&quot;))
+    sat_running_path = src.Path(config.VARS.salometoolsway)
+    sat_running_path.copy(sat_tmp_path)
+    
+    # Update the local.pyconf file that contains the path to the project
+    local_pyconf_name = &quot;local.pyconf&quot;
+    local_pyconf_dir = os.path.join(tmp_working_dir, &quot;salomeTools&quot;, &quot;data&quot;)
+    local_pyconf_file = os.path.join(local_pyconf_dir, local_pyconf_name)
+    # Remove the .pyconf file in the root directory of salomeTools if there is
+    # any. (For example when launching jobs, a pyconf file describing the jobs 
+    # can be here and is not useful) 
+    files_or_dir_SAT = os.listdir(os.path.join(tmp_working_dir, &quot;salomeTools&quot;))
+    for file_or_dir in files_or_dir_SAT:
+        if file_or_dir.endswith(&quot;.pyconf&quot;) or file_or_dir.endswith(&quot;.txt&quot;):
+            file_path = os.path.join(tmp_working_dir,
+                                     &quot;salomeTools&quot;,
+                                     file_or_dir)
+            os.remove(file_path)
+    
+    ff = open(local_pyconf_file, &quot;w&quot;)
+    ff.write(LOCAL_TEMPLATE)
+    ff.close()
+    
+    return sat_tmp_path.path</div>
+
+<div class="viewcode-block" id="get_archives_vcs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.get_archives_vcs">[docs]</a>def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
+    &quot;&quot;&quot;
+    For sources package that require that all products from an archive, 
+    one has to create some archive for the vcs products.
+    So this method calls the clean and source command of sat 
+    and then create the archives.
+
+    :param l_pinfo_vcs: (list) 
+      The list of specific configuration corresponding to each vcs product
+    :param sat: (Sat) 
+      The Sat instance that can be called to clean and source the products
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) The logging instance
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :return: (dict) 
+      The dictionary that stores all the archives to add in the sourcepackage.
+      {label : (path_on_local_machine, path_in_archive)}
+    &quot;&quot;&quot;
+    # clean the source directory of all the vcs products, then use the source 
+    # command and thus construct an archive that will not contain the patches
+    l_prod_names = [pn for pn, __ in l_pinfo_vcs]
+    # clean
+    logger.info(_(&quot;clean sources\n&quot;))
+    args_clean = config.VARS.application
+    args_clean += &quot; --sources --products &quot;
+    args_clean += &quot;,&quot;.join(l_prod_names)
+    sat.clean(args_clean, batch=True, verbose=0, logger_add_link = logger)
+    # source
+    logger.info(_(&quot;get sources&quot;))
+    args_source = config.VARS.application
+    args_source += &quot; --products &quot;
+    args_source += &quot;,&quot;.join(l_prod_names)
+    sat.source(args_source, batch=True, verbose=0, logger_add_link = logger)
+
+    # make the new archives
+    d_archives_vcs = {}
+    for pn, pinfo in l_pinfo_vcs:
+        path_archive = make_archive(pn, pinfo, tmp_working_dir)
+        d_archives_vcs[pn] = (path_archive,
+                              os.path.join(ARCHIVE_DIR, pn + &quot;.tgz&quot;))
+    return d_archives_vcs</div>
+
+<div class="viewcode-block" id="make_archive"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.make_archive">[docs]</a>def make_archive(prod_name, prod_info, where):
+    &quot;&quot;&quot;Create an archive of a product by searching its source directory.
+
+    :param prod_name: (str) The name of the product.
+    :param prod_info: (Config)
+      The specific configuration corresponding to the product
+    :param where: (str) 
+      The path of the repository where to put the resulting archive
+    :return: (str) The path of the resulting archive
+    &quot;&quot;&quot;
+    path_targz_prod = os.path.join(where, prod_name + &quot;.tgz&quot;)
+    tar_prod = tarfile.open(path_targz_prod, mode=&#39;w:gz&#39;)
+    local_path = prod_info.source_dir
+    tar_prod.add(local_path,
+                 arcname=prod_name,
+                 exclude=exclude_VCS_and_extensions)
+    tar_prod.close()
+    return path_targz_prod       </div>
+
+<div class="viewcode-block" id="create_project_for_src_package"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.create_project_for_src_package">[docs]</a>def create_project_for_src_package(config, tmp_working_dir, with_vcs):
+    &quot;&quot;&quot;Create a specific project for a source package.
+
+    :param config: (Config) The global configuration.
+    :param tmp_working_dir: (str)
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :param with_vcs: (bool) 
+      True if the package is with vcs products 
+      (not transformed into archive products)
+    :return: (dict)
+      The dictionary 
+      {&quot;project&quot; : (produced project, project path in the archive)}
+    &quot;&quot;&quot;
+
+    # Create in the working temporary directory the full project tree
+    project_tmp_dir = os.path.join(tmp_working_dir, PROJECT_DIR)
+    products_pyconf_tmp_dir = os.path.join(project_tmp_dir,
+                                         &quot;products&quot;)
+    compil_scripts_tmp_dir = os.path.join(project_tmp_dir,
+                                         &quot;products&quot;,
+                                         &quot;compil_scripts&quot;)
+    env_scripts_tmp_dir = os.path.join(project_tmp_dir,
+                                         &quot;products&quot;,
+                                         &quot;env_scripts&quot;)
+    patches_tmp_dir = os.path.join(project_tmp_dir,
+                                         &quot;products&quot;,
+                                         &quot;patches&quot;)
+    application_tmp_dir = os.path.join(project_tmp_dir,
+                                         &quot;applications&quot;)
+    for directory in [project_tmp_dir,
+                      compil_scripts_tmp_dir,
+                      env_scripts_tmp_dir,
+                      patches_tmp_dir,
+                      application_tmp_dir]:
+        UTS.ensure_path_exists(directory)
+
+    # Create the pyconf that contains the information of the project
+    project_pyconf_name = &quot;project.pyconf&quot;        
+    project_pyconf_file = os.path.join(project_tmp_dir, project_pyconf_name)
+    ff = open(project_pyconf_file, &quot;w&quot;)
+    ff.write(PROJECT_TEMPLATE)
+    ff.close()
+    
+    # Loop over the products to get there pyconf and all the scripts 
+    # (compilation, environment, patches)
+    # and create the pyconf file to add to the project
+    lproducts_name = config.APPLICATION.products.keys()
+    l_products = src.product.get_products_infos(lproducts_name, config)
+    for p_name, p_info in l_products:
+        find_product_scripts_and_pyconf(p_name,
+                                        p_info,
+                                        config,
+                                        with_vcs,
+                                        compil_scripts_tmp_dir,
+                                        env_scripts_tmp_dir,
+                                        patches_tmp_dir,
+                                        products_pyconf_tmp_dir)
+    
+    find_application_pyconf(config, application_tmp_dir)
+    
+    d_project = {&quot;project&quot; : (project_tmp_dir, PROJECT_DIR )}
+    return d_project</div>
+
+<div class="viewcode-block" id="find_product_scripts_and_pyconf"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.find_product_scripts_and_pyconf">[docs]</a>def find_product_scripts_and_pyconf(p_name,
+                                    p_info,
+                                    config,
+                                    with_vcs,
+                                    compil_scripts_tmp_dir,
+                                    env_scripts_tmp_dir,
+                                    patches_tmp_dir,
+                                    products_pyconf_tmp_dir):
+    &quot;&quot;&quot;
+    Create a specific pyconf file for a given product. 
+    Get its environment script, its compilation script 
+    and patches and put it in the temporary working directory. 
+    This method is used in the source package in order to
+    construct the specific project.
+
+    :param p_name: (str) The name of the product.
+    :param p_info: (Config) The specific configuration corresponding to the product
+    :param config: (Config) The global configuration.
+    :param with_vcs: (bool) 
+      True if the package is with vcs products 
+      (not transformed into archive products)
+    :param compil_scripts_tmp_dir: (str) 
+      The path to the temporary compilation scripts directory of the project.
+    :param env_scripts_tmp_dir: (str) 
+      The path to the temporary environment script directory of the project.
+    :param patches_tmp_dir: (str) 
+      The path to the temporary patch scripts directory of the project.
+    :param products_pyconf_tmp_dir: (str) 
+      The path to the temporary product scripts directory of the project.
+    &quot;&quot;&quot;
+    
+    # read the pyconf of the product
+    product_pyconf_path = UTS.find_file_in_lpath(p_name + &quot;.pyconf&quot;,
+                                           config.PATHS.PRODUCTPATH)
+    product_pyconf_cfg = PYCONF.Config(product_pyconf_path)
+
+    # find the compilation script if any
+    if src.product.product_has_script(p_info):
+        compil_script_path = src.Path(p_info.compil_script)
+        compil_script_path.copy(compil_scripts_tmp_dir)
+        product_pyconf_cfg[p_info.section].compil_script = os.path.basename(
+                                                    p_info.compil_script)
+    # find the environment script if any
+    if src.product.product_has_env_script(p_info):
+        env_script_path = src.Path(p_info.environ.env_script)
+        env_script_path.copy(env_scripts_tmp_dir)
+        product_pyconf_cfg[p_info.section].environ.env_script = os.path.basename(
+                                                p_info.environ.env_script)
+    # find the patches if any
+    if src.product.product_has_patches(p_info):
+        patches = PYCONF.Sequence()
+        for patch_path in p_info.patches:
+            p_path = src.Path(patch_path)
+            p_path.copy(patches_tmp_dir)
+            patches.append(os.path.basename(patch_path), &quot;&quot;)
+
+        product_pyconf_cfg[p_info.section].patches = patches
+    
+    if with_vcs:
+        # put in the pyconf file the resolved values
+        for info in [&quot;git_info&quot;, &quot;cvs_info&quot;, &quot;svn_info&quot;]:
+            if info in p_info:
+                for key in p_info[info]:
+                    product_pyconf_cfg[p_info.section][info][key] = p_info[
+                                                                      info][key]
+    else:
+        # if the product is not archive, then make it become archive.
+        if src.product.product_is_vcs(p_info):
+            product_pyconf_cfg[p_info.section].get_source = &quot;archive&quot;
+            if not &quot;archive_info&quot; in product_pyconf_cfg[p_info.section]:
+                product_pyconf_cfg[p_info.section].addMapping(&quot;archive_info&quot;,
+                                        PYCONF.Mapping(product_pyconf_cfg),
+                                        &quot;&quot;)
+            product_pyconf_cfg[p_info.section
+                              ].archive_info.archive_name = p_info.name + &quot;.tgz&quot;
+    
+    # write the pyconf file to the temporary project location
+    product_tmp_pyconf_path = os.path.join(products_pyconf_tmp_dir,
+                                           p_name + &quot;.pyconf&quot;)
+    ff = open(product_tmp_pyconf_path, &#39;w&#39;)
+    ff.write(&quot;#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n&quot;)
+    product_pyconf_cfg.__save__(ff, 1)
+    ff.close()</div>
+
+<div class="viewcode-block" id="find_application_pyconf"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.find_application_pyconf">[docs]</a>def find_application_pyconf(config, application_tmp_dir):
+    &quot;&quot;&quot;
+    Find the application pyconf file and put it in the specific temporary 
+    directory containing the specific project of a source package.
+
+    :param config: &#39;Config) The global configuration.
+    :param application_tmp_dir: (str) 
+      The path to the temporary application scripts directory of the project.
+    &quot;&quot;&quot;
+    # read the pyconf of the application
+    application_name = config.VARS.application
+    application_pyconf_path = UTS.find_file_in_lpath(
+                                            application_name + &quot;.pyconf&quot;,
+                                            config.PATHS.APPLICATIONPATH)
+    application_pyconf_cfg = PYCONF.Config(application_pyconf_path)
+    
+    # Change the workdir
+    application_pyconf_cfg.APPLICATION.workdir = PYCONF.Reference(
+                                    application_pyconf_cfg,
+                                    PYCONF.DOLLAR,
+                                    &#39;VARS.salometoolsway + $VARS.sep + &quot;..&quot;&#39;)
+
+    # Prevent from compilation in base
+    application_pyconf_cfg.APPLICATION.no_base = &quot;yes&quot;
+    
+    # write the pyconf file to the temporary application location
+    application_tmp_pyconf_path = os.path.join(application_tmp_dir,
+                                               application_name + &quot;.pyconf&quot;)
+    ff = open(application_tmp_pyconf_path, &#39;w&#39;)
+    ff.write(&quot;#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n&quot;)
+    application_pyconf_cfg.__save__(ff, 1)
+    ff.close()</div>
+
+<div class="viewcode-block" id="project_package"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.project_package">[docs]</a>def project_package(project_file_path, tmp_working_dir):
+    &quot;&quot;&quot;
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a project package.
+    
+    :param project_file_path: (str) The path to the local project.
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the project package
+    :return: (dict)
+      The dictionary that stores all the needed directories and files
+      to add in a project package.
+      {label : (path_on_local_machine, path_in_archive)}
+    &quot;&quot;&quot;
+    d_project = {}
+    # Read the project file and get the directories to add to the package
+    project_pyconf_cfg = PYCONF.Config(project_file_path)
+    paths = {&quot;ARCHIVEPATH&quot; : &quot;archives&quot;,
+             &quot;APPLICATIONPATH&quot; : &quot;applications&quot;,
+             &quot;PRODUCTPATH&quot; : &quot;products&quot;,
+             &quot;JOBPATH&quot; : &quot;jobs&quot;,
+             &quot;MACHINEPATH&quot; : &quot;machines&quot;}
+    # Loop over the project paths and add it
+    for path in paths:
+        if path not in project_pyconf_cfg:
+            continue
+        # Add the directory to the files to add in the package
+        d_project[path] = (project_pyconf_cfg[path], paths[path])
+        # Modify the value of the path in the package
+        project_pyconf_cfg[path] = PYCONF.Reference(
+                                    project_pyconf_cfg,
+                                    PYCONF.DOLLAR,
+                                    &#39;project_path + &quot;/&#39; + paths[path] + &#39;&quot;&#39;)
+    
+    # Modify some values
+    if &quot;project_path&quot; not in project_pyconf_cfg:
+        project_pyconf_cfg.addMapping(&quot;project_path&quot;,
+                                      PYCONF.Mapping(project_pyconf_cfg),
+                                      &quot;&quot;)
+    project_pyconf_cfg.project_path = PYCONF.Reference(project_pyconf_cfg,
+                                                           PYCONF.DOLLAR,
+                                                           &#39;PWD&#39;)
+    
+    # Write the project pyconf file
+    project_file_name = os.path.basename(project_file_path)
+    project_pyconf_tmp_path = os.path.join(tmp_working_dir, project_file_name)
+    ff = open(project_pyconf_tmp_path, &#39;w&#39;)
+    ff.write(&quot;#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n&quot;)
+    project_pyconf_cfg.__save__(ff, 1)
+    ff.close()
+    d_project[&quot;Project hat file&quot;] = (project_pyconf_tmp_path, project_file_name)
+    
+    return d_project</div>
+
+<div class="viewcode-block" id="add_readme"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.add_readme">[docs]</a>def add_readme(config, options, where):
+    readme_path = os.path.join(where, &quot;README&quot;)
+    with codecs.open(readme_path, &quot;w&quot;, &#39;utf-8&#39;) as f:
+
+    # templates for building the header
+        readme_header=&quot;&quot;&quot;
+# This package was generated with sat $version
+# Date: $date
+# User: $user
+# Distribution : $dist
+
+In the following, $$ROOT represents the directory where you have installed 
+SALOME (the directory where this file is located).
+
+&quot;&quot;&quot;
+        readme_compilation_with_binaries=&quot;&quot;&quot;
+
+compilation based on the binaries used as prerequisites
+=======================================================
+
+If you fail to compile the complete application (for example because
+you are not root on your system and cannot install missing packages), you
+may try a partial compilation based on the binaries.
+For that it is necessary to copy the binaries from BINARIES to INSTALL,
+and do some substitutions on cmake and .la files (replace the build directories
+with local paths).
+The procedure to do it is:
+  1) Remove or rename INSTALL directory if it exists
+  2) Execute the shell script install_bin.sh:
+     &gt;&gt; cd $ROOT
+     &gt;&gt; ./install_bin.sh
+  3) Use SalomeTool (as explained in Sources section) and compile only the 
+     modules you need to (with -p option)
+
+&quot;&quot;&quot;
+        readme_header_tpl=string.Template(readme_header)
+        readme_template_path_bin = os.path.join(config.VARS.internal_dir,
+                &quot;README_BIN.template&quot;)
+        readme_template_path_bin_launcher = os.path.join(config.VARS.internal_dir,
+                &quot;README_LAUNCHER.template&quot;)
+        readme_template_path_bin_virtapp = os.path.join(config.VARS.internal_dir,
+                &quot;README_BIN_VIRTUAL_APP.template&quot;)
+        readme_template_path_src = os.path.join(config.VARS.internal_dir,
+                &quot;README_SRC.template&quot;)
+        readme_template_path_pro = os.path.join(config.VARS.internal_dir,
+                &quot;README_PROJECT.template&quot;)
+        readme_template_path_sat = os.path.join(config.VARS.internal_dir,
+                &quot;README_SAT.template&quot;)
+
+        # prepare substitution dictionary
+        d = dict()
+        d[&#39;user&#39;] = config.VARS.user
+        d[&#39;date&#39;] = datetime.datetime.now().strftime(&quot;%Y-%m-%d %H:%M&quot;)
+        d[&#39;version&#39;] = config.INTERNAL.sat_version
+        d[&#39;dist&#39;] = config.VARS.dist
+        f.write(readme_header_tpl.substitute(d)) # write the general header (common)
+
+        if options.binaries or options.sources:
+            d[&#39;application&#39;] = config.VARS.application
+            f.write(&quot;# Application: &quot; + d[&#39;application&#39;] + &quot;\n&quot;)
+            if &#39;KERNEL&#39; in config.APPLICATION.products:
+                VersionSalome = src.get_salome_version(config)
+                # Case where SALOME has the launcher that uses the SalomeContext API
+                if VersionSalome &gt;= 730:
+                    d[&#39;launcher&#39;] = config.APPLICATION.profile.launcher_name
+                else:
+                    d[&#39;virtual_app&#39;] = &#39;runAppli&#39; # this info is not used now)
+
+        # write the specific sections
+        if options.binaries:
+            f.write(src.template.substitute(readme_template_path_bin, d))
+            if &quot;virtual_app&quot; in d:
+                f.write(src.template.substitute(readme_template_path_bin_virtapp, d))
+            if &quot;launcher&quot; in d:
+                f.write(src.template.substitute(readme_template_path_bin_launcher, d))
+
+        if options.sources:
+            f.write(src.template.substitute(readme_template_path_src, d))
+
+        if options.binaries and options.sources:
+            f.write(readme_compilation_with_binaries)
+
+        if options.project:
+            f.write(src.template.substitute(readme_template_path_pro, d))
+
+        if options.sat:
+            f.write(src.template.substitute(readme_template_path_sat, d))
+    
+    return readme_path</div>
+
+<div class="viewcode-block" id="update_config"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.update_config">[docs]</a>def update_config(config, prop, value):
+    &quot;&quot;&quot;
+    Remove from config.APPLICATION.products the products 
+    that have the property given as input.
+    
+    :param config: (Config) The global config.
+    :param prop: (str) The property to filter
+    :param value: (str) The value of the property to filter
+    &quot;&quot;&quot;
+    src.check_config_has_application(config)
+    l_product_to_remove = []
+    for product_name in config.APPLICATION.products.keys():
+        prod_cfg = src.product.get_product_config(config, product_name)
+        if src.get_property_in_product_cfg(prod_cfg, prop) == value:
+            l_product_to_remove.append(product_name)
+    for product_name in l_product_to_remove:
+        config.APPLICATION.products.__delitem__(product_name)</div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

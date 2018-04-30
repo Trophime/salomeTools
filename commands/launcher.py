@@ -31,11 +31,11 @@ from src.salomeTools import _BaseCommand
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The launcher command generates a SALOME launcher.
   
   examples:
-    >> sat launcher SALOME 
+  >> sat launcher SALOME 
   """
   
   name = "launcher"
@@ -104,19 +104,18 @@ def generate_launch_file(config,
                          pathlauncher,
                          display=True,
                          additional_env={}):
-    '''Generates the launcher file.
+    """Generates the launcher file.
     
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param launcher_name str: The name of the launcher to generate
-    :param pathlauncher str: The path to the launcher to generate
-    :param display boolean: If False, do not print anything in the terminal
-    :param additional_env dict: The dict giving additional 
-                                environment variables
-    :return: The launcher file path.
-    :rtype: str
-    '''
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param launcher_name: (str) The name of the launcher to generate
+    :param pathlauncher: (str) The path to the launcher to generate
+    :param display: (bool) If False, do not print anything in the terminal
+    :param additional_env: (dict) 
+      The dict giving additional environment variables
+    :return: (str) The launcher file path.
+    """
     
     # Compute the default launcher path if it is not provided in pathlauncher
     # parameter
@@ -188,12 +187,11 @@ def generate_launch_file(config,
 def generate_catalog(machines, config, logger):
     """Generates an xml catalog file from a list of machines.
     
-    :param machines List: The list of machines to add in the catalog   
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :return: The catalog file path.
-    :rtype: str
+    :param machines: (list) The list of machines to add in the catalog   
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (str) The catalog file path.
     """
     # remove empty machines
     machines = map(lambda l: l.strip(), machines)
@@ -201,7 +199,7 @@ def generate_catalog(machines, config, logger):
     
     # log something
     logger.debug("  %s = %s\n" % \
-                 (_("Generate Resources Catalog"),", ".join(machines))
+                 (_("Generate Resources Catalog"), ", ".join(machines)) )
     
     # The command to execute on each machine in order to get some information
     cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
@@ -258,10 +256,10 @@ def generate_catalog(machines, config, logger):
 def copy_catalog(config, catalog_path):
     """Copy the xml catalog file into the right location
     
-    :param config Config: The global configuration
-    :param catalog_path str: the catalog file path
-    :return: The environment dictionary corresponding to the file path.
-    :rtype: Dict
+    :param config: (Config) The global configuration
+    :param catalog_path: (str) the catalog file path
+    :return: (dict) 
+      The environment dictionary corresponding to the file path.
     """
     # Verify the existence of the file
     if not os.path.exists(catalog_path):

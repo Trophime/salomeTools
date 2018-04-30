@@ -62,25 +62,24 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">All utilities method doing a system call, </span>
 <span class="sd">like open a browser or an editor, or call a git command</span>
 
 <span class="sd">usage:</span>
 <span class="sd">  &gt;&gt; import src.system as SYSS</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 
-<div class="viewcode-block" id="show_in_editor"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.system.show_in_editor">[docs]</a><span class="k">def</span> <span class="nf">show_in_editor</span><span class="p">(</span><span class="n">editor</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    open filePath using editor.</span>
+<div class="viewcode-block" id="show_in_editor"><a class="viewcode-back" href="../../apidoc_src/src.html#src.system.show_in_editor">[docs]</a><span class="k">def</span> <span class="nf">show_in_editor</span><span class="p">(</span><span class="n">editor</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;open filePath using editor.</span>
 <span class="sd">    </span>
-<span class="sd">    :param editor str: The editor to use.</span>
-<span class="sd">    :param filePath str: The path to the file to open.</span>
+<span class="sd">    :param editor: (str) The editor to use.</span>
+<span class="sd">    :param filePath: (str) The path to the file to open.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># default editor is vi</span>
     <span class="k">if</span> <span class="n">editor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">editor</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -103,18 +102,16 @@
         <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="git_extract"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.system.git_extract">[docs]</a><span class="k">def</span> <span class="nf">git_extract</span><span class="p">(</span><span class="n">from_what</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    Extracts sources from a git repository.</span>
+<div class="viewcode-block" id="git_extract"><a class="viewcode-back" href="../../apidoc_src/src.html#src.system.git_extract">[docs]</a><span class="k">def</span> <span class="nf">git_extract</span><span class="p">(</span><span class="n">from_what</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extracts sources from a git repository.</span>
 <span class="sd">    </span>
-<span class="sd">    :param from_what str: The remote git repository.</span>
-<span class="sd">    :param tag str: The tag.</span>
-<span class="sd">    :param where str: The path where to extract.</span>
-<span class="sd">    :param logger Logger: The logger instance to use.</span>
-<span class="sd">    :param environment src.environment.Environ: The environment to source when</span>
-<span class="sd">                                                extracting.</span>
-<span class="sd">    :return: True if the extraction is successful</span>
-<span class="sd">    :rtype: boolean</span>
+<span class="sd">    :param from_what: (str) The remote git repository.</span>
+<span class="sd">    :param tag: (str) The tag.</span>
+<span class="sd">    :param where: (str) The path where to extract.</span>
+<span class="sd">    :param logger: (Logger) The logger instance to use.</span>
+<span class="sd">    :param environment: (Environ) </span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if the extraction is successful</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">where</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">where</span><span class="o">.</span><span class="n">make</span><span class="p">()</span>
@@ -144,15 +141,13 @@
                           <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="archive_extract"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.system.archive_extract">[docs]</a><span class="k">def</span> <span class="nf">archive_extract</span><span class="p">(</span><span class="n">from_what</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    Extracts sources from an archive.</span>
+<div class="viewcode-block" id="archive_extract"><a class="viewcode-back" href="../../apidoc_src/src.html#src.system.archive_extract">[docs]</a><span class="k">def</span> <span class="nf">archive_extract</span><span class="p">(</span><span class="n">from_what</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extracts sources from an archive.</span>
 <span class="sd">    </span>
-<span class="sd">    :param from_what str: The path to the archive.</span>
-<span class="sd">    :param where str: The path where to extract.</span>
-<span class="sd">    :param logger Logger: The logger instance to use.</span>
-<span class="sd">    :return: True if the extraction is successful</span>
-<span class="sd">    :rtype: boolean</span>
+<span class="sd">    :param from_what: (str) The path to the archive.</span>
+<span class="sd">    :param where: (str) The path where to extract.</span>
+<span class="sd">    :param logger: (Logger) The logger instance to use.</span>
+<span class="sd">    :return: (bool) True if the extraction is successful</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">archive</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">from_what</span><span class="p">)</span>
@@ -163,24 +158,22 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;archive_extract: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">exc</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="cvs_extract"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.system.cvs_extract">[docs]</a><span class="k">def</span> <span class="nf">cvs_extract</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span>
+<div class="viewcode-block" id="cvs_extract"><a class="viewcode-back" href="../../apidoc_src/src.html#src.system.cvs_extract">[docs]</a><span class="k">def</span> <span class="nf">cvs_extract</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">where</span><span class="p">,</span>
                 <span class="n">logger</span><span class="p">,</span> <span class="n">checkout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    Extracts sources from a cvs repository.</span>
+    <span class="sd">&quot;&quot;&quot;Extracts sources from a cvs repository.</span>
 <span class="sd">    </span>
-<span class="sd">    :param protocol str: The cvs protocol.</span>
-<span class="sd">    :param user str: The user to be used.</span>
-<span class="sd">    :param server str: The remote cvs server.</span>
-<span class="sd">    :param base str: .</span>
-<span class="sd">    :param tag str: The tag.</span>
-<span class="sd">    :param product str: The product.</span>
-<span class="sd">    :param where str: The path where to extract.</span>
-<span class="sd">    :param logger Logger: The logger instance to use.</span>
-<span class="sd">    :param checkout boolean: If true use checkout cvs.</span>
-<span class="sd">    :param environment src.environment.Environ: The environment to source when</span>
-<span class="sd">                                                extracting.</span>
-<span class="sd">    :return: True if the extraction is successful</span>
-<span class="sd">    :rtype: boolean</span>
+<span class="sd">    :param protocol: (str) The cvs protocol.</span>
+<span class="sd">    :param user: (str) The user to be used.</span>
+<span class="sd">    :param server: (str) The remote cvs server.</span>
+<span class="sd">    :param base: (str) .</span>
+<span class="sd">    :param tag: (str) The tag.</span>
+<span class="sd">    :param product: (str) The product.</span>
+<span class="sd">    :param where: (str) The path where to extract.</span>
+<span class="sd">    :param logger: (Logger) The logger instance to use.</span>
+<span class="sd">    :param checkout: (bool) If true use checkout cvs.</span>
+<span class="sd">    :param environment: (Environ) </span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if the extraction is successful</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">opttag</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -218,26 +211,24 @@
                           <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="svn_extract"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.system.svn_extract">[docs]</a><span class="k">def</span> <span class="nf">svn_extract</span><span class="p">(</span><span class="n">user</span><span class="p">,</span>
+<div class="viewcode-block" id="svn_extract"><a class="viewcode-back" href="../../apidoc_src/src.html#src.system.svn_extract">[docs]</a><span class="k">def</span> <span class="nf">svn_extract</span><span class="p">(</span><span class="n">user</span><span class="p">,</span>
                 <span class="n">from_what</span><span class="p">,</span>
                 <span class="n">tag</span><span class="p">,</span>
                 <span class="n">where</span><span class="p">,</span>
                 <span class="n">logger</span><span class="p">,</span>
                 <span class="n">checkout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">environment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    Extracts sources from a svn repository.</span>
+    <span class="sd">&quot;&quot;&quot;Extracts sources from a svn repository.</span>
 <span class="sd">    </span>
-<span class="sd">    :param user str: The user to be used.</span>
-<span class="sd">    :param from_what str: The remote git repository.</span>
-<span class="sd">    :param tag str: The tag.</span>
-<span class="sd">    :param where str: The path where to extract.</span>
-<span class="sd">    :param logger Logger: The logger instance to use.</span>
-<span class="sd">    :param checkout boolean: If true use checkout svn.</span>
-<span class="sd">    :param environment src.environment.Environ: The environment to source when</span>
-<span class="sd">                                                extracting.</span>
-<span class="sd">    :return: True if the extraction is successful</span>
-<span class="sd">    :rtype: boolean</span>
+<span class="sd">    :param user: (str) The user to be used.</span>
+<span class="sd">    :param from_what: (str) The remote git repository.</span>
+<span class="sd">    :param tag: (str) The tag.</span>
+<span class="sd">    :param where: (str) The path where to extract.</span>
+<span class="sd">    :param logger: (Logger) The logger instance to use.</span>
+<span class="sd">    :param checkout: (bool) If true use checkout svn.</span>
+<span class="sd">    :param environment: (Environ)</span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if the extraction is successful</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">where</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">where</span><span class="o">.</span><span class="n">make</span><span class="p">()</span>

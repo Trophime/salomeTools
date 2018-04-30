@@ -41,21 +41,27 @@ import src.returnCode as RCO
 ##############################################################################
 # file system utilities
 ##############################################################################
-def ensure_path_exists(p):
+def ensure_path_exists(path):
     """Create a path if not existing
     
-    :param p str: The path.
+    :param path: (str) The path.
     """
-    if not os.path.exists(p):
-        os.makedirs(p)
+    print "the path",path
+    if not os.path.exists(path):
+        os.makedirs(path)
         
-def replace_in_file(filein, strin, strout):
-    """Replace <strin> by <strout> in file <filein>"""
-    with open(filein, "r") as f: 
+def replace_in_file(file_in, str_in, str_out):
+    """Replace <str_in> by <str_out> in file <file_in>
+
+    :param file_in: (str) The file name
+    :param str_in: (str) The string to search
+    :param str_out: (str) The string to replace.    
+    """
+    with open(file_in, "r") as f: 
       contents = f.read()
-    shutil.move(filein, filein + "_old")
-    with open(filein, "w") as f: 
-      f.write(contents.replace(strin, strout))
+    shutil.move(file_in, file_in + "_old")
+    with open(file_in, "w") as f: 
+      f.write(contents.replace(str_in, str_out))
   
 ##############################################################################
 # Utils class to simplify path manipulations.
@@ -172,17 +178,17 @@ class Path:
             return False
 
 def find_file_in_lpath(file_name, lpath, additional_dir = ""):
-    """Find in all the directories in lpath list the file that has the same name
-       as file_name. If it is found, return the full path of the file, else,
-       return False. 
-       The additional_dir (optional) is the name of the directory to add to all 
-       paths in lpath.
+    """
+    Find in all the directories in lpath list the file 
+    that has the same name as file_name. 
+    If it is found, return the full path of the file, else, return False. 
+    The additional_dir (optional) is the name of the directory 
+    to add to all paths in lpath.
     
-    :param file_name str: The file name to search
-    :param lpath List: The list of directories where to search
-    :param additional_dir str: The name of the additional directory
-    :return: the full path of the file or False if not found
-    :rtype: str
+    :param file_name: (str) The file name to search
+    :param lpath: (list) The list of directories where to search
+    :param additional_dir: (str) The name of the additional directory
+    :return: (str) The full path of the file or False if not found
     """
     for directory in lpath:
         dir_complete = os.path.join(directory, additional_dir)
@@ -206,10 +212,12 @@ def handleRemoveReadonly(func, path, exc):
 # pyconf config utilities
 ##############################################################################
 def check_config_has_application( config, details = None ):
-    '''check that the config has the key APPLICATION. Else raise an exception.
+    """
+    Check that the config has the key APPLICATION. 
+    Else raise an exception.
     
-    :param config class 'common.pyconf.Config': The config.
-    '''
+    :param config: (Config) The config.
+    """
     if 'APPLICATION' not in config:
         message = _("An APPLICATION is required. Use 'config --list' to get"
                     " the list of available applications.\n")
@@ -218,11 +226,12 @@ def check_config_has_application( config, details = None ):
         raise Exception( message )
 
 def check_config_has_profile( config, details = None ):
-    '''check that the config has the key APPLICATION.profile.
-       Else, raise an exception.
+    """
+    Check that the config has the key APPLICATION.profile.
+    Else, raise an exception.
     
-    :param config class 'common.pyconf.Config': The config.
-    '''
+    :param config: (Config) The config.
+    """
     check_config_has_application(config)
     if 'profile' not in config.APPLICATION:
         message = _("A profile section is required in your application.\n")
@@ -234,45 +243,40 @@ def config_has_application( config ):
     return 'APPLICATION' in config
 
 def get_cfg_param(config, param_name, default):
-    '''Search for param_name value in config.
-       If param_name is not in config, then return default,
-       else, return the found value
+    """
+    Search for param_name value in config.
+    If param_name is not in config, then return default,
+    else, return the found value
        
-    :param config class 'common.pyconf.Config': The config.
-    :param param_name str: the name of the parameter to get the value
-    :param default str: The value to return if param_name is not in config
-    :return: see initial description of the function
-    :rtype: str
-    '''
+    :param config: (Config) The config.
+    :param param_name: (str) the name of the parameter to get the value
+    :param default: (str) The value to return if param_name is not in config
+    :return: (str) see initial description of the function
+    """
     if param_name in config:
         return config[param_name]
     return default
 
 def get_base_path(config):
-    '''Returns the path of the products base.
+    """Returns the path of the products base.
     
-    :param config Config: The global Config instance.
-    :return: The path of the products base.
-    :rtype: str
-    '''
+    :param config: (Config) The global Config instance.
+    :return: (str) The path of the products base.
+    """
     if "base" not in config.LOCAL:
-        local_file_path = os.path.join(config.VARS.salometoolsway,
-                                      "data",
-                                      "local.pyconf")
+        local_file_path = os.path.join(config.VARS.salometoolsway, "data", "local.pyconf")
         msg = _("Please define a base path in the file %s") % local_file_path
         raise Exception(msg)
         
-    base_path = os.path.abspath(config.LOCAL.base)
-    
+    base_path = os.path.abspath(config.LOCAL.base)   
     return base_path
 
 def get_launcher_name(config):
-    '''Returns the name of salome launcher.
+    """Returns the name of salome launcher.
     
-    :param config Config: The global Config instance.
-    :return: The name of salome launcher.
-    :rtype: str
-    '''
+    :param config: (Config) The global Config instance.
+    :return: (str) The name of salome launcher.
+    """
     check_config_has_application(config)
     if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
         launcher_name = config.APPLICATION.profile.launcher_name
@@ -282,12 +286,11 @@ def get_launcher_name(config):
     return launcher_name
 
 def get_log_path(config):
-    '''Returns the path of the logs.
+    """Returns the path of the logs.
     
-    :param config Config: The global Config instance.
-    :return: The path of the logs.
-    :rtype: str
-    '''
+    :param config: (Config) The global Config instance.
+    :return: (str) The path of the logs.
+    """
     if "log_dir" not in config.LOCAL:
         local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
@@ -350,8 +353,8 @@ def formatTuples(tuples):
     """
     format 'label = value' the tuples in a tabulated way.
     
-    :param tuples list: The list of tuples to format
-    :return: The tabulated text. (mutiples lines)
+    :param tuples: (list) The list of tuples to format
+    :return: (str) The tabulated text. (as mutiples lines)
     """
     # find the maximum length of the first value of the tuples
     smax = max(map(lambda l: len(l[0]), tuples))
@@ -367,9 +370,9 @@ def formatValue(label, value, suffix=""):
     """
     format 'label = value' with the info color
     
-    :param label int: the label to print.
-    :param value str: the value to print.
-    :param suffix str: the optionnal suffix to add at the end.
+    :param label: (int) the label to print.
+    :param value: (str) the value to print.
+    :param suffix: (str) the optionnal suffix to add at the end.
     """
     msg = "  %s = %s %s" % (label, value, suffix)
     return msg
@@ -441,11 +444,10 @@ def critical(msg):
 # list and dict utilities
 ##############################################################################
 def deepcopy_list(input_list):
-    """ Do a deep copy of a list
+    """Do a deep copy of a list
     
-    :param input_list List: The list to copy
-    :return: The copy of the list
-    :rtype: List
+    :param input_list: (list) The list to copy
+    :return: (list) The copy of the list
     """
     res = []
     for elem in input_list:
@@ -453,11 +455,10 @@ def deepcopy_list(input_list):
     return res
 
 def remove_item_from_list(input_list, item):
-    """ Remove all occurences of item from input_list
+    """Remove all occurences of item from input_list
     
-    :param input_list List: The list to modify
-    :return: The without any item
-    :rtype: List
+    :param input_list: (list) The list to modify
+    :return: (list) The without any item
     """
     res = []
     for elem in input_list:
@@ -467,10 +468,10 @@ def remove_item_from_list(input_list, item):
     return res
 
 def merge_dicts(*dict_args):
-    '''
+    """
     Given any number of dicts, shallow copy and merge into a new dict,
     precedence goes to key value pairs in latter dicts.
-    '''
+    """
     result = {}
     for dictionary in dict_args:
         result.update(dictionary)
@@ -483,9 +484,8 @@ def merge_dicts(*dict_args):
 def parse_date(date):
     """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
     
-    :param date str: The date to transform
-    :return: The date in the new format
-    :rtype: str
+    :param date: (str) The date to transform
+    :return: (str) The date in the new format
     """
     if len(date) != 15:
         return date
@@ -504,13 +504,13 @@ def parse_date(date):
 
     
 def date_to_datetime(date):
-    """\
+    """
     From a string date in format YYYYMMDD_HHMMSS
     returns list year, mon, day, hour, minutes, seconds 
     
-    :param date str: The date in format YYYYMMDD_HHMMSS
-    :return: the same date and time in separate variables.
-    :rtype: (str,str,str,str,str,str)
+    :param date: (str) The date in format YYYYMMDD_HHMMSS
+    :return: (tuple) as (str,str,str,str,str,str)
+      The same date and time in separate variables.
     """
     Y = date[:4]
     m = date[4:6]
@@ -521,13 +521,14 @@ def date_to_datetime(date):
     return Y, m, dd, H, M, S
 
 def timedelta_total_seconds(timedelta):
-    """\
+    """
     Replace total_seconds from datetime module 
     in order to be compatible with old python versions
     
-    :param timedelta datetime.timedelta: The delta between two dates
-    :return: The number of seconds corresponding to timedelta.
-    :rtype: float
+    :param timedelta: (datetime.timedelta) 
+      The delta between two dates
+    :return: (float) 
+      The number of seconds corresponding to timedelta.
     """
     return (
         timedelta.microseconds + 0.0 +
@@ -537,21 +538,21 @@ _log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 _log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
 def show_command_log(logFilePath, cmd, application, notShownCommands):
-    """\
+    """
     Used in updateHatXml. 
     Determine if the log xml file logFilePath 
     has to be shown or not in the hat log.
     
-    :param logFilePath str: the path to the command xml log file
-    :param cmd str: the command of the log file
-    :param application str: the application passed as parameter 
-                            to the salomeTools command
-    :param notShownCommands list: the list of commands 
-                                  that are not shown by default
-    
-    :return: RCO.ReturnCode("OK") if cmd is not in notShownCommands and the application 
-             in the log file corresponds to application
-             ReturnCode value is tuple (appliLog, launched_cmd)
+    :param logFilePath: (str) the path to the command xml log file
+    :param cmd: (str) the command of the log file
+    :param application: (str) 
+      The application passed as parameter to the salomeTools command
+    :param notShownCommands: (list) 
+      The list of commands that are not shown by default
+    :return: (RCO.ReturnCode)
+      OK if cmd is not in notShownCommands and the application 
+      in the log file corresponds to application
+      ReturnCode value is tuple (appliLog, launched_cmd)
     """
     # When the command is not in notShownCommands, no need to go further :
     # Do not show
@@ -587,10 +588,9 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
 def list_log_file(dirPath, expression):
     """Find all files corresponding to expression in dirPath
     
-    :param dirPath str: the directory where to search the files
-    :param expression str: the regular expression of files to find
-    :return: the list of files path and informations about it
-    :rtype: list
+    :param dirPath: (str) the directory where to search the files
+    :param expression: (str) the regular expression of files to find
+    :return: (list) the list of files path and informations about it
     """
     lRes = []
     for fileName in os.listdir(dirPath):
@@ -627,12 +627,12 @@ def list_log_file(dirPath, expression):
     return lRes
 
 def update_hat_xml(logDir, application=None, notShownCommands = []):
-    """\
+    """
     Create the xml file in logDir that contain all the xml file 
     and have a name like YYYYMMDD_HHMMSS_namecmd.xml
     
-    :param logDir str: the directory to parse
-    :param application str: the name of the application if there is any
+    :param logDir: (str) the directory to parse
+    :param application: (str) the name of the application if there is any
     """
     # Create an instance of XmlLogFile class to create hat.xml file
     

@@ -62,27 +62,27 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">In this file : all the stuff that can change with the architecture </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Contains all the stuff that can change with the architecture </span>
 <span class="sd">on which SAT is running</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">platform</span>
 
-<div class="viewcode-block" id="is_windows"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.is_windows">[docs]</a><span class="k">def</span> <span class="nf">is_windows</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;method that checks windows OS</span>
+<div class="viewcode-block" id="is_windows"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.is_windows">[docs]</a><span class="k">def</span> <span class="nf">is_windows</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Checks windows OS</span>
 <span class="sd">      </span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :return: (bool) True if system is Windows</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Windows&#39;</span></div>
 
-<div class="viewcode-block" id="get_user"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.get_user">[docs]</a><span class="k">def</span> <span class="nf">get_user</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;method that gets the username that launched sat  </span>
+<div class="viewcode-block" id="get_user"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.get_user">[docs]</a><span class="k">def</span> <span class="nf">get_user</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Gets the username that launched sat  </span>
 <span class="sd">    </span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :return: (str) environ var USERNAME</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># In windows case, the USERNAME environment variable has to be set</span>
     <span class="k">if</span> <span class="n">is_windows</span><span class="p">():</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s1">&#39;USERNAME&#39;</span><span class="p">):</span>
@@ -93,12 +93,11 @@
         <span class="k">return</span> <span class="n">pwd</span><span class="o">.</span><span class="n">getpwuid</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getuid</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <span class="k">def</span> <span class="nf">_lsb_release</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Get system information with lsb_release.</span>
+    <span class="sd">&quot;&quot;&quot;Get system information with lsb_release.</span>
 <span class="sd">    </span>
-<span class="sd">    :param args str: The arguments to give to lsb_release.</span>
-<span class="sd">    :return: The distribution.</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param args: (str) The CLI arguments to give to lsb_release.</span>
+<span class="sd">    :return: (str) The distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/usr/local/bin:/usr/bin:/bin&#39;</span>
         <span class="n">lsb_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LSB_PATH&quot;</span><span class="p">)</span>
@@ -118,14 +117,15 @@
                            <span class="s2">&quot; the path to lsb_release</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="get_distribution"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.get_distribution">[docs]</a><span class="k">def</span> <span class="nf">get_distribution</span><span class="p">(</span><span class="n">codes</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Gets the code for the distribution</span>
+<div class="viewcode-block" id="get_distribution"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.get_distribution">[docs]</a><span class="k">def</span> <span class="nf">get_distribution</span><span class="p">(</span><span class="n">codes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets the code for the distribution</span>
 <span class="sd">    </span>
-<span class="sd">    :param codes L{Mapping}: The map containing distribution correlation table.</span>
-<span class="sd">    :return: The distribution on which salomeTools is running, regarding the </span>
-<span class="sd">             distribution correlation table contained in codes variable.</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param codes: (L{Mapping}) </span>
+<span class="sd">      The map containing distribution correlation table.</span>
+<span class="sd">    :return: (str)</span>
+<span class="sd">      The distribution on which salomeTools is running, regarding the </span>
+<span class="sd">      distribution correlation table contained in codes variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">is_windows</span><span class="p">():</span>
         <span class="k">return</span> <span class="s2">&quot;Win&quot;</span>
 
@@ -142,16 +142,18 @@
     <span class="k">return</span> <span class="n">distrib</span></div>
 
 
-<div class="viewcode-block" id="get_distrib_version"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.get_distrib_version">[docs]</a><span class="k">def</span> <span class="nf">get_distrib_version</span><span class="p">(</span><span class="n">distrib</span><span class="p">,</span> <span class="n">codes</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Gets the version of the distribution</span>
+<div class="viewcode-block" id="get_distrib_version"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.get_distrib_version">[docs]</a><span class="k">def</span> <span class="nf">get_distrib_version</span><span class="p">(</span><span class="n">distrib</span><span class="p">,</span> <span class="n">codes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets the version of the distribution</span>
 <span class="sd">    </span>
-<span class="sd">    :param distrib str: The distribution on which the version will be found.</span>
-<span class="sd">    :param codes L{Mapping}: The map containing distribution correlation table.</span>
-<span class="sd">    :return: The version of the distribution on which salomeTools is running, </span>
-<span class="sd">             regarding the distribution correlation table contained in codes </span>
-<span class="sd">             variable.</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param distrib: (str) </span>
+<span class="sd">      The distribution on which the version will be found.</span>
+<span class="sd">    :param codes: (L{Mapping}) </span>
+<span class="sd">      The map containing distribution correlation table.</span>
+<span class="sd">    :return: (str)</span>
+<span class="sd">      The version of the distribution on which </span>
+<span class="sd">      salomeTools is running, regarding the distribution </span>
+<span class="sd">      correlation table contained in codes variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">is_windows</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -166,23 +168,22 @@
         <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1">#for centos, we only care for major version</span>
     <span class="k">return</span> <span class="n">version</span></div>
 
-<div class="viewcode-block" id="get_python_version"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.get_python_version">[docs]</a><span class="k">def</span> <span class="nf">get_python_version</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;Gets the version of the running python.</span>
+<div class="viewcode-block" id="get_python_version"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.get_python_version">[docs]</a><span class="k">def</span> <span class="nf">get_python_version</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Gets the version of the running python.</span>
 <span class="sd">    </span>
-<span class="sd">    :return: the version of the running python.</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :return: (str) The version of the running python.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1"># The platform python module gives the answer</span>
     <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="get_nb_proc"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.architecture.get_nb_proc">[docs]</a><span class="k">def</span> <span class="nf">get_nb_proc</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;Gets the number of processors of the machine </span>
-<span class="sd">       on which salomeTools is running.</span>
+<div class="viewcode-block" id="get_nb_proc"><a class="viewcode-back" href="../../apidoc_src/src.html#src.architecture.get_nb_proc">[docs]</a><span class="k">def</span> <span class="nf">get_nb_proc</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the number of processors of the machine </span>
+<span class="sd">    on which salomeTools is running.</span>
 <span class="sd">    </span>
-<span class="sd">    :return: the number of processors.</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :return: (str) The number of processors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">try</span> <span class="p">:</span>
         <span class="kn">import</span> <span class="nn">multiprocessing</span>

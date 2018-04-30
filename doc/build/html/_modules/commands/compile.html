@@ -1,0 +1,817 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.compile &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.compile</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2018  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1"># Compatibility python 2/3 for input function</span>
+<span class="c1"># input stays input for python 3 and input = raw_input for python 2</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">raw_input</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span> 
+    <span class="k">pass</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  The compile command constructs the products of the application</span>
+<span class="sd">  </span>
+<span class="sd">  examples:</span>
+<span class="sd">    &gt;&gt; sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;compile&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for the command &#39;sat compile &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="s1">&#39;list2&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: products to configure. This option can be passed several time to configure several products.&#39;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;with_fathers&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;fathers&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: build all necessary products to the given product (KERNEL is build before building GUI).&quot;</span><span class="p">),</span> 
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;with_children&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: build all products using the given product (all SMESH plugins  are build after SMESH).&quot;</span><span class="p">),</span>
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_all&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_all&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: clean BUILD dir and INSTALL dir before building product.&quot;</span><span class="p">),</span>
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_install&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_install&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: clean INSTALL dir before building product.&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;make_flags&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;makeflags&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: add extra options to the &#39;make&#39; command.&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;show&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;no_compile&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: DO NOT COMPILE just show if products are installed or not.&quot;</span><span class="p">),</span>
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;stop_first_fail&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;stop_first_fail&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span>
+        <span class="s2">&quot;Optional: Stops the command at first product compilation fail.&quot;</span><span class="p">),</span> 
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;check&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: execute the unit tests after compilation&quot;</span><span class="p">),</span> 
+       <span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_build_after&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_build_after&#39;</span><span class="p">,</span> 
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: remove the build directory after successful compilation&#39;</span><span class="p">),</span> 
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat compile &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="c1"># Warn the user if he invoked the clean_all option </span>
+    <span class="c1"># without --products option</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">clean_all</span> <span class="ow">and</span> 
+        <span class="n">options</span><span class="o">.</span><span class="n">products</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> 
+        <span class="ow">not</span> <span class="n">runner</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">batch</span><span class="p">):</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;You used --clean_all without specifying a product&quot;</span>
+                      <span class="s2">&quot; are you sure you want to continue? [Yes/No] &quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rep</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        
+    <span class="c1"># check that the command has been called with an application</span>
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+
+    <span class="c1"># Print some informations</span>
+    <span class="n">nameApp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">)</span>
+    <span class="n">srcDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s1">&#39;SOURCES&#39;</span><span class="p">)</span>
+    <span class="n">buildDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s1">&#39;BUILD&#39;</span><span class="p">)</span>
+    
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Application </span><span class="si">%s</span><span class="s2">, executing compile commands in build directories of products.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">nameApp</span><span class="p">))</span>
+    
+    <span class="n">info</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;SOURCE directory&quot;</span><span class="p">),</span> <span class="n">srcDir</span><span class="p">),</span>
+             <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;BUILD directory&quot;</span><span class="p">),</span><span class="n">buildDir</span><span class="p">)</span> <span class="p">]</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="c1"># Get the list of products to treat</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">get_products_list</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">fathers</span><span class="p">:</span>
+        <span class="c1"># Extend the list with all recursive dependencies of the given products</span>
+        <span class="n">products_infos</span> <span class="o">=</span> <span class="n">extend_with_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">products_infos</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="c1"># Extend the list with all products that use the given products</span>
+        <span class="n">products_infos</span> <span class="o">=</span> <span class="n">extend_with_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">products_infos</span><span class="p">)</span>
+
+    <span class="c1"># Sort the list regarding the dependencies of the products</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">sort_products</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">products_infos</span><span class="p">)</span>
+
+    
+    <span class="c1"># Call the function that will loop over all the products and execute</span>
+    <span class="c1"># the right command(s)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">compile_all_products</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">products_infos</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="c1"># Print the final state</span>
+    <span class="n">nb_products</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">products_infos</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">final_status</span> <span class="o">=</span> <span class="s2">&quot;&lt;OK&gt;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">final_status</span> <span class="o">=</span> <span class="s2">&quot;&lt;KO&gt;&quot;</span>
+   
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Compilation: </span><span class="si">%(status)s</span><span class="s2"> (</span><span class="si">%(1)d</span><span class="s2">/</span><span class="si">%(2)d</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
+        <span class="p">{</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">final_status</span><span class="p">,</span> 
+          <span class="s1">&#39;1&#39;</span><span class="p">:</span> <span class="n">nb_products</span> <span class="o">-</span> <span class="n">res</span><span class="p">,</span>
+          <span class="s1">&#39;2&#39;</span><span class="p">:</span> <span class="n">nb_products</span> <span class="p">})</span>    
+    
+    <span class="n">code</span> <span class="o">=</span> <span class="n">res</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">code</span></div></div>
+      
+      
+<div class="viewcode-block" id="get_products_list"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.get_products_list">[docs]</a><span class="k">def</span> <span class="nf">get_products_list</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    method that gives the product list with their informations from </span>
+<span class="sd">    configuration regarding the passed options.</span>
+<span class="sd">    </span>
+<span class="sd">    :param options: (Options) </span>
+<span class="sd">      The Options instance that stores the commands arguments</span>
+<span class="sd">    :param cfg: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :return: (list) The list of (product name, product_informations).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the products to be prepared, regarding the options</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">products</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># No options, get all products sources</span>
+        <span class="n">products</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if option --products, check that all products of the command line</span>
+        <span class="c1"># are present in the application.</span>
+        <span class="n">products</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">products</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Product </span><span class="si">%(product)s</span><span class="s2"> not defined in application </span><span class="si">%(application)s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span>
+                    <span class="p">{</span> <span class="s1">&#39;product&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;application&#39;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">}</span> <span class="p">)</span>
+    
+    <span class="c1"># Construct the list of tuple containing </span>
+    <span class="c1"># the products name and their definition</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+    
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span> <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">products_infos</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span>
+                                     <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="mi">1</span><span class="p">]))]</span>
+    
+    <span class="k">return</span> <span class="n">products_infos</span></div>
+
+<div class="viewcode-block" id="get_children"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.get_children">[docs]</a><span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">):</span>
+    <span class="n">l_res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">p_name_p_info</span>
+    <span class="c1"># Get all products of the application</span>
+    <span class="n">products</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p_name_potential_child</span><span class="p">,</span> <span class="n">p_info_potential_child</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;depend&quot;</span> <span class="ow">in</span> <span class="n">p_info_potential_child</span> <span class="ow">and</span> 
+                <span class="n">p_name</span> <span class="ow">in</span> <span class="n">p_info_potential_child</span><span class="o">.</span><span class="n">depend</span><span class="p">):</span>
+            <span class="n">l_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_potential_child</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l_res</span></div>
+
+<div class="viewcode-block" id="get_recursive_children"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.get_recursive_children">[docs]</a><span class="k">def</span> <span class="nf">get_recursive_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">,</span> <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the recursive list of the product that depend on </span>
+<span class="sd">    the product defined by prod_info</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param prod_info: (Config) The specific config of the product</span>
+<span class="sd">    :param without_native_fixed: (bool) </span>
+<span class="sd">      If true, do not include the fixed or native products in the result</span>
+<span class="sd">    :return: (list) The list of product_informations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">p_name_p_info</span>
+    <span class="c1"># Initialization of the resulting list</span>
+    <span class="n">l_children</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Get the direct children (not recursive)</span>
+    <span class="n">l_direct_children</span> <span class="o">=</span> <span class="n">get_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">)</span>
+    <span class="c1"># Minimal case : no child</span>
+    <span class="k">if</span> <span class="n">l_direct_children</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="c1"># Add the children and call the function to get the children of the</span>
+    <span class="c1"># children</span>
+    <span class="k">for</span> <span class="n">child_name</span> <span class="ow">in</span> <span class="n">l_direct_children</span><span class="p">:</span>
+        <span class="n">l_children_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">pn_pi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pn_pi</span> <span class="ow">in</span> <span class="n">l_children</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">child_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">l_children_name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">The product </span><span class="si">%(child_name)s</span><span class="s2"> that is in </span><span class="si">%(product_name)s</span><span class="s2"> children</span>
+<span class="s2">is not present in application </span><span class="si">%(appli_name)s</span><span class="s2">.&quot;&quot;&quot;</span> <span class="o">%</span> 
+                     <span class="p">{</span><span class="s2">&quot;child_name&quot;</span> <span class="p">:</span> <span class="n">child_name</span><span class="p">,</span> 
+                      <span class="s2">&quot;product_name&quot;</span> <span class="p">:</span> <span class="n">p_name</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> 
+                      <span class="s2">&quot;appli_name&quot;</span> <span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">}</span> <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">prod_info_child</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                                              <span class="n">child_name</span><span class="p">)</span>
+            <span class="n">pname_pinfo_child</span> <span class="o">=</span> <span class="p">(</span><span class="n">prod_info_child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">prod_info_child</span><span class="p">)</span>
+            <span class="c1"># Do not append the child if it is native or fixed and </span>
+            <span class="c1"># the corresponding parameter is called</span>
+            <span class="k">if</span> <span class="n">without_native_fixed</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">prod_info_child</span><span class="p">)</span> <span class="ow">or</span> 
+                       <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">prod_info_child</span><span class="p">)):</span>
+                    <span class="n">l_children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pname_pinfo_child</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l_children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pname_pinfo_child</span><span class="p">)</span>
+            <span class="c1"># Get the children of the children</span>
+            <span class="n">l_grand_children</span> <span class="o">=</span> <span class="n">get_recursive_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                <span class="n">pname_pinfo_child</span><span class="p">,</span>
+                                <span class="n">without_native_fixed</span> <span class="o">=</span> <span class="n">without_native_fixed</span><span class="p">)</span>
+            <span class="n">l_children</span> <span class="o">+=</span> <span class="n">l_grand_children</span>
+    <span class="k">return</span> <span class="n">l_children</span></div>
+
+<div class="viewcode-block" id="get_recursive_fathers"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.get_recursive_fathers">[docs]</a><span class="k">def</span> <span class="nf">get_recursive_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">,</span> <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the recursive list of the dependencies of the product defined </span>
+<span class="sd">    by prod_info</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param prod_info: (Config) The specific config of the product</span>
+<span class="sd">    :param without_native_fixed: (bool) </span>
+<span class="sd">      If true, do not include the fixed or native products in the result</span>
+<span class="sd">    :return: (list) The list of product_informations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">p_info</span> <span class="o">=</span> <span class="n">p_name_p_info</span>
+    <span class="c1"># Initialization of the resulting list</span>
+    <span class="n">l_fathers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Minimal case : no dependencies</span>
+    <span class="k">if</span> <span class="s2">&quot;depend&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p_info</span> <span class="ow">or</span> <span class="n">p_info</span><span class="o">.</span><span class="n">depend</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="c1"># Add the dependencies and call the function to get the dependencies of the</span>
+    <span class="c1"># dependencies</span>
+    <span class="k">for</span> <span class="n">father_name</span> <span class="ow">in</span> <span class="n">p_info</span><span class="o">.</span><span class="n">depend</span><span class="p">:</span>
+        <span class="n">l_fathers_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">pn_pi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pn_pi</span> <span class="ow">in</span> <span class="n">l_fathers</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">father_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">l_fathers_name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">father_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The product </span><span class="si">%(father_name)s</span><span class="s2"> that is in %(product_nam&quot;</span>
+                        <span class="s2">&quot;e)s dependencies is not present in application &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">%(appli_name)s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">{</span><span class="s2">&quot;father_name&quot;</span> <span class="p">:</span> <span class="n">father_name</span><span class="p">,</span> 
+                                    <span class="s2">&quot;product_name&quot;</span> <span class="p">:</span> <span class="n">p_name</span><span class="p">,</span> 
+                                    <span class="s2">&quot;appli_name&quot;</span> <span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">})</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">prod_info_father</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                                              <span class="n">father_name</span><span class="p">)</span>
+            <span class="n">pname_pinfo_father</span> <span class="o">=</span> <span class="p">(</span><span class="n">prod_info_father</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">prod_info_father</span><span class="p">)</span>
+            <span class="c1"># Do not append the father if it is native or fixed and </span>
+            <span class="c1"># the corresponding parameter is called</span>
+            <span class="k">if</span> <span class="n">without_native_fixed</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">prod_info_father</span><span class="p">)</span> <span class="ow">or</span> 
+                       <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">prod_info_father</span><span class="p">)):</span>
+                    <span class="n">l_fathers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pname_pinfo_father</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l_fathers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pname_pinfo_father</span><span class="p">)</span>
+            <span class="c1"># Get the dependencies of the dependency</span>
+            <span class="n">l_grand_fathers</span> <span class="o">=</span> <span class="n">get_recursive_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                <span class="n">pname_pinfo_father</span><span class="p">,</span>
+                                <span class="n">without_native_fixed</span> <span class="o">=</span> <span class="n">without_native_fixed</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l_grand_fathers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">l_fathers</span><span class="p">:</span>
+                    <span class="n">l_fathers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l_fathers</span></div>
+
+<div class="viewcode-block" id="sort_products"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.sort_products">[docs]</a><span class="k">def</span> <span class="nf">sort_products</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_infos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sort the p_infos regarding the dependencies between the products</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param p_infos: (list) </span>
+<span class="sd">      List of (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_prod_sorted</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">p_infos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">p_infos</span><span class="p">:</span>
+        <span class="n">l_fathers</span> <span class="o">=</span> <span class="n">get_recursive_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                          <span class="n">prod</span><span class="p">,</span>
+                                          <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">l_fathers</span> <span class="o">=</span> <span class="p">[</span><span class="n">father</span> <span class="k">for</span> <span class="n">father</span> <span class="ow">in</span> <span class="n">l_fathers</span> <span class="k">if</span> <span class="n">father</span> <span class="ow">in</span> <span class="n">p_infos</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">l_fathers</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">p_sorted</span> <span class="ow">in</span> <span class="n">l_prod_sorted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p_sorted</span> <span class="ow">in</span> <span class="n">l_fathers</span><span class="p">:</span>
+                <span class="n">l_fathers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">p_sorted</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">l_fathers</span><span class="o">==</span><span class="p">[]:</span>
+                <span class="n">l_prod_sorted</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
+                <span class="n">l_prod_sorted</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">l_prod_sorted</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p_sorted</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">prod</span><span class="p">)</span>
+                <span class="k">break</span>
+        
+    <span class="k">return</span> <span class="n">l_prod_sorted</span></div>
+
+<div class="viewcode-block" id="extend_with_fathers"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.extend_with_fathers">[docs]</a><span class="k">def</span> <span class="nf">extend_with_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_infos</span><span class="p">):</span>
+    <span class="n">p_infos_res</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">p_infos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p_name_p_info</span> <span class="ow">in</span> <span class="n">p_infos</span><span class="p">:</span>
+        <span class="n">fathers</span> <span class="o">=</span> <span class="n">get_recursive_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                        <span class="n">p_name_p_info</span><span class="p">,</span>
+                                        <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p_name_p_info_father</span> <span class="ow">in</span> <span class="n">fathers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p_name_p_info_father</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p_infos_res</span><span class="p">:</span>
+                <span class="n">p_infos_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_p_info_father</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p_infos_res</span></div>
+
+<div class="viewcode-block" id="extend_with_children"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.extend_with_children">[docs]</a><span class="k">def</span> <span class="nf">extend_with_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_infos</span><span class="p">):</span>
+    <span class="n">p_infos_res</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">p_infos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p_name_p_info</span> <span class="ow">in</span> <span class="n">p_infos</span><span class="p">:</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="n">get_recursive_children</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                        <span class="n">p_name_p_info</span><span class="p">,</span>
+                                        <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p_name_p_info_child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p_name_p_info_child</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p_infos_res</span><span class="p">:</span>
+                <span class="n">p_infos_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_p_info_child</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p_infos_res</span>    </div>
+
+<div class="viewcode-block" id="check_dependencies"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.check_dependencies">[docs]</a><span class="k">def</span> <span class="nf">check_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">):</span>
+    <span class="n">l_depends_not_installed</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fathers</span> <span class="o">=</span> <span class="n">get_recursive_fathers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_p_info</span><span class="p">,</span> <span class="n">without_native_fixed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p_name_father</span><span class="p">,</span> <span class="n">p_info_father</span> <span class="ow">in</span> <span class="n">fathers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">p_info_father</span><span class="p">)):</span>
+            <span class="n">l_depends_not_installed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_name_father</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l_depends_not_installed</span></div>
+
+<div class="viewcode-block" id="log_step"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.log_step">[docs]</a><span class="k">def</span> <span class="nf">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">step</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">==== </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">step</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="log_res_step"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.log_res_step">[docs]</a><span class="k">def</span> <span class="nf">log_res_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;KO&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compile_all_products"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.compile_all_products">[docs]</a><span class="k">def</span> <span class="nf">compile_all_products</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">products_infos</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute the proper configuration commands </span>
+<span class="sd">    in each product build directory.</span>
+
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param products_info: (list)</span>
+<span class="sd">      List of (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :return: (int) the number of failing commands.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p_name_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
+        
+        <span class="n">p_name</span><span class="p">,</span> <span class="n">p_info</span> <span class="o">=</span> <span class="n">p_name_info</span>
+        
+        <span class="c1"># Logging</span>
+        <span class="n">len_end_line</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Compilation of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">p_name</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">len_end_line</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_name</span><span class="p">)))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        
+        <span class="c1"># Do nothing if the product is not compilable</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">p_info</span> <span class="ow">and</span> \
+            <span class="s2">&quot;compilation&quot;</span> <span class="ow">in</span> <span class="n">p_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span> \
+            <span class="n">p_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">compilation</span> <span class="o">==</span> <span class="s2">&quot;no&quot;</span><span class="p">):</span>
+              
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;ignored&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Do nothing if the product is native</span>
+        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">p_info</span><span class="p">):</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;native&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Clean the build and the install directories </span>
+        <span class="c1"># if the corresponding options was called</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean_all</span><span class="p">:</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;CLEAN BUILD AND INSTALL&quot;</span><span class="p">)</span>
+            <span class="n">sat</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> 
+                      <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span> <span class="o">+</span> 
+                      <span class="s2">&quot; --build --install&quot;</span><span class="p">,</span>
+                      <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                      <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+        
+        <span class="c1"># Clean the the install directory </span>
+        <span class="c1"># if the corresponding option was called</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean_install</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">clean_all</span><span class="p">:</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;CLEAN INSTALL&quot;</span><span class="p">)</span>
+            <span class="n">sat</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> 
+                      <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span> <span class="o">+</span> 
+                      <span class="s2">&quot; --install&quot;</span><span class="p">,</span>
+                      <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                      <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+        
+        <span class="c1"># Recompute the product information to get the right install_dir</span>
+        <span class="c1"># (it could change if there is a clean of the install directory)</span>
+        <span class="n">p_info</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name</span><span class="p">)</span>
+        
+        <span class="c1"># Check if it was already successfully installed</span>
+        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">p_info</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Already installed</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># If the show option was called, do not launch the compilation</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">no_compile</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Not installed</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Check if the dependencies are installed</span>
+        <span class="n">l_depends_not_installed</span> <span class="o">=</span> <span class="n">check_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">p_name_info</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_depends_not_installed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;the following products are mandatory:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">prod_name</span> <span class="ow">in</span> <span class="n">l_depends_not_installed</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">prod_name</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Call the function to compile the product</span>
+        <span class="n">res_prod</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span> <span class="o">=</span> <span class="n">compile_product</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span>
+                                                             <span class="n">p_name_info</span><span class="p">,</span>
+                                                             <span class="n">config</span><span class="p">,</span>
+                                                             <span class="n">options</span><span class="p">,</span>
+                                                             <span class="n">logger</span><span class="p">,</span>
+                                                             <span class="n">header</span><span class="p">,</span>
+                                                             <span class="n">len_end_line</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">res_prod</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">error_step</span> <span class="o">!=</span> <span class="s2">&quot;CHECK&quot;</span><span class="p">:</span>
+                <span class="c1"># Clean the install directory if there is any</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cleaning the install directory if there is any</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+                <span class="n">sat</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> 
+                          <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span> <span class="o">+</span> 
+                          <span class="s2">&quot; --install&quot;</span><span class="p">,</span>
+                          <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Clean the build directory if the compilation and tests succeed</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean_build_after</span><span class="p">:</span>
+                <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;CLEAN BUILD&quot;</span><span class="p">)</span>
+                <span class="n">sat</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> 
+                          <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span> <span class="o">+</span> 
+                          <span class="s2">&quot; --build&quot;</span><span class="p">,</span>
+                          <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="c1"># Log the result</span>
+        <span class="k">if</span> <span class="n">res_prod</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">len_end_line</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;&lt;KO&gt; &quot;</span> <span class="o">+</span> <span class="n">error_step</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">==== &lt;KO&gt; in compile of </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">p_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error_step</span> <span class="o">==</span> <span class="s2">&quot;CHECK&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">INSTALL directory = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">p_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">len_end_line</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;&lt;OK&gt;&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">INSTALL directory = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">p_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">==== &lt;OK&gt; in compile of </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">p_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        
+        <span class="k">if</span> <span class="n">res_prod</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">stop_first_fail</span><span class="p">:</span>
+            <span class="k">break</span>
+        
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="compile_product"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.compile_product">[docs]</a><span class="k">def</span> <span class="nf">compile_product</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span> <span class="n">p_name_info</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">len_end</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute the proper configuration command(s) </span>
+<span class="sd">    in the product build directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param p_name_info: (tuple) (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param header: (str) the header to display when logging</span>
+<span class="sd">    :param len_end: (int) the lenght of the the end of line (used in display)</span>
+<span class="sd">    :return: (int) 1 if it fails, else 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">p_info</span> <span class="o">=</span> <span class="n">p_name_info</span>
+          
+    <span class="c1"># Get the build procedure from the product configuration.</span>
+    <span class="c1"># It can be :</span>
+    <span class="c1"># build_sources : autotools -&gt; build_configure, configure, make, make install</span>
+    <span class="c1"># build_sources : cmake     -&gt; cmake, make, make install</span>
+    <span class="c1"># build_sources : script    -&gt; script executions</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_autotools</span><span class="p">(</span><span class="n">p_info</span><span class="p">)</span> <span class="ow">or</span> 
+                                          <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_cmake</span><span class="p">(</span><span class="n">p_info</span><span class="p">)):</span>
+        <span class="n">res</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span> <span class="o">=</span> <span class="n">compile_product_cmake_autotools</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span>
+                                                                  <span class="n">p_name_info</span><span class="p">,</span>
+                                                                  <span class="n">config</span><span class="p">,</span>
+                                                                  <span class="n">options</span><span class="p">,</span>
+                                                                  <span class="n">logger</span><span class="p">,</span>
+                                                                  <span class="n">header</span><span class="p">,</span>
+                                                                  <span class="n">len_end</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_has_script</span><span class="p">(</span><span class="n">p_info</span><span class="p">):</span>
+        <span class="n">res</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span> <span class="o">=</span> <span class="n">compile_product_script</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span>
+                                                                  <span class="n">p_name_info</span><span class="p">,</span>
+                                                                  <span class="n">config</span><span class="p">,</span>
+                                                                  <span class="n">options</span><span class="p">,</span>
+                                                                  <span class="n">logger</span><span class="p">,</span>
+                                                                  <span class="n">header</span><span class="p">,</span>
+                                                                  <span class="n">len_end</span><span class="p">)</span>
+
+    <span class="c1"># Check that the install directory exists</span>
+    <span class="k">if</span> <span class="n">res</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;NO INSTALL DIR&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;despite all the steps ended successfully, no install directory was found</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">len_end</span><span class="p">,</span> <span class="n">error_step</span>
+    
+    <span class="c1"># Add the config file corresponding to the dependencies/versions of the </span>
+    <span class="c1"># product that have been successfully compiled</span>
+    <span class="k">if</span> <span class="n">res</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>       
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add the config file in installation directory</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="n">add_compile_config_file</span><span class="p">(</span><span class="n">p_info</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">check</span><span class="p">:</span>
+            <span class="c1"># Do the unit tests (call the check command)</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;CHECK&quot;</span><span class="p">)</span>
+            <span class="n">res_check</span> <span class="o">=</span> <span class="n">sat</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+                              <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span><span class="p">,</span>
+                              <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                              <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res_check</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;CHECK&quot;</span>
+                
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">res_check</span>
+    
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span></div>
+
+<div class="viewcode-block" id="compile_product_cmake_autotools"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.compile_product_cmake_autotools">[docs]</a><span class="k">def</span> <span class="nf">compile_product_cmake_autotools</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span>
+                                    <span class="n">p_name_info</span><span class="p">,</span>
+                                    <span class="n">config</span><span class="p">,</span>
+                                    <span class="n">options</span><span class="p">,</span>
+                                    <span class="n">logger</span><span class="p">,</span>
+                                    <span class="n">header</span><span class="p">,</span>
+                                    <span class="n">len_end</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute the proper build procedure for autotools or cmake</span>
+<span class="sd">    in the product build directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param p_name_info: (tuple) </span>
+<span class="sd">      (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param header: (str) the header to display when logging</span>
+<span class="sd">    :param len_end: (int) the length of the the end of line (used in display)</span>
+<span class="sd">    :return: (int) 1 if it fails, else 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">p_info</span> <span class="o">=</span> <span class="n">p_name_info</span>
+    
+    <span class="c1"># Execute &quot;sat configure&quot;, &quot;sat make&quot; and &quot;sat install&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    
+    <span class="c1"># Logging and sat command call for configure step</span>
+    <span class="n">len_end_line</span> <span class="o">=</span> <span class="n">len_end</span>
+    <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;CONFIGURE&quot;</span><span class="p">)</span>
+    <span class="n">res_c</span> <span class="o">=</span> <span class="n">sat</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span><span class="p">,</span>
+                          <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                          <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">log_res_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">res_c</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">+=</span> <span class="n">res_c</span>
+    
+    <span class="k">if</span> <span class="n">res_c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;CONFIGURE&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Logging and sat command call for make step</span>
+        <span class="c1"># Logging take account of the fact that the product has a compilation </span>
+        <span class="c1"># script or not</span>
+        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_has_script</span><span class="p">(</span><span class="n">p_info</span><span class="p">):</span>
+            <span class="c1"># if the product has a compilation script, </span>
+            <span class="c1"># it is executed during make step</span>
+            <span class="n">scrit_path_display</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+                                                        <span class="n">p_info</span><span class="o">.</span><span class="n">compil_script</span><span class="p">)</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;SCRIPT &quot;</span> <span class="o">+</span> <span class="n">scrit_path_display</span><span class="p">)</span>
+            <span class="n">len_end_line</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scrit_path_display</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;MAKE&quot;</span><span class="p">)</span>
+        <span class="n">make_arguments</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span>
+        <span class="c1"># Get the make_flags option if there is any</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">makeflags</span><span class="p">:</span>
+            <span class="n">make_arguments</span> <span class="o">+=</span> <span class="s2">&quot; --option -j&quot;</span> <span class="o">+</span> <span class="n">options</span><span class="o">.</span><span class="n">makeflags</span>
+        <span class="n">res_m</span> <span class="o">=</span> <span class="n">sat</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">make_arguments</span><span class="p">,</span>
+                         <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                         <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="n">log_res_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">res_m</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="n">res_m</span>
+        
+        <span class="k">if</span> <span class="n">res_m</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;MAKE&quot;</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="c1"># Logging and sat command call for make install step</span>
+            <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;MAKE INSTALL&quot;</span><span class="p">)</span>
+            <span class="n">res_mi</span> <span class="o">=</span> <span class="n">sat</span><span class="o">.</span><span class="n">makeinstall</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> 
+                                     <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> 
+                                     <span class="n">p_name</span><span class="p">,</span>
+                                    <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+
+            <span class="n">log_res_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">res_mi</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">res_mi</span>
+            
+            <span class="k">if</span> <span class="n">res_mi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;MAKE INSTALL&quot;</span>
+                
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span> </div>
+
+<div class="viewcode-block" id="compile_product_script"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.compile_product_script">[docs]</a><span class="k">def</span> <span class="nf">compile_product_script</span><span class="p">(</span><span class="n">sat</span><span class="p">,</span>
+                           <span class="n">p_name_info</span><span class="p">,</span>
+                           <span class="n">config</span><span class="p">,</span>
+                           <span class="n">options</span><span class="p">,</span>
+                           <span class="n">logger</span><span class="p">,</span>
+                           <span class="n">header</span><span class="p">,</span>
+                           <span class="n">len_end</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Execute the script build procedure in the product build directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param p_name_info: (tuple) </span>
+<span class="sd">      (str, Config) =&gt; (product_name, product_info)</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param header: (str) the header to display when logging</span>
+<span class="sd">    :param len_end: (int) the lenght of the the end of line (used in display)</span>
+<span class="sd">    :return: (int) 1 if it fails, else 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p_name</span><span class="p">,</span> <span class="n">p_info</span> <span class="o">=</span> <span class="n">p_name_info</span>
+    
+    <span class="c1"># Execute &quot;sat configure&quot;, &quot;sat make&quot; and &quot;sat install&quot;</span>
+    <span class="n">error_step</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    
+    <span class="c1"># Logging and sat command call for the script step</span>
+    <span class="n">scrit_path_display</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">p_info</span><span class="o">.</span><span class="n">compil_script</span><span class="p">)</span>
+    <span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;SCRIPT &quot;</span> <span class="o">+</span> <span class="n">scrit_path_display</span><span class="p">)</span>
+    <span class="n">len_end_line</span> <span class="o">=</span> <span class="n">len_end</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">scrit_path_display</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">sat</span><span class="o">.</span><span class="n">script</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span> <span class="o">+</span> <span class="s2">&quot; --products &quot;</span> <span class="o">+</span> <span class="n">p_name</span><span class="p">,</span>
+                     <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                     <span class="n">logger_add_link</span> <span class="o">=</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">log_res_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+              
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">len_end_line</span><span class="p">,</span> <span class="n">error_step</span> </div>
+
+<div class="viewcode-block" id="add_compile_config_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.compile.add_compile_config_file">[docs]</a><span class="k">def</span> <span class="nf">add_compile_config_file</span><span class="p">(</span><span class="n">p_info</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute the proper configuration command(s) </span>
+<span class="sd">    in the product build directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param p_info: (Config) The specific config of the product</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create the compile config</span>
+    <span class="n">compile_cfg</span> <span class="o">=</span> <span class="n">PYCONF</span><span class="o">.</span><span class="n">Config</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">prod_name</span> <span class="ow">in</span> <span class="n">p_info</span><span class="o">.</span><span class="n">depend</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prod_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">compile_cfg</span><span class="p">:</span>
+            <span class="n">compile_cfg</span><span class="o">.</span><span class="n">addMapping</span><span class="p">(</span><span class="n">prod_name</span><span class="p">,</span>
+                                   <span class="n">PYCONF</span><span class="o">.</span><span class="n">Mapping</span><span class="p">(</span><span class="n">compile_cfg</span><span class="p">),</span>
+                                   <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">prod_dep_info</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prod_name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">compile_cfg</span><span class="p">[</span><span class="n">prod_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">prod_dep_info</span><span class="o">.</span><span class="n">version</span>
+    <span class="c1"># Write it in the install directory of the product</span>
+    <span class="n">compile_cfg_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">CONFIG_FILENAME</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">compile_cfg_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">compile_cfg</span><span class="o">.</span><span class="n">__save__</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.find_duplicates &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.find_duplicates</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+
+<span class="n">default_extension_ignored</span> <span class="o">=</span> \
+    <span class="s1">&#39;html png txt js xml cmake gif m4 in pyo pyc doctree css&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="n">default_files_ignored</span> <span class="o">=</span> \
+    <span class="s1">&#39;__init__.py Makefile.am VERSION build_configure README AUTHORS NEWS COPYING ChangeLog&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="n">default_directories_ignored</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">  The find_duplicates command search recursively for all duplicates files</span>
+<span class="sd">  in INSTALL directory (or the optionally given directory) and </span>
+<span class="sd">  prints the found files to the terminal.</span>
+<span class="sd">  </span>
+<span class="sd">  examples:</span>
+<span class="sd">    &gt;&gt; sat find_duplicates --path /tmp</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;find_duplicates&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat find_duplicates &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Search the duplicate files in the SOURCES directory.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;list2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Search the duplicate files in the given directory paths.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude-file&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;list2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude_file&quot;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Override the default list of filtered files.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude-extension&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;list2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude_extension&quot;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Override the default list of filtered extensions.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude-path&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;list2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exclude_path&quot;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Optional: Override the default list of filtered paths.&quot;</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat find_duplicates &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+  
+    <span class="c1"># Determine the directory path where to search </span>
+    <span class="c1"># for duplicates files regarding the options</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="n">l_dir_path</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;SOURCES&quot;</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># find all installation paths</span>
+            <span class="n">all_products</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">l_product_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">all_products</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="o">.</span><span class="n">install_dir</span> <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">l_product_cfg</span><span class="p">]</span>
+    
+    <span class="c1"># Get the files to ignore during the searching</span>
+    <span class="n">files_ignored</span> <span class="o">=</span> <span class="n">default_files_ignored</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_file</span><span class="p">:</span>
+        <span class="n">files_ignored</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_file</span>
+
+    <span class="c1"># Get the extension to ignore during the searching</span>
+    <span class="n">extension_ignored</span> <span class="o">=</span> <span class="n">default_extension_ignored</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_extension</span><span class="p">:</span>
+        <span class="n">extension_ignored</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_extension</span>
+
+    <span class="c1"># Get the directory paths to ignore during the searching</span>
+    <span class="n">directories_ignored</span> <span class="o">=</span> <span class="n">default_directories_ignored</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_path</span><span class="p">:</span>
+        <span class="n">directories_ignored</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_path</span>
+    
+    <span class="c1"># Check the directories</span>
+    <span class="n">l_path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">l_dir_path</span><span class="p">)</span>
+    <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="n">l_path</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not exists or is not a directory path: it will be ignored&quot;</span> <span class="o">%</span>
+                  <span class="n">dir_path</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">l_dir_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+            
+    
+    <span class="c1"># Display some information</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Directories&quot;</span><span class="p">),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l_dir_path</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Ignored files&quot;</span><span class="p">),</span> <span class="n">files_ignored</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Ignored extensions&quot;</span><span class="p">),</span> <span class="n">extension_ignored</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Ignored directories&quot;</span><span class="p">),</span> <span class="n">directories_ignored</span><span class="p">)</span>
+           <span class="p">]</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    
+    <span class="c1"># Get all the files and paths</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Store all file paths ... &quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">dic</span><span class="p">,</span> <span class="n">fic</span> <span class="o">=</span> <span class="n">list_directory</span><span class="p">(</span><span class="n">l_dir_path</span><span class="p">,</span>
+                              <span class="n">extension_ignored</span><span class="p">,</span>
+                              <span class="n">files_ignored</span><span class="p">,</span>
+                              <span class="n">directories_ignored</span><span class="p">)</span>  
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Eliminate all the singletons</span>
+    <span class="n">len_fic</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fic</span><span class="p">)</span>
+    <span class="n">range_fic</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">len_fic</span><span class="p">)</span>
+    <span class="n">range_fic</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="n">my_bar</span> <span class="o">=</span> <span class="n">Progress_bar</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Eliminate the files that are not duplicated&#39;</span><span class="p">),</span>
+                          <span class="mi">0</span><span class="p">,</span>
+                          <span class="n">len_fic</span><span class="p">,</span>
+                          <span class="n">logger</span><span class="p">,</span>
+                          <span class="n">length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">range_fic</span><span class="p">:</span>
+        <span class="n">my_bar</span><span class="o">.</span><span class="n">display_value_progression</span><span class="p">(</span><span class="n">len_fic</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fic</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">fic</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">fic</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fic</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">dic</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="c1"># Format the resulting variable to get a dictionary</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Compute the dict for file -&gt; list of paths ... &quot;</span><span class="p">))</span>
+    <span class="n">fic</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">len_fic</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fic</span><span class="p">)</span>
+    <span class="n">rg_fic</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">len_fic</span><span class="p">)</span>
+    <span class="n">rg_fic</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rg_fic</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fic</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">fic</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">fic</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fic</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="n">dic_fic_paths</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">fichier</span> <span class="ow">in</span> <span class="n">fic</span><span class="p">:</span>
+        <span class="n">the_file</span> <span class="o">=</span> <span class="n">fichier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">l_path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fic_path</span> <span class="ow">in</span> <span class="n">dic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fic_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">the_file</span><span class="p">:</span>
+                <span class="n">l_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fic_path</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">dic_fic_paths</span><span class="p">[</span><span class="n">the_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_path</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># End the execution if no duplicates were found</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dic_fic_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;No duplicate files found.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="c1"># Check that there are no singletons in the result (it would be a bug)</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">dic_fic_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dic_fic_paths</span><span class="p">[</span><span class="n">elem</span><span class="p">])</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Element </span><span class="si">%s</span><span class="s2"> has not more than two paths.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">elem</span><span class="p">)</span>
+
+
+    <span class="c1"># Display the results</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Results:</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">))</span>
+    <span class="n">max_file_name_lenght</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">dic_fic_paths</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">for</span> <span class="n">fich</span> <span class="ow">in</span> <span class="n">dic_fic_paths</span><span class="p">:</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_file_name_lenght</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">fich</span><span class="p">))</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">fich</span><span class="p">)</span> <span class="o">+</span> <span class="n">sp</span>
+        <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="n">dic_fic_paths</span><span class="p">[</span><span class="n">fich</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">rep</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="list_directory"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.list_directory">[docs]</a><span class="k">def</span> <span class="nf">list_directory</span><span class="p">(</span><span class="n">lpath</span><span class="p">,</span> <span class="n">extension_ignored</span><span class="p">,</span> <span class="n">files_ignored</span><span class="p">,</span> <span class="n">directories_ignored</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make the list of all files and paths that are not filtered </span>
+<span class="sd">    </span>
+<span class="sd">    :param lpath: (list) </span>
+<span class="sd">      The list of path to of the directories where to  search for duplicates</span>
+<span class="sd">    :param extension_ignored: (list) The list of extensions to ignore</span>
+<span class="sd">    :param files_ignored: (list) The list of files to ignore</span>
+<span class="sd">    :param directories_ignored: (list) </span>
+<span class="sd">      The list of directory paths to ignore</span>
+<span class="sd">    :return: (list, list) </span>
+<span class="sd">      files_arb_out is the list of [file, path] </span>
+<span class="sd">      and files_out is is the list of files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files_out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">files_arb_out</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">lpath</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>  
+            <span class="k">for</span> <span class="n">fic</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">extension</span> <span class="o">=</span> <span class="n">fic</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>   
+                <span class="k">if</span> <span class="p">(</span><span class="n">extension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extension_ignored</span> <span class="ow">and</span> 
+                                                      <span class="n">fic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files_ignored</span><span class="p">):</span>
+                    <span class="n">in_ignored_dir</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="n">directories_ignored</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">rep</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+                            <span class="n">in_ignored_dir</span> <span class="o">=</span> <span class="kc">True</span>                
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_ignored_dir</span><span class="p">:</span>
+                        <span class="n">files_out</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">fic</span><span class="p">])</span>              
+                        <span class="n">files_arb_out</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">fic</span><span class="p">,</span> <span class="n">root</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">files_arb_out</span><span class="p">,</span> <span class="n">files_out</span></div>
+
+<div class="viewcode-block" id="format_list_of_str"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.format_list_of_str">[docs]</a><span class="k">def</span> <span class="nf">format_list_of_str</span><span class="p">(</span><span class="n">l_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a list from a string</span>
+<span class="sd">    </span>
+<span class="sd">    :param l_str: (list or str) The variable to format</span>
+<span class="sd">    :return: (list) the formatted variable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l_str</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">l_str</span>
+    <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l_str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Progress_bar"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.Progress_bar">[docs]</a><span class="k">class</span> <span class="nc">Progress_bar</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a progress bar in the terminal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">valMin</span><span class="p">,</span> <span class="n">valMax</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization of the progress bar.</span>
+<span class="sd">        </span>
+<span class="sd">        :param name: (str) The name of the progress bar</span>
+<span class="sd">        :param valMin: (float) the minimum value of the variable</span>
+<span class="sd">        :param valMax: (float) the maximum value of the variable</span>
+<span class="sd">        :param logger: (Logger) the logger instance</span>
+<span class="sd">        :param length: (int) the lenght of the progress bar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valMin</span> <span class="o">=</span> <span class="n">valMin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valMax</span> <span class="o">=</span> <span class="n">valMax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valMax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">valMin</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out_err</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;ERROR: Wrong init values for the progress bar</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">out_err</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Progress_bar.display_value_progression"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.Progress_bar.display_value_progression">[docs]</a>    <span class="k">def</span> <span class="nf">display_value_progression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the progress bar.</span>
+<span class="sd">        </span>
+<span class="sd">        :param val: (float) val must be between valMin and valMax.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">valMin</span> <span class="ow">or</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">valMax</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Wrong value for the progress bar.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">perc</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">valMin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valMax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">valMin</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.</span>
+            <span class="n">nb_equals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">perc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\r</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> : </span><span class="si">%3d</span><span class="s1"> </span><span class="si">%%</span><span class="s1"> [</span><span class="si">%s%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">perc</span><span class="p">,</span> <span class="n">nb_equals</span><span class="o">*</span><span class="s1">&#39;=&#39;</span><span class="p">,</span>
+                                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="n">nb_equals</span><span class="p">)</span><span class="o">*</span><span class="s1">&#39; &#39;</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

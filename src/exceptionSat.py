@@ -19,7 +19,8 @@
 
 
 class ExceptionSat(Exception):
-    '''rename Exception Class for sat convenience (for future...)
-    '''
+    """\
+    rename Exception Class for sat convenience (for future...)
+    """
     pass
 

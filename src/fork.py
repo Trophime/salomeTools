@@ -26,10 +26,10 @@ import subprocess
 def show_progress(logger, top, delai, ss=""):
     """shortcut function to display the progression
     
-    :param logger Logger: The logging instance
-    :param top int: the number to display
-    :param delai int: the number max
-    :param ss str: the string to display
+    :param logger: (Logger) The logging instance
+    :param top: (int) the number to display
+    :param delai: (int) the number max
+    :param ss: (str) the string to display
     """
     logger.info("\r%s\r%s %s / %s " % ((" " * 30), ss, top, (delai - top)))
 
@@ -37,9 +37,9 @@ def show_progress(logger, top, delai, ss=""):
 def write_back(logger, message):
     """shortcut function to write at the begin of the line
     
-    :param logger Logger: The logging instance
-    :param message str: the text to display
-    :param level int: the level of verbosity
+    :param logger: (Logger) The logging instance
+    :param message: (str) the text to display
+    :param level: (int) the level of verbosity
     """
     logger.info("\r%s\r%s" % ((" " * 40), message))
 

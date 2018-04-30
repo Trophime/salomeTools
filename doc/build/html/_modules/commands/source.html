@@ -1,0 +1,630 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.source &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.source</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.system</span> <span class="k">as</span> <span class="nn">SYSS</span>
+
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The source command gets the sources of the application products</span>
+<span class="sd">  from cvs, git or an archive.</span>
+<span class="sd">  </span>
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat source SALOME --products KERNEL,GUI</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;source&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat source &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="s1">&#39;list2&#39;</span><span class="p">,</span> <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Optional: products from which to get the sources. This option can be&#39;</span>
+        <span class="s1">&#39; passed several time to get the sources of several products.&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+    
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat source &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+    
+    <span class="c1"># check that the command has been called with an application</span>
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+
+    <span class="c1"># Print some informations</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Getting sources of the application </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> \
+                <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  workdir = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span>
+       
+    <span class="c1"># Get the products list with products informations regarding the options</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_products_list</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="c1"># Call to the function that gets all the sources</span>
+    <span class="n">good_result</span><span class="p">,</span> <span class="n">results</span> <span class="o">=</span> <span class="n">get_all_product_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> 
+                                                  <span class="n">products_infos</span><span class="p">,</span>
+                                                  <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># Display the results (how much passed, how much failed, etc...)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nbExpected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">products_infos</span><span class="p">)</span>
+    <span class="n">msgCount</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">good_result</span><span class="p">,</span> <span class="n">nbExpected</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">good_result</span> <span class="o">==</span> <span class="n">nbExpected</span><span class="p">:</span>
+      <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Getting sources of the application&quot;</span><span class="p">)</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">: &lt;</span><span class="si">%s</span><span class="s2">&gt;.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">msgCount</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;KO&quot;</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Some sources haven&#39;t been get&quot;</span><span class="p">)</span>
+      <span class="n">details</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">product</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">results</span><span class="p">[</span><span class="n">product</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)]</span>
+      <span class="n">details</span>  <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">: &lt;</span><span class="si">%s</span><span class="s2">&gt;.</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">msgCount</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">details</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="n">msgCount</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_source_for_dev"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_for_dev">[docs]</a><span class="k">def</span> <span class="nf">get_source_for_dev</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Called if the product is in development mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param source_dir: (Path)</span>
+<span class="sd">      The Path instance corresponding to the directory where to put the sources</span>
+<span class="sd">    :param logger: (Logger)</span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param pad: (int) The gap to apply for the terminal display</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+       
+    <span class="c1"># Call the function corresponding to get the sources with True checkout</span>
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">get_product_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> 
+                                 <span class="n">product_info</span><span class="p">,</span> 
+                                 <span class="kc">True</span><span class="p">,</span> 
+                                 <span class="n">source_dir</span><span class="p">,</span>
+                                 <span class="n">logger</span><span class="p">,</span> 
+                                 <span class="n">pad</span><span class="p">,</span> 
+                                 <span class="n">checkout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># +2 because product name is followed by &#39;: &#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">pad</span><span class="o">+</span><span class="mi">2</span><span class="p">))</span> 
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;dev: </span><span class="si">%s</span><span class="s1"> ... &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">retcode</span></div>
+
+<div class="viewcode-block" id="get_source_from_git"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_git">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_git</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span>
+                        <span class="n">source_dir</span><span class="p">,</span>
+                        <span class="n">logger</span><span class="p">,</span>
+                        <span class="n">pad</span><span class="p">,</span>
+                        <span class="n">is_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">environ</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Called if the product is to be get in git mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param source_dir: (Path)</span>
+<span class="sd">      The Path instance corresponding to the</span>
+<span class="sd">      directory where to put the sources</span>
+<span class="sd">    :param logger Logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param pad: (int) The gap to apply for the terminal display</span>
+<span class="sd">    :param is_dev: (bool) True if the product is in development mode</span>
+<span class="sd">    :param environ: (src.environment.Environ)</span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The str to display</span>
+    <span class="n">coflag</span> <span class="o">=</span> <span class="s1">&#39;git&#39;</span>
+
+    <span class="c1"># Get the repository address. (from repo_dev key if the product is </span>
+    <span class="c1"># in dev mode.</span>
+    <span class="k">if</span> <span class="n">is_dev</span> <span class="ow">and</span> <span class="s1">&#39;repo_dev&#39;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="p">:</span>
+        <span class="n">coflag</span> <span class="o">=</span> <span class="n">coflag</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">repo_git</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">repo_dev</span>    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">repo_git</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">repo</span>    
+        
+    <span class="c1"># Display informations</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">coflag</span><span class="p">,</span> <span class="n">repo_git</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">pad</span> <span class="o">+</span> <span class="mi">50</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">repo_git</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; tag:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">tag</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">. &quot;</span> <span class="o">%</span> <span class="s2">&quot;.&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+    
+    <span class="c1"># Call the system function that do the extraction in git mode</span>
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">SYSS</span><span class="o">.</span><span class="n">git_extract</span><span class="p">(</span><span class="n">repo_git</span><span class="p">,</span>
+                                 <span class="n">product_info</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+                                 <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">retcode</span></div>
+
+<div class="viewcode-block" id="get_source_from_archive"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_archive">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_archive</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The method called if the product is to be get in archive mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to </span>
+<span class="sd">      the product to be prepared</span>
+<span class="sd">    :param source_dir: (Path)</span>
+<span class="sd">      The Path instance corresponding to the directory</span>
+<span class="sd">      where to put the sources</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check archive exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Archive not found: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                               <span class="n">product_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;arc:</span><span class="si">%s</span><span class="s1"> ... &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">))</span>
+    <span class="c1"># Call the system function that do the extraction in archive mode</span>
+    <span class="n">retcode</span><span class="p">,</span> <span class="n">NameExtractedDirectory</span> <span class="o">=</span> <span class="n">SYSS</span><span class="o">.</span><span class="n">archive_extract</span><span class="p">(</span>
+                                    <span class="n">product_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">,</span>
+                                    <span class="n">source_dir</span><span class="o">.</span><span class="n">dir</span><span class="p">(),</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="c1"># Rename the source directory if </span>
+    <span class="c1"># it does not match with product_info.source_dir</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">NameExtractedDirectory</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">!=</span> 
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">),</span> 
+                                 <span class="n">NameExtractedDirectory</span><span class="p">),</span> 
+                    <span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">retcode</span></div>
+
+<div class="viewcode-block" id="get_source_from_dir"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_dir">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="s2">&quot;dir_info&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;You must put a dir_info section in the file </span><span class="si">%s</span><span class="s2">.pyconf&quot;</span><span class="p">)</span> <span class="o">%</span> \
+              <span class="n">product_info</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="s2">&quot;dir&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Error: you must put a dir in the dir_info section  in the file </span><span class="si">%s</span><span class="s2">.pyconf&quot;</span><span class="p">)</span> <span class="o">%</span> \
+              <span class="n">product_info</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># check that source exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The dir </span><span class="si">%s</span><span class="s2"> defined in the file </span><span class="si">%s</span><span class="s2">.pyconf does not exists&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">product_info</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DIR: </span><span class="si">%s</span><span class="s1"> ... &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">))</span>
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">retcode</span></div>
+    
+<div class="viewcode-block" id="get_source_from_cvs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_cvs">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_cvs</span><span class="p">(</span><span class="n">user</span><span class="p">,</span>
+                        <span class="n">product_info</span><span class="p">,</span>
+                        <span class="n">source_dir</span><span class="p">,</span>
+                        <span class="n">checkout</span><span class="p">,</span>
+                        <span class="n">logger</span><span class="p">,</span>
+                        <span class="n">pad</span><span class="p">,</span>
+                        <span class="n">environ</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The method called if the product is to be get in cvs mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param user: (str) The user to use in for the cvs command</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param source_dir: (Path) </span>
+<span class="sd">      The Path instance corresponding to the directory </span>
+<span class="sd">      where to put the sources</span>
+<span class="sd">    :param checkout: (bool) If True, get the source in checkout mode</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param pad: (int) The gap to apply for the terminal display</span>
+<span class="sd">    :param environ: (src.environment.Environ) </span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the protocol to use in the command</span>
+    <span class="k">if</span> <span class="s2">&quot;protocol&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="p">:</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">protocol</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="s2">&quot;pserver&quot;</span>
+    
+    <span class="c1"># Construct the line to display</span>
+    <span class="k">if</span> <span class="s2">&quot;protocol&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="p">:</span>
+        <span class="n">cvs_line</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> 
+             <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">product_base</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cvs_line</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> / </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> 
+                                <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">product_base</span><span class="p">)</span>
+
+    <span class="n">coflag</span> <span class="o">=</span> <span class="s1">&#39;cvs&#39;</span>
+    <span class="k">if</span> <span class="n">checkout</span><span class="p">:</span> <span class="n">coflag</span> <span class="o">=</span> <span class="n">coflag</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">coflag</span><span class="p">,</span> <span class="n">cvs_line</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">pad</span> <span class="o">+</span> <span class="mi">50</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">cvs_line</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; src:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">source</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">source</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; tag:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">tag</span>
+                 
+    <span class="c1"># at least one &#39;.&#39; is visible</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">. &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">tag</span><span class="p">)))</span>
+                 
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Call the system function that do the extraction in cvs mode</span>
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">SYSS</span><span class="o">.</span><span class="n">cvs_extract</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span>
+                                 <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">server</span><span class="p">,</span>
+                                 <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">product_base</span><span class="p">,</span>
+                                 <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+                                 <span class="n">product_info</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+                                 <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">checkout</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">retcode</span></div>
+
+<div class="viewcode-block" id="get_source_from_svn"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_svn">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_svn</span><span class="p">(</span><span class="n">user</span><span class="p">,</span>
+                        <span class="n">product_info</span><span class="p">,</span>
+                        <span class="n">source_dir</span><span class="p">,</span>
+                        <span class="n">checkout</span><span class="p">,</span>
+                        <span class="n">logger</span><span class="p">,</span>
+                        <span class="n">environ</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The method called if the product is to be get in svn mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param user: (str) The user to use in for the svn command</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param source_dir: (Path)</span>
+<span class="sd">      The Path instance corresponding to the directory </span>
+<span class="sd">      where to put the sources</span>
+<span class="sd">    :param checkout: (boolean) </span>
+<span class="sd">      If True, get the source in checkout mode</span>
+<span class="sd">    :param logger: (Logger)</span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param environ: (src.environment.Environ)</span>
+<span class="sd">      The environment to source when extracting.</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coflag</span> <span class="o">=</span> <span class="s1">&#39;svn&#39;</span>
+    <span class="k">if</span> <span class="n">checkout</span><span class="p">:</span> <span class="n">coflag</span> <span class="o">=</span> <span class="n">coflag</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1"> ... &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">coflag</span><span class="p">,</span> <span class="n">product_info</span><span class="o">.</span><span class="n">svn_info</span><span class="o">.</span><span class="n">repo</span><span class="p">))</span>
+
+    <span class="c1"># Call the system function that do the extraction in svn mode</span>
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">SYSS</span><span class="o">.</span><span class="n">svn_extract</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> 
+                               <span class="n">product_info</span><span class="o">.</span><span class="n">svn_info</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> 
+                               <span class="n">product_info</span><span class="o">.</span><span class="n">svn_info</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+                               <span class="n">source_dir</span><span class="p">,</span> 
+                               <span class="n">logger</span><span class="p">,</span> 
+                               <span class="n">checkout</span><span class="p">,</span>
+                               <span class="n">environ</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">retcode</span></div>
+
+<div class="viewcode-block" id="get_product_sources"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_product_sources">[docs]</a><span class="k">def</span> <span class="nf">get_product_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> 
+                       <span class="n">product_info</span><span class="p">,</span> 
+                       <span class="n">is_dev</span><span class="p">,</span> 
+                       <span class="n">source_dir</span><span class="p">,</span>
+                       <span class="n">logger</span><span class="p">,</span> 
+                       <span class="n">pad</span><span class="p">,</span> 
+                       <span class="n">checkout</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the product sources.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param is_dev: (bool) True if the product is in development mode</span>
+<span class="sd">    :param source_dir: (Path) </span>
+<span class="sd">      The Path instance corresponding to the directory </span>
+<span class="sd">      where to put the sources</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param pad: (int) The gap to apply for the terminal display</span>
+<span class="sd">    :param checkout: (bool) If True, get the source in checkout mode</span>
+<span class="sd">    :return: (bool) True if it succeed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get the application environment</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Set the application environment</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="n">env_appli</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                      <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)))</span>
+    <span class="n">env_appli</span><span class="o">.</span><span class="n">set_application_env</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+    
+    <span class="c1"># Call the right function to get sources regarding the product settings</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">checkout</span> <span class="ow">and</span> <span class="n">is_dev</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_source_for_dev</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> 
+                                   <span class="n">product_info</span><span class="p">,</span> 
+                                   <span class="n">source_dir</span><span class="p">,</span> 
+                                   <span class="n">logger</span><span class="p">,</span> 
+                                   <span class="n">pad</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;git&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_source_from_git</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> 
+                                    <span class="n">is_dev</span><span class="p">,</span><span class="n">env_appli</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;archive&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_source_from_archive</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;dir&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_source_from_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;cvs&quot;</span><span class="p">:</span>
+        <span class="n">cvs_user</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">cvs_user</span>
+        <span class="k">return</span> <span class="n">get_source_from_cvs</span><span class="p">(</span><span class="n">cvs_user</span><span class="p">,</span> 
+                                    <span class="n">product_info</span><span class="p">,</span> 
+                                    <span class="n">source_dir</span><span class="p">,</span> 
+                                    <span class="n">checkout</span><span class="p">,</span> 
+                                    <span class="n">logger</span><span class="p">,</span>
+                                    <span class="n">pad</span><span class="p">,</span>
+                                    <span class="n">env_appli</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;svn&quot;</span><span class="p">:</span>
+        <span class="n">svn_user</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">svn_user</span>
+        <span class="k">return</span> <span class="n">get_source_from_svn</span><span class="p">(</span><span class="n">svn_user</span><span class="p">,</span> <span class="n">product_info</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> 
+                                    <span class="n">checkout</span><span class="p">,</span>
+                                    <span class="n">logger</span><span class="p">,</span>
+                                    <span class="n">env_appli</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;native&quot;</span><span class="p">:</span>
+        <span class="c1"># skip</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&lt;OK&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">do nothing because the product is of type &#39;native&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>        
+
+    <span class="k">if</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="o">==</span> <span class="s2">&quot;fixed&quot;</span><span class="p">:</span>
+        <span class="c1"># skip</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&lt;OK&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">do nothing because the product is of type &#39;fixed&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>  
+
+    <span class="c1"># if the get_source is not in [git, archive, cvs, svn, fixed, native]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unknown get source method &#39;</span><span class="si">%s</span><span class="s2">&#39; for product </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                 <span class="p">(</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span><span class="p">,</span> <span class="n">product_info</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> ... &quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="get_all_product_sources"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_all_product_sources">[docs]</a><span class="k">def</span> <span class="nf">get_all_product_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">products</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get all the product sources.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param products: (list) </span>
+<span class="sd">      The list of tuples (product name, product informations)</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to be used for the logging</span>
+<span class="sd">    :return: (int,dict) </span>
+<span class="sd">      The tuple (number of success, dictionary product_name/success_fail)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Initialize the variables that will count the fails and success</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">good_result</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Get the maximum name length in order to format the terminal display</span>
+    <span class="n">max_product_name_len</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">products</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">max_product_name_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">products</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">4</span>
+    
+    <span class="c1"># The loop on all the products from which to get the sources</span>
+    <span class="k">for</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products</span><span class="p">:</span>
+        <span class="c1"># get product name, product informations and the directory where to put</span>
+        <span class="c1"># the sources</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+                 <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">))):</span>
+            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># display and log</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">product_name</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_product_name_len</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_name</span><span class="p">)))</span>
+        
+        <span class="c1"># Remove the existing source directory if </span>
+        <span class="c1"># the product is not in development mode</span>
+        <span class="n">is_dev</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">source_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Nothing done because source directory existing yet.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">good_result</span> <span class="o">=</span> <span class="n">good_result</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># Do not get the sources and go to next product</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Call to the function that get the sources for one product</span>
+        <span class="n">retcode</span> <span class="o">=</span> <span class="n">get_product_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> 
+                                     <span class="n">product_info</span><span class="p">,</span> 
+                                     <span class="n">is_dev</span><span class="p">,</span> 
+                                     <span class="n">source_dir</span><span class="p">,</span>
+                                     <span class="n">logger</span><span class="p">,</span> 
+                                     <span class="n">max_product_name_len</span><span class="p">,</span> 
+                                     <span class="n">checkout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if &#39;no_rpath&#39; in product_info.keys():</span>
+<span class="sd">            if product_info.no_rpath:</span>
+<span class="sd">                hack_no_rpath(config, product_info, logger)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Check that the sources are correctly get using the files to be tested</span>
+        <span class="c1"># in product information</span>
+        <span class="k">if</span> <span class="n">retcode</span><span class="p">:</span>
+            <span class="n">check_OK</span><span class="p">,</span> <span class="n">wrong_path</span> <span class="o">=</span> <span class="n">check_sources</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_OK</span><span class="p">:</span>
+                <span class="c1"># Print the missing file path</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The required file </span><span class="si">%s</span><span class="s2"> does not exists.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">wrong_path</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">retcode</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># show results</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">product_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">retcode</span>
+        <span class="k">if</span> <span class="n">retcode</span><span class="p">:</span>
+            <span class="c1"># The case where it succeed</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;OK&gt;&quot;</span>
+            <span class="n">good_result</span> <span class="o">=</span> <span class="n">good_result</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># The case where it failed</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;KO&gt;&quot;</span>
+        
+        <span class="c1"># print the result</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+               <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">res</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">good_result</span><span class="p">,</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="check_sources"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.check_sources">[docs]</a><span class="k">def</span> <span class="nf">check_sources</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check that the sources are correctly get, </span>
+<span class="sd">    using the files to be tested in product information</span>
+<span class="sd">    </span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product to be prepared</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to be used for the logging</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the files exists (or no files to test is provided).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the files to test if there is any</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;present_files&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span> 
+        <span class="s2">&quot;source&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">present_files</span><span class="p">):</span>
+        <span class="n">l_files_to_be_tested</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">present_files</span><span class="o">.</span><span class="n">source</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># all ok a priori</span>
+        <span class="n">filesKo</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># None</span>
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">l_files_to_be_tested</span><span class="p">:</span>
+            <span class="c1"># add source directory of the product</span>
+            <span class="n">path_to_test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> testing existence:&quot;</span> <span class="o">%</span> <span class="n">path_to_test</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_to_test</span><span class="p">):</span>
+              <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt;KO&gt;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+              <span class="n">res</span> <span class="o">=</span> <span class="kc">False</span>
+              <span class="c1"># return False, path_to_test #break at first</span>
+              <span class="n">filesKo</span> <span class="o">+=</span> <span class="n">path_to_test</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="c1"># check all              </span>
+            <span class="k">else</span><span class="p">:</span>
+              <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">filesKo</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

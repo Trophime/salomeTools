@@ -41,11 +41,11 @@ except NameError:
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The template command creates the sources for a SALOME module from a template.
 
   examples:
-    >> sat template --name my_product_name --template PythonComponent --target /tmp
+  >> sat template --name my_product_name --template PythonComponent --target /tmp
   """
   
   name = "template"
@@ -359,7 +359,7 @@ def prepare_from_template(config,
     tsettings = TemplateSettings(compo_name, settings_file, target_dir)
 
     # first rename the files
-    logger.debug(UTS.label(_("Rename files\n"))
+    logger.debug(UTS.label(_("Rename files\n")))
     for root, dirs, files in os.walk(target_dir):
         for fic in files:
             ff = fic.replace(tsettings.file_subst, compo_name)
@@ -462,7 +462,7 @@ def get_template_info(config, template_name, logger):
 
     msg += "\n= Configuration\n"
     msg += "  file substitution key = %s\n" % tsettings.file_subst
-    msg += "  substitution key = '%s'\n" % tsettings.delimiter_char)
+    msg += "  substitution key = '%s'\n" % tsettings.delimiter_char
     if len(tsettings.ignore_filters) > 0:
         msg += " Ignore Filter = %s\n" % ', '.join(tsettings.ignore_filters)
 
@@ -483,7 +483,7 @@ def get_template_info(config, template_name, logger):
     retcode = 0
     
     msg = skip
-    msg += "= Verification\n",)
+    msg += "= Verification\n"
     if tsettings.file_subst not in pnames:
         msg += "file substitution key not defined as a parameter: %s\n" % \
                 tsettings.file_subst

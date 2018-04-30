@@ -93,17 +93,16 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The package command creates an archive.
   There are 4 kinds of archive, which can be mixed:
-    1- The binary archive. It contains all the product installation directories and a launcher.
-    2- The sources archive. It contains the products archives, 
-       a project corresponding to the application and salomeTools.
-    3- The project archive. It contains a project (give the project file path as argument).
-    4- The salomeTools archive. It contains salomeTools.
+  1- The binary archive. It contains all the product installation directories and a launcher.
+  2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
+  3- The project archive. It contains a project (give the project file path as argument).
+  4- The salomeTools archive. It contains salomeTools.
   
   examples:
-    >> sat package SALOME --binaries --sources
+  >> sat package SALOME --binaries --sources
   """
   
   name = "package"
@@ -253,7 +252,7 @@ check if at least one of the following options was selected:
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
     
-    logger.info("  Package path = %s\n" UTS.blue(path_targz))
+    logger.info("  Package path = %s\n" % UTS.blue(path_targz))
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
@@ -345,7 +344,7 @@ check if at least one of the following options was selected:
         tar.close()
         
     except KeyboardInterrupt:
-        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n"))
+        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n")))
         logger.info(_("Removing the temporary working directory ... "))
         # remove the working directory
         shutil.rmtree(tmp_working_dir)
@@ -356,26 +355,24 @@ check if at least one of the following options was selected:
     shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package
-    logger.info("  Package path = %s\n" UTS.blue(path_targz))
+    logger.info("  Package path = %s\n" % UTS.blue(path_targz))
     
     return res
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
-    """\
+    """
     Create an archive containing all directories and files that are given 
     in the d_content argument.
     
-    :param tar tarfile: The tarfile instance used to make the archive.
-    :param name_archive str: The name of the archive to make.
-    :param d_content dict: The dictionary that contain all directories and files
-                           to add in the archive.
-                           d_content[label] = 
-                                        (path_on_local_machine, path_in_archive)
-    :param logger Logger: the logging instance
-    :param f_exclude Function: the function that filters
-    :return: 0 if success, 1 if not.
-    :rtype: int
+    :param tar: (tarfile) The tarfile instance used to make the archive.
+    :param name_archive: (str) The name of the archive to make.
+    :param d_content: (dict) 
+      The dictionary that contain all directories and files to add in the archive.
+      d_content[label] = (path_on_local_machine, path_in_archive)
+    :param logger: (Logger) the logging instance
+    :param f_exclude: (function) the function that filters
+    :return: (int) 0 if success, 1 if not.
     """
     # get the max length of the messages in order to make the display
     max_len = len(max(d_content.keys(), key=len))
@@ -395,18 +392,17 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
             tar.add(local_path, arcname=in_archive, exclude=f_exclude)
             logger.info("<OK>\n")
         except Exception as e:
-            logger.info("<KO> %s\n" str(e))
+            logger.info("<KO> %s\n" % str(e))
             success = 1
     return success
 
 def exclude_VCS_and_extensions(filename):
-    """\
+    """
     The function that is used to exclude from package the link to the 
     VCS repositories (like .git)
 
-    :param filename Str: The filname to exclude (or not).
-    :return: True if the file has to be exclude
-    :rtype: Boolean
+    :param filename: (str) The filname to exclude (or not).
+    :return: (bool) True if the file has to be exclude
     """
     for dir_name in IGNORED_DIRS:
         if dir_name in filename:
@@ -422,18 +418,18 @@ def produce_relative_launcher(config,
                               file_name,
                               binaries_dir_name,
                               with_commercial=True):
-    '''Create a specific SALOME launcher for the binary package. This launcher 
-       uses relative paths.
+    """
+    Create a specific SALOME launcher for the binary package.
+    This launcher uses relative paths.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param file_dir str: the directory where to put the launcher
-    :param file_name str: The launcher name
-    :param binaries_dir_name str: the name of the repository where the binaries
-                                  are, in the archive.
-    :return: the path of the produced launcher
-    :rtype: str
-    '''
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the launcher
+    :param file_name: (str) The launcher name
+    :param binaries_dir_name: (str) 
+      the name of the repository where the binaries are, in the archive.
+    :return: (str) the path of the produced launcher
+    """
     
     # get KERNEL installation path 
     kernel_root_dir = os.path.join(binaries_dir_name, "KERNEL")
@@ -495,10 +491,10 @@ def produce_relative_launcher(config,
     return filepath
 
 def hack_for_distene_licence(filepath):
-    '''Replace the distene licence env variable by a call to a file.
+    """Replace the distene licence env variable by a call to a file.
     
-    :param filepath Str: The path to the launcher to modify.
-    '''  
+    :param filepath: (str) The path to the launcher to modify.
+    """  
     shutil.move(filepath, filepath + "_old")
     fileout= filepath
     filein = filepath + "_old"
@@ -521,12 +517,12 @@ def hack_for_distene_licence(filepath):
     del text[num_line +1]
     del text[num_line +1]
     text_to_insert ="""\
-    import imp
-    try:
-        distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
-        distene.set_distene_variables(context)
-    except:
-        pass
+import imp
+try:
+  distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
+  distene.set_distene_variables(context)
+except:
+  pass
 """
     text.insert(num_line + 1, text_to_insert)
     for line in text:
@@ -539,17 +535,17 @@ def produce_relative_env_files(config,
                               logger,
                               file_dir,
                               binaries_dir_name):
-    '''Create some specific environment files for the binary package. These 
-       files use relative paths.
+    """
+    Create some specific environment files for the binary package.
+    These files use relative paths.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param file_dir str: the directory where to put the files
-    :param binaries_dir_name str: the name of the repository where the binaries
-                                  are, in the archive.
-    :return: the list of path of the produced environment files
-    :rtype: List
-    '''  
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the files
+    :param binaries_dir_name: (str) 
+      The name of the repository where the binaries are, in the archive.
+    :return: (list) The list of path of the produced environment files
+    """  
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
                                            logger,
@@ -582,17 +578,18 @@ def produce_install_bin_file(config,
                              file_dir,
                              d_sub,
                              file_name):
-    '''Create a bash shell script which do substitutions in BIRARIES dir 
-       in order to use it for extra compilations.
+    """
+    Create a bash shell script which do substitutions in BIRARIES dir 
+    in order to use it for extra compilations.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param file_dir str: the directory where to put the files
-    :param d_sub, dict: the dictionnary that contains the substitutions to be done
-    :param file_name str: the name of the install script file
-    :return: the produced file
-    :rtype: str
-    '''  
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the files
+    :param d_sub: (dict) 
+      the dictionnary that contains the substitutions to be done
+    :param file_name: (str) the name of the install script file
+    :return: (str) the produced file
+    """  
     # Write
     filepath = os.path.join(file_dir, file_name)
     # open the file and write into it
@@ -635,17 +632,17 @@ def product_appli_creation_script(config,
                                   logger,
                                   file_dir,
                                   binaries_dir_name):
-    '''Create a script that can produce an application (EDF style) in the binary
-       package.
+    """
+    Create a script that can produce an application (EDF style) 
+    in the binary package.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param file_dir str: the directory where to put the file
-    :param binaries_dir_name str: the name of the repository where the binaries
-                                  are, in the archive.
-    :return: the path of the produced script file
-    :rtype: Str
-    '''
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param file_dir: (str) the directory where to put the file
+    :param binaries_dir_name: (str) 
+      The name of the repository where the binaries are, in the archive.
+    :return: (str) The path of the produced script file
+    """
     template_name = "create_appli.py.for_bin_packages.template"
     template_path = os.path.join(config.VARS.internal_dir, template_name)
     text_to_fill = open(template_path, "r").read()
@@ -697,20 +694,21 @@ def product_appli_creation_script(config,
     return tmp_file_path
 
 def binary_package(config, logger, options, tmp_working_dir):
-    '''Prepare a dictionary that stores all the needed directories and files to
-       add in a binary package.
+    """
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a binary package.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param options OptResult: the options of the launched command
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                binary package
-    :return: the dictionary that stores all the needed directories and files to
-             add in a binary package.
-             {label : (path_on_local_machine, path_in_archive)}
-    :rtype: dict
-    '''
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param options: (OptResult) the options of the launched command
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the binary package
+    :return: (dict) 
+      The dictionary that stores all the needed directories and files 
+      to add in a binary package.
+      {label : (path_on_local_machine, path_in_archive)}
+    """
 
     # Get the list of product installation to add to the archive
     l_products_name = config.APPLICATION.products.keys()
@@ -759,7 +757,7 @@ def binary_package(config, logger, options, tmp_working_dir):
             text_missing_prods += "-" + p_name + "\n"
         
         msg = _("There are missing products installations:\n")
-        logger.warning(msg + text_missing_prods))
+        logger.warning(msg + text_missing_prods)
         if not options.force_creation:
             return None
 
@@ -828,20 +826,21 @@ def binary_package(config, logger, options, tmp_working_dir):
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):
-    '''Prepare a dictionary that stores all the needed directories and files to
-       add in a source package.
+    """
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a source package.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param options OptResult: the options of the launched command
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                binary package
-    :return: the dictionary that stores all the needed directories and files to
-             add in a source package.
-             {label : (path_on_local_machine, path_in_archive)}
-    :rtype: dict
-    '''
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) the logging instance
+    :param options: (OptResult) the options of the launched command
+    :param tmp_working_dir: (str)
+      The temporary local directory containing some specific directories
+      or files needed in the binary package
+    :return: (dict)
+      the dictionary that stores all the needed directories and files
+      to add in a source package.
+      {label : (path_on_local_machine, path_in_archive)}
+    """
     
     # Get all the products that are prepared using an archive
     logger.info("Find archive products ... ")
@@ -888,17 +887,17 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     return d_source
 
 def get_archives(config, logger):
-    '''Find all the products that are get using an archive and all the products
-       that are get using a vcs (git, cvs, svn) repository.
+    """
+    Find all the products from an archive and all the products
+    from a VCS (git, cvs, svn) repository.
     
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :return: the dictionary {name_product : 
-             (local path of its archive, path in the package of its archive )}
-             and the list of specific configuration corresponding to the vcs 
-             products
-    :rtype: (Dict, List)
-    '''
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) The logging instance
+    :return: (Dict, List)
+      The dictionary 
+      {name_product : (local path of its archive, path in the package of its archive )}
+      and the list of specific configuration corresponding to the vcs products
+    """
     # Get the list of product informations
     l_products_name = config.APPLICATION.products.keys()
     l_product_info = src.product.get_products_infos(l_products_name,
@@ -921,16 +920,17 @@ def get_archives(config, logger):
     return d_archives, l_pinfo_vcs
 
 def add_salomeTools(config, tmp_working_dir):
-    '''Prepare a version of salomeTools that has a specific local.pyconf file 
-       configured for a source package.
+    """
+    Prepare a version of salomeTools that has a specific local.pyconf file 
+    configured for a source package.
 
-    :param config Config: The global configuration.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                source package
-    :return: The path to the local salomeTools directory to add in the package
-    :rtype: str
-    '''
+    :param config: (Config) The global configuration.
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :return: (str) 
+      The path to the local salomeTools directory to add in the package
+    """
     # Copy sat in the temporary working directory
     sat_tmp_path = src.Path(os.path.join(tmp_working_dir, "salomeTools"))
     sat_running_path = src.Path(config.VARS.salometoolsway)
@@ -958,24 +958,25 @@ def add_salomeTools(config, tmp_working_dir):
     return sat_tmp_path.path
 
 def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
-    '''For sources package that require that all products are get using an 
-       archive, one has to create some archive for the vcs products.
-       So this method calls the clean and source command of sat and then create
-       the archives.
+    """
+    For sources package that require that all products from an archive, 
+    one has to create some archive for the vcs products.
+    So this method calls the clean and source command of sat 
+    and then create the archives.
 
-    :param l_pinfo_vcs List: The list of specific configuration corresponding to
-                             each vcs product
-    :param sat Sat: The Sat instance that can be called to clean and source the
-                    products
-    :param config Config: The global configuration.
-    :param logger Logger: the logging instance
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                source package
-    :return: the dictionary that stores all the archives to add in the source 
-             package. {label : (path_on_local_machine, path_in_archive)}
-    :rtype: dict
-    '''
+    :param l_pinfo_vcs: (list) 
+      The list of specific configuration corresponding to each vcs product
+    :param sat: (Sat) 
+      The Sat instance that can be called to clean and source the products
+    :param config: (Config) The global configuration.
+    :param logger: (Logger) The logging instance
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :return: (dict) 
+      The dictionary that stores all the archives to add in the sourcepackage.
+      {label : (path_on_local_machine, path_in_archive)}
+    """
     # clean the source directory of all the vcs products, then use the source 
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
@@ -1001,16 +1002,15 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
     return d_archives_vcs
 
 def make_archive(prod_name, prod_info, where):
-    '''Create an archive of a product by searching its source directory.
+    """Create an archive of a product by searching its source directory.
 
-    :param prod_name str: The name of the product.
-    :param prod_info Config: The specific configuration corresponding to the 
-                             product
-    :param where str: The path of the repository where to put the resulting 
-                      archive
-    :return: The path of the resulting archive
-    :rtype: str
-    '''
+    :param prod_name: (str) The name of the product.
+    :param prod_info: (Config)
+      The specific configuration corresponding to the product
+    :param where: (str) 
+      The path of the repository where to put the resulting archive
+    :return: (str) The path of the resulting archive
+    """
     path_targz_prod = os.path.join(where, prod_name + ".tgz")
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
@@ -1021,18 +1021,19 @@ def make_archive(prod_name, prod_info, where):
     return path_targz_prod       
 
 def create_project_for_src_package(config, tmp_working_dir, with_vcs):
-    '''Create a specific project for a source package.
+    """Create a specific project for a source package.
 
-    :param config Config: The global configuration.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                source package
-    :param with_vcs boolean: True if the package is with vcs products (not 
-                             transformed into archive products)
-    :return: The dictionary 
-             {"project" : (produced project, project path in the archive)}
-    :rtype: Dict
-    '''
+    :param config: (Config) The global configuration.
+    :param tmp_working_dir: (str)
+      The temporary local directory containing some specific directories
+      or files needed in the source package
+    :param with_vcs: (bool) 
+      True if the package is with vcs products 
+      (not transformed into archive products)
+    :return: (dict)
+      The dictionary 
+      {"project" : (produced project, project path in the archive)}
+    """
 
     # Create in the working temporary directory the full project tree
     project_tmp_dir = os.path.join(tmp_working_dir, PROJECT_DIR)
@@ -1091,26 +1092,28 @@ def find_product_scripts_and_pyconf(p_name,
                                     env_scripts_tmp_dir,
                                     patches_tmp_dir,
                                     products_pyconf_tmp_dir):
-    '''Create a specific pyconf file for a given product. Get its environment 
-       script, its compilation script and patches and put it in the temporary
-       working directory. This method is used in the source package in order to
-       construct the specific project.
+    """
+    Create a specific pyconf file for a given product. 
+    Get its environment script, its compilation script 
+    and patches and put it in the temporary working directory. 
+    This method is used in the source package in order to
+    construct the specific project.
 
-    :param p_name str: The name of the product.
-    :param p_info Config: The specific configuration corresponding to the 
-                             product
-    :param config Config: The global configuration.
-    :param with_vcs boolean: True if the package is with vcs products (not 
-                             transformed into archive products)
-    :param compil_scripts_tmp_dir str: The path to the temporary compilation 
-                                       scripts directory of the project.
-    :param env_scripts_tmp_dir str: The path to the temporary environment script 
-                                    directory of the project.
-    :param patches_tmp_dir str: The path to the temporary patch scripts 
-                                directory of the project.
-    :param products_pyconf_tmp_dir str: The path to the temporary product 
-                                        scripts directory of the project.
-    '''
+    :param p_name: (str) The name of the product.
+    :param p_info: (Config) The specific configuration corresponding to the product
+    :param config: (Config) The global configuration.
+    :param with_vcs: (bool) 
+      True if the package is with vcs products 
+      (not transformed into archive products)
+    :param compil_scripts_tmp_dir: (str) 
+      The path to the temporary compilation scripts directory of the project.
+    :param env_scripts_tmp_dir: (str) 
+      The path to the temporary environment script directory of the project.
+    :param patches_tmp_dir: (str) 
+      The path to the temporary patch scripts directory of the project.
+    :param products_pyconf_tmp_dir: (str) 
+      The path to the temporary product scripts directory of the project.
+    """
     
     # read the pyconf of the product
     product_pyconf_path = UTS.find_file_in_lpath(p_name + ".pyconf",
@@ -1166,13 +1169,14 @@ def find_product_scripts_and_pyconf(p_name,
     ff.close()
 
 def find_application_pyconf(config, application_tmp_dir):
-    '''Find the application pyconf file and put it in the specific temporary 
-       directory containing the specific project of a source package.
+    """
+    Find the application pyconf file and put it in the specific temporary 
+    directory containing the specific project of a source package.
 
-    :param config Config: The global configuration.
-    :param application_tmp_dir str: The path to the temporary application 
-                                       scripts directory of the project.
-    '''
+    :param config: 'Config) The global configuration.
+    :param application_tmp_dir: (str) 
+      The path to the temporary application scripts directory of the project.
+    """
     # read the pyconf of the application
     application_name = config.VARS.application
     application_pyconf_path = UTS.find_file_in_lpath(
@@ -1198,18 +1202,19 @@ def find_application_pyconf(config, application_tmp_dir):
     ff.close()
 
 def project_package(project_file_path, tmp_working_dir):
-    '''Prepare a dictionary that stores all the needed directories and files to
-       add in a project package.
+    """
+    Prepare a dictionary that stores all the needed directories and files 
+    to add in a project package.
     
-    :param project_file_path str: The path to the local project.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
-                                project package
-    :return: the dictionary that stores all the needed directories and files to
-             add in a project package.
-             {label : (path_on_local_machine, path_in_archive)}
-    :rtype: dict
-    '''
+    :param project_file_path: (str) The path to the local project.
+    :param tmp_working_dir: (str) 
+      The temporary local directory containing some specific directories
+      or files needed in the project package
+    :return: (dict)
+      The dictionary that stores all the needed directories and files
+      to add in a project package.
+      {label : (path_on_local_machine, path_in_archive)}
+    """
     d_project = {}
     # Read the project file and get the directories to add to the package
     project_pyconf_cfg = PYCONF.Config(project_file_path)
@@ -1341,12 +1346,14 @@ The procedure to do it is:
     return readme_path
 
 def update_config(config, prop, value):
-    '''Remove from config.APPLICATION.products the products that have the property given as input.
+    """
+    Remove from config.APPLICATION.products the products 
+    that have the property given as input.
     
-    :param config Config: The global config.
-    :param prop str: The property to filter
-    :param value str: The value of the property to filter
-    '''
+    :param config: (Config) The global config.
+    :param prop: (str) The property to filter
+    :param value: (str) The value of the property to filter
+    """
     src.check_config_has_application(config)
     l_product_to_remove = []
     for product_name in config.APPLICATION.products.keys():

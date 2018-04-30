@@ -79,8 +79,9 @@
                       <span class="s2">&quot;LIBS&quot;</span><span class="p">,</span>
                       <span class="s2">&quot;LDFLAGS&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Builder"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder">[docs]</a><span class="k">class</span> <span class="nc">Builder</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class to handle all construction steps, like cmake, configure, make, ...</span>
+<div class="viewcode-block" id="Builder"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder">[docs]</a><span class="k">class</span> <span class="nc">Builder</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to handle all construction steps, like cmake, configure, make, ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">config</span><span class="p">,</span>
@@ -100,17 +101,17 @@
         <span class="k">if</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">debug</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">debug_mode</span> <span class="o">=</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="Builder.log"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">showInfo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.log"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">showInfo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Shortcut method to log in log file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">logTxtFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">cleancolor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Builder.log_command"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.log_command">[docs]</a>    <span class="k">def</span> <span class="nf">log_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.log_command"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.log_command">[docs]</a>    <span class="k">def</span> <span class="nf">log_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Shortcut method to log a command.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;&gt; </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">command</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Builder.prepare"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
+<div class="viewcode-block" id="Builder.prepare"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepares the environment.</span>
 <span class="sd">        Build two environment: one for building and one for testing (launch).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -151,7 +152,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs cmake with the given options.</span>
-<div class="viewcode-block" id="Builder.cmake"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.cmake">[docs]</a>    <span class="k">def</span> <span class="nf">cmake</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.cmake"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.cmake">[docs]</a>    <span class="k">def</span> <span class="nf">cmake</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 
         <span class="n">cmake_option</span> <span class="o">=</span> <span class="n">options</span>
         <span class="c1"># cmake_option +=&#39; -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON&#39;</span>
@@ -192,7 +193,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs build_configure with the given options.</span>
-<div class="viewcode-block" id="Builder.build_configure"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.build_configure">[docs]</a>    <span class="k">def</span> <span class="nf">build_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.build_configure"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.build_configure">[docs]</a>    <span class="k">def</span> <span class="nf">build_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="s1">&#39;buildconfigure_options&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">:</span>
             <span class="n">options</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">buildconfigure_options</span>
@@ -215,7 +216,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs configure with the given options.</span>
-<div class="viewcode-block" id="Builder.configure"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.configure"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="s1">&#39;configure_options&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">:</span>
             <span class="n">options</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">configure_options</span>
@@ -239,7 +240,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="Builder.hack_libtool"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.hack_libtool">[docs]</a>    <span class="k">def</span> <span class="nf">hack_libtool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.hack_libtool"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.hack_libtool">[docs]</a>    <span class="k">def</span> <span class="nf">hack_libtool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">+</span> <span class="s1">&#39;libtool&#39;</span><span class="p">)):</span>
             <span class="k">return</span>
 
@@ -271,7 +272,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs make to build the module.</span>
-<div class="viewcode-block" id="Builder.make"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.make">[docs]</a>    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">,</span> <span class="n">make_opt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.make"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.make">[docs]</a>    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">,</span> <span class="n">make_opt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 
         <span class="c1"># make</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s1">&#39;make&#39;</span>
@@ -292,7 +293,7 @@
     
     <span class="c1">##</span>
     <span class="c1"># Runs msbuild to build the module.</span>
-<div class="viewcode-block" id="Builder.wmake"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.wmake">[docs]</a>    <span class="k">def</span> <span class="nf">wmake</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_proc</span><span class="p">,</span> <span class="n">opt_nb_proc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.wmake"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.wmake">[docs]</a>    <span class="k">def</span> <span class="nf">wmake</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_proc</span><span class="p">,</span> <span class="n">opt_nb_proc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 
         <span class="n">hh</span> <span class="o">=</span> <span class="s1">&#39;MSBUILD /m:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">nb_proc</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_mode</span><span class="p">:</span>
@@ -322,7 +323,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs &#39;make install&#39;.</span>
-<div class="viewcode-block" id="Builder.install"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.install">[docs]</a>    <span class="k">def</span> <span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.install"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.install">[docs]</a>    <span class="k">def</span> <span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">dist_name</span><span class="o">==</span><span class="s2">&quot;Win&quot;</span><span class="p">:</span>
             <span class="n">command</span> <span class="o">=</span> <span class="s1">&#39;msbuild INSTALL.vcxproj&#39;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_mode</span><span class="p">:</span>
@@ -349,7 +350,7 @@
 
     <span class="c1">##</span>
     <span class="c1"># Runs &#39;make_check&#39;.</span>
-<div class="viewcode-block" id="Builder.check"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.check"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;msbuild RUN_TESTS.vcxproj&#39;</span>
         <span class="k">else</span> <span class="p">:</span>
@@ -377,7 +378,7 @@
       
     <span class="c1">##</span>
     <span class="c1"># Performs a default build for this module.</span>
-<div class="viewcode-block" id="Builder.do_default_build"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.do_default_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_default_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Builder.do_default_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_default_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_default_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                          <span class="n">build_conf_options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                          <span class="n">configure_options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                          <span class="n">show_warning</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -436,7 +437,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Builder.do_python_script_build"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.do_python_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_python_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.do_python_script_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_python_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_python_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Performs a build with a script.&quot;&quot;&quot;</span>
         <span class="c1"># script found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Compile </span><span class="si">%s</span><span class="s2"> using script </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
@@ -458,7 +459,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">put_txt_log_in_appli_log_dir</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">retcode</span></div>
 
-<div class="viewcode-block" id="Builder.complete_environment"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.complete_environment">[docs]</a>    <span class="k">def</span> <span class="nf">complete_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">make_options</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.complete_environment"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.complete_environment">[docs]</a>    <span class="k">def</span> <span class="nf">complete_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">make_options</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="c1"># pass additional variables to environment </span>
         <span class="c1"># (may be used by the build script)</span>
@@ -473,7 +474,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;DIST&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">dist</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;VERSION&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Builder.do_batch_script_build"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.do_batch_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_batch_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.do_batch_script_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_batch_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_batch_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
             <span class="n">make_options</span> <span class="o">=</span> <span class="s2">&quot;/maxcpucount:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nb_proc</span>
@@ -496,7 +497,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span></div>
     
-<div class="viewcode-block" id="Builder.do_script_build"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.do_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">number_of_proc</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Builder.do_script_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">number_of_proc</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># define make options (may not be used by the script)</span>
         <span class="k">if</span> <span class="n">number_of_proc</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
             <span class="n">nb_proc</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">,</span><span class="s2">&quot;nb_proc&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -514,17 +515,16 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The script </span><span class="si">%s</span><span class="s2"> must have .sh, .bat or .py extension.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">script</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Builder.put_txt_log_in_appli_log_dir"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.compilation.Builder.put_txt_log_in_appli_log_dir">[docs]</a>    <span class="k">def</span> <span class="nf">put_txt_log_in_appli_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Put the txt log (that contain the system logs, like make command</span>
-<span class="sd">           output) in the directory &lt;APPLICATION DIR&gt;/LOGS/&lt;product_name&gt;/</span>
+<div class="viewcode-block" id="Builder.put_txt_log_in_appli_log_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.put_txt_log_in_appli_log_dir">[docs]</a>    <span class="k">def</span> <span class="nf">put_txt_log_in_appli_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put the txt log (that contain the system logs, like make command output)</span>
+<span class="sd">        in the directory &lt;APPLICATION DIR&gt;/LOGS/&lt;product_name&gt;/</span>
 <span class="sd">    </span>
-<span class="sd">        :param file_name Str: the name of the file to write</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param file_name: (str) The name of the file to write</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">logTxtFile</span> <span class="o">==</span> <span class="n">sys</span><span class="o">.</span><span class="n">__stdout__</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">dir_where_to_put</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span>
-                                        <span class="s2">&quot;LOGS&quot;</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">dir_where_to_put</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;LOGS&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_where_to_put</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
         <span class="n">UTS</span><span class="o">.</span><span class="n">ensure_path_exists</span><span class="p">(</span><span class="n">dir_where_to_put</span><span class="p">)</span>
         <span class="c1"># write the logTxtFile copy it to the destination, and then recreate </span>

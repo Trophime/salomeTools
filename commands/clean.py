@@ -36,14 +36,14 @@ PROPERTY_EXPRESSION = "^.+:.+$"
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The clean command suppresses the source, build, or install directories 
   of the application products.
   Use the options to define what directories you want to suppress and 
   to reduce the list of products
 
   examples:
-    >> sat clean SALOME --build --install --properties is_salome_module:yes
+  >> sat clean SALOME --build --install --properties is_salome_module:yes
   """
   
   name = "clean"
@@ -149,16 +149,16 @@ The '--properties' options must have the following syntax:
     
 
 def get_source_directories(products_infos, without_dev):
-    '''Returns the list of directory source paths corresponding to the list of 
-       product information given as input. If without_dev (bool), then
-       the dev products are ignored.
+    """
+    Returns the list of directory source paths corresponding to the list of 
+    product information given as input. If without_dev (bool), then
+    the dev products are ignored.
     
-    :param products_infos list: The list of (name, config) corresponding to one
-                                product.
-    :param without_dev boolean: If True, then ignore the dev products.
-    :return: the list of source paths.
-    :rtype: list
-    '''
+    :param products_infos: (list) 
+      The list of (name, config) corresponding to one product.
+    :param without_dev: (boolean) If True, then ignore the dev products.
+    :return: (list) the list of source paths.
+    """
     l_dir_source = []
     for __, product_info in products_infos:
         if product_has_dir(product_info, without_dev):
@@ -166,14 +166,14 @@ def get_source_directories(products_infos, without_dev):
     return l_dir_source
 
 def get_build_directories(products_infos):
-    '''Returns the list of directory build paths corresponding to the list of 
-       product information given as input.
+    """
+    Returns the list of directory build paths corresponding to the list of 
+    product information given as input.
     
-    :param products_infos list: The list of (name, config) corresponding to one
-                                product.
-    :return: the list of build paths.
-    :rtype: list
-    '''
+    :param products_infos: (list)
+      The list of (name, config) corresponding to one product.
+    :return: (list) the list of build paths.
+    """
     l_dir_build = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
@@ -182,14 +182,14 @@ def get_build_directories(products_infos):
     return l_dir_build
 
 def get_install_directories(products_infos):
-    '''Returns the list of directory install paths corresponding to the list of 
-       product information given as input.
+    """
+    Returns the list of directory install paths corresponding to the list of 
+    product information given as input.
     
-    :param products_infos list: The list of (name, config) corresponding to one
-                                product.
-    :return: the list of install paths.
-    :rtype: list
-    '''
+    :param products_infos: (list) 
+      The list of (name, config) corresponding to one product.
+    :return: (list) the list of install paths.
+    """
     l_dir_install = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
@@ -197,14 +197,16 @@ def get_install_directories(products_infos):
     return l_dir_install
 
 def product_has_dir(product_info, without_dev=False):
-    '''Returns a boolean at True if there is a source, build and install
-       directory corresponding to the product described by product_info.
+    """
+    Returns a boolean at True if there is a source, build and install
+    directory corresponding to the product described by product_info.
     
-    :param products_info Config: The config corresponding to the product.
-    :return: True if there is a source, build and install
-             directory corresponding to the product described by product_info.
-    :rtype: boolean
-    '''
+    :param products_info: (Config) 
+      The config corresponding to the product.
+    :return: (bool)
+      True if there is a source, build and install
+      directory corresponding to the product described by product_info.
+    """
     if (src.product.product_is_native(product_info) or 
                             src.product.product_is_fixed(product_info)):
         return False
@@ -214,12 +216,12 @@ def product_has_dir(product_info, without_dev=False):
     return True
     
 def suppress_directories(l_paths, logger):
-    '''Suppress the paths given in the list in l_paths.
+    """Suppress the paths given in the list in l_paths.
     
-    :param l_paths list: The list of Path to be suppressed
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    '''    
+    :param l_paths: (list) The list of Path to be suppressed
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    """    
     for path in l_paths:
         strpath = str(path)
         if not path.isdir():

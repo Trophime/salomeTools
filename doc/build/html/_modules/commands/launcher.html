@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.launcher &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.launcher</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">stat</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The launcher command generates a SALOME launcher.</span>
+<span class="sd">  </span>
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat launcher SALOME </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;launcher&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all possible options for command &#39;sat launcher &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat launcher &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+
+    <span class="c1"># Verify that the command was called with an application</span>
+    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+    
+    <span class="c1"># Determine the launcher name (from option, profile section or by default &quot;salome&quot;)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># set the launcher path</span>
+    <span class="n">launcher_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span>
+
+    <span class="c1"># Copy a catalog if the option is called</span>
+    <span class="n">additional_environ</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">catalog</span><span class="p">:</span>
+        <span class="n">additional_environ</span> <span class="o">=</span> <span class="n">copy_catalog</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">catalog</span><span class="p">)</span>
+
+    <span class="c1"># Generate a catalog of resources if the corresponding option was called</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">gencat</span><span class="p">:</span>
+        <span class="n">catalog_path</span> <span class="o">=</span> <span class="n">generate_catalog</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">gencat</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="n">additional_environ</span> <span class="o">=</span> <span class="n">copy_catalog</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">catalog_path</span><span class="p">)</span>
+
+    <span class="c1"># Generate the launcher</span>
+    <span class="n">launcherPath</span> <span class="o">=</span> <span class="n">generate_launch_file</span><span class="p">(</span> <span class="n">config</span><span class="p">,</span>
+                                         <span class="n">logger</span><span class="p">,</span>
+                                         <span class="n">launcher_name</span><span class="p">,</span>
+                                         <span class="n">launcher_path</span><span class="p">,</span>
+                                         <span class="n">additional_env</span> <span class="o">=</span> <span class="n">additional_environ</span> <span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="generate_launch_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.generate_launch_file">[docs]</a><span class="k">def</span> <span class="nf">generate_launch_file</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                         <span class="n">logger</span><span class="p">,</span>
+                         <span class="n">launcher_name</span><span class="p">,</span>
+                         <span class="n">pathlauncher</span><span class="p">,</span>
+                         <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">additional_env</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;Generates the launcher file.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :param launcher_name: (str) The name of the launcher to generate</span>
+<span class="sd">    :param pathlauncher: (str) The path to the launcher to generate</span>
+<span class="sd">    :param display: (bool) If False, do not print anything in the terminal</span>
+<span class="sd">    :param additional_env: (dict) </span>
+<span class="sd">      The dict giving additional environment variables</span>
+<span class="sd">    :return: (str) The launcher file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Compute the default launcher path if it is not provided in pathlauncher</span>
+    <span class="c1"># parameter</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pathlauncher</span><span class="p">,</span> <span class="n">launcher_name</span><span class="p">)</span>
+
+    <span class="c1"># Remove the file if it exists in order to replace it</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+    <span class="c1"># Add the APPLI variable</span>
+    <span class="n">additional_env</span><span class="p">[</span><span class="s1">&#39;APPLI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
+
+
+    <span class="c1"># get KERNEL bin installation path </span>
+    <span class="c1"># (in order for the launcher to get python salomeContext API)</span>
+    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL is not installed&quot;</span><span class="p">))</span>
+    <span class="n">kernel_root_dir</span> <span class="o">=</span> <span class="n">kernel_cfg</span><span class="o">.</span><span class="n">install_dir</span>
+
+    <span class="c1"># set kernel bin dir (considering fhs property)</span>
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">get_property_in_product_cfg</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">,</span> <span class="s2">&quot;fhs&quot;</span><span class="p">):</span>
+        <span class="n">bin_kernel_install_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">)</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bin_kernel_install_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span><span class="s2">&quot;salome&quot;</span><span class="p">)</span> 
+
+    <span class="c1"># Get the launcher template</span>
+    <span class="n">withProfile</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">fileEnviron</span><span class="o">.</span><span class="n">withProfile</span>\
+                     <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;BIN_KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">bin_kernel_install_dir</span><span class="p">)</span>\
+                     <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">kernel_root_dir</span><span class="p">)</span>
+
+    <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="o">=</span> <span class="n">withProfile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                                <span class="s2">&quot;# here your local standalone environment</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># create an environment file writer</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">FileEnvWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                                           <span class="n">logger</span><span class="p">,</span>
+                                           <span class="n">pathlauncher</span><span class="p">,</span>
+                                           <span class="n">src_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                           <span class="n">env_info</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Display some information</span>
+    <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+        <span class="c1"># Write the launcher file</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generating launcher for </span><span class="si">%s</span><span class="s2"> :</span><span class="se">\n</span><span class="s2">  </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> \
+              <span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">),</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="c1"># open the file and write into it</span>
+    <span class="n">launch_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">launch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">before</span><span class="p">)</span>
+    <span class="c1"># Write</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write_cfgForPy_file</span><span class="p">(</span><span class="n">launch_file</span><span class="p">,</span> <span class="n">additional_env</span><span class="o">=</span><span class="n">additional_env</span><span class="p">)</span>
+    <span class="n">launch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">after</span><span class="p">)</span>
+    <span class="n">launch_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="c1"># change the rights in order to make the file executable for everybody</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IWUSR</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IXUSR</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IXGRP</span> <span class="o">|</span>
+             <span class="n">stat</span><span class="o">.</span><span class="n">S_IXOTH</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filepath</span></div>
+
+
+<div class="viewcode-block" id="generate_catalog"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.generate_catalog">[docs]</a><span class="k">def</span> <span class="nf">generate_catalog</span><span class="p">(</span><span class="n">machines</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates an xml catalog file from a list of machines.</span>
+<span class="sd">    </span>
+<span class="sd">    :param machines: (list) The list of machines to add in the catalog   </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param logger: (Logger) </span>
+<span class="sd">      The logger instance to use for the display and logging</span>
+<span class="sd">    :return: (str) The catalog file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># remove empty machines</span>
+    <span class="n">machines</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">machines</span><span class="p">)</span>
+    <span class="n">machines</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">machines</span><span class="p">)</span>
+    
+    <span class="c1"># log something</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                 <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generate Resources Catalog&quot;</span><span class="p">),</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">machines</span><span class="p">))</span> <span class="p">)</span>
+    
+    <span class="c1"># The command to execute on each machine in order to get some information</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;&quot;cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal&quot;&#39;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+
+    <span class="c1"># Create the catalog path</span>
+    <span class="n">catfile</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
+    <span class="n">catalog</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">catfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Write into it</span>
+    <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;!DOCTYPE ResourcesCatalog&gt;</span><span class="se">\n</span><span class="s2">&lt;resources&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;    ssh </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Verify that the machine is accessible</span>
+        <span class="n">ssh_cmd</span> <span class="o">=</span> <span class="s1">&#39;ssh -o &quot;StrictHostKeyChecking no&quot; </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">ssh_cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># The machine is not accessible</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&lt;KO&gt;: The machine </span><span class="si">%s</span><span class="s2"> is not accessible:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span> <span class="o">+</span> 
+                         <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># The machine is accessible, write the corresponding section on</span>
+            <span class="c1"># the xml file</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;: The machine </span><span class="si">%s</span><span class="s2"> is accessible:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">freq</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">nb_proc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">memory</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">memory</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span>
+
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;    &lt;machine</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        protocol=</span><span class="se">\&quot;</span><span class="s2">ssh</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        nbOfNodes=</span><span class="se">\&quot;</span><span class="s2">1</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        mode=</span><span class="se">\&quot;</span><span class="s2">interactif</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        OS=</span><span class="se">\&quot;</span><span class="s2">LINUX</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        CPUFreqMHz=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        nbOfProcPerNode=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nb_proc</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        memInMB=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">memory</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        userName=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">user</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        name=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;        hostname=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;    &gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;    &lt;/machine&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/resources&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">catalog</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">catfile</span></div>
+
+<div class="viewcode-block" id="copy_catalog"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.launcher.copy_catalog">[docs]</a><span class="k">def</span> <span class="nf">copy_catalog</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">catalog_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Copy the xml catalog file into the right location</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param catalog_path: (str) the catalog file path</span>
+<span class="sd">    :return: (dict) </span>
+<span class="sd">      The environment dictionary corresponding to the file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Verify the existence of the file</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">catalog_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Catalog not found: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">catalog_path</span><span class="p">)</span>
+    <span class="c1"># Get the application directory and copy catalog inside</span>
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span>
+    <span class="n">new_catalog_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
+    <span class="c1"># Do the copy</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">catalog_path</span><span class="p">,</span> <span class="n">new_catalog_path</span><span class="p">)</span>
+    <span class="n">additional_environ</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;USER_CATALOG_RESOURCES_FILE&#39;</span> <span class="p">:</span> <span class="n">new_catalog_path</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">additional_environ</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

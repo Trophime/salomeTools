@@ -329,9 +329,9 @@ def build_context(config, logger):
 def check_module_generator(directory=None):
     """Check if module_generator is available.
     
-    :param directory str: The directory of YACSGEN.
-    :return: The YACSGEN path if the module_generator is available, else None
-    :rtype: str
+    :param directory: (str) The directory of YACSGEN.
+    :return: (str) 
+      The YACSGEN path if the module_generator is available, else None
     """
     undo = False
     if directory is not None and directory not in sys.path:
@@ -353,10 +353,11 @@ def check_module_generator(directory=None):
 def check_yacsgen(config, directory, logger):
     """Check if YACSGEN is available.
     
-    :param config Config: The global configuration.
-    :param directory str: The directory given by option --yacsgen
-    :param logger Logger: The logger instance
-    :return: RCO.ReturnCode with value The path to yacsgen directory if ok
+    :param config: (Config) The global configuration.
+    :param directory: (str) The directory given by option --yacsgen
+    :param logger: (Logger) The logger instance
+    :return: (RCO.ReturnCode) 
+      with value The path to yacsgen directory if ok
     """
     # first check for YACSGEN (command option, then product, then environment)
     yacsgen_dir = None
@@ -375,7 +376,7 @@ def check_yacsgen(config, directory, logger):
     if yacsgen_dir is None:
         RCO.ReturnCode("KO", _("The generate command requires YACSGEN."))
     
-    logger.info("  %s in %s" % (yacs_src, yacsgen_dir)
+    logger.info("  %s in %s" % (yacs_src, yacsgen_dir))
 
     if not os.path.exists(yacsgen_dir):
         msg = _("YACSGEN directory not found: '%s'") % yacsgen_dir

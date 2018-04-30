@@ -61,12 +61,12 @@
 <span class="n">atexit_done</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="reset_all"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.reset_all">[docs]</a><span class="k">def</span> <span class="nf">reset_all</span><span class="p">():</span>
+<div class="viewcode-block" id="reset_all"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.reset_all">[docs]</a><span class="k">def</span> <span class="nf">reset_all</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">AnsiToWin32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>    <span class="c1"># Issue #74: objects might become None at exit</span>
         <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">orig_stdout</span><span class="p">)</span><span class="o">.</span><span class="n">reset_all</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">autoreset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">autoreset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">wrap</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="n">autoreset</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wrap=False conflicts with any other arg=True&#39;</span><span class="p">)</span>
@@ -94,7 +94,7 @@
         <span class="n">atexit_done</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="deinit"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.deinit">[docs]</a><span class="k">def</span> <span class="nf">deinit</span><span class="p">():</span>
+<div class="viewcode-block" id="deinit"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.deinit">[docs]</a><span class="k">def</span> <span class="nf">deinit</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">orig_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">orig_stdout</span>
     <span class="k">if</span> <span class="n">orig_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -102,7 +102,7 @@
 
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<div class="viewcode-block" id="colorama_text"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.colorama_text">[docs]</a><span class="k">def</span> <span class="nf">colorama_text</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="colorama_text"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.colorama_text">[docs]</a><span class="k">def</span> <span class="nf">colorama_text</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">init</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
@@ -110,14 +110,14 @@
         <span class="n">deinit</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="reinit"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.reinit">[docs]</a><span class="k">def</span> <span class="nf">reinit</span><span class="p">():</span>
+<div class="viewcode-block" id="reinit"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.reinit">[docs]</a><span class="k">def</span> <span class="nf">reinit</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">wrapped_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">wrapped_stdout</span>
     <span class="k">if</span> <span class="n">wrapped_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">wrapped_stderr</span></div>
 
 
-<div class="viewcode-block" id="wrap_stream"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.wrap_stream">[docs]</a><span class="k">def</span> <span class="nf">wrap_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="p">,</span> <span class="n">wrap</span><span class="p">):</span>
+<div class="viewcode-block" id="wrap_stream"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.initialise.wrap_stream">[docs]</a><span class="k">def</span> <span class="nf">wrap_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="p">,</span> <span class="n">wrap</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">wrap</span><span class="p">:</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">convert</span><span class="o">=</span><span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="o">=</span><span class="n">autoreset</span><span class="p">)</span>

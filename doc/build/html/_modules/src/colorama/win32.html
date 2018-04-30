@@ -140,7 +140,7 @@
         <span class="n">STDERR</span><span class="p">:</span> <span class="n">_GetStdHandle</span><span class="p">(</span><span class="n">STDERR</span><span class="p">),</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="winapi_test"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.win32.winapi_test">[docs]</a>    <span class="k">def</span> <span class="nf">winapi_test</span><span class="p">():</span>
+<div class="viewcode-block" id="winapi_test"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.win32.winapi_test">[docs]</a>    <span class="k">def</span> <span class="nf">winapi_test</span><span class="p">():</span>
         <span class="n">handle</span> <span class="o">=</span> <span class="n">handles</span><span class="p">[</span><span class="n">STDOUT</span><span class="p">]</span>
         <span class="n">csbi</span> <span class="o">=</span> <span class="n">CONSOLE_SCREEN_BUFFER_INFO</span><span class="p">()</span>
         <span class="n">success</span> <span class="o">=</span> <span class="n">_GetConsoleScreenBufferInfo</span><span class="p">(</span>
@@ -154,7 +154,7 @@
             <span class="n">handle</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">csbi</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">csbi</span>
 
-<div class="viewcode-block" id="SetConsoleTextAttribute"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.win32.SetConsoleTextAttribute">[docs]</a>    <span class="k">def</span> <span class="nf">SetConsoleTextAttribute</span><span class="p">(</span><span class="n">stream_id</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<div class="viewcode-block" id="SetConsoleTextAttribute"><a class="viewcode-back" href="../../../apidoc_src/src.colorama.html#src.colorama.win32.SetConsoleTextAttribute">[docs]</a>    <span class="k">def</span> <span class="nf">SetConsoleTextAttribute</span><span class="p">(</span><span class="n">stream_id</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="n">handle</span> <span class="o">=</span> <span class="n">handles</span><span class="p">[</span><span class="n">stream_id</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">_SetConsoleTextAttribute</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span></div>
 

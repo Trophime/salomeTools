@@ -62,7 +62,8 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&quot;&quot;&quot;Utilities to read xml logging files</span>
+<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Utilities to read xml logging files</span>
 
 <span class="sd">usage:</span>
 <span class="sd">  &gt;&gt; import src.xmlManager as XMLMGR</span>
@@ -79,17 +80,18 @@
 <span class="kn">import</span> <span class="nn">src.ElementTree</span> <span class="k">as</span> <span class="nn">etree</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
 
-<div class="viewcode-block" id="XmlLogFile"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.XmlLogFile">[docs]</a><span class="k">class</span> <span class="nc">XmlLogFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class to manage writing in salomeTools xml log file</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="XmlLogFile"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.XmlLogFile">[docs]</a><span class="k">class</span> <span class="nc">XmlLogFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Class to manage writing in salomeTools xml log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">rootname</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="p">{}):</span>
-        <span class="sd">&#39;&#39;&#39;Initialization</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
 <span class="sd">        </span>
-<span class="sd">        :param filePath str: The path to the file where to write the log file</span>
-<span class="sd">        :param rootname str: The name of the root node of the xml file</span>
-<span class="sd">        :param attrib dict: the dictionary that contains the attributes </span>
-<span class="sd">                            and value of the root node</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param filePath: (str) The path to the file where to write the log file</span>
+<span class="sd">        :param rootname: (str) The name of the root node of the xml file</span>
+<span class="sd">        :param attrib: (dict) </span>
+<span class="sd">          The dictionary that contains the attributes and value of the root node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Initialize the filePath and ensure that the directory </span>
         <span class="c1"># that contain the file exists (make it if necessary)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logFile</span> <span class="o">=</span> <span class="n">filePath</span>
@@ -97,11 +99,11 @@
         <span class="c1"># Initialize the field that contain the xml in memory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="n">rootname</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">)</span>
     
-<div class="viewcode-block" id="XmlLogFile.write_tree"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.XmlLogFile.write_tree">[docs]</a>    <span class="k">def</span> <span class="nf">write_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stylesheet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Write the xml tree in the log file path. Add the stylesheet if asked.</span>
+<div class="viewcode-block" id="XmlLogFile.write_tree"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.XmlLogFile.write_tree">[docs]</a>    <span class="k">def</span> <span class="nf">write_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stylesheet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the xml tree in the log file path. Add the stylesheet if asked.</span>
 <span class="sd">        </span>
-<span class="sd">        :param stylesheet str: The stylesheet to apply to the xml file</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param stylesheet: (str) The stylesheet to apply to the xml file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">log_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logFile</span>
         <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
             <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">file_path</span>
@@ -116,66 +118,65 @@
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
             <span class="k">pass</span>  </div>
         
-<div class="viewcode-block" id="XmlLogFile.add_simple_node"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.XmlLogFile.add_simple_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_simple_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&#39;&#39;&#39;Add a node with some attibutes and text to the root node.</span>
+<div class="viewcode-block" id="XmlLogFile.add_simple_node"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.XmlLogFile.add_simple_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_simple_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Add a node with some attibutes and text to the root node.</span>
 <span class="sd">        </span>
-<span class="sd">        :param node_name str: the name of the node to add</span>
-<span class="sd">        :param text str: the text of the node</span>
-<span class="sd">        :param attrib dict: the dictionary containing the </span>
-<span class="sd">                            attribute of the new node</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param node_name: (str) the name of the node to add</span>
+<span class="sd">        :param text: (str) the text of the node</span>
+<span class="sd">        :param attrib: (dict)</span>
+<span class="sd">          The dictionary containing the attribute of the new node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="n">attrib</span><span class="p">)</span>
         <span class="n">n</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n</span></div>
     
-<div class="viewcode-block" id="XmlLogFile.append_node_text"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.XmlLogFile.append_node_text">[docs]</a>    <span class="k">def</span> <span class="nf">append_node_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Append a new text to the node that has node_name as name</span>
+<div class="viewcode-block" id="XmlLogFile.append_node_text"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.XmlLogFile.append_node_text">[docs]</a>    <span class="k">def</span> <span class="nf">append_node_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append a new text to the node that has node_name as name</span>
 <span class="sd">        </span>
-<span class="sd">        :param node_name str: The name of the node on which append text</span>
-<span class="sd">        :param text str: The text to append</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param node_name: (str) The name of the node on which append text</span>
+<span class="sd">        :param text: (str) The text to append</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># find the corresponding node</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">node_name</span><span class="p">:</span>
                 <span class="c1"># append the text</span>
                 <span class="n">field</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="XmlLogFile.append_node_attrib"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.XmlLogFile.append_node_attrib">[docs]</a>    <span class="k">def</span> <span class="nf">append_node_attrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">attrib</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Append a new attributes to the node that has node_name as name</span>
+<div class="viewcode-block" id="XmlLogFile.append_node_attrib"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.XmlLogFile.append_node_attrib">[docs]</a>    <span class="k">def</span> <span class="nf">append_node_attrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">attrib</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append a new attributes to the node that has node_name as name</span>
 <span class="sd">        </span>
-<span class="sd">        :param node_name str: The name of the node on which append text</span>
-<span class="sd">        :param attrib dixt: The attrib to append</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param node_name: (str) The name of the node on which append text</span>
+<span class="sd">        :param attrib: (dict) The attrib to append</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span></div></div>
 
-<div class="viewcode-block" id="ReadXmlFile"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.ReadXmlFile">[docs]</a><span class="k">class</span> <span class="nc">ReadXmlFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class to manage reading of an xml log file</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="ReadXmlFile"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.ReadXmlFile">[docs]</a><span class="k">class</span> <span class="nc">ReadXmlFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to manage reading of an xml log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Initialization</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
 <span class="sd">        </span>
-<span class="sd">        :param filePath str: The xml file to be read</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param filePath: (str) The xml file to be read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filePath</span> <span class="o">=</span> <span class="n">filePath</span>
         <span class="n">etree_inst</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span> <span class="o">=</span> <span class="n">etree_inst</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ReadXmlFile.getRootAttrib"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.ReadXmlFile.getRootAttrib">[docs]</a>    <span class="k">def</span> <span class="nf">getRootAttrib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the attibutes of the self.xmlroot</span>
+<div class="viewcode-block" id="ReadXmlFile.getRootAttrib"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.ReadXmlFile.getRootAttrib">[docs]</a>    <span class="k">def</span> <span class="nf">getRootAttrib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the attibutes of the self.xmlroot</span>
 <span class="sd">        </span>
-<span class="sd">        :return: The attributes of the root node</span>
-<span class="sd">        :rtype: dict</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :return: (dict) The attributes of the root node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="o">.</span><span class="n">attrib</span></div>
     
-<div class="viewcode-block" id="ReadXmlFile.get_attrib"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.ReadXmlFile.get_attrib">[docs]</a>    <span class="k">def</span> <span class="nf">get_attrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the attibutes of the node node_name in self.xmlroot</span>
+<div class="viewcode-block" id="ReadXmlFile.get_attrib"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.ReadXmlFile.get_attrib">[docs]</a>    <span class="k">def</span> <span class="nf">get_attrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the attibutes of the node node_name in self.xmlroot</span>
 <span class="sd">        </span>
-<span class="sd">        :param node_name str: the name of the node</span>
-<span class="sd">        :return: the attibutes of the node node_name in self.xmlroot</span>
-<span class="sd">        :rtype: dict</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param node_name: (str) the name of the node</span>
+<span class="sd">        :return: (dict) the attibutes of the node node_name in self.xmlroot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
         <span class="c1"># To be python 3 compatible, convert bytes to str if there are any</span>
         <span class="n">fixedAttrib</span> <span class="o">=</span> <span class="p">{}</span>
@@ -191,51 +192,55 @@
             <span class="n">fixedAttrib</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">fixedAttrib</span></div>
     
-<div class="viewcode-block" id="ReadXmlFile.get_node_text"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.ReadXmlFile.get_node_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the text of the first node that has name </span>
-<span class="sd">           that corresponds to the parameter node</span>
+<div class="viewcode-block" id="ReadXmlFile.get_node_text"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.ReadXmlFile.get_node_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the text of the first node that has name </span>
+<span class="sd">        that corresponds to the parameter node</span>
 <span class="sd">        </span>
-<span class="sd">        :param node str: the name of the node from which get the text</span>
-<span class="sd">        :return: the text of the first node that has name </span>
-<span class="sd">                 that corresponds to the parameter node</span>
-<span class="sd">        :rtype: str</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        :param node: (str) the name of the node from which get the text</span>
+<span class="sd">        :return: (str) </span>
+<span class="sd">          The text of the first node that has name </span>
+<span class="sd">          that corresponds to the parameter node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlroot</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">text</span></div></div>
     
-<div class="viewcode-block" id="add_simple_node"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.add_simple_node">[docs]</a><span class="k">def</span> <span class="nf">add_simple_node</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="sd">&#39;&#39;&#39;Add a node with some attibutes and text to the root node.</span>
+<div class="viewcode-block" id="add_simple_node"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.add_simple_node">[docs]</a><span class="k">def</span> <span class="nf">add_simple_node</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;Add a node with some attibutes and text to the root node.</span>
 
-<span class="sd">    :param root_node etree.Element: the Etree element where to add the new node    </span>
-<span class="sd">    :param node_name str: the name of the node to add</span>
-<span class="sd">    :param text str: the text of the node</span>
-<span class="sd">    :param attrib dict: the dictionary containing the </span>
-<span class="sd">                        attribute of the new node</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param root_node: (etree.Element) </span>
+<span class="sd">      the Etree element where to add the new node    </span>
+<span class="sd">    :param node_name: (str) the name of the node to add</span>
+<span class="sd">    :param text: (str) the text of the node</span>
+<span class="sd">    :param attrib: (dict) </span>
+<span class="sd">      the dictionary containing the attribute(s) of the new node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="n">attrib</span><span class="p">)</span>
     <span class="n">n</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
     <span class="n">root_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">n</span></div>
 
-<div class="viewcode-block" id="append_node_attrib"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.append_node_attrib">[docs]</a><span class="k">def</span> <span class="nf">append_node_attrib</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">attrib</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Append a new attributes to the node that has node_name as name</span>
+<div class="viewcode-block" id="append_node_attrib"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.append_node_attrib">[docs]</a><span class="k">def</span> <span class="nf">append_node_attrib</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">attrib</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Append a new attributes to the node that has node_name as name</span>
 <span class="sd">    </span>
-<span class="sd">    :param root_node etree.Element: the Etree element </span>
-<span class="sd">                                    where to append the new attibutes</span>
-<span class="sd">    :param attrib dixt: The attrib to append</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param root_node: (etree.Element)</span>
+<span class="sd">      the Etree element where to append the new attibutes</span>
+<span class="sd">    :param attrib: (dict) The attrib to append</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">root_node</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="find_node_by_attrib"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.find_node_by_attrib">[docs]</a><span class="k">def</span> <span class="nf">find_node_by_attrib</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">name_node</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Find the nfirst ode from xmlroot that has name name_node and that has in </span>
-<span class="sd">       its attributes {key : value}. Return the node</span>
+<div class="viewcode-block" id="find_node_by_attrib"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.find_node_by_attrib">[docs]</a><span class="k">def</span> <span class="nf">find_node_by_attrib</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">name_node</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the first node from xmlroot that has name name_node </span>
+<span class="sd">    and that has in its attributes {key : value}. </span>
+<span class="sd">    Return the node</span>
 <span class="sd">    </span>
-<span class="sd">    :param xmlroot etree.Element: the Etree element where to search</span>
-<span class="sd">    :param name_node str: the name of node to search</span>
-<span class="sd">    :param key str: the key to search</span>
-<span class="sd">    :param value str: the value to search</span>
-<span class="sd">    :return: the found node</span>
-<span class="sd">    :rtype: xmlroot etree.Element</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param xmlroot: (etree.Element) </span>
+<span class="sd">      the Etree element where to search</span>
+<span class="sd">    :param name_node: (str) the name of node to search</span>
+<span class="sd">    :param key: (str) the key to search</span>
+<span class="sd">    :param value: (str) the value to search</span>
+<span class="sd">    :return: (etree.Element) the found node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">l_nodes</span> <span class="o">=</span>  <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">name_node</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">l_nodes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -245,12 +250,12 @@
     <span class="k">return</span> <span class="kc">None</span></div>
     
 
-<div class="viewcode-block" id="write_report"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.xmlManager.write_report">[docs]</a><span class="k">def</span> <span class="nf">write_report</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xmlroot</span><span class="p">,</span> <span class="n">stylesheet</span><span class="p">):</span>
+<div class="viewcode-block" id="write_report"><a class="viewcode-back" href="../../apidoc_src/src.html#src.xmlManager.write_report">[docs]</a><span class="k">def</span> <span class="nf">write_report</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xmlroot</span><span class="p">,</span> <span class="n">stylesheet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Writes a report file from a XML tree.</span>
 <span class="sd">    </span>
-<span class="sd">    :param filename str: The path to the file to create</span>
-<span class="sd">    :param xmlroot etree.Element: the Etree element to write to the file</span>
-<span class="sd">    :param stylesheet str: The stylesheet to add to the begin of the file</span>
+<span class="sd">    :param filename: (str) The path to the file to create</span>
+<span class="sd">    :param xmlroot: (etree.Element) the Etree element to write to the file</span>
+<span class="sd">    :param stylesheet: (str) The stylesheet to add to the begin of the file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>

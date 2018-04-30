@@ -30,12 +30,12 @@ import commands.prepare
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The patch command apply the patches on the sources of the application products
   if there is any.
 
   examples:
-    >> sat patch SALOME --products qt,boost
+  >> sat patch SALOME --products qt,boost
   """
   
   name = "patch"
@@ -115,14 +115,14 @@ class Command(_BaseCommand):
      
 
 def apply_patch(config, product_info, max_product_name_len, logger):
-    """\
-    The method called to apply patches on a product
+    """The method called to apply patches on a product
 
-    :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
-                               the product to be patched
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: RCO.ReturnCode
+    :param config: (Config) The global configuration
+    :param product_info: (Config) 
+      The configuration specific to the product to be patched
+    :param logger: (Logger: 
+      The logger instance to use for the display and logging
+    :return: (RCO.ReturnCode)
     """
 
     # if the product is native, do not apply patch

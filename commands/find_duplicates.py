@@ -195,7 +195,7 @@ class Command(_BaseCommand):
                 l_path.append(fic_path[1])
         dic_fic_paths[the_file] = l_path
     
-    logger.info("<OK>\n')
+    logger.info("<OK>\n")
 
     # End the execution if no duplicates were found
     if len(dic_fic_paths) == 0:
@@ -224,14 +224,15 @@ class Command(_BaseCommand):
 def list_directory(lpath, extension_ignored, files_ignored, directories_ignored):
     """Make the list of all files and paths that are not filtered 
     
-    :param lpath List: The list of path to of the directories where to 
-                       search for duplicates
-    :param extension_ignored List: The list of extensions to ignore
-    :param files_ignored List: The list of files to ignore
-    :param directories_ignored List: The list of directory paths to ignore
-    :return: files_arb_out is the list of [file, path] 
-             and files_out is is the list of files
-    :rtype: List, List
+    :param lpath: (list) 
+      The list of path to of the directories where to  search for duplicates
+    :param extension_ignored: (list) The list of extensions to ignore
+    :param files_ignored: (list) The list of files to ignore
+    :param directories_ignored: (list) 
+      The list of directory paths to ignore
+    :return: (list, list) 
+      files_arb_out is the list of [file, path] 
+      and files_out is is the list of files
     """
     files_out = []
     files_arb_out=[]
@@ -251,28 +252,28 @@ def list_directory(lpath, extension_ignored, files_ignored, directories_ignored)
     return files_arb_out, files_out
 
 def format_list_of_str(l_str):
-    '''Make a list from a string
+    """Make a list from a string
     
-    :param l_str List or Str: The variable to format
-    :return: the formatted variable
-    :rtype: List
-    '''
+    :param l_str: (list or str) The variable to format
+    :return: (list) the formatted variable
+    """
     if not isinstance(l_str, list):
         return l_str
     return ",".join(l_str)
 
 class Progress_bar:
-    "Create a progress bar in the terminal"
-    
+    """
+    Create a progress bar in the terminal
+    """
     def __init__(self, name, valMin, valMax, logger, length = 50):
-        '''Initialization of the progress bar.
+        """Initialization of the progress bar.
         
-        :param name str: The name of the progress bar
-        :param valMin float: the minimum value of the variable
-        :param valMax float: the maximum value of the variable
-        :param logger Logger: the logger instance
-        :param length int: the lenght of the progress bar
-        '''
+        :param name: (str) The name of the progress bar
+        :param valMin: (float) the minimum value of the variable
+        :param valMax: (float) the maximum value of the variable
+        :param logger: (Logger) the logger instance
+        :param length: (int) the lenght of the progress bar
+        """
         self.name = name
         self.valMin = valMin
         self.valMax = valMax
@@ -283,12 +284,12 @@ class Progress_bar:
             raise Exception(out_err)
         
     def display_value_progression(self,val):
-        '''Display the progress bar.
+        """Display the progress bar.
         
-        :param val float: val must be between valMin and valMax.
-        '''
+        :param val: (float) val must be between valMin and valMax.
+        """
         if val < self.valMin or val > self.valMax:
-            self.logger.error(_("Wrong value for the progress bar.\n')))
+            self.logger.error(_("Wrong value for the progress bar.\n"))
         else:
             perc = (float(val-self.valMin) / (self.valMax - self.valMin)) * 100.
             nb_equals = int(perc * self.length / 100)

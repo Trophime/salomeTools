@@ -34,7 +34,8 @@ C_COMPILE_ENV_LIST = ["CC",
                       "LDFLAGS"]
 
 class Builder:
-    """Class to handle all construction steps, like cmake, configure, make, ...
+    """
+    Class to handle all construction steps, like cmake, configure, make, ...
     """
     def __init__(self,
                  config,
@@ -64,7 +65,7 @@ class Builder:
         self.log("> %s\n" % command, 5)
 
     def prepare(self):
-        """\
+        """
         Prepares the environment.
         Build two environment: one for building and one for testing (launch).
         """
@@ -469,16 +470,15 @@ CC=\\"hack_libtool\\"%g" libtool'''
         raise Exception(msg)
     
     def put_txt_log_in_appli_log_dir(self, file_name):
-        '''Put the txt log (that contain the system logs, like make command
-           output) in the directory <APPLICATION DIR>/LOGS/<product_name>/
+        """
+        Put the txt log (that contain the system logs, like make command output)
+        in the directory <APPLICATION DIR>/LOGS/<product_name>/
     
-        :param file_name Str: the name of the file to write
-        '''
+        :param file_name: (str) The name of the file to write
+        """
         if self.logger.logTxtFile == sys.__stdout__:
             return
-        dir_where_to_put = os.path.join(self.config.APPLICATION.workdir,
-                                        "LOGS",
-                                        self.product_info.name)
+        dir_where_to_put = os.path.join(self.config.APPLICATION.workdir, "LOGS", self.product_info.name)
         file_path = os.path.join(dir_where_to_put, file_name)
         UTS.ensure_path_exists(dir_where_to_put)
         # write the logTxtFile copy it to the destination, and then recreate 

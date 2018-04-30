@@ -28,12 +28,12 @@ from src.salomeTools import _BaseCommand
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The prepare command gets the sources of the application products 
   and apply the patches if there is any.
 
   examples:
-    >> sat prepare SALOME --products KERNEL,GUI
+  >> sat prepare SALOME --products KERNEL,GUI
   """
   
   name = "prepare"
@@ -157,15 +157,14 @@ Use the --force_patch option to overwrite it.
 
 
 def remove_products(arguments, l_products_info, logger):
-    """
-    function that removes the products in l_products_info from arguments list.
+    """Removes the products in l_products_info from arguments list.
     
-    :param arguments str: The arguments from which to remove products
-    :param l_products_info list: List of 
-                                 (str, Config) => (product_name, product_info)
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: The updated arguments.
-    :rtype: str
+    :param arguments: (str) The arguments from which to remove products
+    :param l_products_info: (list) 
+      List of (str, Config) => (product_name, product_info)
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (str) The updated arguments.
     """
     args = arguments
     for i, (product_name, __) in enumerate(l_products_info):
@@ -177,14 +176,13 @@ def remove_products(arguments, l_products_info, logger):
     return args
 
 def find_products_already_getted(l_products):
-    '''function that returns the list of products that have an existing source 
-       directory.
+    """Returns the list of products that have an existing source directory.
     
-    :param l_products List: The list of products to check
-    :return: The list of product configurations that have an existing source 
-             directory.
-    :rtype: List
-    '''
+    :param l_products: (list) The list of products to check
+    :return: (list) 
+      The list of product configurations 
+      that have an existing source directory.
+    """
     l_res = []
     for p_name_p_cfg in l_products:
         __, prod_cfg = p_name_p_cfg
@@ -193,12 +191,13 @@ def find_products_already_getted(l_products):
     return l_res
 
 def find_products_with_patchs(l_products):
-    '''function that returns the list of products that have one or more patches.
+    """Returns the list of products that have one or more patches.
     
-    :param l_products List: The list of products to check
-    :return: The list of product configurations that have one or more patches.
-    :rtype: List
-    '''
+    :param l_products: (list) The list of products to check
+    :return: (list) 
+      The list of product configurations 
+      that have one or more patches.
+    """
     l_res = []
     for p_name_p_cfg in l_products:
         __, prod_cfg = p_name_p_cfg

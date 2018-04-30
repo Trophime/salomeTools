@@ -29,11 +29,11 @@ from src.salomeTools import _BaseCommand
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The make command executes the 'make' command in the build directory.
 
   examples:
-    >> sat make SALOME --products Python,KERNEL,GUI
+  >> sat make SALOME --products Python,KERNEL,GUI
   """
   
   name = "make"
@@ -103,17 +103,17 @@ class Command(_BaseCommand):
 
 
 def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
+    """
+    method that gives the product list with their informations from 
+    configuration regarding the passed options.
     
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param cfg Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    '''
+    :param options: (Options) 
+      The Options instance that stores the commands arguments
+    :param cfg: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (list) The list of tuples (product name, product_informations).
+    """
     # Get the products to be prepared, regarding the options
     if options.products is None:
         # No options, get all products sources
@@ -152,17 +152,18 @@ def log_res_step(logger, res):
 
 
 def make_all_products(config, products_infos, make_option, logger):
-    '''Execute the proper configuration commands 
-       in each product build directory.
+    """
+    Execute the proper configuration commands 
+    in each product build directory.
 
-    :param config Config: The global configuration
-    :param products_info list: List of 
-                                 (str, Config) => (product_name, product_info)
-    :param make_option str: The options to add to the command
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: the number of failing commands.
-    :rtype: int
-    '''
+    :param config: (Config) The global configuration
+    :param products_info: (list) 
+      List of (str, Config) => (product_name, product_info)
+    :param make_option: (str) The options to add to the command
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (int) the number of failing commands.
+    """
     res = 0
     for p_name_info in products_infos:
         res_prod = make_product(p_name_info, make_option, config, logger)
@@ -171,17 +172,17 @@ def make_all_products(config, products_infos, make_option, logger):
     return res
 
 def make_product(p_name_info, make_option, config, logger):
-    '''Execute the proper configuration command(s) 
-       in the product build directory.
+    """
+    Execute the proper configuration command(s) 
+    in the product build directory.
     
-    :param p_name_info tuple: (str, Config) => (product_name, product_info)
-    :param make_option str: The options to add to the command
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :return: 1 if it fails, else 0.
-    :rtype: int
-    '''
+    :param p_name_info: (tuple) (str, Config) => (product_name, product_info)
+    :param make_option: (str) The options to add to the command
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (int) 1 if it fails, else 0.
+    """
     
     p_name, p_info = p_name_info
     

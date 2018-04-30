@@ -61,9 +61,11 @@
 <span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
-<span class="sd">&#39;&#39;&#39;In this file are implemented the methods </span>
-<span class="sd">   relative to the product notion of salomeTools</span>
-<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Contains the methods </span>
+<span class="sd">relative to the product notion of salomeTools</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -75,17 +77,16 @@
 <span class="n">config_expression</span> <span class="o">=</span> <span class="s2">&quot;^config-\d+$&quot;</span>
 <span class="n">VERSION_DELIMITER</span> <span class="o">=</span> <span class="s2">&quot;_to_&quot;</span>
 
-<div class="viewcode-block" id="get_product_config"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_product_config">[docs]</a><span class="k">def</span> <span class="nf">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">with_install_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
+<div class="viewcode-block" id="get_product_config"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_product_config">[docs]</a><span class="k">def</span> <span class="nf">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">with_install_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the specific configuration of a product from the global configuration</span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param product_name str: The name of the product</span>
-<span class="sd">    :param with_install_dir boolean: If false, do not provide an install </span>
-<span class="sd">                                     directory (at false only for internal use </span>
-<span class="sd">                                     of the function check_config_exists)</span>
-<span class="sd">    :return: the specific configuration of the product</span>
-<span class="sd">    :rtype: Config</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_name: (str) The name of the product</span>
+<span class="sd">    :param with_install_dir: (boolean)</span>
+<span class="sd">      If false, do not provide an install directory </span>
+<span class="sd">      (at false only for internal use of the function check_config_exists)</span>
+<span class="sd">    :return: (Config) The specific configuration of the product</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1"># Get the version of the product from the application definition</span>
@@ -324,17 +325,17 @@
                 
     <span class="k">return</span> <span class="n">prod_info</span></div>
 
-<div class="viewcode-block" id="get_product_section"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_product_section">[docs]</a><span class="k">def</span> <span class="nf">get_product_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Get the product description from the configuration</span>
+<div class="viewcode-block" id="get_product_section"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_product_section">[docs]</a><span class="k">def</span> <span class="nf">get_product_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the product description from the configuration</span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param product_name str: The product name</span>
-<span class="sd">    :param version str: The version of the product</span>
-<span class="sd">    :param section str: The searched section (if not None, the section is </span>
-<span class="sd">                        explicitly given</span>
-<span class="sd">    :return: The product description</span>
-<span class="sd">    :rtype: Config</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_name: (str) The product name</span>
+<span class="sd">    :param version: (str) The version of the product</span>
+<span class="sd">    :param section: (str) </span>
+<span class="sd">      The searched section</span>
+<span class="sd">      (if not None, the section is explicitly given)</span>
+<span class="sd">    :return: (Config) The product description</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># if section is not None, try to get the corresponding section</span>
     <span class="k">if</span> <span class="n">section</span><span class="p">:</span>
@@ -379,16 +380,19 @@
     <span class="c1"># if noting was found, return None</span>
     <span class="k">return</span> <span class="kc">None</span></div>
     
-<div class="viewcode-block" id="get_install_dir"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_install_dir">[docs]</a><span class="k">def</span> <span class="nf">get_install_dir</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
+<div class="viewcode-block" id="get_install_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_install_dir">[docs]</a><span class="k">def</span> <span class="nf">get_install_dir</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the installation directory of a given product </span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param base str: This corresponds to the value given by user in its application.pyconf for the specific product. If &quot;yes&quot;, the user wants the product to be in base. If &quot;no&quot;, he wants the product to be in the application workdir</span>
-<span class="sd">    :param version str: The version of the product</span>
-<span class="sd">    :param product_info Config: The configuration specific to the product</span>
-<span class="sd">    :return: The path of the product installation</span>
-<span class="sd">    :rtype: str</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param base: (str) </span>
+<span class="sd">      This corresponds to the value given by user in its application.pyconf </span>
+<span class="sd">      for the specific product. </span>
+<span class="sd">      If &quot;yes&quot;, the user wants the product to be in base. </span>
+<span class="sd">      If &quot;no&quot;, he wants the product to be in the application workdir</span>
+<span class="sd">    :param version: (str) The version of the product</span>
+<span class="sd">    :param product_info: (Config) The configuration specific to the product</span>
+<span class="sd">    :return: (str) The path of the product installation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">install_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">in_base</span> <span class="o">=</span> <span class="kc">False</span>
@@ -412,16 +416,15 @@
 
     <span class="k">return</span> <span class="n">install_dir</span></div>
 
-<div class="viewcode-block" id="get_base_install_dir"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_base_install_dir">[docs]</a><span class="k">def</span> <span class="nf">get_base_install_dir</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Compute the installation directory of a product in base </span>
+<div class="viewcode-block" id="get_base_install_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_base_install_dir">[docs]</a><span class="k">def</span> <span class="nf">get_base_install_dir</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the installation directory of a product in base </span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :param version str: The version of the product    </span>
-<span class="sd">    :return: The path of the product installation</span>
-<span class="sd">    :rtype: str</span>
-<span class="sd">    &#39;&#39;&#39;</span>    
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :param version: (str) The version of the product    </span>
+<span class="sd">    :return: (str) The path of the product installation</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">base_path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_base_path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> 
     <span class="n">prod_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">prod_info</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">version</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">):</span>
@@ -444,20 +447,22 @@
             
     <span class="k">return</span> <span class="n">install_dir</span></div>
 
-<div class="viewcode-block" id="check_config_exists"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.check_config_exists">[docs]</a><span class="k">def</span> <span class="nf">check_config_exists</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prod_dir</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verify that the installation directory of a product in a base exists</span>
-<span class="sd">       Check all the config-&lt;i&gt; directory and verify the sat-config.pyconf file</span>
-<span class="sd">       that is in it </span>
+<div class="viewcode-block" id="check_config_exists"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.check_config_exists">[docs]</a><span class="k">def</span> <span class="nf">check_config_exists</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prod_dir</span><span class="p">,</span> <span class="n">prod_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verify that the installation directory of a product in a base exists</span>
+<span class="sd">    Check all the config-&lt;i&gt; directory and verify the sat-config.pyconf file</span>
+<span class="sd">    that is in it </span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param prod_dir str: The product installation directory path </span>
-<span class="sd">                         (without config-&lt;i&gt;)</span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True or false is the installation is found or not </span>
-<span class="sd">             and if it is found, the path of the found installation</span>
-<span class="sd">    :rtype: (boolean, str)</span>
-<span class="sd">    &#39;&#39;&#39;</span>   
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param prod_dir: (str) </span>
+<span class="sd">      The product installation directory path </span>
+<span class="sd">      (without config-&lt;i&gt;)</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (tuple) as (boolean, str)</span>
+<span class="sd">      True or false is the installation is found or not </span>
+<span class="sd">      and if it is found, the path of the found installation</span>
+<span class="sd">    &quot;&quot;&quot;</span>   
     <span class="c1"># check if the directories or files of the directory corresponds to the </span>
     <span class="c1"># directory installation of the product</span>
     <span class="n">l_dir_and_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">)</span>
@@ -509,15 +514,14 @@
             
             
     
-<div class="viewcode-block" id="get_products_infos"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_products_infos">[docs]</a><span class="k">def</span> <span class="nf">get_products_infos</span><span class="p">(</span><span class="n">lproducts</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Get the specific configuration of a list of products</span>
+<div class="viewcode-block" id="get_products_infos"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_products_infos">[docs]</a><span class="k">def</span> <span class="nf">get_products_infos</span><span class="p">(</span><span class="n">lproducts</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the specific configuration of a list of products</span>
 <span class="sd">    </span>
-<span class="sd">    :param lproducts List: The list of product names</span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :return: the list of tuples </span>
-<span class="sd">             (product name, specific configuration of the product)</span>
-<span class="sd">    :rtype: [(str, Config)]</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param lproducts: (list) The list of product names</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :return: (list) of tuples (str, Config)</span>
+<span class="sd">      as (product name, specific configuration of the product)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">products_infos</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Loop on product names</span>
     <span class="k">for</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">lproducts</span><span class="p">:</span>       
@@ -531,16 +535,16 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">products_infos</span></div>
 
-<div class="viewcode-block" id="get_product_dependencies"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_product_dependencies">[docs]</a><span class="k">def</span> <span class="nf">get_product_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Get recursively the list of products that are </span>
-<span class="sd">       in the product_info dependencies</span>
+<div class="viewcode-block" id="get_product_dependencies"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_product_dependencies">[docs]</a><span class="k">def</span> <span class="nf">get_product_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get recursively the list of products that are </span>
+<span class="sd">    in the product_info dependencies</span>
 <span class="sd">    </span>
-<span class="sd">    :param config Config: The global configuration</span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: the list of products in dependence</span>
-<span class="sd">    :rtype: list</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param config: (Config) The global configuration</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (list) the list of products in dependence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;depend&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">or</span> <span class="n">product_info</span><span class="o">.</span><span class="n">depend</span> <span class="o">==</span> <span class="p">[]:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
@@ -556,15 +560,16 @@
                 <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prod_in_dep</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="check_installation"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.check_installation">[docs]</a><span class="k">def</span> <span class="nf">check_installation</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verify if a product is well installed. Checks install directory presence</span>
-<span class="sd">       and some additional files if it is defined in the config </span>
+<div class="viewcode-block" id="check_installation"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.check_installation">[docs]</a><span class="k">def</span> <span class="nf">check_installation</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verify if a product is well installed. </span>
+<span class="sd">    Checks install directory presence</span>
+<span class="sd">    and some additional files if it is defined in the config </span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if it is well installed</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) True if it is well installed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">product_compiles</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="n">install_dir</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span>
@@ -578,250 +583,247 @@
                 <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="product_is_sample"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_sample">[docs]</a><span class="k">def</span> <span class="nf">product_is_sample</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has the sample type</span>
+<div class="viewcode-block" id="product_is_sample"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_sample">[docs]</a><span class="k">def</span> <span class="nf">product_is_sample</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has the sample type</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product has the sample type, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product has the sample type, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
         <span class="n">ptype</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">type</span>
         <span class="k">return</span> <span class="n">ptype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sample&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="product_is_salome"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_salome">[docs]</a><span class="k">def</span> <span class="nf">product_is_salome</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is of type salome</span>
+<div class="viewcode-block" id="product_is_salome"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_salome">[docs]</a><span class="k">def</span> <span class="nf">product_is_salome</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is of type salome</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is salome, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config) </span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is salome, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
         <span class="n">ptype</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">type</span>
         <span class="k">return</span> <span class="n">ptype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;salome&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="product_is_fixed"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_fixed">[docs]</a><span class="k">def</span> <span class="nf">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is fixed</span>
+<div class="viewcode-block" id="product_is_fixed"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_fixed">[docs]</a><span class="k">def</span> <span class="nf">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is fixed</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is fixed, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is fixed, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">get_src</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span>
     <span class="k">return</span> <span class="n">get_src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;fixed&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_native"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_native">[docs]</a><span class="k">def</span> <span class="nf">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is native</span>
+<div class="viewcode-block" id="product_is_native"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_native">[docs]</a><span class="k">def</span> <span class="nf">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is native</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is native, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is native, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">get_src</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span>
     <span class="k">return</span> <span class="n">get_src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;native&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_dev"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_dev">[docs]</a><span class="k">def</span> <span class="nf">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is in dev mode</span>
+<div class="viewcode-block" id="product_is_dev"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_dev">[docs]</a><span class="k">def</span> <span class="nf">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is in dev mode</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is in dev mode, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is in dev mode, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dev</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">dev</span>
     <span class="k">return</span> <span class="n">dev</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_debug"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_debug">[docs]</a><span class="k">def</span> <span class="nf">product_is_debug</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is in debug mode</span>
+<div class="viewcode-block" id="product_is_debug"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_debug">[docs]</a><span class="k">def</span> <span class="nf">product_is_debug</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is in debug mode</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is in debug mode, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is in debug mode, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">debug</span>
     <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_autotools"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_autotools">[docs]</a><span class="k">def</span> <span class="nf">product_is_autotools</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is compiled using the autotools</span>
+<div class="viewcode-block" id="product_is_autotools"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_autotools">[docs]</a><span class="k">def</span> <span class="nf">product_is_autotools</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is compiled using the autotools</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is autotools, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is autotools, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">build_src</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">build_source</span>
     <span class="k">return</span> <span class="n">build_src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;autotools&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_cmake"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_cmake">[docs]</a><span class="k">def</span> <span class="nf">product_is_cmake</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is compiled using the cmake</span>
+<div class="viewcode-block" id="product_is_cmake"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_cmake">[docs]</a><span class="k">def</span> <span class="nf">product_is_cmake</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is compiled using the cmake</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is cmake, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is cmake, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">build_src</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">build_source</span>
     <span class="k">return</span> <span class="n">build_src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cmake&#39;</span></div>
 
-<div class="viewcode-block" id="product_is_vcs"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_vcs">[docs]</a><span class="k">def</span> <span class="nf">product_is_vcs</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is download using git, svn or cvs (not archive)</span>
+<div class="viewcode-block" id="product_is_vcs"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_vcs">[docs]</a><span class="k">def</span> <span class="nf">product_is_vcs</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is download using git, svn or cvs (not archive)</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is vcs, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool)</span>
+<span class="sd">      True if the product is vcs, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">product_info</span><span class="o">.</span><span class="n">get_source</span> <span class="ow">in</span> <span class="n">AVAILABLE_VCS</span></div>
 
-<div class="viewcode-block" id="product_is_SALOME"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_SALOME">[docs]</a><span class="k">def</span> <span class="nf">product_is_SALOME</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is a SALOME module</span>
+<div class="viewcode-block" id="product_is_SALOME"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_SALOME">[docs]</a><span class="k">def</span> <span class="nf">product_is_SALOME</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is a SALOME module</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is a SALOME module, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is a SALOME module, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;is_SALOME_module&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">is_SALOME_module</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="product_is_smesh_plugin"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_smesh_plugin">[docs]</a><span class="k">def</span> <span class="nf">product_is_smesh_plugin</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is a SMESH plugin</span>
+<div class="viewcode-block" id="product_is_smesh_plugin"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_smesh_plugin">[docs]</a><span class="k">def</span> <span class="nf">product_is_smesh_plugin</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is a SMESH plugin</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is a SMESH plugin, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool)</span>
+<span class="sd">      True if the product is a SMESH plugin, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;smesh_plugin&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">smesh_plugin</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="product_is_cpp"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_cpp">[docs]</a><span class="k">def</span> <span class="nf">product_is_cpp</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is cpp</span>
+<div class="viewcode-block" id="product_is_cpp"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_cpp">[docs]</a><span class="k">def</span> <span class="nf">product_is_cpp</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is cpp</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is a cpp, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product is a cpp, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;cpp&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">cpp</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="product_compiles"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_compiles">[docs]</a><span class="k">def</span> <span class="nf">product_compiles</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product compiles or not (some products do not have a </span>
+<div class="viewcode-block" id="product_compiles"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_compiles">[docs]</a><span class="k">def</span> <span class="nf">product_compiles</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product compiles or not (some products do not have a </span>
 <span class="sd">       compilation procedure)</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product compiles, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product compiles, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="ow">not</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;compilation&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">compilation</span> <span class="o">==</span> <span class="s2">&quot;no&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="product_has_script"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_has_script">[docs]</a><span class="k">def</span> <span class="nf">product_has_script</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has a compilation script</span>
+<div class="viewcode-block" id="product_has_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_has_script">[docs]</a><span class="k">def</span> <span class="nf">product_has_script</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has a compilation script</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product it has a compilation script, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product it has a compilation script, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;build_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
         <span class="c1"># Native case</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">build_src</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">build_source</span>
     <span class="k">return</span> <span class="n">build_src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;script&#39;</span></div>
 
-<div class="viewcode-block" id="product_has_env_script"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_has_env_script">[docs]</a><span class="k">def</span> <span class="nf">product_has_env_script</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has an environment script</span>
+<div class="viewcode-block" id="product_has_env_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_has_env_script">[docs]</a><span class="k">def</span> <span class="nf">product_has_env_script</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has an environment script</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product it has an environment script, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product it has an environment script, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;environ&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span> <span class="s2">&quot;env_script&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">environ</span></div>
 
-<div class="viewcode-block" id="product_has_patches"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_has_patches">[docs]</a><span class="k">def</span> <span class="nf">product_has_patches</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has one or more patches</span>
+<div class="viewcode-block" id="product_has_patches"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_has_patches">[docs]</a><span class="k">def</span> <span class="nf">product_has_patches</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has one or more patches</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product has one or more patches</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product has one or more patches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;patches&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">patches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="product_has_logo"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_has_logo">[docs]</a><span class="k">def</span> <span class="nf">product_has_logo</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has a logo (YACSGEN generate)</span>
+<div class="viewcode-block" id="product_has_logo"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_has_logo">[docs]</a><span class="k">def</span> <span class="nf">product_has_logo</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has a logo (YACSGEN generate)</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: The path of the logo if the product has a logo, else False</span>
-<span class="sd">    :rtype: Str</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (str) </span>
+<span class="sd">      The path of the logo if the product has a logo, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;logo&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">logo</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="product_has_salome_gui"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_has_salome_gui">[docs]</a><span class="k">def</span> <span class="nf">product_has_salome_gui</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has a SALOME gui</span>
+<div class="viewcode-block" id="product_has_salome_gui"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_has_salome_gui">[docs]</a><span class="k">def</span> <span class="nf">product_has_salome_gui</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has a SALOME gui</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product has a SALOME gui, else False</span>
-<span class="sd">    :rtype: Boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product has a SALOME gui, else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;has_salome_gui&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">has_salome_gui</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="product_is_mpi"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_mpi">[docs]</a><span class="k">def</span> <span class="nf">product_is_mpi</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product has openmpi in its dependencies</span>
+<div class="viewcode-block" id="product_is_mpi"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_mpi">[docs]</a><span class="k">def</span> <span class="nf">product_is_mpi</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product has openmpi in its dependencies</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product has openmpi inits dependencies</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) </span>
+<span class="sd">      True if the product has openmpi inits dependencies</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;openmpi&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">depend</span></div>
 
-<div class="viewcode-block" id="product_is_generated"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_generated">[docs]</a><span class="k">def</span> <span class="nf">product_is_generated</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Know if a product is generated (YACSGEN)</span>
+<div class="viewcode-block" id="product_is_generated"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.product_is_generated">[docs]</a><span class="k">def</span> <span class="nf">product_is_generated</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is generated (YACSGEN)</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product is generated</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (bool) True if the product is generated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">product_info</span> <span class="ow">and</span>
             <span class="s2">&quot;generate&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span>
             <span class="n">product_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">generate</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="get_product_components"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.get_product_components">[docs]</a><span class="k">def</span> <span class="nf">get_product_components</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Get the component list to generate with the product</span>
+<div class="viewcode-block" id="get_product_components"><a class="viewcode-back" href="../../apidoc_src/src.html#src.product.get_product_components">[docs]</a><span class="k">def</span> <span class="nf">get_product_components</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the component list to generate with the product</span>
 <span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: The list of names of the components</span>
-<span class="sd">    :rtype: List</span>
-<span class="sd">    </span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param product_info: (Config)</span>
+<span class="sd">      The configuration specific to the product</span>
+<span class="sd">    :return: (list) The list of names of the components </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">product_is_generated</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[]</span>
     

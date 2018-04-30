@@ -1,0 +1,483 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commands.log &#8212; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commands.log</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+
+<span class="c1">#  Copyright (C) 2010-2012  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">stat</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
+<span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.xmlManager</span> <span class="k">as</span> <span class="nn">XMLMGR</span>
+<span class="kn">import</span> <span class="nn">src.system</span> <span class="k">as</span> <span class="nn">SYSS</span>
+<span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+
+<span class="c1"># Compatibility python 2/3 for input function</span>
+<span class="c1"># input stays input for python 3 and input = raw_input for python 2</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">raw_input</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span> 
+    <span class="k">pass</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1"># Command class</span>
+<span class="c1">########################################################################</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">_BaseCommand</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  The log command gives access to the logs produced by the salomeTools commands.</span>
+
+<span class="sd">  examples:</span>
+<span class="sd">  &gt;&gt; sat log</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span>
+  
+<div class="viewcode-block" id="Command.getParser"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.Command.getParser">[docs]</a>  <span class="k">def</span> <span class="nf">getParser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define all options for command &#39;sat log &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParserWithHelp</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;terminal&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;terminal&#39;</span><span class="p">,</span> 
+      <span class="s2">&quot;Optional: Show sat instances logs, no browser.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;last&#39;</span><span class="p">,</span> 
+      <span class="s2">&quot;Show the log of the last launched command.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;last_terminal&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;last_terminal&#39;</span><span class="p">,</span> 
+      <span class="sd">&quot;&quot;&quot;Optional: Show compile log of products, no browser.&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">,</span> 
+      <span class="s2">&quot;Optional: Show the logs of ALL the launched commands.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">,</span> 
+      <span class="s2">&quot;Optional: Erase the n most ancient log files.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+      <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;no_browser&#39;</span><span class="p">,</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;no_browser&#39;</span><span class="p">,</span> 
+      <span class="s2">&quot;Optional: Do not launch the browser at the end of the command. Only update the hat file.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;method called for command &#39;sat log &lt;options&gt;&#39;&quot;&quot;&quot;</span>
+    <span class="n">argList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cmd_arguments</span><span class="p">)</span>
+
+    <span class="c1"># print general help and returns</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;No arguments, as &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">remaindersArgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseArguments</span><span class="p">(</span><span class="n">argList</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;Done &#39;sat </span><span class="si">%s</span><span class="s2"> --help&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+   
+    <span class="c1"># shortcuts</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRunner</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
+      
+
+    <span class="c1"># get the log directory. </span>
+    <span class="n">logDir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_log_path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    
+    <span class="c1"># Print a header</span>
+    <span class="n">nb_files_log_dir</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;log directory&quot;</span><span class="p">,</span> <span class="n">logDir</span><span class="p">),</span> 
+            <span class="p">(</span><span class="s2">&quot;number of log files&quot;</span><span class="p">,</span> <span class="n">nb_files_log_dir</span><span class="p">)]</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    
+    <span class="c1"># If the clean options is invoked, </span>
+    <span class="c1"># do nothing but deleting the concerned files.</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
+        <span class="n">nbClean</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">clean</span>
+        <span class="c1"># get the list of files to remove</span>
+        <span class="n">lLogs</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">list_log_file</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="n">UTS</span><span class="o">.</span><span class="n">_log_all_command_file_expression</span><span class="p">)</span>
+        <span class="n">nbLogFiles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lLogs</span><span class="p">)</span>
+        <span class="c1"># Delete all if the invoked number is bigger than the number of log files</span>
+        <span class="k">if</span> <span class="n">nbClean</span> <span class="o">&gt;</span> <span class="n">nbLogFiles</span><span class="p">:</span>
+            <span class="n">nbClean</span> <span class="o">=</span> <span class="n">nbLogFiles</span>
+        <span class="c1"># Get the list to delete and do the removing</span>
+        <span class="n">lLogsToDelete</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lLogs</span><span class="p">)[:</span><span class="n">nbClean</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="n">lLogsToDelete</span><span class="p">:</span>
+            <span class="c1"># remove the xml log file</span>
+            <span class="n">remove_log_file</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="c1"># remove also the corresponding txt file in OUT directory</span>
+            <span class="n">txtFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filePath</span><span class="p">),</span> 
+                            <span class="s1">&#39;OUT&#39;</span><span class="p">,</span> 
+                            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filePath</span><span class="p">)[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)]</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+            <span class="n">remove_log_file</span><span class="p">(</span><span class="n">txtFilePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="c1"># remove also the corresponding pyconf (do not exist 2016-06) </span>
+            <span class="c1"># file in OUT directory</span>
+            <span class="n">pyconfFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filePath</span><span class="p">),</span> 
+                            <span class="s1">&#39;OUT&#39;</span><span class="p">,</span> 
+                            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filePath</span><span class="p">)[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)]</span> <span class="o">+</span> <span class="s1">&#39;.pyconf&#39;</span><span class="p">)</span>
+            <span class="n">remove_log_file</span><span class="p">(</span><span class="n">pyconfFilePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> logs deleted&quot;</span> <span class="o">%</span> <span class="n">nbClean</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># determine the commands to show in the hat log</span>
+    <span class="n">notShownCommands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">not_shown_commands</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">full</span><span class="p">:</span>
+        <span class="n">notShownCommands</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Find the stylesheets Directory and files</span>
+    <span class="n">xslDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span> <span class="s1">&#39;xsl&#39;</span><span class="p">)</span>
+    <span class="n">xslCommand</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xslDir</span><span class="p">,</span> <span class="s2">&quot;command.xsl&quot;</span><span class="p">)</span>
+    <span class="n">xslHat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xslDir</span><span class="p">,</span> <span class="s2">&quot;hat.xsl&quot;</span><span class="p">)</span>
+    <span class="n">xsltest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xslDir</span><span class="p">,</span> <span class="s2">&quot;test.xsl&quot;</span><span class="p">)</span>
+    <span class="n">imgLogo</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xslDir</span><span class="p">,</span> <span class="s2">&quot;LOGO-SAT.png&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># copy the stylesheets in the log directory</span>
+    <span class="c1"># OP We use copy instead of copy2 to update the creation date</span>
+    <span class="c1">#    So we can clean the LOGS directories easily</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xslCommand</span><span class="p">,</span> <span class="n">logDir</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xslHat</span><span class="p">,</span> <span class="n">logDir</span><span class="p">)</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">ensure_path_exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s2">&quot;TEST&quot;</span><span class="p">))</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xsltest</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s2">&quot;TEST&quot;</span><span class="p">))</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">imgLogo</span><span class="p">,</span> <span class="n">logDir</span><span class="p">)</span>
+
+    <span class="c1"># If the last option is invoked, just, show the last log file</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">last_terminal</span><span class="p">:</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">rootLogDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s1">&#39;LOGS&#39;</span><span class="p">)</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">ensure_path_exists</span><span class="p">(</span><span class="n">rootLogDir</span><span class="p">)</span>
+        <span class="n">log_dirs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">rootLogDir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">log_dirs</span> <span class="o">==</span> <span class="p">[]:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;log directory empty&quot;</span><span class="p">)</span>
+        <span class="n">log_dirs</span><span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">log_dirs</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">show_last_logs</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">log_dirs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="c1"># If the last option is invoked, just, show the last log file</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">last</span><span class="p">:</span>
+        <span class="n">lastLogFilePath</span> <span class="o">=</span> <span class="n">get_last_log_file</span><span class="p">(</span>
+            <span class="n">logDir</span><span class="p">,</span> <span class="n">notShownCommands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">lastLogFilePath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;last log file not found in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">logDir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">terminal</span><span class="p">:</span>
+            <span class="c1"># Show the log corresponding to the selected command call</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">print_log_command_in_terminal</span><span class="p">(</span><span class="n">lastLogFilePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># open the log xml file in the user editor</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">SYSS</span><span class="o">.</span><span class="n">show_in_editor</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">browser</span><span class="p">,</span> 
+                                      <span class="n">lastLogFilePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="c1"># If the user asks for a terminal display</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">terminal</span><span class="p">:</span>
+        <span class="c1"># Parse the log directory in order to find </span>
+        <span class="c1"># all the files corresponding to the commands</span>
+        <span class="n">lLogs</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">list_log_file</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="n">UTS</span><span class="o">.</span><span class="n">_log_macro_command_file_expression</span><span class="p">)</span>
+        <span class="n">lLogsFiltered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="n">lLogs</span><span class="p">:</span>
+            <span class="n">showLog</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">show_command_log</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">,</span> <span class="n">notShownCommands</span><span class="p">)</span>
+            <span class="c1"># showLog, cmdAppli, __ = UTS.show_command_log(filePath, cmd, </span>
+            <span class="c1">#                     config.VARS.application, notShownCommands)</span>
+            <span class="n">cmdAppli</span> <span class="o">=</span> <span class="n">showLog</span><span class="o">.</span><span class="n">getValue</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">showLog</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span>
+                <span class="n">lLogsFiltered</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">filePath</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">cmdAppli</span><span class="p">))</span>
+            
+        <span class="n">lLogsFiltered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lLogsFiltered</span><span class="p">)</span>
+        <span class="n">nb_logs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lLogsFiltered</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># loop on all files and print it with date, time and command name </span>
+        <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">cmdAppli</span> <span class="ow">in</span> <span class="n">lLogsFiltered</span><span class="p">:</span>          
+            <span class="n">num</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nb_logs</span> <span class="o">-</span> <span class="n">index</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%13s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">cmdAppli</span><span class="p">))</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># ask the user what for what command he wants to be displayed</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ask_value</span><span class="p">(</span><span class="n">nb_logs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lLogsFiltered</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="c1"># Show the log corresponding to the selected command call</span>
+                <span class="n">print_log_command_in_terminal</span><span class="p">(</span><span class="n">lLogsFiltered</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">logger</span><span class="p">)</span>                
+                <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;end from user&quot;</span><span class="p">)</span>
+                    
+    <span class="c1"># Create or update the hat xml that gives access to all the commands log files</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generating the hat log file (can be long) ... &quot;</span><span class="p">))</span>
+    <span class="n">xmlHatFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s1">&#39;hat.xml&#39;</span><span class="p">)</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">update_hat_xml</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> 
+                       <span class="n">application</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">,</span> 
+                       <span class="n">notShownCommands</span> <span class="o">=</span> <span class="n">notShownCommands</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># open the hat xml in the user editor</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_browser</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Opening the log file&quot;</span><span class="p">))</span>
+        <span class="n">res</span> <span class="o">=</span>  <span class="n">SYSS</span><span class="o">.</span><span class="n">show_in_editor</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">browser</span><span class="p">,</span> <span class="n">xmlHatFilePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+    
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;option no browser&quot;</span><span class="p">)</span></div></div>
+ 
+<div class="viewcode-block" id="get_last_log_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.get_last_log_file">[docs]</a><span class="k">def</span> <span class="nf">get_last_log_file</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="n">notShownCommands</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used in case of last option. </span>
+<span class="sd">    Get the last log command file path.</span>
+<span class="sd">    </span>
+<span class="sd">    :param logDir: (str) The directory where to search the log files</span>
+<span class="sd">    :param notShownCommands: (list) the list of commands to ignore</span>
+<span class="sd">    :return: (str) the path to the last log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fileName</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">logDir</span><span class="p">):</span>
+        <span class="c1"># YYYYMMDD_HHMMSS_namecmd.xml</span>
+        <span class="n">sExpr</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">_log_macro_command_file_expression</span>
+        <span class="n">oExpr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">sExpr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oExpr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+            <span class="c1"># get date and hour and format it</span>
+            <span class="n">date_hour_cmd</span> <span class="o">=</span> <span class="n">fileName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="n">datehour</span> <span class="o">=</span> <span class="n">date_hour_cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">date_hour_cmd</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">date_hour_cmd</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">notShownCommands</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">datehour</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">last</span> <span class="o">=</span> <span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">datehour</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#no log file</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="remove_log_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.remove_log_file">[docs]</a><span class="k">def</span> <span class="nf">remove_log_file</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;if it exists, print a warning and remove the input file</span>
+<span class="sd">    </span>
+<span class="sd">    :param filePath: the path of the file to delete</span>
+<span class="sd">    :param logger: (Logger) the logger instance to use for the print </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="s2">&quot;Removing </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filePath</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="print_log_command_in_terminal"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.print_log_command_in_terminal">[docs]</a><span class="k">def</span> <span class="nf">print_log_command_in_terminal</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the contain of filePath. It contains a command log in xml format.</span>
+<span class="sd">    </span>
+<span class="sd">    :param filePath: </span>
+<span class="sd">      The command xml file from which extract the commands context and traces</span>
+<span class="sd">    :param logger: (Logger) the logging instance to use in order to print.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Reading </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">filePath</span><span class="p">)</span>
+    <span class="c1"># Instantiate the ReadXmlFile class that reads xml files</span>
+    <span class="n">xmlRead</span> <span class="o">=</span> <span class="n">XMLMGR</span><span class="o">.</span><span class="n">ReadXmlFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+    <span class="c1"># Get the attributes containing the context (user, OS, time, etc..)</span>
+    <span class="n">dAttrText</span> <span class="o">=</span> <span class="n">xmlRead</span><span class="o">.</span><span class="n">get_attrib</span><span class="p">(</span><span class="s1">&#39;Site&#39;</span><span class="p">)</span>
+    <span class="c1"># format dAttrText and print the context</span>
+    <span class="n">lAttrText</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="n">dAttrText</span><span class="p">:</span>
+        <span class="n">lAttrText</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="p">,</span> <span class="n">dAttrText</span><span class="p">[</span><span class="n">attrib</span><span class="p">]))</span>
+    
+    <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">lAttrText</span><span class="p">)</span>
+    <span class="c1"># Get the traces</span>
+    <span class="n">command_traces</span> <span class="o">=</span> <span class="n">xmlRead</span><span class="o">.</span><span class="n">get_node_text</span><span class="p">(</span><span class="s1">&#39;Log&#39;</span><span class="p">)</span>
+    <span class="c1"># Print it if there is any</span>
+    <span class="k">if</span> <span class="n">command_traces</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Here are the command traces :</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">command_traces</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="getMaxFormat"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.getMaxFormat">[docs]</a><span class="k">def</span> <span class="nf">getMaxFormat</span><span class="p">(</span><span class="n">aListOfStr</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;returns format for columns width as &#39;%-30s&quot;&#39; for example&quot;&quot;&quot;</span>
+    <span class="n">maxLen</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">aListOfStr</span><span class="p">])</span> <span class="o">+</span> <span class="n">offset</span>
+    <span class="n">fmt</span> <span class="o">=</span>  <span class="s2">&quot;%-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">maxLen</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span> <span class="c1"># &quot;%-30s&quot; for example  </span>
+    <span class="k">return</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">maxLen</span></div>
+
+<div class="viewcode-block" id="show_last_logs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.show_last_logs">[docs]</a><span class="k">def</span> <span class="nf">show_last_logs</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">log_dirs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show last compilation logs&quot;&quot;&quot;</span>
+    <span class="n">log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s1">&#39;LOGS&#39;</span><span class="p">)</span>
+    <span class="c1"># list the logs</span>
+    <span class="n">nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">log_dirs</span><span class="p">)</span>
+    <span class="n">fmt1</span><span class="p">,</span> <span class="n">maxLen</span> <span class="o">=</span> <span class="n">getMaxFormat</span><span class="p">(</span><span class="n">log_dirs</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fmt2</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: &quot;</span> <span class="o">+</span> <span class="n">fmt1</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># &quot;%s: %-30s\n&quot; for example</span>
+    <span class="n">nb_cols</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># line ~ no more 100 chars</span>
+    <span class="k">if</span> <span class="n">maxLen</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span> <span class="n">nb_cols</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">if</span> <span class="n">maxLen</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">:</span> <span class="n">nb_cols</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">if</span> <span class="n">maxLen</span> <span class="o">&gt;</span> <span class="mi">33</span><span class="p">:</span> <span class="n">nb_cols</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">maxLen</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span> <span class="n">nb_cols</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">col_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">nb</span> <span class="o">/</span> <span class="n">nb_cols</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_size</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nb_cols</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">col_size</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">nb</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">log_dirs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">str_indice</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">log_name</span> <span class="o">=</span> <span class="n">l</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">fmt2</span> <span class="o">%</span> <span class="p">(</span><span class="n">str_indice</span><span class="p">,</span> <span class="n">log_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># loop till exit</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ask_value</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">product_log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">log_dirs</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">show_product_last_logs</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">product_log_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="show_product_last_logs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.show_product_last_logs">[docs]</a><span class="k">def</span> <span class="nf">show_product_last_logs</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">product_log_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show last compilation logs of a product&quot;&quot;&quot;</span>
+    <span class="c1"># sort the files chronologically</span>
+    <span class="n">l_time_file</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">file_n</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">product_log_dir</span><span class="p">):</span>
+        <span class="n">my_stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">product_log_dir</span><span class="p">,</span> <span class="n">file_n</span><span class="p">))</span>
+        <span class="n">l_time_file</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+              <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">my_stat</span><span class="p">[</span><span class="n">stat</span><span class="o">.</span><span class="n">ST_MTIME</span><span class="p">]),</span> <span class="n">file_n</span><span class="p">))</span>
+    
+    <span class="c1"># display the available logs</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">__</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">l_time_file</span><span class="p">)):</span>
+        <span class="n">str_indice</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">my_stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">product_log_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">my_stat</span><span class="p">[</span><span class="n">stat</span><span class="o">.</span><span class="n">ST_MTIME</span><span class="p">])))</span>
+        
+        <span class="n">opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">%8.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">my_stat</span><span class="p">[</span><span class="n">stat</span><span class="o">.</span><span class="n">ST_SIZE</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1024.0</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%-35s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%-30s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">str_indice</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+        
+    <span class="c1"># loop till exit</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ask_value</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">l_time_file</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">__</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span> <span class="o">=</span>  <span class="nb">sorted</span><span class="p">(</span><span class="n">l_time_file</span><span class="p">)[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">product_log_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="n">SYSS</span><span class="o">.</span><span class="n">show_in_editor</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">editor</span><span class="p">,</span> <span class="n">log_file_path</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="ask_value"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.log.ask_value">[docs]</a><span class="k">def</span> <span class="nf">ask_value</span><span class="p">(</span><span class="n">nb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ask for an int n. 0&lt;n&lt;nb</span>
+<span class="sd">    </span>
+<span class="sd">    :param nb: (int) The maximum value of the value to be returned by the user.</span>
+<span class="sd">    :return: (int) </span>
+<span class="sd">      the value entered by the user. Return -1 if it is not as expected</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># ask for a value</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Which one (enter or 0 to quit)? &quot;</span><span class="p">))</span>
+        <span class="c1"># Verify it is on the right range</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">nb</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="k">return</span> <span class="n">x</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

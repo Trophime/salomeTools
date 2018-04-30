@@ -64,7 +64,7 @@ def getParamiko(logger=None):
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The jobs command command launches maintenances that are described in 
   the dedicated jobs configuration file.
 
@@ -292,7 +292,7 @@ Use the --list option to get the possible files.\n""") % config_file
   
 
 class Machine(object):
-    """\
+    """
     Manage a ssh connection on a machine
     """
     def __init__(self,
@@ -314,11 +314,11 @@ class Machine(object):
         self._connection_successful = None
     
     def connect(self, logger):
-        '''Initiate the ssh connection to the remote machine
+        """Initiate the ssh connection to the remote machine
         
         :param logger: The logger instance 
-        :return: Nothing
-        '''
+        :return: None
+        """
 
         self._connection_successful = False
         self.ssh.load_system_host_keys()
@@ -344,12 +344,11 @@ class Machine(object):
         return message
     
     def successfully_connected(self, logger):
-        """\
+        """
         Verify if the connection to the remote machine has succeed
         
         :param logger: The logger instance 
-        :return: True if the connection has succeed, False if not
-        :rtype: bool
+        :return: (bool) True if the connection has succeed, False if not
         """
         if self._connection_successful == None:
             message = _("""\
@@ -381,10 +380,11 @@ whereas there were no connection request""" % \
         return res
         
     def put_dir(self, source, target, filters = []):
-        '''Uploads the contents of the source directory to the target path.
+        """
+        Uploads the contents of the source directory to the target path.
         The target directory needs to exists. 
         All sub-directories in source are created under target.
-        '''
+        """
         for item in os.listdir(source):
             if item in filters:
                 continue
@@ -408,8 +408,9 @@ whereas there were no connection request""" % \
                     self.put_dir(source_path, destination_path)
 
     def mkdir(self, path, mode=511, ignore_existing=False):
-        '''As mkdir by adding an option to not fail if the folder exists 
-        '''
+        """
+        As mkdir by adding an option to not fail if the folder exists 
+        """
         try:
             self.sftp.mkdir(path, mode)
         except IOError:
@@ -419,15 +420,14 @@ whereas there were no connection request""" % \
                 raise       
     
     def exec_command(self, command, logger):
-        '''Execute the command on the remote machine
+        """Execute the command on the remote machine
         
-        :param command str: The command to be run
+        :param command: (str) The command to be run
         :param logger: The logger instance 
-        :return: the stdin, stdout, and stderr of the executing command,
-                 as a 3-tuple
-        :rtype: (paramiko.channel.ChannelFile, paramiko.channel.ChannelFile,
-                paramiko.channel.ChannelFile)
-        '''
+        :return: (paramiko.channel.ChannelFile, etc) 
+          the stdin, stdout, and stderr of the executing command,
+          as a 3-tuple
+        """
         import traceback
         try:        
             # Does not wait the end of the command
@@ -447,20 +447,16 @@ whereas there were no connection request""" % \
         return (stdin, stdout, stderr)
 
     def close(self):
-        '''Close the ssh connection
-        
-        :rtype: N\A
-        '''
+        """Close the ssh connection"""
         self.ssh.close()
      
     def write_info(self, logger):
-        """\
+        """
         Prints the informations relative to the machine in the logger 
         (terminal traces and log file)
         
         :param logger: The logger instance
-        :return: Nothing
-        :rtype: N\A
+        :return: None
         """
         if self.successfully_connected(logger):
             msg = "<OK>"
@@ -469,11 +465,11 @@ whereas there were no connection request""" % \
         msg += "host: %s, " % self.host
         msg += "port: %s, " % str(self.port)
         msg += "user: %s" % str(self.user)
-       logger.info("Connection %s" % msg ) 
+        logger.info("Connection %s" % msg ) 
 
 
 class Job(object):
-    """\
+    """
     Class to manage one job
     """
     def __init__(self,
@@ -532,11 +528,11 @@ class Job(object):
             self.command = prefix + ' "' + self.command +'"'
     
     def get_pids(self):
-        """ Get the pid(s) corresponding to the command that have been launched
-            On the remote machine
+        """
+        Get the pid(s) corresponding to the command that have been launched
+        On the remote machine
         
-        :return: The list of integers corresponding to the found pids
-        :rtype: List
+        :return: (list) The list of integers corresponding to the found pids
         """
         pids = []
         cmd_pid = 'ps aux | grep "' + self.command + '" | awk \'{print $2}\''
@@ -547,11 +543,10 @@ class Job(object):
         return pids
     
     def kill_remote_process(self, wait=1):
-        '''Kills the process on the remote machine.
+        """Kills the process on the remote machine.
         
-        :return: (the output of the kill, the error of the kill)
-        :rtype: (str, str)
-        '''
+        :return: (str, str) the output of the kill, the error of the kill
+        """
         try:
             pids = self.get_pids()
         except:
@@ -564,21 +559,20 @@ class Job(object):
         return (out_kill.read().decode(), err_kill.read().decode())
             
     def has_begun(self):
-        '''Returns True if the job has already begun
+        """Returns True if the job has already begun
         
-        :return: True if the job has already begun
-        :rtype: bool
-        '''
+        :return: (bool) True if the job has already begun
+        """
         return self._has_begun
     
     def has_finished(self):
-        '''Returns True if the job has already finished 
-           (i.e. all the commands have been executed)
-           If it is finished, the outputs are stored in the fields out and err.
+        """
+        Returns True if the job has already finished 
+        (i.e. all the commands have been executed)
+        If it is finished, the outputs are stored in the fields out and err.
         
-        :return: True if the job has already finished
-        :rtype: bool
-        '''
+        :return: (bool) True if the job has already finished
+        """
         
         # If the method has already been called and returned True
         if self._has_finished:
@@ -604,7 +598,7 @@ class Job(object):
         return self._has_finished
           
     def get_log_files(self):
-        """\
+        """
         Get the log files produced by the command launched 
         on the remote machine, and put it in the log directory of the user,
         so they can be accessible from 
@@ -677,14 +671,14 @@ class Job(object):
                             {"1": str(job_path_remote), "2": str(e)}
 
     def has_failed(self):
-        '''Returns True if the job has failed. 
-           A job is considered as failed if the machine could not be reached,
-           if the remote command failed, 
-           or if the job finished with a time out.
+        """
+        Returns True if the job has failed. 
+        A job is considered as failed if the machine could not be reached,
+        if the remote command failed, 
+        or if the job finished with a time out.
         
-        :return: True if the job has failed
-        :rtype: bool
-        '''
+        :return: (bool) True if the job has failed
+        """
         if not self.has_finished():
             return False
         if not self.machine.successfully_connected(self.logger):
@@ -696,8 +690,9 @@ class Job(object):
         return False
     
     def cancel(self):
-        """In case of a failing job, one has to cancel every job that depend 
-           on it. This method put the job as failed and will not be executed.
+        """
+        In case of a failing job, one has to cancel every job that depend on it.
+        This method put the job as failed and will not be executed.
         """
         if self.cancelled:
             return
@@ -709,19 +704,17 @@ class Job(object):
         self.err += msg
 
     def is_running(self):
-        '''Returns True if the job commands are running 
+        """Returns True if the job commands are running 
         
-        :return: True if the job is running
-        :rtype: bool
-        '''
+        :return: (bool) True if the job is running
+        """
         return self.has_begun() and not self.has_finished()
 
     def is_timeout(self):
-        '''Returns True if the job commands has finished with timeout 
+        """Returns True if the job commands has finished with timeout 
         
-        :return: True if the job has finished with timeout
-        :rtype: bool
-        '''
+        :return:  (bool) True if the job has finished with timeout
+        """
         return self._has_timouted
 
     def time_elapsed(self):
@@ -736,8 +729,9 @@ class Job(object):
         return T_now - self._T0
     
     def check_time(self):
-        """Verify that the job has not exceeded its timeout.
-           If it has, kill the remote command and consider the job as finished.
+        """
+        Verify that the job has not exceeded its timeout.
+        If it has, kill the remote command and consider the job as finished.
         """
         if not self.has_begun():
             return
@@ -754,16 +748,15 @@ class Job(object):
                 self.err += _("Unable to get remote log files!\n%s\n" % str(e))
             
     def total_duration(self):
-        """\
-        Give the total duration of the job
+        """
+        Gives the total duration of the job
         
-        :return: the total duration of the job in seconds
-        :rtype: int
+        :return: (int) the total duration of the job in seconds
         """
         return self._Tf - self._T0
         
     def run(self):
-        """\
+        """
         Launch the job by executing the remote command.
         """
         
@@ -802,7 +795,7 @@ class Job(object):
         self._has_begun = True
     
     def write_results(self):
-        """\
+        """
         Display on the terminal all the job's information
         """
         msg = "name : %s\n" % self.name
@@ -810,10 +803,10 @@ class Job(object):
           msg += "after : %s\n" % self.after
         msg += "Time elapsed : %4imin %2is \n" % (self.total_duration()//60 , self.total_duration()%60)
         if self._T0 != -1:
-            msg += "Begin time : %s\n" % 
+            msg += "Begin time : %s\n" % \
                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))
         if self._Tf != -1:
-            msg += "End time   : %s\n\n" % 
+            msg += "End time   : %s\n\n" % \
                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
         
         self.logger.info(msg)
@@ -828,15 +821,13 @@ class Job(object):
             msg += "Unable to get output\n"
         else:
             msg += self.out + "\n"
-        msg += "err :\n%s\n" % .err
+        msg += "err :\n%s\n" % self.err
         self.logger.info(msg)
         
     def get_status(self):
-        """\
-        Get the status of the job (used by the Gui for xml display)
+        """Get the status of the job (used by the Gui for xml display)
         
-        :return: The current status of the job
-        :rtype: String
+        :return: (str) The current status of the job
         """
         if not self.machine.successfully_connected(self.logger):
             return "SSH connection KO"
@@ -852,7 +843,7 @@ class Job(object):
             return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
     
 class Jobs(object):
-    """\
+    """
     Class to manage the jobs to be run
     """
     def __init__(self,
@@ -888,14 +879,13 @@ class Jobs(object):
         self.determine_jobs_and_machines()
     
     def define_job(self, job_def, machine):
-        """\
+        """
         Takes a pyconf job definition and a machine (from class machine)
         and returns the job instance corresponding to the definition.
         
-        :param job_def src.config.Mapping: a job definition 
-        :param machine machine: the machine on which the job will run
-        :return: The corresponding job in a job class instance
-        :rtype: job
+        :param job_def: (Mapping a job definition 
+        :param machine: (Machine) the machine on which the job will run
+        :return: (Job) The corresponding job in a job class instance
         """
         name = job_def.name
         cmmnds = job_def.commands
@@ -929,7 +919,7 @@ class Jobs(object):
                    prefix = prefix)
     
     def determine_jobs_and_machines(self):
-        """\
+        """
         Reads the pyconf jobs definition and instantiates all
         the machines and jobs to be done today.
 
@@ -1015,11 +1005,9 @@ The job will not be launched.
         self.lhosts = host_list
         
     def ssh_connection_all_machines(self, pad=50):
-        """\
-        Do the ssh connection to every machine to be used today.
+        """Do the ssh connection to every machine to be used today.
 
-        :return: Nothing
-        :rtype: N\A
+        :return: None
         """
         self.logger.info( "Establishing connection with all the machines :\n")
         for machine in self.lmachines:
@@ -1089,14 +1077,15 @@ The job will not be launched.
         
 
     def is_occupied(self, hostname):
-        '''Function that returns True if a job is running on 
-           the machine defined by its host and its port.
+        """
+        Returns True if a job is running on 
+        the machine defined by its host and its port.
         
-        :param hostname (str, int): the pair (host, port)
-        :return: the job that is running on the host, 
-                or false if there is no job running on the host. 
-        :rtype: job / bool
-        '''
+        :param hostname: (str, int) the pair (host, port)
+        :return: (Job or bool) 
+          the job that is running on the host, 
+          or false if there is no job running on the host. 
+        """
         host = hostname[0]
         port = hostname[1]
         for jb in self.ljobs:
@@ -1106,12 +1095,12 @@ The job will not be launched.
         return False
     
     def update_jobs_states_list(self):
-        '''Function that updates the lists that store the currently
-           running jobs and the jobs that have already finished.
+        """
+        Updates the lists that store the currently
+        running jobs and the jobs that have already finished.
         
-        :return: Nothing. 
-        :rtype: N\A
-        '''
+        :return: None
+        """
         jobs_finished_list = []
         jobs_running_list = []
         for jb in self.ljobs:
@@ -1130,11 +1119,10 @@ The job will not be launched.
         return nb_job_finished_now > nb_job_finished_before
     
     def cancel_dependencies_of_failing_jobs(self):
-        '''Function that cancels all the jobs that depend on a failing one.
+        """Cancels all the jobs that depend on a failing one.
         
-        :return: Nothing. 
-        :rtype: N\A
-        '''
+        :return: None
+        """
         
         for job in self.ljobs:
             if job.after is None:
@@ -1144,12 +1132,11 @@ The job will not be launched.
                 job.cancel()
     
     def find_job_that_has_name(self, name):
-        '''Returns the job by its name.
+        """Returns the job by its name.
         
-        :param name str: a job name
-        :return: the job that has the name. 
-        :rtype: job
-        '''
+        :param name: (str) a job name
+        :return: (Job) the job that has the name. 
+        """
         for jb in self.ljobs:
             if jb.name == name:
                 return jb
@@ -1157,14 +1144,14 @@ The job will not be launched.
         return None
     
     def str_of_length(self, text, length):
-        '''Takes a string text of any length and returns 
-           the most close string of length "length".
+        """
+        Takes a string text of any length and returns 
+        the most close string of length "length".
         
-        :param text str: any string
-        :param length int: a length for the returned string
-        :return: the most close string of length "length"
-        :rtype: str
-        '''
+        :param text: (str) any string
+        :param length: (int) a length for the returned string
+        :return: (str) the most close string of length "length"
+        """
         if len(text) > length:
             text_out = text[:length-3] + '...'
         else:
@@ -1176,14 +1163,13 @@ The job will not be launched.
         return text_out
     
     def display_status(self, len_col):
-        """\
+        """
         Takes a lenght and construct the display of the current status 
         of the jobs in an array that has a column for each host.
         It displays the job that is currently running on the host of the column.
         
-        :param len_col int: the size of the column 
-        :return: Nothing
-        :rtype: N\A
+        :param len_col: (int) the size of the column 
+        :return: None
         """  
         display_line = ""
         for host_port in self.lhosts:
@@ -1199,15 +1185,14 @@ The job will not be launched.
     
 
     def run_jobs(self):
-        """\
+        """
         The main method. Runs all the jobs on every host. 
         For each host, at a given time, only one job can be running.
         The jobs that have the field after (that contain the job that has
         to be run before it) are run after the previous job.
         This method stops when all the jobs are finished.
         
-        :return: Nothing
-        :rtype: N\A
+        :return: None
         """
         # Print header
         self.logger.info(_('Executing the jobs :\n'))
@@ -1274,11 +1259,9 @@ The job will not be launched.
             self.gui.last_update()
 
     def write_all_results(self):
-        """\
-        Display all the jobs outputs.
+        """Display all the jobs outputs.
         
-        :return: Nothing
-        :rtype: N\A
+        :return: None
         """
         for jb in self.ljobs:
             self.logger.info("#------- Results for job %s -------#\n" % jb.name)
@@ -1286,7 +1269,7 @@ The job will not be launched.
             self.logger.info("\n\n")
 
 class Gui(object):
-    """\
+    """
     Class to manage the the xml data that can be displayed in a browser 
     to see the jobs states
     """
@@ -1297,13 +1280,15 @@ class Gui(object):
                  prefix,
                  logger,
                  file_boards=""):
-        """\
-        Initialization
+        """Initialization
         
-        :param xml_dir_path str: The path to the directory where to put the xml resulting files
-        :param l_jobs List: the list of jobs that run today
-        :param l_jobs_not_today List: the list of jobs that do not run today
-        :param file_boards str: the file path from which to read the expected boards
+        :param xml_dir_path: (str) 
+          The path to the directory where to put the xml resulting files
+        :param l_jobs: (list) the list of jobs that run today
+        :param l_jobs_not_today: (list) 
+          the list of jobs that do not run today
+        :param file_boards: (str) 
+          the file path from which to read the expected boards
         """
         # The logging instance
         self.logger = logger
@@ -1343,9 +1328,11 @@ class Gui(object):
         self.update_xml_files(l_jobs)
     
     def add_xml_board(self, name):
-        '''Add a board to the board list   
-        :param name str: the board name
-        '''
+        """
+        Add a board to the board list
+        
+        :param name: (str) the board name
+        """
         xml_board_path = os.path.join(self.xml_dir_path, name + ".xml")
         self.d_xml_board_files[name] =  XMLMGR.XmlLogFile(xml_board_path,"JobsReport")
         self.d_xml_board_files[name].add_simple_node("distributions")
@@ -1353,12 +1340,12 @@ class Gui(object):
         self.d_xml_board_files[name].add_simple_node("board", text=name)
            
     def initialize_boards(self, l_jobs, l_jobs_not_today):
-        """\
+        """
         Get all the first information needed for each file and write the 
         first version of the files 
         
-        :param l_jobs List: the list of jobs that run today
-        :param l_jobs_not_today List: the list of jobs that do not run today
+        :param l_jobs: (list) the list of jobs that run today
+        :param l_jobs_not_today: (list) the list of jobs that do not run today
         """
         # Get the boards to fill and put it in a dictionary
         # {board_name : xml instance corresponding to the board}
@@ -1489,12 +1476,15 @@ class Gui(object):
                             attrib={"distribution" : row, "application" : column } )
 
     def find_history(self, l_jobs, l_jobs_not_today):
-        """find, for each job, in the existent xml boards the results for the 
-           job. Store the results in the dictionnary self.history = {name_job : 
-           list of (date, status, list links)}
+        """
+        find, for each job, in the existent xml boards the results for the job.
+        Store the results in the dictionary 
+        self.history = {name_job : list of (date, status, list links)}
         
-        :param l_jobs List: the list of jobs to run today   
-        :param l_jobs_not_today List: the list of jobs that do not run today
+        :param l_jobs: (list) 
+          the list of jobs to run today   
+        :param l_jobs_not_today: (list) 
+          the list of jobs that do not run today
         """
         # load the all the history
         expression = "^[0-9]{8}_+[0-9]{6}_" + self.global_name + ".xml$"
@@ -1509,7 +1499,7 @@ class Gui(object):
                     l_globalxml.append(global_xml)
                 except Exception as e:
                     msg = _("The file '%s' can not be read, it will be ignored\n%s") % \
-                           (file_path, e})
+                           (file_path, e)
                     self.logger.warning("%s\n" % msg)
                     
         # Construct the dictionnary self.history 
@@ -1530,12 +1520,14 @@ class Gui(object):
             self.history[job.name] = l_links
   
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
-        """\
+        """
         Get all the first information needed for each file and write the 
         first version of the files   
 
-        :param xml_node_jobs etree.Element: the node corresponding to a job
-        :param l_jobs_not_today List: the list of jobs that do not run today
+        :param xml_node_jobs: (etree.Element) 
+          the node corresponding to a job
+        :param l_jobs_not_today: (list) 
+          the list of jobs that do not run today
         """
         
         ASNODE = XMLMGR.add_simple_node # shortcut
@@ -1563,10 +1555,11 @@ class Gui(object):
                             attrib={"date" : date, "res" : res_job, "last" : "no"} )
 
     def parse_csv_boards(self, today):
-        """ Parse the csv file that describes the boards to produce and fill 
-            the dict d_input_boards that contain the csv file contain
+        """ 
+        Parse the csv file that describes the boards to produce and fill 
+        the dict d_input_boards that contain the csv file contain
         
-        :param today int: the current day of the week 
+        :param today: (int) the current day of the week 
         """
         # open the csv file and read its content
         l_read = []
@@ -1614,10 +1607,10 @@ class Gui(object):
         self.d_input_boards = d_boards
 
     def update_xml_files(self, l_jobs):
-        '''Write all the xml files with updated information about the jobs   
+        """Write all the xml files with updated information about the jobs   
 
-        :param l_jobs List: the list of jobs that run today
-        '''
+        :param l_jobs: (list) the list of jobs that run today
+        """
         for xml_file in [self.xml_global_file] + list(
                                             self.d_xml_board_files.values()):
             self.update_xml_file(l_jobs, xml_file)
@@ -1626,11 +1619,12 @@ class Gui(object):
         self.write_xml_files()
             
     def update_xml_file(self, l_jobs, xml_file):      
-        '''update information about the jobs for the file xml_file   
+        """update information about the jobs for the file xml_file   
 
-        :param l_jobs List: the list of jobs that run today
-        :param xml_file xmlManager.XmlLogFile: the xml instance to update
-        '''
+        :param l_jobs: (list) the list of jobs that run today
+        :param xml_file: (xmlManager.XmlLogFile) 
+          the xml instance to update
+        """
         
         xml_node_jobs = xml_file.xmlroot.find('jobs')
         # Update the job names and status node
@@ -1721,14 +1715,15 @@ class Gui(object):
                
 
     def find_test_log(self, l_remote_log_files):
-        '''Find if there is a test log (board) in the remote log files and 
-           the path to it. There can be several test command, so the result is
-           a list.
+        """
+        Find if there is a test log (board) in the remote log files and 
+        the path to it. There can be several test command, 
+        so the result is a list.
 
-        :param l_remote_log_files List: the list of all remote log files
-        :return: the list of (test log files path, res of the command)
-        :rtype: List
-        '''
+        :param l_remote_log_files: (list) the list of all remote log files
+        :return: (list) 
+          the list of tuples (test log files path, res of the command)
+        """
         res = []
         for file_path in l_remote_log_files:
             dirname = os.path.basename(os.path.dirname(file_path))
@@ -1749,11 +1744,11 @@ class Gui(object):
         return res
     
     def last_update(self, finish_status = "finished"):
-        '''update information about the jobs for the file xml_file   
+        """update information about the jobs for the file xml_file   
 
-        :param l_jobs List: the list of jobs that run today
-        :param xml_file xmlManager.XmlLogFile: the xml instance to update
-        '''
+        :param l_jobs: (list) the list of jobs that run today
+        :param xml_file: (xmlManager.XmlLogFile) the xml instance to update
+        """
         for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             xml_node_infos = xml_file.xmlroot.find('infos')
             XMLMGR.append_node_attrib(xml_node_infos,
@@ -1762,8 +1757,9 @@ class Gui(object):
         self.write_xml_files()
 
     def write_xml_file(self, xml_file, stylesheet):
-        ''' Write one xml file and the same file with prefix
-        '''
+        """
+        Write one xml file and the same file with prefix
+        """
         xml_file.write_tree(stylesheet)
         file_path = xml_file.logFile
         file_dir = os.path.dirname(file_path)
@@ -1773,8 +1769,9 @@ class Gui(object):
                                                      file_name_with_prefix))
         
     def write_xml_files(self):
-        ''' Write the xml files   
-        '''
+        """
+        Write the xml files   
+        """
         self.write_xml_file(self.xml_global_file, STYLESHEET_GLOBAL)
         for xml_file in self.d_xml_board_files.values():
             self.write_xml_file(xml_file, STYLESHEET_BOARD)
@@ -1799,10 +1796,11 @@ def get_config_file_path(job_config_name, l_cfg_dir):
     return found, file_jobs_cfg
 
 def develop_factorized_jobs(config_jobs):
-    '''update information about the jobs for the file xml_file   
+    """update information about the jobs for the file xml_file   
     
-    :param config_jobs Config: the config corresponding to the jos description
-    '''
+    :param config_jobs: (Config) 
+      the config corresponding to the jos description
+    """
     developed_jobs_list = []
     for jb in config_jobs.jobs:
         # case where the jobs are not developed
