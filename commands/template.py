@@ -44,8 +44,8 @@ class Command(_BaseCommand):
   """
   The template command creates the sources for a SALOME module from a template.
 
-  examples:
-  >> sat template --name my_product_name --template PythonComponent --target /tmp
+  | examples:
+  | >> sat template --name my_product_name --template PythonComponent --target /tmp
   """
   
   name = "template"

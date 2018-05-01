@@ -28,12 +28,13 @@ import src.pyconf as PYCONF
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The generate command generates SALOME modules from 'pure cpp' products.
-  WARNING: this command NEEDS YACSGEN to run.
-  
-  examples:
-    >> sat generate SALOME --products FLICACPP
+
+  | warning: this command NEEDS YACSGEN to run.
+  | 
+  | examples:
+  | >> sat generate SALOME --products FLICACPP
   """
   
   name = "generate"

@@ -31,8 +31,8 @@ class Command(_BaseCommand):
   This is done only for the products that are constructed using a script (build_source : 'script').
   Otherwise, nothing is done.
 
-  examples:
-    >> sat script SALOME --products Python,numpy
+  | examples:
+  |  >> sat script SALOME --products Python,numpy
   """
   
   name = "script"

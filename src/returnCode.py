@@ -19,6 +19,7 @@
 
 """
 This file contains ReturnCode class
+
 usage:
 >> import returnCode as RCO
 """
@@ -27,30 +28,29 @@ import pprint as PP
 
 #####################################################
 class ReturnCode(object):
-
-  """\
+  """
   assume simple return code for methods, with explanation as 'why'
   obviously why is why it is not OK, 
   but also why is why it is OK (if you want). 
   and optionnaly contains a return value as self.getValue()
   
   usage:
-    >> import returnCode as RCO
-    
-    >> aValue = doSomethingToReturn()
-    >> return RCO.ReturnCode("KO", "there is no problem here", aValue)
-    >> return RCO.ReturnCode("KO", "there is a problem here because etc", None)
-    >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
-    >> return RCO.ReturnCode("NA", "not applicable here because etc")
-    
-    >> rc = doSomething()
-    >> print("short returnCode string", str(rc))
-    >> print("long returnCode string with value", repr(rc))
-    
-    >> rc1 = RCO.ReturnCode("OK", ...)
-    >> rc2 = RCO.ReturnCode("KO", ...)
-    >> rcFinal = rc1 + rc2
-    >> print("long returnCode string with value", repr(rcFinal)) # KO!
+  >> import returnCode as RCO
+  
+  >> aValue = doSomethingToReturn()
+  >> return RCO.ReturnCode("KO", "there is no problem here", aValue)
+  >> return RCO.ReturnCode("KO", "there is a problem here because etc", None)
+  >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
+  >> return RCO.ReturnCode("NA", "not applicable here because etc")
+  
+  >> rc = doSomething()
+  >> print("short returnCode string", str(rc))
+  >> print("long returnCode string with value", repr(rc))
+  
+  >> rc1 = RCO.ReturnCode("OK", ...)
+  >> rc2 = RCO.ReturnCode("KO", ...)
+  >> rcFinal = rc1 + rc2
+  >> print("long returnCode string with value", repr(rcFinal)) # KO!
   """
 
   OK_STATUS = "OK"
@@ -122,12 +122,14 @@ class ReturnCode(object):
       return strOrList
 
   def toSys(self):
+    """return system return code as bash or bat"""
     try:
       return self._TOSYS[self._status]
     except:
       return self._TOSYS[self.NA_STATUS]
     
   def getWhy(self):
+    """return why as str or list if sum or some ReturnCode"""
     return self._why
     
   def setWhy(self, why):
@@ -158,4 +160,10 @@ class ReturnCode(object):
       self._value = self._DEFAULT_VALUE
 
   def isOk(self):
+    """return True if ok"""
     return (self._status == self.OK_STATUS)
+  
+  def raiseIfKo(self):
+    """raise an exception with message why if not ok"""
+    if self.isOk(): return
+    raise Exception(self.getWhy())

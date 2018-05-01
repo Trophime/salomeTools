@@ -131,7 +131,7 @@
         <span class="c1"># in a list that contains dicts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># The list of available option type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span> <span class="o">=</span> <span class="s2">&quot;boolean string int float long list list2, level&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span> <span class="o">=</span> <span class="s2">&quot;boolean string int float long list list2 level&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -142,11 +142,9 @@
 <span class="sd">        of an option and append it in the options field</span>
 <span class="sd">        </span>
 <span class="sd">        :param shortName: (str) </span>
-<span class="sd">          The short name of the option</span>
-<span class="sd">          (as &#39;-l&#39; for level option).</span>
+<span class="sd">          The short name of the option (as &#39;-l&#39; for level option).</span>
 <span class="sd">        :param longName: (str) </span>
-<span class="sd">          The long name of the option </span>
-<span class="sd">          (as &#39;--level&#39; for level option).</span>
+<span class="sd">          The long name of the option (as &#39;--level&#39; for level option).</span>
 <span class="sd">        :param optionType: (str) The type of the option (ex &quot;int&quot;).</span>
 <span class="sd">        :param destName: (str) The name that will be used in the code.</span>
 <span class="sd">        :param helpString: (str) </span>
@@ -165,8 +163,7 @@
         <span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">longName</span>
 
         <span class="k">if</span> <span class="n">optionType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error optionType&quot;</span><span class="p">,</span> <span class="n">optionType</span><span class="p">,</span> <span class="s2">&quot;not available.&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">KOSYS</span><span class="p">)</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;error optionType &#39;</span><span class="si">%s</span><span class="s2">&#39; not available.&quot;</span> <span class="o">%</span> <span class="n">optionType</span><span class="p">)</span>
 
         <span class="n">option</span><span class="p">[</span><span class="s1">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">optionType</span>
         <span class="n">option</span><span class="p">[</span><span class="s1">&#39;destName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destName</span>

@@ -37,13 +37,13 @@ default_directories_ignored = []
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The find_duplicates command search recursively for all duplicates files
   in INSTALL directory (or the optionally given directory) and 
   prints the found files to the terminal.
   
-  examples:
-    >> sat find_duplicates --path /tmp
+  | examples:
+  | >> sat find_duplicates --path /tmp
   """
   
   name = "find_duplicates"

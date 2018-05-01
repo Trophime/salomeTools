@@ -32,8 +32,8 @@ class Command(_BaseCommand):
   The prepare command gets the sources of the application products 
   and apply the patches if there is any.
 
-  examples:
-  >> sat prepare SALOME --products KERNEL,GUI
+  | examples:
+  | >> sat prepare SALOME --products KERNEL,GUI
   """
   
   name = "prepare"

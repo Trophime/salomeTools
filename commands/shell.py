@@ -31,8 +31,8 @@ class Command(_BaseCommand):
   """\
   The shell command executes the shell command passed as argument.
 
-  examples:
-    >> sat shell --command 'ls -lt /tmp'
+  | examples:
+  | >> sat shell --command 'ls -lt /tmp'
   """
   
   name = "shell"

@@ -31,13 +31,13 @@ class Command(_BaseCommand):
   corresponding to the compilation mode of the application products.
   The possible compilation modes are 'cmake', 'autotools', or 'script'.
 
-  Here are the commands to be run:
-  autotools: >> build_configure and configure
-  cmake:     >> cmake
-  script:    (do nothing)
-  
-  examples:
-  >> sat configure SALOME --products KERNEL,GUI,PARAVIS
+  | Here are the commands to be run:
+  |   autotools: >> build_configure and configure
+  |   cmake:     >> cmake
+  |   script:    (do nothing)
+  | 
+  | examples:
+  | >> sat configure SALOME --products KERNEL,GUI,PARAVIS
   """
   
   name = "configure"

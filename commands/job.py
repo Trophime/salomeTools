@@ -26,12 +26,12 @@ from src.salomeTools import _BaseCommand
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The job command executes the commands of the job defined
   in the jobs configuration file\
   
-  examples:
-  >> sat job --jobs_config my_jobs --name my_job"
+  | examples:
+  | >> sat job --jobs_config my_jobs --name my_job"
   """
   
   name = "job"

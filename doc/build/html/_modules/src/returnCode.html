@@ -65,6 +65,7 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file contains ReturnCode class</span>
+
 <span class="sd">usage:</span>
 <span class="sd">&gt;&gt; import returnCode as RCO</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -73,30 +74,29 @@
 
 <span class="c1">#####################################################</span>
 <div class="viewcode-block" id="ReturnCode"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode">[docs]</a><span class="k">class</span> <span class="nc">ReturnCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-  <span class="sd">&quot;&quot;&quot;\</span>
+  <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  assume simple return code for methods, with explanation as &#39;why&#39;</span>
 <span class="sd">  obviously why is why it is not OK, </span>
 <span class="sd">  but also why is why it is OK (if you want). </span>
 <span class="sd">  and optionnaly contains a return value as self.getValue()</span>
 <span class="sd">  </span>
 <span class="sd">  usage:</span>
-<span class="sd">    &gt;&gt; import returnCode as RCO</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt; aValue = doSomethingToReturn()</span>
-<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is no problem here&quot;, aValue)</span>
-<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is a problem here because etc&quot;, None)</span>
-<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;TIMEOUT_STATUS&quot;, &quot;too long here because etc&quot;)</span>
-<span class="sd">    &gt;&gt; return RCO.ReturnCode(&quot;NA&quot;, &quot;not applicable here because etc&quot;)</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt; rc = doSomething()</span>
-<span class="sd">    &gt;&gt; print(&quot;short returnCode string&quot;, str(rc))</span>
-<span class="sd">    &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rc))</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)</span>
-<span class="sd">    &gt;&gt; rc2 = RCO.ReturnCode(&quot;KO&quot;, ...)</span>
-<span class="sd">    &gt;&gt; rcFinal = rc1 + rc2</span>
-<span class="sd">    &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</span>
+<span class="sd">  &gt;&gt; import returnCode as RCO</span>
+<span class="sd">  </span>
+<span class="sd">  &gt;&gt; aValue = doSomethingToReturn()</span>
+<span class="sd">  &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is no problem here&quot;, aValue)</span>
+<span class="sd">  &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is a problem here because etc&quot;, None)</span>
+<span class="sd">  &gt;&gt; return RCO.ReturnCode(&quot;TIMEOUT_STATUS&quot;, &quot;too long here because etc&quot;)</span>
+<span class="sd">  &gt;&gt; return RCO.ReturnCode(&quot;NA&quot;, &quot;not applicable here because etc&quot;)</span>
+<span class="sd">  </span>
+<span class="sd">  &gt;&gt; rc = doSomething()</span>
+<span class="sd">  &gt;&gt; print(&quot;short returnCode string&quot;, str(rc))</span>
+<span class="sd">  &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rc))</span>
+<span class="sd">  </span>
+<span class="sd">  &gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)</span>
+<span class="sd">  &gt;&gt; rc2 = RCO.ReturnCode(&quot;KO&quot;, ...)</span>
+<span class="sd">  &gt;&gt; rcFinal = rc1 + rc2</span>
+<span class="sd">  &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">OK_STATUS</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
@@ -168,12 +168,14 @@
       <span class="k">return</span> <span class="n">strOrList</span>
 
 <div class="viewcode-block" id="ReturnCode.toSys"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.toSys">[docs]</a>  <span class="k">def</span> <span class="nf">toSys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return system return code as bash or bat&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">]</span>
     <span class="k">except</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TOSYS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">NA_STATUS</span><span class="p">]</span></div>
     
 <div class="viewcode-block" id="ReturnCode.getWhy"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.getWhy">[docs]</a>  <span class="k">def</span> <span class="nf">getWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return why as str or list if sum or some ReturnCode&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_why</span></div>
     
 <div class="viewcode-block" id="ReturnCode.setWhy"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.setWhy">[docs]</a>  <span class="k">def</span> <span class="nf">setWhy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">why</span><span class="p">):</span>
@@ -204,7 +206,13 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_VALUE</span></div>
 
 <div class="viewcode-block" id="ReturnCode.isOk"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.isOk">[docs]</a>  <span class="k">def</span> <span class="nf">isOk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">)</span></div></div>
+    <span class="sd">&quot;&quot;&quot;return True if ok&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="ReturnCode.raiseIfKo"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode.raiseIfKo">[docs]</a>  <span class="k">def</span> <span class="nf">raiseIfKo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;raise an exception with message why if not ok&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span> <span class="k">return</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getWhy</span><span class="p">())</span></div></div>
 </pre></div>
 
           </div>

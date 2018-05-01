@@ -893,6 +893,14 @@ keep value before lost as self.value</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="src.debug.format_color_exception">
+<code class="descclassname">src.debug.</code><code class="descname">format_color_exception</code><span class="sig-paren">(</span><em>msg</em>, <em>limit=None</em>, <em>trace=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#format_color_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.format_color_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a stack trace and the exception information.
+as traceback.format_exception(), with color
+with traceback only if (_debug) or (DBG._user in DBG._developpers)</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="src.debug.getLocalEnv">
 <code class="descclassname">src.debug.</code><code class="descname">getLocalEnv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#getLocalEnv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.getLocalEnv" title="Permalink to this definition">¶</a></dt>
 <dd><p>get string for environment variables representation</p>
@@ -2646,11 +2654,9 @@ of an option and append it in the options field</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>shortName</strong> -- (str) 
-The short name of the option
-(as '-l' for level option).</li>
+The short name of the option (as '-l' for level option).</li>
 <li><strong>longName</strong> -- (str) 
-The long name of the option 
-(as '--level' for level option).</li>
+The long name of the option (as '--level' for level option).</li>
 <li><strong>optionType</strong> -- (str) The type of the option (ex &quot;int&quot;).</li>
 <li><strong>destName</strong> -- (str) The name that will be used in the code.</li>
 <li><strong>helpString</strong> -- (str) 
@@ -4071,8 +4077,8 @@ but where a &quot;mismatch&quot; is detected, returns &quot;overwrite&quot; inst
 </div>
 <div class="section" id="module-src.returnCode">
 <span id="src-returncode-module"></span><h2>src.returnCode module<a class="headerlink" href="#module-src.returnCode" title="Permalink to this headline">¶</a></h2>
-<p>This file contains ReturnCode class
-usage:
+<p>This file contains ReturnCode class</p>
+<p>usage:
 &gt;&gt; import returnCode as RCO</p>
 <dl class="class">
 <dt id="src.returnCode.ReturnCode">
@@ -4082,9 +4088,8 @@ usage:
 obviously why is why it is not OK, 
 but also why is why it is OK (if you want). 
 and optionnaly contains a return value as self.getValue()</p>
-<dl class="docutils">
-<dt>usage:</dt>
-<dd><p class="first">&gt;&gt; import returnCode as RCO</p>
+<p>usage:
+&gt;&gt; import returnCode as RCO</p>
 <p>&gt;&gt; aValue = doSomethingToReturn()
 &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is no problem here&quot;, aValue)
 &gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is a problem here because etc&quot;, None)
@@ -4093,12 +4098,10 @@ and optionnaly contains a return value as self.getValue()</p>
 <p>&gt;&gt; rc = doSomething()
 &gt;&gt; print(&quot;short returnCode string&quot;, str(rc))
 &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rc))</p>
-<p class="last">&gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)
+<p>&gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)
 &gt;&gt; rc2 = RCO.ReturnCode(&quot;KO&quot;, ...)
 &gt;&gt; rcFinal = rc1 + rc2
 &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</p>
-</dd>
-</dl>
 <dl class="attribute">
 <dt id="src.returnCode.ReturnCode.KFSYS">
 <code class="descname">KFSYS</code><em class="property"> = 4</em><a class="headerlink" href="#src.returnCode.ReturnCode.KFSYS" title="Permalink to this definition">¶</a></dt>
@@ -4167,7 +4170,8 @@ and optionnaly contains a return value as self.getValue()</p>
 <dl class="method">
 <dt id="src.returnCode.ReturnCode.getWhy">
 <code class="descname">getWhy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode.getWhy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode.getWhy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>return why as str or list if sum or some ReturnCode</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.returnCode.ReturnCode.indent">
@@ -4178,7 +4182,14 @@ and optionnaly contains a return value as self.getValue()</p>
 <dl class="method">
 <dt id="src.returnCode.ReturnCode.isOk">
 <code class="descname">isOk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode.isOk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode.isOk" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>return True if ok</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.returnCode.ReturnCode.raiseIfKo">
+<code class="descname">raiseIfKo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode.raiseIfKo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode.raiseIfKo" title="Permalink to this definition">¶</a></dt>
+<dd><p>raise an exception with message why if not ok</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.returnCode.ReturnCode.setStatus">
@@ -4198,7 +4209,8 @@ and optionnaly contains a return value as self.getValue()</p>
 <dl class="method">
 <dt id="src.returnCode.ReturnCode.toSys">
 <code class="descname">toSys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode.toSys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode.toSys" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>return system return code as bash or bat</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -4222,7 +4234,14 @@ NO __main__ entry allowed, use 'sat' (in parent directory)</p>
 <dt id="src.salomeTools.Sat.execute_cli">
 <code class="descname">execute_cli</code><span class="sig-paren">(</span><em>cli_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat.execute_cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat.execute_cli" title="Permalink to this definition">¶</a></dt>
 <dd><p>select first argument as a command in directory 'commands', and launch on arguments</p>
-<p>:param args str or list, The sat cli arguments (as sys.argv)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cli_arguments</strong> -- (str or list) The sat cli arguments (as sys.argv)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -4298,11 +4317,9 @@ assume load if not done yet</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str</strong> (<em>dirPath</em>) -- The directory path where to search the commands</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dirPath</strong> -- (str) The directory path where to search the commands</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">cmd_list : the list containing the commands name</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.utilsSat.Path.list" title="src.utilsSat.Path.list">list</a></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) the list containing the commands name</td>
 </tr>
 </tbody>
 </table>
@@ -4323,10 +4340,17 @@ assume load if not done yet</p>
 <dl class="function">
 <dt id="src.salomeTools.launchSat">
 <code class="descclassname">src.salomeTools.</code><code class="descname">launchSat</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#launchSat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.launchSat" title="Permalink to this definition">¶</a></dt>
-<dd><p>launch sat as subprocess popen
+<dd><p>launch sat as subprocess.Popen
 command as string ('sat --help' for example)
-used for unittest, or else...
-returns tuple (stdout, stderr)</p>
+used for unittest, or else...</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(stdout, stderr) tuple of subprocess.Popen output</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -4834,7 +4858,7 @@ to add to all paths in lpath.</p>
 <dl class="function">
 <dt id="src.utilsSat.formatTuples">
 <code class="descclassname">src.utilsSat.</code><code class="descname">formatTuples</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#formatTuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.formatTuples" title="Permalink to this definition">¶</a></dt>
-<dd><p>format 'label = value' the tuples in a tabulated way.</p>
+<dd><p>Format 'label = value' the tuples in a tabulated way.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

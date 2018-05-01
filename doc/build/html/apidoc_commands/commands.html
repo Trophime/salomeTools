@@ -156,8 +156,10 @@ avoid colors '&lt;color&gt;' for now in message</p>
 all the products of the application.
 It is possible to reduce the list of products to check
 by using the --products option</p>
-<p>examples:
-&gt;&gt; sat check SALOME --products KERNEL,GUI,GEOM</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat check SALOME --products KERNEL,GUI,GEOM</div>
+</div>
 <dl class="method">
 <dt id="commands.check.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -273,8 +275,10 @@ for the display and logging</li>
 of the application products.
 Use the options to define what directories you want to suppress and 
 to reduce the list of products</p>
-<p>examples:
-&gt;&gt; sat clean SALOME --build --install --properties is_salome_module:yes</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat clean SALOME --build --install --properties is_salome_module:yes</div>
+</div>
 <dl class="method">
 <dt id="commands.clean.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/clean.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.clean.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -401,10 +405,10 @@ The logger instance to use for the display and logging</li>
 <em class="property">class </em><code class="descclassname">commands.compile.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The compile command constructs the products of the application</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all</div>
+</div>
 <dl class="method">
 <dt id="commands.compile.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -716,12 +720,17 @@ List of (str, Config) =&gt; (product_name, product_info)</li>
 <p>The configure command executes in the build directory commands
 corresponding to the compilation mode of the application products.
 The possible compilation modes are 'cmake', 'autotools', or 'script'.</p>
-<p>Here are the commands to be run:
-autotools: &gt;&gt; build_configure and configure
-cmake:     &gt;&gt; cmake
-script:    (do nothing)</p>
-<p>examples:
-&gt;&gt; sat configure SALOME --products KERNEL,GUI,PARAVIS</p>
+<div class="line-block">
+<div class="line">Here are the commands to be run:</div>
+<div class="line-block">
+<div class="line">autotools: &gt;&gt; build_configure and configure</div>
+<div class="line">cmake:     &gt;&gt; cmake</div>
+<div class="line">script:    (do nothing)</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat configure SALOME --products KERNEL,GUI,PARAVIS</div>
+</div>
 <dl class="method">
 <dt id="commands.configure.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -835,8 +844,10 @@ The logger instance to use for the display and logging</li>
 <em class="property">class </em><code class="descclassname">commands.environ.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/environ.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.environ.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The environ command generates the environment files of your application.</p>
-<p>examples:
-&gt;&gt; sat environ SALOME</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat environ SALOME</div>
+</div>
 <dl class="method">
 <dt id="commands.environ.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/environ.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.environ.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -897,10 +908,10 @@ If True, do not print anything in the terminal</li>
 <p>The find_duplicates command search recursively for all duplicates files
 in INSTALL directory (or the optionally given directory) and 
 prints the found files to the terminal.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat find_duplicates --path /tmp</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat find_duplicates --path /tmp</div>
+</div>
 <dl class="method">
 <dt id="commands.find_duplicates.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/find_duplicates.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.find_duplicates.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -990,12 +1001,13 @@ and files_out is is the list of files</p>
 <dt id="commands.generate.Command">
 <em class="property">class </em><code class="descclassname">commands.generate.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/generate.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.generate.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The generate command generates SALOME modules from 'pure cpp' products.
-WARNING: this command NEEDS YACSGEN to run.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat generate SALOME --products FLICACPP</dd>
-</dl>
+<p>The generate command generates SALOME modules from 'pure cpp' products.</p>
+<div class="line-block">
+<div class="line">warning: this command NEEDS YACSGEN to run.</div>
+<div class="line"><br /></div>
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat generate SALOME --products FLICACPP</div>
+</div>
 <dl class="method">
 <dt id="commands.generate.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/generate.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.generate.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -1166,8 +1178,8 @@ with value The path to yacsgen directory if ok</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The job command executes the commands of the job defined
 in the jobs configuration file  
-examples:
-&gt;&gt; sat job --jobs_config my_jobs --name my_job&quot;</p>
+| examples:
+| &gt;&gt; sat job --jobs_config my_jobs --name my_job&quot;</p>
 <dl class="method">
 <dt id="commands.job.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/job.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.job.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -1196,10 +1208,10 @@ examples:
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The jobs command command launches maintenances that are described in 
 the dedicated jobs configuration file.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat jobs --name my_jobs --publish</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat jobs --name my_jobs --publish</div>
+</div>
 <dl class="method">
 <dt id="commands.jobs.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -1921,8 +1933,10 @@ the config corresponding to the jos description</td>
 <em class="property">class </em><code class="descclassname">commands.launcher.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/launcher.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.launcher.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The launcher command generates a SALOME launcher.</p>
-<p>examples:
-&gt;&gt; sat launcher SALOME</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat launcher SALOME </div>
+</div>
 <dl class="method">
 <dt id="commands.launcher.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/launcher.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.launcher.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2022,8 +2036,10 @@ The dict giving additional environment variables</li>
 <em class="property">class </em><code class="descclassname">commands.log.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The log command gives access to the logs produced by the salomeTools commands.</p>
-<p>examples:
-&gt;&gt; sat log</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat log</div>
+</div>
 <dl class="method">
 <dt id="commands.log.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2144,8 +2160,10 @@ Get the last log command file path.</p>
 <em class="property">class </em><code class="descclassname">commands.make.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The make command executes the 'make' command in the build directory.</p>
-<p>examples:
-&gt;&gt; sat make SALOME --products Python,KERNEL,GUI</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat make SALOME --products Python,KERNEL,GUI</div>
+</div>
 <dl class="method">
 <dt id="commands.make.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2266,8 +2284,10 @@ The logger instance to use for the display and logging</li>
 <p>The makeinstall command executes the 'make install' command in the build directory.
 In case of product constructed using a script (build_source : 'script'), 
 then the makeinstall command do nothing.</p>
-<p>examples:
-&gt;&gt; sat makeinstall SALOME --products KERNEL,GUI</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat makeinstall SALOME --products KERNEL,GUI</div>
+</div>
 <dl class="method">
 <dt id="commands.makeinstall.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2379,14 +2399,17 @@ The logger instance to use for the display and logging</li>
 <dt id="commands.package.Command">
 <em class="property">class </em><code class="descclassname">commands.package.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/package.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.package.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The package command creates an archive.
-There are 4 kinds of archive, which can be mixed:
-1- The binary archive. It contains all the product installation directories and a launcher.
-2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
-3- The project archive. It contains a project (give the project file path as argument).
-4- The salomeTools archive. It contains salomeTools.</p>
-<p>examples:
-&gt;&gt; sat package SALOME --binaries --sources</p>
+<p>The package command creates an archive.</p>
+<div class="line-block">
+<div class="line">There are 4 kinds of archive, which can be mixed:</div>
+<div class="line">1- The binary archive. It contains all the product installation directories and a launcher.</div>
+<div class="line">2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.</div>
+<div class="line">3- The project archive. It contains a project (give the project file path as argument).</div>
+<div class="line">4- The salomeTools archive. It contains salomeTools.</div>
+<div class="line"><br /></div>
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat package SALOME --binaries --sources</div>
+</div>
 <dl class="method">
 <dt id="commands.package.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/package.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.package.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2874,8 +2897,10 @@ that have the property given as input.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The patch command apply the patches on the sources of the application products
 if there is any.</p>
-<p>examples:
-&gt;&gt; sat patch SALOME --products qt,boost</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat patch SALOME --products qt,boost</div>
+</div>
 <dl class="method">
 <dt id="commands.patch.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/patch.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.patch.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -2928,8 +2953,10 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The prepare command gets the sources of the application products 
 and apply the patches if there is any.</p>
-<p>examples:
-&gt;&gt; sat prepare SALOME --products KERNEL,GUI</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat prepare SALOME --products KERNEL,GUI</div>
+</div>
 <dl class="method">
 <dt id="commands.prepare.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/prepare.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.prepare.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3017,13 +3044,15 @@ The logger instance to use for the display and logging</li>
 <em class="property">class </em><code class="descclassname">commands.profile.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The profile command creates default profile.</p>
-<p>examples: 
-&gt;&gt; sat profile [PRODUCT] 
-&gt;&gt; sat profile --prefix (string)
-&gt;&gt; sat profile --name (string)
-&gt;&gt; sat profile --force
-&gt;&gt; sat profile --version (string) 
-&gt;&gt; sat profile --slogan (string)</p>
+<div class="line-block">
+<div class="line">examples: </div>
+<div class="line">&gt;&gt; sat profile [PRODUCT] </div>
+<div class="line">&gt;&gt; sat profile --prefix (string)</div>
+<div class="line">&gt;&gt; sat profile --name (string)</div>
+<div class="line">&gt;&gt; sat profile --force</div>
+<div class="line">&gt;&gt; sat profile --version (string) </div>
+<div class="line">&gt;&gt; sat profile --slogan (string) </div>
+</div>
 <dl class="method">
 <dt id="commands.profile.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3085,10 +3114,10 @@ The logger instance to use for the display and logging</li>
 <em class="property">class </em><code class="descclassname">commands.run.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/run.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.run.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The run command runs the application launcher with the given arguments.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat run SALOME</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat run SALOME</div>
+</div>
 <dl class="method">
 <dt id="commands.run.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/run.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.run.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3118,10 +3147,12 @@ The logger instance to use for the display and logging</li>
 <p>The script command executes the script(s) of the the given products in the build directory.
 This is done only for the products that are constructed using a script (build_source : 'script').
 Otherwise, nothing is done.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat script SALOME --products Python,numpy</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line-block">
+<div class="line">&gt;&gt; sat script SALOME --products Python,numpy</div>
+</div>
+</div>
 <dl class="method">
 <dt id="commands.script.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3235,10 +3266,10 @@ The logger instance to use for the display and logging</li>
 <em class="property">class </em><code class="descclassname">commands.shell.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/shell.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.shell.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The shell command executes the shell command passed as argument.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat shell --command 'ls -lt /tmp'</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat shell --command 'ls -lt /tmp'</div>
+</div>
 <dl class="method">
 <dt id="commands.shell.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/shell.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.shell.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3267,8 +3298,10 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The source command gets the sources of the application products
 from cvs, git or an archive.</p>
-<p>examples:
-&gt;&gt; sat source SALOME --products KERNEL,GUI</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat source SALOME --products KERNEL,GUI</div>
+</div>
 <dl class="method">
 <dt id="commands.source.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/source.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.source.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3527,8 +3560,10 @@ The environment to source when extracting.</li>
 <em class="property">class </em><code class="descclassname">commands.template.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/template.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.template.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The template command creates the sources for a SALOME module from a template.</p>
-<p>examples:
-&gt;&gt; sat template --name my_product_name --template PythonComponent --target /tmp</p>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat template --name my_product_name --template PythonComponent --target /tmp</div>
+</div>
 <dl class="method">
 <dt id="commands.template.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/template.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.template.Command.getParser" title="Permalink to this definition">¶</a></dt>
@@ -3617,10 +3652,10 @@ The environment to source when extracting.</li>
 <em class="property">class </em><code class="descclassname">commands.test.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.Command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The test command runs a test base on a SALOME installation.</p>
-<dl class="docutils">
-<dt>examples:</dt>
-<dd>&gt;&gt; sat test SALOME --grid GEOM --session light</dd>
-</dl>
+<div class="line-block">
+<div class="line">examples:</div>
+<div class="line">&gt;&gt; sat test SALOME --grid GEOM --session light</div>
+</div>
 <dl class="method">
 <dt id="commands.test.Command.check_option">
 <code class="descname">check_option</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#Command.check_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.Command.check_option" title="Permalink to this definition">¶</a></dt>

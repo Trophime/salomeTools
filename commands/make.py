@@ -32,8 +32,8 @@ class Command(_BaseCommand):
   """
   The make command executes the 'make' command in the build directory.
 
-  examples:
-  >> sat make SALOME --products Python,KERNEL,GUI
+  | examples:
+  | >> sat make SALOME --products Python,KERNEL,GUI
   """
   
   name = "make"

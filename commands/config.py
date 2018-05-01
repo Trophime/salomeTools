@@ -30,6 +30,7 @@ import src.system as SYSS
 # Command class
 ########################################################################
 class Command(_BaseCommand):
+  # ' | ' is used in sphinx  apidoc interpretation
   """
   The config command allows manipulation and operation on config '.pyconf' files.
 
@@ -76,7 +77,7 @@ If a name is given the new config file takes the given name."""))
   def run(self, cmd_arguments):
     """method called for command 'sat config <options>'"""
     argList = self.assumeAsList(cmd_arguments)
-
+    
     # print general help and returns
     if len(argList) == 0:
       self.print_help()

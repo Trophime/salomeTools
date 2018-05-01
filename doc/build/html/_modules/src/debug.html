@@ -79,6 +79,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">StringIO</span> <span class="k">as</span> <span class="nn">SIO</span>
 <span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
 
@@ -127,16 +128,37 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ERROR: pop_debug: too much pop.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
+<div class="viewcode-block" id="format_color_exception"><a class="viewcode-back" href="../../apidoc_src/src.html#src.debug.format_color_exception">[docs]</a><span class="k">def</span> <span class="nf">format_color_exception</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trace</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format a stack trace and the exception information.</span>
+<span class="sd">    as traceback.format_exception(), with color</span>
+<span class="sd">    with traceback only if (_debug) or (DBG._user in DBG._developpers)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">etype</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_debug</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="n">_user</span> <span class="ow">in</span> <span class="n">_developpers</span><span class="p">):</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;red&gt;&quot;</span> <span class="o">+</span> <span class="n">msg</span>
+      <span class="k">if</span> <span class="n">tb</span><span class="p">:</span>
+          <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;yellow&gt;Traceback (most recent call last):</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">limit</span><span class="p">))</span> <span class="c1">#[:-1])</span>
+      <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;red&gt;&quot;</span>
+      <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception_only</span><span class="p">(</span><span class="n">etype</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">res</span><span class="o">+</span> <span class="s2">&quot;&lt;reset&gt;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;red&gt;&quot;</span> <span class="o">+</span> <span class="n">msg</span> <span class="c1"># + &quot;&lt;bright&gt;&quot;</span>
+      <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception_only</span><span class="p">(</span><span class="n">etype</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">res</span><span class="o">+</span> <span class="s2">&quot;&lt;reset&gt;&quot;</span></div>
+      
+
 <span class="c1">###############################################</span>
 <span class="c1"># utilitaires divers pour debug</span>
 <span class="c1">###############################################</span>
 
 <div class="viewcode-block" id="OutStream"><a class="viewcode-back" href="../../apidoc_src/src.html#src.debug.OutStream">[docs]</a><span class="k">class</span> <span class="nc">OutStream</span><span class="p">(</span><span class="n">SIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    utility class for pyconf.Config output iostream</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="OutStream.close"><a class="viewcode-back" href="../../apidoc_src/src.html#src.debug.OutStream.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="sd">&quot;&quot;&quot;\</span>
+      <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">      because Config.__save__ calls close() stream as file</span>
 <span class="sd">      keep value before lost as self.value</span>
 <span class="sd">      &quot;&quot;&quot;</span>

@@ -52,21 +52,26 @@ class Command(_BaseCommand):
   def getParser(self):
     """Define all options for command 'sat application <options>'"""
     parser = self.getParserWithHelp()
-    parser.add_option('n', 'name', 'string', 'name',
+    parser.add_option(
+        'n', 'name', 'string', 'name',
         _("""\
 Optional: The name of the application 
           (default is APPLICATION.virtual_app.name or runAppli)""") )
-    parser.add_option('c', 'catalog', 'string', 'catalog',
+    parser.add_option(
+        'c', 'catalog', 'string', 'catalog',
         _('Optional: The resources catalog to use') )
-    parser.add_option('t', 'target', 'string', 'target',
+    parser.add_option(
+        't', 'target', 'string', 'target',
         _("""\
 Optional: The directory where to create the application
           (default is APPLICATION.workdir)""") )
-    parser.add_option('', 'gencat', 'string', 'gencat',
+    parser.add_option(
+        '', 'gencat', 'string', 'gencat',
         _("""\
 Optional: Create a resources catalog for the specified machines (separated with ',')
-NOTICE:   this command will ssh to retrieve information to each machine in the list""") )
-    parser.add_option('m', 'module', 'list2', 'modules',
+Note:     this command will ssh to retrieve information to each machine in the list""") )
+    parser.add_option(
+        'm', 'module', 'list2', 'modules',
         _("Optional: the restricted list of module(s) to include in the application") )
     return parser
 
@@ -92,7 +97,7 @@ NOTICE:   this command will ssh to retrieve information to each machine in the l
     options = self.getOptions()
     
     # check for product
-    src.check_config_has_application( config )
+    UTS.check_config_has_application( config )
 
     application = config.VARS.application
     logger.info(_("Building application for <header>%s<reset>\n") % application)

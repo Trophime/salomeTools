@@ -17,7 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
+"""
 This file is the main entry file to salomeTools
 NO __main__ entry allowed, use 'sat' (in parent directory)
 """
@@ -70,9 +70,8 @@ def find_command_list(dirPath):
     """
     Parse files in dirPath that end with '.py' : it gives commands list
     
-    :param dirPath str: The directory path where to search the commands
-    :return: cmd_list : the list containing the commands name 
-    :rtype: list
+    :param dirPath: (str) The directory path where to search the commands
+    :return: (list) the list containing the commands name 
     """
     cmd_list = []
     for item in os.listdir(dirPath):
@@ -91,11 +90,12 @@ def getCommandsList():
     return _COMMANDS_NAMES
 
 def launchSat(command):
-    """\
-    launch sat as subprocess popen
+    """
+    launch sat as subprocess.Popen
     command as string ('sat --help' for example)
     used for unittest, or else...
-    returns tuple (stdout, stderr)
+    
+    :return: (stdout, stderr) tuple of subprocess.Popen output
     """
     if "sat" not in command.split()[0]:
       raise Exception(_("Not a valid command for launchSat: '%s'") % command)
@@ -249,13 +249,15 @@ class _BaseCommand(object):
         method called when salomeTools have '--help' argument.
         returns The text to display for the command description
         which is current Command class docstring 'self.__doc__',
-        with traduction
+        with traduction, if done.
+        replace supposedly sphinx apidoc format ' | ' if present
         """
-        return _(self.__doc__)
+        return _(self.__doc__.replace(" | ", " ")) # replace sphinx apidoc format
     
     def run(self, cmd_arguments):
         """
-        method called when salomeTools processes command(s) parameters"""
+        method called when salomeTools processes command(s) parameters
+        """
         raise Exception("_BaseCmd class have not to be instancied, useful only for inheritage")
 
     def print_help(self):
@@ -284,13 +286,14 @@ class _BaseCommand(object):
 # Sat class
 ########################################################################
 class Sat(object):
-    """The main class that stores all the commands of salomeTools
+    """
+    The main class that stores all the commands of salomeTools
     (usually known as 'runner' argument in Command classes)
     """
     def __init__(self, logger):
         """Initialization
         
-        :param logger: The logger to use
+        :param logger: (Logger) The logger to use
         """
 
         # Read the salomeTools prefixes options before the 'commands' tag
@@ -404,7 +407,7 @@ class Sat(object):
           return self._getModule(name)
         
     def getCommandInstance(self, name):
-        """\
+        """
         returns inherited instance of Command(_BaseCmd) for command 'name'
         if module not loaded yet, load it.
         """
@@ -419,7 +422,7 @@ class Sat(object):
     def execute_cli(self, cli_arguments):
         """select first argument as a command in directory 'commands', and launch on arguments
         
-        :param args str or list, The sat cli arguments (as sys.argv)
+        :param cli_arguments: (str or list) The sat cli arguments (as sys.argv)
         """
         args = self.assumeAsList(cli_arguments)
 

@@ -32,8 +32,8 @@ class Command(_BaseCommand):
   """\
   The run command runs the application launcher with the given arguments.
   
-  examples:
-    >> sat run SALOME
+  | examples:
+  | >> sat run SALOME
   """
   
   name = "run"

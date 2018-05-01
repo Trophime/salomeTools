@@ -85,7 +85,7 @@ class Options(object):
         # in a list that contains dicts
         self.options = []
         # The list of available option type
-        self.availableOptions = "boolean string int float long list list2, level".split()
+        self.availableOptions = "boolean string int float long list list2 level".split()
         self.default = None
         self.results = {}
 
@@ -96,11 +96,9 @@ class Options(object):
         of an option and append it in the options field
         
         :param shortName: (str) 
-          The short name of the option
-          (as '-l' for level option).
+          The short name of the option (as '-l' for level option).
         :param longName: (str) 
-          The long name of the option 
-          (as '--level' for level option).
+          The long name of the option (as '--level' for level option).
         :param optionType: (str) The type of the option (ex "int").
         :param destName: (str) The name that will be used in the code.
         :param helpString: (str) 
@@ -119,8 +117,7 @@ class Options(object):
         option['longName'] = longName
 
         if optionType not in self.availableOptions:
-            print("error optionType", optionType, "not available.")
-            sys.exit(src.KOSYS)
+          raise Exception("error optionType '%s' not available." % optionType)
 
         option['optionType'] = optionType
         option['destName'] = destName

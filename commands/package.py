@@ -95,14 +95,15 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 class Command(_BaseCommand):
   """
   The package command creates an archive.
-  There are 4 kinds of archive, which can be mixed:
-  1- The binary archive. It contains all the product installation directories and a launcher.
-  2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
-  3- The project archive. It contains a project (give the project file path as argument).
-  4- The salomeTools archive. It contains salomeTools.
   
-  examples:
-  >> sat package SALOME --binaries --sources
+  | There are 4 kinds of archive, which can be mixed:
+  | 1- The binary archive. It contains all the product installation directories and a launcher.
+  | 2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
+  | 3- The project archive. It contains a project (give the project file path as argument).
+  | 4- The salomeTools archive. It contains salomeTools.
+  | 
+  | examples:
+  | >> sat package SALOME --binaries --sources
   """
   
   name = "package"

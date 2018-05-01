@@ -40,7 +40,21 @@ import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 logger = LOG.getDefaultLogger()
 
+import traceback
 
+def format_color_exception(msg, etype, value, tb, limit = None):
+    """Format a stack trace and the exception information.
+    as traceback.format_exception(), with color
+    """
+    res = "<red>" + msg + "<yellow>"
+    if tb:
+        res += "Traceback (most recent call last):\n"
+        # print "tb"
+        res += "".join(traceback.format_tb(tb, limit)) #[:-1])
+    res += "\n<red>"
+    res += "\n".join(traceback.format_exception_only(etype, value))
+    return res+ "<reset>"
+  
 #################################
 # MAIN
 #################################
@@ -62,18 +76,15 @@ if __name__ == "__main__":
       sys.exit(returnCode.toSys())
       
     except Exception as e:
-      if (_debug) or (DBG._user in DBG._developpers):
-        # verbose debug message with traceback
-        msg = "Exception raised for execute_cli(%s):\n\n<yellow>%s<reset>"
-        import traceback
-        logger.critical( msg % (args, traceback.format_exc()) )
-      else:
-        # short production message
-        msg = "Exception raised for execute_cli(%s):\n\n<red>%s<reset>\n"
-        logger.critical( msg % (args, e) )
+      # verbose debug message with traceback if developers
+      msg = "Exception raised for execute_cli(%s):\n" % args
+      logger.critical(DBG.format_color_exception(msg))  
       sys.exit(KOSYS)
 
 else:
     logger.critical("forbidden/unexpected mode for __name__ '%s'" % __name__)
     sys.exit(KOSYS)
             
+
+
+ 

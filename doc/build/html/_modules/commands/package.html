@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
+    <link rel="up" title="commands" href="../commands.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
@@ -141,14 +141,15 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \&quot;..\&quot; + $VAR
 <div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.Command">[docs]</a>class Command(_BaseCommand):
   &quot;&quot;&quot;
   The package command creates an archive.
-  There are 4 kinds of archive, which can be mixed:
-  1- The binary archive. It contains all the product installation directories and a launcher.
-  2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
-  3- The project archive. It contains a project (give the project file path as argument).
-  4- The salomeTools archive. It contains salomeTools.
   
-  examples:
-  &gt;&gt; sat package SALOME --binaries --sources
+  | There are 4 kinds of archive, which can be mixed:
+  | 1- The binary archive. It contains all the product installation directories and a launcher.
+  | 2- The sources archive. It contains the products archives, a project corresponding to the application and salomeTools.
+  | 3- The project archive. It contains a project (give the project file path as argument).
+  | 4- The salomeTools archive. It contains salomeTools.
+  |
+  | examples:
+  | &gt;&gt; sat package SALOME --binaries --sources
   &quot;&quot;&quot;
   
   name = &quot;package&quot;
@@ -1422,6 +1423,8 @@ The procedure to do it is:
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../commands.html">commands</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>

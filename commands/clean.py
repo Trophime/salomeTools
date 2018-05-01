@@ -42,8 +42,8 @@ class Command(_BaseCommand):
   Use the options to define what directories you want to suppress and 
   to reduce the list of products
 
-  examples:
-  >> sat clean SALOME --build --install --properties is_salome_module:yes
+  | examples:
+  | >> sat clean SALOME --build --install --properties is_salome_module:yes
   """
   
   name = "clean"

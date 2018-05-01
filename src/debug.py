@@ -33,6 +33,7 @@ usage:
 
 import os
 import sys
+import traceback
 import StringIO as SIO
 import pprint as PP
 
@@ -81,16 +82,37 @@ def pop_debug():
         sys.stderr.write("\nERROR: pop_debug: too much pop.")
         return None
 
+def format_color_exception(msg, limit=None, trace=None):
+    """
+    Format a stack trace and the exception information.
+    as traceback.format_exception(), with color
+    with traceback only if (_debug) or (DBG._user in DBG._developpers)
+    """
+    etype, value, tb = sys.exc_info()
+    if (_debug[-1]) or (_user in _developpers):
+      res = "<red>" + msg
+      if tb:
+          res += "\n<yellow>Traceback (most recent call last):\n"
+          res += "".join(traceback.format_tb(tb, limit)) #[:-1])
+      res += "\n<red>"
+      res += "\n".join(traceback.format_exception_only(etype, value))
+      return res+ "<reset>"
+    else:
+      res = "<red>" + msg # + "<bright>"
+      res += "".join(traceback.format_exception_only(etype, value))
+      return res+ "<reset>"
+      
+
 ###############################################
 # utilitaires divers pour debug
 ###############################################
 
 class OutStream(SIO.StringIO):
-    """\
+    """
     utility class for pyconf.Config output iostream
     """
     def close(self):
-      """\
+      """
       because Config.__save__ calls close() stream as file
       keep value before lost as self.value
       """

@@ -28,7 +28,7 @@ import src.pyconf as PYCONF
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The init command Changes the local settings of SAT
   """
   

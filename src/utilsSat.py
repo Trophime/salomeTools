@@ -38,6 +38,7 @@ import tempfile
 
 import src.returnCode as RCO
 
+
 ##############################################################################
 # file system utilities
 ##############################################################################
@@ -219,11 +220,12 @@ def check_config_has_application( config, details = None ):
     :param config: (Config) The config.
     """
     if 'APPLICATION' not in config:
-        message = _("An APPLICATION is required. Use 'config --list' to get"
-                    " the list of available applications.\n")
+        msg = _("An <application> is required.")
+        msg += "\n" + _("(as 'sat prepare <application>')")
+        msg += "\n" + _("Use 'sat config --list' to get the list of available applications.")
         if details :
-            details.append(message)
-        raise Exception( message )
+            details.append(msg)
+        raise Exception(msg)
 
 def check_config_has_profile( config, details = None ):
     """
@@ -351,7 +353,7 @@ def get_property_in_product_cfg(product_cfg, pprty):
 ##############################################################################
 def formatTuples(tuples):
     """
-    format 'label = value' the tuples in a tabulated way.
+    Format 'label = value' the tuples in a tabulated way.
     
     :param tuples: (list) The list of tuples to format
     :return: (str) The tabulated text. (as mutiples lines)
@@ -560,13 +562,13 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     import src.xmlManager as XMLMGR # avoid import cross utilsSat
     
     if cmd in notShownCommands:
-        return RCO.ReturnCode("KO", "in notShownCommands", None)
+        return RCO.ReturnCode("KO", "command '%s' in notShownCommands" % cmd, None)
  
     # Get the application of the log file
-    if True: #try:
+    try:
         logFileXml = XMLMGR.ReadXmlFile(logFilePath)
-    else: #except Exception as e:
-        msg = _("The log file '%s' cannot be read:" % logFilePath)
+    except Exception as e:
+        msg = _("The log file '%s' cannot be read" % logFilePath)
         return RCO.ReturnCode("KO", msg, None)
 
     if 'application' in logFileXml.xmlroot.keys():
@@ -574,9 +576,9 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
         launched_cmd = logFileXml.xmlroot.find('Site').attrib['launchedCommand']
         # if it corresponds, then the log has to be shown
         if appliLog == application:
-            return RCO.ReturnCode("OK", "appliLog == application", (appliLog, launched_cmd))
+            return RCO.ReturnCode("OK", "appliLog is application", (appliLog, launched_cmd))
         elif application != 'None':
-            return RCO.ReturnCode("KO", "application != 'None'", (appliLog, launched_cmd))
+            return RCO.ReturnCode("KO", "application is not 'None'", (appliLog, launched_cmd))
         
         return RCO.ReturnCode("OK", "", (appliLog, launched_cmd))
     

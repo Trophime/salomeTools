@@ -32,13 +32,13 @@ class Command(_BaseCommand):
   """\
   The profile command creates default profile.
   
-  examples: 
-  >> sat profile [PRODUCT] 
-  >> sat profile --prefix (string)
-  >> sat profile --name (string)
-  >> sat profile --force
-  >> sat profile --version (string) 
-  >> sat profile --slogan (string) 
+  | examples: 
+  | >> sat profile [PRODUCT] 
+  | >> sat profile --prefix (string)
+  | >> sat profile --name (string)
+  | >> sat profile --force
+  | >> sat profile --version (string) 
+  | >> sat profile --slogan (string) 
   """
   
   name = "profile"

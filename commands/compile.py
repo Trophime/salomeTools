@@ -35,11 +35,11 @@ except NameError:
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The compile command constructs the products of the application
   
-  examples:
-    >> sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all
+  | examples:
+  | >> sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all
   """
   
   name = "compile"

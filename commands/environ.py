@@ -35,8 +35,8 @@ class Command(_BaseCommand):
   """
   The environ command generates the environment files of your application.
 
-  examples:
-  >> sat environ SALOME
+  | examples:
+  | >> sat environ SALOME
   """
   
   name = "environ"

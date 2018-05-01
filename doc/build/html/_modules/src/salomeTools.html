@@ -63,7 +63,7 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file is the main entry file to salomeTools</span>
 <span class="sd">NO __main__ entry allowed, use &#39;sat&#39; (in parent directory)</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -116,9 +116,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse files in dirPath that end with &#39;.py&#39; : it gives commands list</span>
 <span class="sd">    </span>
-<span class="sd">    :param dirPath str: The directory path where to search the commands</span>
-<span class="sd">    :return: cmd_list : the list containing the commands name </span>
-<span class="sd">    :rtype: list</span>
+<span class="sd">    :param dirPath: (str) The directory path where to search the commands</span>
+<span class="sd">    :return: (list) the list containing the commands name </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cmd_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
@@ -137,11 +136,12 @@
     <span class="k">return</span> <span class="n">_COMMANDS_NAMES</span></div>
 
 <div class="viewcode-block" id="launchSat"><a class="viewcode-back" href="../../apidoc_src/src.html#src.salomeTools.launchSat">[docs]</a><span class="k">def</span> <span class="nf">launchSat</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    launch sat as subprocess popen</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    launch sat as subprocess.Popen</span>
 <span class="sd">    command as string (&#39;sat --help&#39; for example)</span>
 <span class="sd">    used for unittest, or else...</span>
-<span class="sd">    returns tuple (stdout, stderr)</span>
+<span class="sd">    </span>
+<span class="sd">    :return: (stdout, stderr) tuple of subprocess.Popen output</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;sat&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
       <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Not a valid command for launchSat: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">command</span><span class="p">)</span>
@@ -295,13 +295,15 @@
 <span class="sd">        method called when salomeTools have &#39;--help&#39; argument.</span>
 <span class="sd">        returns The text to display for the command description</span>
 <span class="sd">        which is current Command class docstring &#39;self.__doc__&#39;,</span>
-<span class="sd">        with traduction</span>
+<span class="sd">        with traduction, if done.</span>
+<span class="sd">        replace supposedly sphinx apidoc format &#39; | &#39; if present</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">))</span> <span class="c1"># replace sphinx apidoc format</span>
     
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        method called when salomeTools processes command(s) parameters&quot;&quot;&quot;</span>
+<span class="sd">        method called when salomeTools processes command(s) parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;_BaseCmd class have not to be instancied, useful only for inheritage&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -330,13 +332,14 @@
 <span class="c1"># Sat class</span>
 <span class="c1">########################################################################</span>
 <div class="viewcode-block" id="Sat"><a class="viewcode-back" href="../../apidoc_src/src.html#src.salomeTools.Sat">[docs]</a><span class="k">class</span> <span class="nc">Sat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The main class that stores all the commands of salomeTools</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main class that stores all the commands of salomeTools</span>
 <span class="sd">    (usually known as &#39;runner&#39; argument in Command classes)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialization</span>
 <span class="sd">        </span>
-<span class="sd">        :param logger: The logger to use</span>
+<span class="sd">        :param logger: (Logger) The logger to use</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Read the salomeTools prefixes options before the &#39;commands&#39; tag</span>
@@ -450,7 +453,7 @@
           <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getModule</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
         
 <div class="viewcode-block" id="Sat.getCommandInstance"><a class="viewcode-back" href="../../apidoc_src/src.html#src.salomeTools.Sat.getCommandInstance">[docs]</a>    <span class="k">def</span> <span class="nf">getCommandInstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns inherited instance of Command(_BaseCmd) for command &#39;name&#39;</span>
 <span class="sd">        if module not loaded yet, load it.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -465,7 +468,7 @@
 <div class="viewcode-block" id="Sat.execute_cli"><a class="viewcode-back" href="../../apidoc_src/src.html#src.salomeTools.Sat.execute_cli">[docs]</a>    <span class="k">def</span> <span class="nf">execute_cli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cli_arguments</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;select first argument as a command in directory &#39;commands&#39;, and launch on arguments</span>
 <span class="sd">        </span>
-<span class="sd">        :param args str or list, The sat cli arguments (as sys.argv)</span>
+<span class="sd">        :param cli_arguments: (str or list) The sat cli arguments (as sys.argv)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumeAsList</span><span class="p">(</span><span class="n">cli_arguments</span><span class="p">)</span>
 

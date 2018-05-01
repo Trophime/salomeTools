@@ -34,8 +34,8 @@ class Command(_BaseCommand):
   The source command gets the sources of the application products
   from cvs, git or an archive.
   
-  examples:
-  >> sat source SALOME --products KERNEL,GUI
+  | examples:
+  | >> sat source SALOME --products KERNEL,GUI
   """
   
   name = "source"

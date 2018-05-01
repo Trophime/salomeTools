@@ -41,11 +41,11 @@ except ImportError:
 # Command class
 ########################################################################
 class Command(_BaseCommand):
-  """\
+  """
   The test command runs a test base on a SALOME installation.
   
-  examples:
-    >> sat test SALOME --grid GEOM --session light
+  | examples:
+  | >> sat test SALOME --grid GEOM --session light
   """
   
   name = "test"
