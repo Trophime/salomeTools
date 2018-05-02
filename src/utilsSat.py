@@ -37,6 +37,7 @@ import re
 import tempfile
 
 import src.returnCode as RCO
+import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 
 ##############################################################################
@@ -47,7 +48,7 @@ def ensure_path_exists(path):
     
     :param path: (str) The path.
     """
-    print "the path",path
+    # DBG.write("ensure_path_exists", path, True)
     if not os.path.exists(path):
         os.makedirs(path)
         
@@ -212,7 +213,25 @@ def handleRemoveReadonly(func, path, exc):
 ##############################################################################
 # pyconf config utilities
 ##############################################################################
-def check_config_has_application( config, details = None ):
+        
+def check_has_key(inConfig, key):
+    """Check that the in-Config node has the named key (as an attribute) 
+    
+    :param inConfig: (Config or Mapping etc) The in-Config node
+    :param key: (str) The key to check presence in in-Config node
+    :return: (RCO.ReturnCode) 'OK' if presence
+    """
+    debug = True
+    if key not in inConfig:
+      msg = _("check_has_key '%s' not found" % key)
+      DBG.write("check_has_key", msg, debug)
+      return RCO.ReturnCode("KO", msg)
+    else:
+      msg = _("check_has_key '%s' found" % key)
+      DBG.write("check_has_key", msg, debug)
+      return RCO.ReturnCode("OK", msg)
+         
+def check_config_has_application(config):
     """
     Check that the config has the key APPLICATION. 
     Else raise an exception.
@@ -220,28 +239,33 @@ def check_config_has_application( config, details = None ):
     :param config: (Config) The config.
     """
     if 'APPLICATION' not in config:
-        msg = _("An <application> is required.")
-        msg += "\n" + _("(as 'sat prepare <application>')")
-        msg += "\n" + _("Use 'sat config --list' to get the list of available applications.")
-        if details :
-            details.append(msg)
-        raise Exception(msg)
+      msg = _("An application name is required.")
+      msg += "\n" + _("(as 'sat prepare <application>')")
+      msg += "\n" + _("Use 'sat config --list' to get the list of available applications.")
+      DBG.write("check_config_has_application", msg)
+      return RCO.ReturnCode("KO", msg)
+    else:
+      msg = _("APPLICATION '%s' found." % config)
+      DBG.write("check_config_has_application", msg)
+      return RCO.ReturnCode("OK", msg)
 
-def check_config_has_profile( config, details = None ):
+def check_config_has_profile(config):
     """
     Check that the config has the key APPLICATION.profile.
     Else, raise an exception.
     
     :param config: (Config) The config.
     """
-    check_config_has_application(config)
+    check_config_has_application(config).raiseIfKo()
     if 'profile' not in config.APPLICATION:
-        message = _("A profile section is required in your application.\n")
-        if details :
-            details.append(message)
-        raise Exception( message )
+      msg = _("An 'APPLICATION.profile' section is required in config.")
+      return RCO.ReturnCode("KO", msg)
+    else:
+      msg = _("An 'APPLICATION.profile' is found in config.")
+      return RCO.ReturnCode("OK", msg)
 
-def config_has_application( config ):
+
+def config_has_application(config):
     return 'APPLICATION' in config
 
 def get_cfg_param(config, param_name, default):
@@ -274,18 +298,19 @@ def get_base_path(config):
     return base_path
 
 def get_launcher_name(config):
-    """Returns the name of salome launcher.
+    """Returns the name of application file launcher, 'salome' by default.
     
     :param config: (Config) The global Config instance.
     :return: (str) The name of salome launcher.
     """
-    check_config_has_application(config)
-    if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
+    check_config_has_application(config).raiseIfKo()
+    if 'profile' in config.APPLICATION and \
+       'launcher_name' in config.APPLICATION.profile:
         launcher_name = config.APPLICATION.profile.launcher_name
     else:
         launcher_name = 'salome'
-
     return launcher_name
+
 
 def get_log_path(config):
     """Returns the path of the logs.
@@ -349,7 +374,7 @@ def get_property_in_product_cfg(product_cfg, pprty):
     return product_cfg.properties[pprty]
 
 ##############################################################################
-# logger and color utilities
+# logger utilities
 ##############################################################################
 def formatTuples(tuples):
     """
@@ -381,13 +406,25 @@ def formatValue(label, value, suffix=""):
     
 def logger_info_tuples(logger, tuples):
     """
-    for convenience
+    For convenience
     format as formatTuples() and call logger.info()
     """
     msg = formatTuples(tuples)
     logger.info(msg)
 
-# for convenience    
+def log_step(logger, header, step):
+    logger.info("\r%s%s" % (header, " " * 20))
+    logger.info("\r%s%s" % (header, step))
+
+def log_res_step(logger, res):
+    if res == 0:
+        logger.info("<OK>\n")
+    else:
+        logger.info("<KO>\n")
+
+##############################################################################
+# color utilities, for convenience    
+##############################################################################
 _colors = "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE".lower().split(" ")
     
 def black(msg):
@@ -501,10 +538,8 @@ def parse_date(date):
 
 
 ##############################################################################
-# log utilities (TODO: set in loggingSat class, later, changing tricky xml ?
-##############################################################################
-
-    
+# log utilities (TODO: set in loggingSat class, later, changing tricky xml?
+##############################################################################    
 def date_to_datetime(date):
     """
     From a string date in format YYYYMMDD_HHMMSS

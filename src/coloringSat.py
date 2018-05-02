@@ -10,6 +10,9 @@ so '<color>' are not supposed existing in log message
 "{}".format() is not choosen because "{}" are present
 in log messages of contents of python dict (as JSON) etc.
 
+usage:
+>> import src.coloringSat as COLS
+
 example:
 >> log("this is in <green>color green<reset>, OK is in blue: <blue>OK?")
 """

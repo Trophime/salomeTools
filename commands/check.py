@@ -19,6 +19,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 CHECK_PROPERTY = "has_unit_tests"
@@ -71,8 +72,7 @@ Optional: products to configure.
 
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
-
+    UTS.check_config_has_application(config).raiseIfKo()
     # Get the list of products to treat
     products_infos = get_products_list(options, config, logger)
     
@@ -138,16 +138,6 @@ def get_products_list(options, cfg, logger):
                                      src.product.product_is_fixed(pi[1]))]
     
     return products_infos
-
-def log_step(logger, header, step):
-    logger.info("\r%s%s" % (header, " " * 20))
-    logger.info("\r%s%s" % (header, step))
-
-def log_res_step(logger, res):
-    if res == 0:
-        logger.debug("<OK>\n")
-    else:
-        logger.debug("<KO>\n")
 
 def check_all_products(config, products_infos, logger):
     """
@@ -215,7 +205,7 @@ is not defined in the definition of %(name)\n""") % p_name
             logger.warning(msg)
                 
     if ignored or not cmd_found:
-        log_step(logger, header, "ignored")
+        UTS.log_step(logger, header, "ignored")
         logger.debug("==== %s %s\n" % (p_name, "IGNORED"))
         if not cmd_found:
             return 1
@@ -226,16 +216,16 @@ is not defined in the definition of %(name)\n""") % p_name
     builder = src.compilation.Builder(config, logger, p_info)
     
     # Prepare the environment
-    log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, header, "PREPARE ENV")
     res_prepare = builder.prepare()
-    log_res_step(logger, res_prepare)
+    UTS.log_res_step(logger, res_prepare)
     
     len_end_line = 20
 
     # Launch the check    
-    log_step(logger, header, "CHECK")
+    UTS.log_step(logger, header, "CHECK")
     res = builder.check(command=command)
-    log_res_step(logger, res)
+    UTS.log_res_step(logger, res)
     
     # Log the result
     if res > 0:

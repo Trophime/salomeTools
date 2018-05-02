@@ -70,7 +70,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Print some informations
     logger.info("Patching sources of the application %s\n" % \

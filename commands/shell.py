@@ -22,6 +22,7 @@ import subprocess
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################

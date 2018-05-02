@@ -78,7 +78,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command was called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
     
     if options.products is None:
         environ_info = None

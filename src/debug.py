@@ -36,7 +36,8 @@ import sys
 import traceback
 import StringIO as SIO
 import pprint as PP
-
+import src.coloringSat as COLS
+        
 _debug = [False] #support push/pop for temporary activate debug outputs
 
 _user = os.environ['USER']
@@ -49,17 +50,31 @@ def indent(text, amount=2, ch=' '):
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
 
+def isTypeConfig(var):
+    """To know if var is instance from Config/pyconf"""
+    typ = str(type(var))
+    # print "isTypeConfig" ,type, dir(var)
+    if ".pyconf.Config" in typ: return True
+    if ".pyconf.Mapping" in typ: return True
+    if ".pyconf.Sequence" in typ: return True
+    # print "NOT isTypeConfig %s" % typ
+    return False
+    
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-        if '.Config' in str(type(var)): 
-            sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
-        if 'loggingSat.UnittestStream' in str(type(var)): 
-            sys.stderr.write(fmt % (title, indent(var.getLogs())))
-        elif type(var) is not str:
-            sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
-        else:
-            sys.stderr.write(fmt % (title, indent(var)))
+      typ = str(type(var))
+      if isTypeConfig(var):
+        sys.stderr.write(fmt % (title, indent(COLS.toColor(getStrConfigDbg(var)))))
+        return
+      if 'loggingSat.UnittestStream' in typ: 
+        sys.stderr.write(fmt % (title, indent(var.getLogs())))
+        return
+      if type(var) is not str:
+        sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
+        return
+      sys.stderr.write(fmt % (title, indent(var)))
+      return
     return
 
 def tofix(title, var="", force=None):
@@ -206,6 +221,6 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
         aStream.write("<blue>%s%s.%s<reset> : '%s'\n" % (indstr, path, key, str(value)))
         continue
       try:
-        aStream.write("!!! TODO fix that %s %s%s.%s : %s\n" % (type(value), indstr, path, key, str(value)))
+        aStream.write("<red>!!! TODO fix that<reset> %s %s%s.%s : %s\n" % (type(value), indstr, path, key, str(value)))
       except Exception as e:      
         aStream.write("<blue>%s%s.%s<reset> : <red>!!! %s<reset>\n" % (indstr, path, key, e.message))

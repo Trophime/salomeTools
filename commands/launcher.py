@@ -25,6 +25,7 @@ import stat
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -67,7 +68,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # Verify that the command was called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
     
     # Determine the launcher name (from option, profile section or by default "salome")
     if options.name:

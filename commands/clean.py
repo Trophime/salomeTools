@@ -21,6 +21,7 @@ import re
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
@@ -92,7 +93,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Verify the --properties option
     if options.properties:

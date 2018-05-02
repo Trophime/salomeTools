@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -72,7 +73,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Get the list of products to treat
     products_infos = get_products_list(options, config, logger)
@@ -143,17 +144,6 @@ def get_products_list(options, cfg, logger):
     
     return products_infos
 
-def log_step(logger, header, step):
-    logger.info("\r%s%s" % (header, " " * 20))
-    logger.info("\r%s%s" % (header, step))
-    logger.debug("\n==== %s \n" % UTS.info(step))
-
-def log_res_step(logger, res):
-    if res == 0:
-        logger.debug("<OK>\n")
-    else:
-        logger.debug("<KO>\n")
-
 def run_script_all_products(config, products_infos, nb_proc, logger):
     """Execute the script in each product build directory.
 
@@ -201,7 +191,7 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
             "compilation" in p_info.properties and \
             p_info.properties.compilation == "no"
     if ( test1 or (not src.product.product_has_script(p_info)) ):
-        log_step(logger, header, "ignored")
+        UTS.log_step(logger, header, "ignored")
         logger.info("\n")
         return 0
 
@@ -210,17 +200,17 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     builder = src.compilation.Builder(config, logger, p_info)
     
     # Prepare the environment
-    log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, header, "PREPARE ENV")
     res_prepare = builder.prepare()
-    log_res_step(logger, res_prepare)
+    UTS.log_res_step(logger, res_prepare)
     
     # Execute the script
     len_end_line = 20
     script_path_display = UTS.label(p_info.compil_script)
-    log_step(logger, header, "SCRIPT " + script_path_display)
+    UTS.log_step(logger, header, "SCRIPT " + script_path_display)
     len_end_line += len(script_path_display)
     res = builder.do_script_build(p_info.compil_script, number_of_proc=nb_proc)
-    log_res_step(logger, res)
+    UTS.log_res_step(logger, res)
     
     # Log the result
     if res > 0:

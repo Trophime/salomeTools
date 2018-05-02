@@ -1,33 +1,21 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>src.example package &#8212; salomeTools 5.0.0dev documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
-    <link rel="up" title="src package" href="src.html" />
     <link rel="next" title="commands" href="../apidoc_commands/modules.html" />
     <link rel="prev" title="src.colorama package" href="src.colorama.html" />
    
@@ -36,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body role="document">
+  </head><body>
   
 
     <div class="document">
@@ -57,12 +44,12 @@
 <p>essai utilisation logger plusieurs handler format different</p>
 <blockquote>
 <div><p>/usr/lib/python2.7/logging/__init__.pyc</p>
-<p>init MyLogger, fmt='%(asctime)s :: %(levelname)-8s :: %(message)s', level='20'</p>
+<p>init MyLogger, fmt=’%(asctime)s :: %(levelname)-8s :: %(message)s’, level=‘20’</p>
 <p>2018-03-11 18:51:21 :: INFO     :: test logger info
 2018-03-11 18:51:21 :: WARNING  :: test logger warning
 2018-03-11 18:51:21 :: ERROR    :: test logger error
 2018-03-11 18:51:21 :: CRITICAL :: test logger critical</p>
-<p>init MyLogger, fmt='None', level='10'</p>
+<p>init MyLogger, fmt=’None’, level=‘10’</p>
 <p>2018-03-11 18:51:21 :: DEBUG    :: test logger debug
 test logger debug
 2018-03-11 18:51:21 :: INFO     :: test logger info
@@ -98,7 +85,7 @@ test logger critical</p>
 sur info() pas de format et su other format</p>
 <blockquote>
 <div><p>/usr/lib/python2.7/logging/__init__.pyc</p>
-<p>init MyLogger, fmt='%(asctime)s :: %(levelname)-8s :: %(message)s', level='20'</p>
+<p>init MyLogger, fmt=’%(asctime)s :: %(levelname)-8s :: %(message)s’, level=‘20’</p>
 <p>test logger info
 2018-03-11 18:51:51 :: WARNING  :: test logger warning
 2018-03-11 18:51:51 :: ERROR    :: test logger error
@@ -107,11 +94,20 @@ sur info() pas de format et su other format</p>
 <dl class="class">
 <dt id="src.example.essai_logging_2.MyFormatter">
 <em class="property">class </em><code class="descclassname">src.example.essai_logging_2.</code><code class="descname">MyFormatter</code><span class="sig-paren">(</span><em>fmt=None</em>, <em>datefmt=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/example/essai_logging_2.html#MyFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.example.essai_logging_2.MyFormatter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">logging.Formatter</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Formatter</span></code></p>
 <dl class="method">
 <dt id="src.example.essai_logging_2.MyFormatter.format">
 <code class="descname">format</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/example/essai_logging_2.html#MyFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.example.essai_logging_2.MyFormatter.format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Format the specified record as text.</p>
+<p>The record’s attribute dictionary is used as the operand to a
+string formatting operation which yields the returned string.
+Before formatting the dictionary, a couple of preparatory steps
+are carried out. The message attribute of the record is computed
+using LogRecord.getMessage(). If the formatting string uses the
+time (as determined by a call to usesTime(), formatTime() is
+called to format the event time. If there is exception information,
+it is formatted using formatException() and appended to the message.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -171,18 +167,20 @@ sur info() pas de format et su other format</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/apidoc_src/src.example.txt"
+      <li><a href="../_sources/apidoc_src/src.example.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -193,11 +191,11 @@ sur info() pas de format et su other format</p>
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/apidoc_src/src.example.txt"
+      <a href="../_sources/apidoc_src/src.example.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

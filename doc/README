@@ -2,6 +2,11 @@
 # needs sphinx-build
 # to make doc html
 
+cd sat5_1
+
+# to make doc html apidoc on commands dir ok
+export PYTHONPATH=`pwd`
+
 cd doc
 make html
 firefox build/html/index.html &

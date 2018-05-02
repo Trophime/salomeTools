@@ -42,7 +42,7 @@ class Command(_BaseCommand):
   | Warning:
   |   It works only for SALOME 6.
   |   Use the 'launcher' command for newer versions of SALOME
-  |
+  | 
   | Examples:
   | >> sat application SALOME-6.6.0
   """
@@ -96,8 +96,9 @@ Note:     this command will ssh to retrieve information to each machine in the l
     logger = self.getLogger()
     options = self.getOptions()
     
-    # check for product
-    UTS.check_config_has_application( config )
+    # check for APPLICATION
+    rc = UTS.check_config_has_application(config)
+    if not rc.isOk(): return rc
 
     application = config.VARS.application
     logger.info(_("Building application for <header>%s<reset>\n") % application)

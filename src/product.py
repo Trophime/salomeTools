@@ -16,7 +16,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
+"""
 Contains the methods 
 relative to the product notion of salomeTools
 """
@@ -33,7 +33,8 @@ VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
     """
-    Get the specific configuration of a product from the global configuration
+    Get the specific configuration of a product 
+    from the global configuration
     
     :param config: (Config) The global configuration
     :param product_name: (str) The name of the product
@@ -290,7 +291,6 @@ def get_product_section(config, product_name, version, section=None):
       (if not None, the section is explicitly given)
     :return: (Config) The product description
     """
-
     # if section is not None, try to get the corresponding section
     if section:
         if section not in config.PRODUCTS[product_name]:
@@ -466,27 +466,24 @@ def check_config_exists(config, prod_dir, prod_info):
     
     return False, None
             
-            
-    
-def get_products_infos(lproducts, config):
+def get_products_infos(products, config):
     """Get the specific configuration of a list of products
     
-    :param lproducts: (list) The list of product names
+    :param products: (list) The list of product names
     :param config: (Config) The global configuration
     :return: (list) of tuples (str, Config)
       as (product name, specific configuration of the product)
     """
     products_infos = []
     # Loop on product names
-    for prod in lproducts:       
-        # Get the specific configuration of the product
-        prod_info = get_product_config(config, prod)
-        if prod_info is not None:
-            products_infos.append((prod, prod_info))
-        else:
-            msg = _("The %s product has no definition "
-                    "in the configuration.") % prod
-            raise Exception(msg)
+    for prod in products:       
+      # Get the specific configuration of the product
+      prod_info = get_product_config(config, prod)
+      if prod_info is not None:
+        products_infos.append((prod, prod_info))
+      else:
+        msg = _("The product '%s' has no definition in the configuration.") % prod
+        raise Exception(msg)
     return products_infos
 
 def get_product_dependencies(config, product_info):

@@ -21,6 +21,7 @@
 import os
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 import src.pyconf as PYCONF
 from src.salomeTools import _BaseCommand
 
@@ -118,7 +119,7 @@ class Command(_BaseCommand):
             return 0
         
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Print some informations
     nameApp = str(config.VARS.application)
@@ -371,18 +372,6 @@ def check_dependencies(config, p_name_p_info):
             l_depends_not_installed.append(p_name_father)
     return l_depends_not_installed
 
-def log_step(logger, header, step):
-    logger.info("\r%s%s" % (header, " " * 30))
-    logger.info("\r%s%s" % (header, step))
-    logger.debug("\n==== %s \n" % step)
-
-def log_res_step(logger, res):
-    if res == 0:
-        logger.debug("<OK>\n")
-    else:
-        logger.debug("<KO>\n")
-
-
 def compile_all_products(sat, config, options, products_infos, logger):
     """
     Execute the proper configuration commands 
@@ -411,20 +400,20 @@ def compile_all_products(sat, config, options, products_infos, logger):
             "compilation" in p_info.properties and \
             p_info.properties.compilation == "no"):
               
-            log_step(logger, header, "ignored")
+            UTS.log_step(logger, header, "ignored")
             logger.info("\n")
             continue
 
         # Do nothing if the product is native
         if src.product.product_is_native(p_info):
-            log_step(logger, header, "native")
+            UTS.log_step(logger, header, "native")
             logger.info("\n")
             continue
 
         # Clean the build and the install directories 
         # if the corresponding options was called
         if options.clean_all:
-            log_step(logger, header, "CLEAN BUILD AND INSTALL")
+            UTS.log_step(logger, header, "CLEAN BUILD AND INSTALL")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --build --install",
@@ -435,7 +424,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Clean the the install directory 
         # if the corresponding option was called
         if options.clean_install and not options.clean_all:
-            log_step(logger, header, "CLEAN INSTALL")
+            UTS.log_step(logger, header, "CLEAN INSTALL")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --install",
@@ -460,7 +449,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Check if the dependencies are installed
         l_depends_not_installed = check_dependencies(config, p_name_info)
         if len(l_depends_not_installed) > 0:
-            log_step(logger, header, "")
+            UTS.log_step(logger, header, "")
             msg = _("the following products are mandatory:\n")
             for prod_name in l_depends_not_installed:
                 msg += "%s\n" % prod_name
@@ -491,7 +480,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         else:
             # Clean the build directory if the compilation and tests succeed
             if options.clean_build_after:
-                log_step(logger, header, "CLEAN BUILD")
+                UTS.log_step(logger, header, "CLEAN BUILD")
                 sat.clean(config.VARS.application + 
                           " --products " + p_name + 
                           " --build",
@@ -575,7 +564,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
         
         if options.check:
             # Do the unit tests (call the check command)
-            log_step(logger, header, "CHECK")
+            UTS.log_step(logger, header, "CHECK")
             res_check = sat.check(
                               config.VARS.application + " --products " + p_name,
                               verbose = 0,
@@ -615,11 +604,11 @@ def compile_product_cmake_autotools(sat,
     
     # Logging and sat command call for configure step
     len_end_line = len_end
-    log_step(logger, header, "CONFIGURE")
+    UTS.log_step(logger, header, "CONFIGURE")
     res_c = sat.configure(config.VARS.application + " --products " + p_name,
                           verbose = 0,
                           logger_add_link = logger)
-    log_res_step(logger, res_c)
+    UTS.log_res_step(logger, res_c)
     res += res_c
     
     if res_c > 0:
@@ -633,10 +622,10 @@ def compile_product_cmake_autotools(sat,
             # it is executed during make step
             scrit_path_display = UTS.label(
                                                         p_info.compil_script)
-            log_step(logger, header, "SCRIPT " + scrit_path_display)
+            UTS.log_step(logger, header, "SCRIPT " + scrit_path_display)
             len_end_line = len(scrit_path_display)
         else:
-            log_step(logger, header, "MAKE")
+            UTS.log_step(logger, header, "MAKE")
         make_arguments = config.VARS.application + " --products " + p_name
         # Get the make_flags option if there is any
         if options.makeflags:
@@ -644,21 +633,21 @@ def compile_product_cmake_autotools(sat,
         res_m = sat.make(make_arguments,
                          verbose = 0,
                          logger_add_link = logger)
-        log_res_step(logger, res_m)
+        UTS.log_res_step(logger, res_m)
         res += res_m
         
         if res_m > 0:
             error_step = "MAKE"
         else: 
             # Logging and sat command call for make install step
-            log_step(logger, header, "MAKE INSTALL")
+            UTS.log_step(logger, header, "MAKE INSTALL")
             res_mi = sat.makeinstall(config.VARS.application + 
                                      " --products " + 
                                      p_name,
                                     verbose = 0,
                                     logger_add_link = logger)
 
-            log_res_step(logger, res_mi)
+            UTS.log_res_step(logger, res_mi)
             res += res_mi
             
             if res_mi > 0:
@@ -691,12 +680,12 @@ def compile_product_script(sat,
     
     # Logging and sat command call for the script step
     scrit_path_display = UTS.label(p_info.compil_script)
-    log_step(logger, header, "SCRIPT " + scrit_path_display)
+    UTS.log_step(logger, header, "SCRIPT " + scrit_path_display)
     len_end_line = len_end + len(scrit_path_display)
     res = sat.script(config.VARS.application + " --products " + p_name,
                      verbose = 0,
                      logger_add_link = logger)
-    log_res_step(logger, res)
+    UTS.log_res_step(logger, res)
               
     return res, len_end_line, error_step 
 

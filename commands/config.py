@@ -21,6 +21,7 @@ import os
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.configManager as CFGMGR
 import src.system as SYSS
@@ -148,7 +149,7 @@ If a name is given the new config file takes the given name."""))
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
     elif options.copy:
         # product is required
-        src.check_config_has_application( config )
+        UTS.check_config_has_application(config).raiseIfKo()
 
         # get application file path 
         source = config.VARS.application + '.pyconf'

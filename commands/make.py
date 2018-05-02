@@ -70,7 +70,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Get the list of products to treat
     products_infos = get_products_list(options, config, logger)
@@ -138,19 +138,6 @@ def get_products_list(options, cfg, logger):
     
     return products_infos
 
-def log_step(logger, header, step):
-    msg = "\r%s%s" % (header, " " * 20)
-    msg += "\r%s%s" % (header, step)
-    logger.info(msg)
-    logger.debug("\n==== %s \n" % UTS.info(step))
-
-def log_res_step(logger, res):
-    if res == 0:
-        logger.debug("<OK>\n")
-    else:
-        logger.debug("<KO>\n")
-
-
 def make_all_products(config, products_infos, make_option, logger):
     """
     Execute the proper configuration commands 
@@ -195,7 +182,7 @@ def make_product(p_name_info, make_option, config, logger):
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        log_step(logger, header, "ignored")
+        UTS.log_step(logger, header, "ignored")
         return 0
 
     # Instantiate the class that manages all the construction commands
@@ -203,21 +190,21 @@ def make_product(p_name_info, make_option, config, logger):
     builder = src.compilation.Builder(config, logger, p_info)
     
     # Prepare the environment
-    log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, header, "PREPARE ENV")
     res_prepare = builder.prepare()
-    log_res_step(logger, res_prepare)
+    UTS.log_res_step(logger, res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     len_end_line = 20
 
     nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
-    log_step(logger, header, "MAKE -j" + str(nb_proc))
+    UTS.log_step(logger, header, "MAKE -j" + str(nb_proc))
     if src.architecture.is_windows():
         res = builder.wmake(nb_proc, make_opt_without_j)
     else:
         res = builder.make(nb_proc, make_opt_without_j)
-    log_res_step(logger, res)
+    UTS.log_res_step(logger, res)
     
     # Log the result
     if res > 0:

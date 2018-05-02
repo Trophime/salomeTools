@@ -1,33 +1,21 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>commands package &#8212; salomeTools 5.0.0dev documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
-    <link rel="up" title="commands" href="modules.html" />
     <link rel="next" title="Release notes" href="../release_notes/release_notes_5.0.0.html" />
     <link rel="prev" title="commands" href="modules.html" />
    
@@ -36,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body role="document">
+  </head><body>
   
 
     <div class="document">
@@ -57,13 +44,13 @@ see Command class docstring, also used for help</p>
 <dl class="class">
 <dt id="commands.application.Command">
 <em class="property">class </em><code class="descclassname">commands.application.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The application command creates a SALOME application.</p>
 <div class="line-block">
 <div class="line">Warning:</div>
 <div class="line-block">
 <div class="line">It works only for SALOME 6.</div>
-<div class="line">Use the 'launcher' command for newer versions of SALOME</div>
+<div class="line">Use the ‘launcher’ command for newer versions of SALOME</div>
 <div class="line"><br /></div>
 </div>
 <div class="line">Examples:</div>
@@ -72,7 +59,7 @@ see Command class docstring, also used for help</p>
 <dl class="method">
 <dt id="commands.application.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat application &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat application &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -83,7 +70,7 @@ see Command class docstring, also used for help</p>
 <dl class="method">
 <dt id="commands.application.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat application &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat application &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -136,8 +123,8 @@ This method will use appli_gen to create the application directory.</p>
 <dl class="function">
 <dt id="commands.application.get_step">
 <code class="descclassname">commands.application.</code><code class="descname">get_step</code><span class="sig-paren">(</span><em>logger</em>, <em>message</em>, <em>pad=50</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#get_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.get_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns 'message ........ ' with pad 50 by default
-avoid colors '&lt;color&gt;' for now in message</p>
+<dd><p>returns ‘message …….. ‘ with pad 50 by default
+avoid colors ‘&lt;color&gt;’ for now in message</p>
 </dd></dl>
 
 <dl class="function">
@@ -151,19 +138,19 @@ avoid colors '&lt;color&gt;' for now in message</p>
 <dl class="class">
 <dt id="commands.check.Command">
 <em class="property">class </em><code class="descclassname">commands.check.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The check command executes the 'check' command in the build directory of 
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<p>The check command executes the ‘check’ command in the build directory of 
 all the products of the application.
 It is possible to reduce the list of products to check
-by using the --products option</p>
+by using the –products option</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat check SALOME --products KERNEL,GUI,GEOM</div>
+<div class="line">&gt;&gt; sat check SALOME –products KERNEL,GUI,GEOM</div>
 </div>
 <dl class="method">
 <dt id="commands.check.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the check command 'sat check &lt;options&gt;'</p>
+<dd><p>Define all options for the check command ‘sat check &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -174,7 +161,7 @@ by using the --products option</p>
 <dl class="method">
 <dt id="commands.check.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat check &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat check &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -189,10 +176,10 @@ in each product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -214,10 +201,10 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -239,10 +226,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) The Options instance that stores 
+<li><strong>options</strong> – (Options) The Options instance that stores 
 the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use 
 for the display and logging</li>
 </ul>
 </td>
@@ -254,35 +241,25 @@ for the display and logging</li>
 </table>
 </dd></dl>
 
-<dl class="function">
-<dt id="commands.check.log_res_step">
-<code class="descclassname">commands.check.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.check.log_step">
-<code class="descclassname">commands.check.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/check.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.check.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-commands.clean">
 <span id="commands-clean-module"></span><h2>commands.clean module<a class="headerlink" href="#module-commands.clean" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="commands.clean.Command">
 <em class="property">class </em><code class="descclassname">commands.clean.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/clean.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.clean.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The clean command suppresses the source, build, or install directories 
 of the application products.
 Use the options to define what directories you want to suppress and 
 to reduce the list of products</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat clean SALOME --build --install --properties is_salome_module:yes</div>
+<div class="line">&gt;&gt; sat clean SALOME –build –install –properties is_salome_module:yes</div>
 </div>
 <dl class="method">
 <dt id="commands.clean.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/clean.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.clean.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat clean &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat clean &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -293,7 +270,7 @@ to reduce the list of products</p>
 <dl class="method">
 <dt id="commands.clean.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/clean.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.clean.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat clean &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat clean &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -307,7 +284,7 @@ product information given as input.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_infos</strong> -- (list)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_infos</strong> – (list)
 The list of (name, config) corresponding to one product.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) the list of build paths.</td>
@@ -325,7 +302,7 @@ product information given as input.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_infos</strong> -- (list) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_infos</strong> – (list) 
 The list of (name, config) corresponding to one product.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) the list of install paths.</td>
@@ -345,9 +322,9 @@ the dev products are ignored.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>products_infos</strong> -- (list) 
+<li><strong>products_infos</strong> – (list) 
 The list of (name, config) corresponding to one product.</li>
-<li><strong>without_dev</strong> -- (boolean) If True, then ignore the dev products.</li>
+<li><strong>without_dev</strong> – (boolean) If True, then ignore the dev products.</li>
 </ul>
 </td>
 </tr>
@@ -367,7 +344,7 @@ directory corresponding to the product described by product_info.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_info</strong> -- (Config) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>products_info</strong> – (Config) 
 The config corresponding to the product.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool)
@@ -387,8 +364,8 @@ directory corresponding to the product described by product_info.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>l_paths</strong> -- (list) The list of Path to be suppressed</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>l_paths</strong> – (list) The list of Path to be suppressed</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -403,16 +380,16 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.compile.Command">
 <em class="property">class </em><code class="descclassname">commands.compile.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The compile command constructs the products of the application</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all</div>
+<div class="line">&gt;&gt; sat compile SALOME –products KERNEL,GUI,MEDCOUPLING –clean_all</div>
 </div>
 <dl class="method">
 <dt id="commands.compile.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat compile &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat compile &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -423,7 +400,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.compile.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat compile &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat compile &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -438,8 +415,8 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p_info</strong> -- (Config) The specific config of the product</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
+<li><strong>p_info</strong> – (Config) The specific config of the product</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
 </ul>
 </td>
 </tr>
@@ -462,10 +439,10 @@ in each product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list)
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list)
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -487,12 +464,12 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>p_name_info</strong> – (tuple) (str, Config) =&gt; (product_name, product_info)</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>header</strong> -- (str) the header to display when logging</li>
-<li><strong>len_end</strong> -- (int) the lenght of the the end of line (used in display)</li>
+<li><strong>header</strong> – (str) the header to display when logging</li>
+<li><strong>len_end</strong> – (int) the lenght of the the end of line (used in display)</li>
 </ul>
 </td>
 </tr>
@@ -513,13 +490,13 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>header</strong> -- (str) the header to display when logging</li>
-<li><strong>len_end</strong> -- (int) the length of the the end of line (used in display)</li>
+<li><strong>header</strong> – (str) the header to display when logging</li>
+<li><strong>len_end</strong> – (int) the length of the the end of line (used in display)</li>
 </ul>
 </td>
 </tr>
@@ -539,13 +516,13 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>header</strong> -- (str) the header to display when logging</li>
-<li><strong>len_end</strong> -- (int) the lenght of the the end of line (used in display)</li>
+<li><strong>header</strong> – (str) the header to display when logging</li>
+<li><strong>len_end</strong> – (int) the lenght of the the end of line (used in display)</li>
 </ul>
 </td>
 </tr>
@@ -581,10 +558,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -606,9 +583,9 @@ the product defined by prod_info</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>prod_info</strong> -- (Config) The specific config of the product</li>
-<li><strong>without_native_fixed</strong> -- (bool) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>prod_info</strong> – (Config) The specific config of the product</li>
+<li><strong>without_native_fixed</strong> – (bool) 
 If true, do not include the fixed or native products in the result</li>
 </ul>
 </td>
@@ -630,9 +607,9 @@ by prod_info</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>prod_info</strong> -- (Config) The specific config of the product</li>
-<li><strong>without_native_fixed</strong> -- (bool) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>prod_info</strong> – (Config) The specific config of the product</li>
+<li><strong>without_native_fixed</strong> – (bool) 
 If true, do not include the fixed or native products in the result</li>
 </ul>
 </td>
@@ -645,16 +622,6 @@ If true, do not include the fixed or native products in the result</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="commands.compile.log_res_step">
-<code class="descclassname">commands.compile.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.compile.log_step">
-<code class="descclassname">commands.compile.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="commands.compile.sort_products">
 <code class="descclassname">commands.compile.</code><code class="descname">sort_products</code><span class="sig-paren">(</span><em>config</em>, <em>p_infos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/compile.html#sort_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.compile.sort_products" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the p_infos regarding the dependencies between the products</p>
@@ -663,8 +630,8 @@ If true, do not include the fixed or native products in the result</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>p_infos</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>p_infos</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
 </ul>
 </td>
@@ -679,22 +646,22 @@ List of (str, Config) =&gt; (product_name, product_info)</li>
 <dl class="class">
 <dt id="commands.config.Command">
 <em class="property">class </em><code class="descclassname">commands.config.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/config.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.config.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The config command allows manipulation and operation on config '.pyconf' files.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<p>The config command allows manipulation and operation on config ‘.pyconf’ files.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat config --list</div>
-<div class="line">&gt;&gt; sat config SALOME --edit</div>
-<div class="line">&gt;&gt; sat config SALOME --copy SALOME-new</div>
-<div class="line">&gt;&gt; sat config SALOME --value VARS</div>
-<div class="line">&gt;&gt; sat config SALOME --debug VARS</div>
-<div class="line">&gt;&gt; sat config SALOME --info ParaView</div>
-<div class="line">&gt;&gt; sat config SALOME --show_patchs</div>
+<div class="line">&gt;&gt; sat config –list</div>
+<div class="line">&gt;&gt; sat config SALOME –edit</div>
+<div class="line">&gt;&gt; sat config SALOME –copy SALOME-new</div>
+<div class="line">&gt;&gt; sat config SALOME –value VARS</div>
+<div class="line">&gt;&gt; sat config SALOME –debug VARS</div>
+<div class="line">&gt;&gt; sat config SALOME –info ParaView</div>
+<div class="line">&gt;&gt; sat config SALOME –show_patchs</div>
 </div>
 <dl class="method">
 <dt id="commands.config.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/config.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.config.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat config &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat config &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -705,7 +672,7 @@ List of (str, Config) =&gt; (product_name, product_info)</li>
 <dl class="method">
 <dt id="commands.config.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/config.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.config.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat config &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat config &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -716,10 +683,10 @@ List of (str, Config) =&gt; (product_name, product_info)</li>
 <dl class="class">
 <dt id="commands.configure.Command">
 <em class="property">class </em><code class="descclassname">commands.configure.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The configure command executes in the build directory commands
 corresponding to the compilation mode of the application products.
-The possible compilation modes are 'cmake', 'autotools', or 'script'.</p>
+The possible compilation modes are ‘cmake’, ‘autotools’, or ‘script’.</p>
 <div class="line-block">
 <div class="line">Here are the commands to be run:</div>
 <div class="line-block">
@@ -729,12 +696,12 @@ The possible compilation modes are 'cmake', 'autotools', or 'script'.</p>
 <div class="line"><br /></div>
 </div>
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat configure SALOME --products KERNEL,GUI,PARAVIS</div>
+<div class="line">&gt;&gt; sat configure SALOME –products KERNEL,GUI,PARAVIS</div>
 </div>
 <dl class="method">
 <dt id="commands.configure.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat configure &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat configure &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -745,7 +712,7 @@ The possible compilation modes are 'cmake', 'autotools', or 'script'.</p>
 <dl class="method">
 <dt id="commands.configure.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat configure &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat configure &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -760,11 +727,11 @@ in each product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>conf_option</strong> -- (str) The options to add to the command</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use for the display and logging</li>
+<li><strong>conf_option</strong> – (str) The options to add to the command</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use for the display and logging</li>
 </ul>
 </td>
 </tr>
@@ -785,11 +752,11 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>conf_option</strong> -- (str) The options to add to the command</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>conf_option</strong> – (str) The options to add to the command</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -811,10 +778,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -826,23 +793,13 @@ The logger instance to use for the display and logging</li>
 </table>
 </dd></dl>
 
-<dl class="function">
-<dt id="commands.configure.log_res_step">
-<code class="descclassname">commands.configure.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.configure.log_step">
-<code class="descclassname">commands.configure.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/configure.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.configure.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-commands.environ">
 <span id="commands-environ-module"></span><h2>commands.environ module<a class="headerlink" href="#module-commands.environ" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="commands.environ.Command">
 <em class="property">class </em><code class="descclassname">commands.environ.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/environ.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.environ.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The environ command generates the environment files of your application.</p>
 <div class="line-block">
 <div class="line">examples:</div>
@@ -851,7 +808,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.environ.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/environ.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.environ.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat environ &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat environ &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -862,7 +819,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.environ.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/environ.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.environ.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat environ &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat environ &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -876,18 +833,18 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger)
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger)
 The logger instance to use for the display and logging</li>
-<li><strong>out_dir</strong> -- (str) 
+<li><strong>out_dir</strong> – (str) 
 The path to the directory where the files will be put</li>
-<li><strong>src_root</strong> -- (str) 
+<li><strong>src_root</strong> – (str) 
 The path to the directory where the sources are</li>
-<li><strong>silent</strong> -- (bool) 
+<li><strong>silent</strong> – (bool) 
 If True, do not print anything in the terminal</li>
-<li><strong>shells</strong> -- (list) The list of shells to generate</li>
-<li><strong>prefix</strong> -- (str) The prefix to add to the file names.</li>
-<li><strong>env_info</strong> -- (str) The list of products to add in the files.</li>
+<li><strong>shells</strong> – (list) The list of shells to generate</li>
+<li><strong>prefix</strong> – (str) The prefix to add to the file names.</li>
+<li><strong>env_info</strong> – (str) The list of products to add in the files.</li>
 </ul>
 </td>
 </tr>
@@ -904,18 +861,18 @@ If True, do not print anything in the terminal</li>
 <dl class="class">
 <dt id="commands.find_duplicates.Command">
 <em class="property">class </em><code class="descclassname">commands.find_duplicates.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/find_duplicates.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.find_duplicates.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The find_duplicates command search recursively for all duplicates files
 in INSTALL directory (or the optionally given directory) and 
 prints the found files to the terminal.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat find_duplicates --path /tmp</div>
+<div class="line">&gt;&gt; sat find_duplicates –path /tmp</div>
 </div>
 <dl class="method">
 <dt id="commands.find_duplicates.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/find_duplicates.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.find_duplicates.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat find_duplicates &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat find_duplicates &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -926,7 +883,7 @@ prints the found files to the terminal.</p>
 <dl class="method">
 <dt id="commands.find_duplicates.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/find_duplicates.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.find_duplicates.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat find_duplicates &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat find_duplicates &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -943,7 +900,7 @@ prints the found files to the terminal.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> -- (float) val must be between valMin and valMax.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – (float) val must be between valMin and valMax.</td>
 </tr>
 </tbody>
 </table>
@@ -959,7 +916,7 @@ prints the found files to the terminal.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_str</strong> -- (list or str) The variable to format</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_str</strong> – (list or str) The variable to format</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) the formatted variable</td>
 </tr>
@@ -976,11 +933,11 @@ prints the found files to the terminal.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lpath</strong> -- (list) 
+<li><strong>lpath</strong> – (list) 
 The list of path to of the directories where to  search for duplicates</li>
-<li><strong>extension_ignored</strong> -- (list) The list of extensions to ignore</li>
-<li><strong>files_ignored</strong> -- (list) The list of files to ignore</li>
-<li><strong>directories_ignored</strong> -- (list) 
+<li><strong>extension_ignored</strong> – (list) The list of extensions to ignore</li>
+<li><strong>files_ignored</strong> – (list) The list of files to ignore</li>
+<li><strong>directories_ignored</strong> – (list) 
 The list of directory paths to ignore</li>
 </ul>
 </td>
@@ -1000,18 +957,18 @@ and files_out is is the list of files</p>
 <dl class="class">
 <dt id="commands.generate.Command">
 <em class="property">class </em><code class="descclassname">commands.generate.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/generate.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.generate.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The generate command generates SALOME modules from 'pure cpp' products.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<p>The generate command generates SALOME modules from ‘pure cpp’ products.</p>
 <div class="line-block">
 <div class="line">warning: this command NEEDS YACSGEN to run.</div>
 <div class="line"><br /></div>
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat generate SALOME --products FLICACPP</div>
+<div class="line">&gt;&gt; sat generate SALOME –products FLICACPP</div>
 </div>
 <dl class="method">
 <dt id="commands.generate.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/generate.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.generate.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat generate &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat generate &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1022,7 +979,7 @@ and files_out is is the list of files</p>
 <dl class="method">
 <dt id="commands.generate.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/generate.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.generate.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat generate &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat generate &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -1040,7 +997,7 @@ and files_out is is the list of files</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> -- (str) The directory of YACSGEN.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> – (str) The directory of YACSGEN.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) 
 The YACSGEN path if the module_generator is available, else None</td>
@@ -1058,9 +1015,9 @@ The YACSGEN path if the module_generator is available, else None</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>directory</strong> -- (str) The directory given by option --yacsgen</li>
-<li><strong>logger</strong> -- (Logger) The logger instance</li>
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>directory</strong> – (str) The directory given by option –yacsgen</li>
+<li><strong>logger</strong> – (Logger) The logger instance</li>
 </ul>
 </td>
 </tr>
@@ -1088,12 +1045,12 @@ with value The path to yacsgen directory if ok</p>
 <dl class="class">
 <dt id="commands.init.Command">
 <em class="property">class </em><code class="descclassname">commands.init.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/init.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.init.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The init command Changes the local settings of SAT</p>
 <dl class="method">
 <dt id="commands.init.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/init.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.init.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat init &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat init &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1104,7 +1061,7 @@ with value The path to yacsgen directory if ok</p>
 <dl class="method">
 <dt id="commands.init.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/init.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.init.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat init &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat init &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -1118,8 +1075,8 @@ with value The path to yacsgen directory if ok</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path_to_check</strong> -- (str) The path to check.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance.</li>
+<li><strong>path_to_check</strong> – (str) The path to check.</li>
+<li><strong>logger</strong> – (Logger) The logger instance.</li>
 </ul>
 </td>
 </tr>
@@ -1136,9 +1093,9 @@ with value The path to yacsgen directory if ok</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>key</strong> -- (str) The key from which to change the value.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance.</li>
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>key</strong> – (str) The key from which to change the value.</li>
+<li><strong>logger</strong> – (Logger) The logger instance.</li>
 </ul>
 </td>
 </tr>
@@ -1155,10 +1112,10 @@ with value The path to yacsgen directory if ok</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>key</strong> -- (str) The key from which to change the value.</li>
-<li><strong>value</strong> -- (str) The path to change.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance.</li>
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>key</strong> – (str) The key from which to change the value.</li>
+<li><strong>value</strong> – (str) The path to change.</li>
+<li><strong>logger</strong> – (Logger) The logger instance.</li>
 </ul>
 </td>
 </tr>
@@ -1175,15 +1132,15 @@ with value The path to yacsgen directory if ok</p>
 <dl class="class">
 <dt id="commands.job.Command">
 <em class="property">class </em><code class="descclassname">commands.job.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/job.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.job.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The job command executes the commands of the job defined
 in the jobs configuration file  
 | examples:
-| &gt;&gt; sat job --jobs_config my_jobs --name my_job&quot;</p>
+| &gt;&gt; sat job –jobs_config my_jobs –name my_job”</p>
 <dl class="method">
 <dt id="commands.job.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/job.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.job.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat job &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat job &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1194,7 +1151,7 @@ in the jobs configuration file
 <dl class="method">
 <dt id="commands.job.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/job.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.job.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat job &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat job &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -1205,17 +1162,17 @@ in the jobs configuration file
 <dl class="class">
 <dt id="commands.jobs.Command">
 <em class="property">class </em><code class="descclassname">commands.jobs.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The jobs command command launches maintenances that are described in 
 the dedicated jobs configuration file.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat jobs --name my_jobs --publish</div>
+<div class="line">&gt;&gt; sat jobs –name my_jobs –publish</div>
 </div>
 <dl class="method">
 <dt id="commands.jobs.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat jobs &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat jobs &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1226,7 +1183,7 @@ the dedicated jobs configuration file.</p>
 <dl class="method">
 <dt id="commands.jobs.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat jobs &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat jobs &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -1234,7 +1191,7 @@ the dedicated jobs configuration file.</p>
 <dl class="class">
 <dt id="commands.jobs.Gui">
 <em class="property">class </em><code class="descclassname">commands.jobs.</code><code class="descname">Gui</code><span class="sig-paren">(</span><em>xml_dir_path</em>, <em>l_jobs</em>, <em>l_jobs_not_today</em>, <em>prefix</em>, <em>logger</em>, <em>file_boards=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Gui" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage the the xml data that can be displayed in a browser 
 to see the jobs states</p>
 <dl class="method">
@@ -1245,7 +1202,7 @@ to see the jobs states</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> -- (str) the board name</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – (str) the board name</td>
 </tr>
 </tbody>
 </table>
@@ -1262,9 +1219,9 @@ self.history = {name_job : list of (date, status, list links)}</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>l_jobs</strong> -- (list) 
+<li><strong>l_jobs</strong> – (list) 
 the list of jobs to run today</li>
-<li><strong>l_jobs_not_today</strong> -- (list) 
+<li><strong>l_jobs_not_today</strong> – (list) 
 the list of jobs that do not run today</li>
 </ul>
 </td>
@@ -1283,7 +1240,7 @@ so the result is a list.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_remote_log_files</strong> -- (list) the list of all remote log files</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_remote_log_files</strong> – (list) the list of all remote log files</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) 
 the list of tuples (test log files path, res of the command)</td>
@@ -1302,8 +1259,8 @@ first version of the files</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>l_jobs</strong> -- (list) the list of jobs that run today</li>
-<li><strong>l_jobs_not_today</strong> -- (list) the list of jobs that do not run today</li>
+<li><strong>l_jobs</strong> – (list) the list of jobs that run today</li>
+<li><strong>l_jobs_not_today</strong> – (list) the list of jobs that do not run today</li>
 </ul>
 </td>
 </tr>
@@ -1320,8 +1277,8 @@ first version of the files</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>l_jobs</strong> -- (list) the list of jobs that run today</li>
-<li><strong>xml_file</strong> -- (xmlManager.XmlLogFile) the xml instance to update</li>
+<li><strong>l_jobs</strong> – (list) the list of jobs that run today</li>
+<li><strong>xml_file</strong> – (xmlManager.XmlLogFile) the xml instance to update</li>
 </ul>
 </td>
 </tr>
@@ -1338,7 +1295,7 @@ the dict d_input_boards that contain the csv file contain</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>today</strong> -- (int) the current day of the week</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>today</strong> – (int) the current day of the week</td>
 </tr>
 </tbody>
 </table>
@@ -1354,9 +1311,9 @@ first version of the files</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xml_node_jobs</strong> -- (etree.Element) 
+<li><strong>xml_node_jobs</strong> – (etree.Element) 
 the node corresponding to a job</li>
-<li><strong>l_jobs_not_today</strong> -- (list) 
+<li><strong>l_jobs_not_today</strong> – (list) 
 the list of jobs that do not run today</li>
 </ul>
 </td>
@@ -1374,8 +1331,8 @@ the list of jobs that do not run today</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>l_jobs</strong> -- (list) the list of jobs that run today</li>
-<li><strong>xml_file</strong> -- (xmlManager.XmlLogFile) 
+<li><strong>l_jobs</strong> – (list) the list of jobs that run today</li>
+<li><strong>xml_file</strong> – (xmlManager.XmlLogFile) 
 the xml instance to update</li>
 </ul>
 </td>
@@ -1392,7 +1349,7 @@ the xml instance to update</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_jobs</strong> -- (list) the list of jobs that run today</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_jobs</strong> – (list) the list of jobs that run today</td>
 </tr>
 </tbody>
 </table>
@@ -1415,7 +1372,7 @@ the xml instance to update</li>
 <dl class="class">
 <dt id="commands.jobs.Job">
 <em class="property">class </em><code class="descclassname">commands.jobs.</code><code class="descname">Job</code><span class="sig-paren">(</span><em>name</em>, <em>machine</em>, <em>application</em>, <em>board</em>, <em>commands</em>, <em>timeout</em>, <em>config</em>, <em>job_file_path</em>, <em>logger</em>, <em>after=None</em>, <em>prefix=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Job" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage one job</p>
 <dl class="method">
 <dt id="commands.jobs.Job.cancel">
@@ -1596,7 +1553,7 @@ If it is finished, the outputs are stored in the fields out and err.</p>
 <dl class="method">
 <dt id="commands.jobs.Job.write_results">
 <code class="descname">write_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Job.write_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Job.write_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display on the terminal all the job's information</p>
+<dd><p>Display on the terminal all the job’s information</p>
 </dd></dl>
 
 </dd></dl>
@@ -1604,7 +1561,7 @@ If it is finished, the outputs are stored in the fields out and err.</p>
 <dl class="class">
 <dt id="commands.jobs.Jobs">
 <em class="property">class </em><code class="descclassname">commands.jobs.</code><code class="descname">Jobs</code><span class="sig-paren">(</span><em>runner</em>, <em>logger</em>, <em>job_file_path</em>, <em>config_jobs</em>, <em>lenght_columns=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Jobs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage the jobs to be run</p>
 <dl class="method">
 <dt id="commands.jobs.Jobs.cancel_dependencies_of_failing_jobs">
@@ -1630,8 +1587,8 @@ and returns the job instance corresponding to the definition.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>job_def</strong> -- (Mapping a job definition</li>
-<li><strong>machine</strong> -- (Machine) the machine on which the job will run</li>
+<li><strong>job_def</strong> – (Mapping a job definition</li>
+<li><strong>machine</strong> – (Machine) the machine on which the job will run</li>
 </ul>
 </td>
 </tr>
@@ -1667,7 +1624,7 @@ It displays the job that is currently running on the host of the column.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>len_col</strong> -- (int) the size of the column</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>len_col</strong> – (int) the size of the column</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
@@ -1683,7 +1640,7 @@ It displays the job that is currently running on the host of the column.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> -- (str) a job name</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – (str) a job name</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(Job) the job that has the name.</td>
 </tr>
@@ -1700,7 +1657,7 @@ the machine defined by its host and its port.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hostname</strong> -- (str, int) the pair (host, port)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hostname</strong> – (str, int) the pair (host, port)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(Job or bool) 
 the job that is running on the host, 
@@ -1746,18 +1703,18 @@ This method stops when all the jobs are finished.</p>
 <dt id="commands.jobs.Jobs.str_of_length">
 <code class="descname">str_of_length</code><span class="sig-paren">(</span><em>text</em>, <em>length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Jobs.str_of_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Jobs.str_of_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a string text of any length and returns 
-the most close string of length &quot;length&quot;.</p>
+the most close string of length “length”.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> -- (str) any string</li>
-<li><strong>length</strong> -- (int) a length for the returned string</li>
+<li><strong>text</strong> – (str) any string</li>
+<li><strong>length</strong> – (int) a length for the returned string</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(str) the most close string of length &quot;length&quot;</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(str) the most close string of length “length”</p>
 </td>
 </tr>
 </tbody>
@@ -1798,7 +1755,7 @@ running jobs and the jobs that have already finished.</p>
 <dl class="class">
 <dt id="commands.jobs.Machine">
 <em class="property">class </em><code class="descclassname">commands.jobs.</code><code class="descname">Machine</code><span class="sig-paren">(</span><em>name</em>, <em>host</em>, <em>user</em>, <em>port=22</em>, <em>passwd=None</em>, <em>sat_path='salomeTools'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/jobs.html#Machine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.jobs.Machine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manage a ssh connection on a machine</p>
 <dl class="method">
 <dt id="commands.jobs.Machine.close">
@@ -1814,7 +1771,7 @@ running jobs and the jobs that have already finished.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> -- The logger instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> – The logger instance</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
@@ -1837,8 +1794,8 @@ running jobs and the jobs that have already finished.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>command</strong> -- (str) The command to be run</li>
-<li><strong>logger</strong> -- The logger instance</li>
+<li><strong>command</strong> – (str) The command to be run</li>
+<li><strong>logger</strong> – The logger instance</li>
 </ul>
 </td>
 </tr>
@@ -1873,7 +1830,7 @@ All sub-directories in source are created under target.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> -- The logger instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> – The logger instance</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if the connection has succeed, False if not</td>
 </tr>
@@ -1890,7 +1847,7 @@ All sub-directories in source are created under target.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> -- The logger instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> – The logger instance</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
@@ -1908,7 +1865,7 @@ All sub-directories in source are created under target.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_jobs</strong> -- (Config) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_jobs</strong> – (Config) 
 the config corresponding to the jos description</td>
 </tr>
 </tbody>
@@ -1931,7 +1888,7 @@ the config corresponding to the jos description</td>
 <dl class="class">
 <dt id="commands.launcher.Command">
 <em class="property">class </em><code class="descclassname">commands.launcher.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/launcher.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.launcher.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The launcher command generates a SALOME launcher.</p>
 <div class="line-block">
 <div class="line">examples:</div>
@@ -1940,7 +1897,7 @@ the config corresponding to the jos description</td>
 <dl class="method">
 <dt id="commands.launcher.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/launcher.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.launcher.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all possible options for command 'sat launcher &lt;options&gt;'</p>
+<dd><p>Define all possible options for command ‘sat launcher &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1951,7 +1908,7 @@ the config corresponding to the jos description</td>
 <dl class="method">
 <dt id="commands.launcher.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/launcher.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.launcher.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat launcher &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat launcher &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -1965,8 +1922,8 @@ the config corresponding to the jos description</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>catalog_path</strong> -- (str) the catalog file path</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>catalog_path</strong> – (str) the catalog file path</li>
 </ul>
 </td>
 </tr>
@@ -1987,9 +1944,9 @@ The environment dictionary corresponding to the file path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>machines</strong> -- (list) The list of machines to add in the catalog</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>machines</strong> – (list) The list of machines to add in the catalog</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2010,13 +1967,13 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>launcher_name</strong> -- (str) The name of the launcher to generate</li>
-<li><strong>pathlauncher</strong> -- (str) The path to the launcher to generate</li>
-<li><strong>display</strong> -- (bool) If False, do not print anything in the terminal</li>
-<li><strong>additional_env</strong> -- (dict) 
+<li><strong>launcher_name</strong> – (str) The name of the launcher to generate</li>
+<li><strong>pathlauncher</strong> – (str) The path to the launcher to generate</li>
+<li><strong>display</strong> – (bool) If False, do not print anything in the terminal</li>
+<li><strong>additional_env</strong> – (dict) 
 The dict giving additional environment variables</li>
 </ul>
 </td>
@@ -2034,7 +1991,7 @@ The dict giving additional environment variables</li>
 <dl class="class">
 <dt id="commands.log.Command">
 <em class="property">class </em><code class="descclassname">commands.log.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The log command gives access to the logs produced by the salomeTools commands.</p>
 <div class="line-block">
 <div class="line">examples:</div>
@@ -2043,7 +2000,7 @@ The dict giving additional environment variables</li>
 <dl class="method">
 <dt id="commands.log.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat log &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat log &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2054,7 +2011,7 @@ The dict giving additional environment variables</li>
 <dl class="method">
 <dt id="commands.log.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat log &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat log &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2067,7 +2024,7 @@ The dict giving additional environment variables</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nb</strong> -- (int) The maximum value of the value to be returned by the user.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nb</strong> – (int) The maximum value of the value to be returned by the user.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) 
 the value entered by the user. Return -1 if it is not as expected</td>
@@ -2079,7 +2036,7 @@ the value entered by the user. Return -1 if it is not as expected</td>
 <dl class="function">
 <dt id="commands.log.getMaxFormat">
 <code class="descclassname">commands.log.</code><code class="descname">getMaxFormat</code><span class="sig-paren">(</span><em>aListOfStr</em>, <em>offset=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/log.html#getMaxFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.log.getMaxFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns format for columns width as '%-30s&quot;' for example</p>
+<dd><p>returns format for columns width as ‘%-30s”’ for example</p>
 </dd></dl>
 
 <dl class="function">
@@ -2092,8 +2049,8 @@ Get the last log command file path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>logDir</strong> -- (str) The directory where to search the log files</li>
-<li><strong>notShownCommands</strong> -- (list) the list of commands to ignore</li>
+<li><strong>logDir</strong> – (str) The directory where to search the log files</li>
+<li><strong>notShownCommands</strong> – (list) the list of commands to ignore</li>
 </ul>
 </td>
 </tr>
@@ -2113,8 +2070,8 @@ Get the last log command file path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filePath</strong> -- The command xml file from which extract the commands context and traces</li>
-<li><strong>logger</strong> -- (Logger) the logging instance to use in order to print.</li>
+<li><strong>filePath</strong> – The command xml file from which extract the commands context and traces</li>
+<li><strong>logger</strong> – (Logger) the logging instance to use in order to print.</li>
 </ul>
 </td>
 </tr>
@@ -2131,8 +2088,8 @@ Get the last log command file path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filePath</strong> -- the path of the file to delete</li>
-<li><strong>logger</strong> -- (Logger) the logger instance to use for the print</li>
+<li><strong>filePath</strong> – the path of the file to delete</li>
+<li><strong>logger</strong> – (Logger) the logger instance to use for the print</li>
 </ul>
 </td>
 </tr>
@@ -2158,16 +2115,16 @@ Get the last log command file path.</p>
 <dl class="class">
 <dt id="commands.make.Command">
 <em class="property">class </em><code class="descclassname">commands.make.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The make command executes the 'make' command in the build directory.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<p>The make command executes the ‘make’ command in the build directory.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat make SALOME --products Python,KERNEL,GUI</div>
+<div class="line">&gt;&gt; sat make SALOME –products Python,KERNEL,GUI</div>
 </div>
 <dl class="method">
 <dt id="commands.make.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat make &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat make &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2178,7 +2135,7 @@ Get the last log command file path.</p>
 <dl class="method">
 <dt id="commands.make.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat make &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat make &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2198,10 +2155,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2214,16 +2171,6 @@ The logger instance to use for the display and logging</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="commands.make.log_res_step">
-<code class="descclassname">commands.make.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.make.log_step">
-<code class="descclassname">commands.make.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="commands.make.make_all_products">
 <code class="descclassname">commands.make.</code><code class="descname">make_all_products</code><span class="sig-paren">(</span><em>config</em>, <em>products_infos</em>, <em>make_option</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/make.html#make_all_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.make.make_all_products" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the proper configuration commands 
@@ -2233,11 +2180,11 @@ in each product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>make_option</strong> -- (str) The options to add to the command</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>make_option</strong> – (str) The options to add to the command</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2259,10 +2206,10 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>make_option</strong> -- (str) The options to add to the command</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>p_name_info</strong> – (tuple) (str, Config) =&gt; (product_name, product_info)</li>
+<li><strong>make_option</strong> – (str) The options to add to the command</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2280,18 +2227,18 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.makeinstall.Command">
 <em class="property">class </em><code class="descclassname">commands.makeinstall.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
-<p>The makeinstall command executes the 'make install' command in the build directory.
-In case of product constructed using a script (build_source : 'script'), 
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<p>The makeinstall command executes the ‘make install’ command in the build directory.
+In case of product constructed using a script (build_source : ‘script’), 
 then the makeinstall command do nothing.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat makeinstall SALOME --products KERNEL,GUI</div>
+<div class="line">&gt;&gt; sat makeinstall SALOME –products KERNEL,GUI</div>
 </div>
 <dl class="method">
 <dt id="commands.makeinstall.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat makeinstall &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat makeinstall &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2302,7 +2249,7 @@ then the makeinstall command do nothing.</p>
 <dl class="method">
 <dt id="commands.makeinstall.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat makeinstall &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat makeinstall &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2317,10 +2264,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2333,16 +2280,6 @@ The logger instance to use for the display and logging</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="commands.makeinstall.log_res_step">
-<code class="descclassname">commands.makeinstall.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.makeinstall.log_step">
-<code class="descclassname">commands.makeinstall.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="commands.makeinstall.makeinstall_all_products">
 <code class="descclassname">commands.makeinstall.</code><code class="descname">makeinstall_all_products</code><span class="sig-paren">(</span><em>config</em>, <em>products_infos</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/makeinstall.html#makeinstall_all_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.makeinstall.makeinstall_all_products" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the proper configuration commands 
@@ -2352,10 +2289,10 @@ in each product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2377,10 +2314,10 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2398,7 +2335,7 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.package.Command">
 <em class="property">class </em><code class="descclassname">commands.package.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/package.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.package.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The package command creates an archive.</p>
 <div class="line-block">
 <div class="line">There are 4 kinds of archive, which can be mixed:</div>
@@ -2408,12 +2345,12 @@ The logger instance to use for the display and logging</li>
 <div class="line">4- The salomeTools archive. It contains salomeTools.</div>
 <div class="line"><br /></div>
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat package SALOME --binaries --sources</div>
+<div class="line">&gt;&gt; sat package SALOME –binaries –sources</div>
 </div>
 <dl class="method">
 <dt id="commands.package.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/package.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.package.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat package &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat package &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2424,7 +2361,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.package.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/package.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.package.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat package &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat package &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2439,13 +2376,13 @@ in the d_content argument.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tar</strong> -- (tarfile) The tarfile instance used to make the archive.</li>
-<li><strong>name_archive</strong> -- (str) The name of the archive to make.</li>
-<li><strong>d_content</strong> -- (dict) 
+<li><strong>tar</strong> – (tarfile) The tarfile instance used to make the archive.</li>
+<li><strong>name_archive</strong> – (str) The name of the archive to make.</li>
+<li><strong>d_content</strong> – (dict) 
 The dictionary that contain all directories and files to add in the archive.
 d_content[label] = (path_on_local_machine, path_in_archive)</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>f_exclude</strong> -- (function) the function that filters</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>f_exclude</strong> – (function) the function that filters</li>
 </ul>
 </td>
 </tr>
@@ -2471,8 +2408,8 @@ configured for a source package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>tmp_working_dir</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>tmp_working_dir</strong> – (str) 
 The temporary local directory containing some specific directories
 or files needed in the source package</li>
 </ul>
@@ -2496,10 +2433,10 @@ to add in a binary package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>options</strong> -- (OptResult) the options of the launched command</li>
-<li><strong>tmp_working_dir</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>options</strong> – (OptResult) the options of the launched command</li>
+<li><strong>tmp_working_dir</strong> – (str) 
 The temporary local directory containing some specific directories
 or files needed in the binary package</li>
 </ul>
@@ -2524,11 +2461,11 @@ to add in a binary package.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>tmp_working_dir</strong> -- (str)
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>tmp_working_dir</strong> – (str)
 The temporary local directory containing some specific directories
 or files needed in the source package</li>
-<li><strong>with_vcs</strong> -- (bool) 
+<li><strong>with_vcs</strong> – (bool) 
 True if the package is with vcs products 
 (not transformed into archive products)</li>
 </ul>
@@ -2536,7 +2473,7 @@ True if the package is with vcs products
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict)
 The dictionary 
-{&quot;project&quot; : (produced project, project path in the archive)}</p>
+{“project” : (produced project, project path in the archive)}</p>
 </td>
 </tr>
 </tbody>
@@ -2552,7 +2489,7 @@ VCS repositories (like .git)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> -- (str) The filname to exclude (or not).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – (str) The filname to exclude (or not).</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if the file has to be exclude</td>
 </tr>
@@ -2570,8 +2507,8 @@ directory containing the specific project of a source package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- 'Config) The global configuration.</li>
-<li><strong>application_tmp_dir</strong> -- (str) 
+<li><strong>config</strong> – ‘Config) The global configuration.</li>
+<li><strong>application_tmp_dir</strong> – (str) 
 The path to the temporary application scripts directory of the project.</li>
 </ul>
 </td>
@@ -2593,19 +2530,19 @@ construct the specific project.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p_name</strong> -- (str) The name of the product.</li>
-<li><strong>p_info</strong> -- (Config) The specific configuration corresponding to the product</li>
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>with_vcs</strong> -- (bool) 
+<li><strong>p_name</strong> – (str) The name of the product.</li>
+<li><strong>p_info</strong> – (Config) The specific configuration corresponding to the product</li>
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>with_vcs</strong> – (bool) 
 True if the package is with vcs products 
 (not transformed into archive products)</li>
-<li><strong>compil_scripts_tmp_dir</strong> -- (str) 
+<li><strong>compil_scripts_tmp_dir</strong> – (str) 
 The path to the temporary compilation scripts directory of the project.</li>
-<li><strong>env_scripts_tmp_dir</strong> -- (str) 
+<li><strong>env_scripts_tmp_dir</strong> – (str) 
 The path to the temporary environment script directory of the project.</li>
-<li><strong>patches_tmp_dir</strong> -- (str) 
+<li><strong>patches_tmp_dir</strong> – (str) 
 The path to the temporary patch scripts directory of the project.</li>
-<li><strong>products_pyconf_tmp_dir</strong> -- (str) 
+<li><strong>products_pyconf_tmp_dir</strong> – (str) 
 The path to the temporary product scripts directory of the project.</li>
 </ul>
 </td>
@@ -2624,8 +2561,8 @@ from a VCS (git, cvs, svn) repository.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) The logging instance</li>
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) The logging instance</li>
 </ul>
 </td>
 </tr>
@@ -2651,13 +2588,13 @@ and then create the archives.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>l_pinfo_vcs</strong> -- (list) 
+<li><strong>l_pinfo_vcs</strong> – (list) 
 The list of specific configuration corresponding to each vcs product</li>
-<li><strong>sat</strong> -- (Sat) 
+<li><strong>sat</strong> – (Sat) 
 The Sat instance that can be called to clean and source the products</li>
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) The logging instance</li>
-<li><strong>tmp_working_dir</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) The logging instance</li>
+<li><strong>tmp_working_dir</strong> – (str) 
 The temporary local directory containing some specific directories
 or files needed in the source package</li>
 </ul>
@@ -2680,7 +2617,7 @@ The dictionary that stores all the archives to add in the sourcepackage.
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> -- (str) The path to the launcher to modify.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> – (str) The path to the launcher to modify.</td>
 </tr>
 </tbody>
 </table>
@@ -2695,10 +2632,10 @@ The dictionary that stores all the archives to add in the sourcepackage.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>prod_name</strong> -- (str) The name of the product.</li>
-<li><strong>prod_info</strong> -- (Config)
+<li><strong>prod_name</strong> – (str) The name of the product.</li>
+<li><strong>prod_info</strong> – (Config)
 The specific configuration corresponding to the product</li>
-<li><strong>where</strong> -- (str) 
+<li><strong>where</strong> – (str) 
 The path of the repository where to put the resulting archive</li>
 </ul>
 </td>
@@ -2720,12 +2657,12 @@ in order to use it for extra compilations.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>file_dir</strong> -- (str) the directory where to put the files</li>
-<li><strong>d_sub</strong> -- (dict) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>file_dir</strong> – (str) the directory where to put the files</li>
+<li><strong>d_sub</strong> – (dict) 
 the dictionnary that contains the substitutions to be done</li>
-<li><strong>file_name</strong> -- (str) the name of the install script file</li>
+<li><strong>file_name</strong> – (str) the name of the install script file</li>
 </ul>
 </td>
 </tr>
@@ -2746,10 +2683,10 @@ These files use relative paths.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>file_dir</strong> -- (str) the directory where to put the files</li>
-<li><strong>binaries_dir_name</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>file_dir</strong> – (str) the directory where to put the files</li>
+<li><strong>binaries_dir_name</strong> – (str) 
 The name of the repository where the binaries are, in the archive.</li>
 </ul>
 </td>
@@ -2771,11 +2708,11 @@ This launcher uses relative paths.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>file_dir</strong> -- (str) the directory where to put the launcher</li>
-<li><strong>file_name</strong> -- (str) The launcher name</li>
-<li><strong>binaries_dir_name</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>file_dir</strong> – (str) the directory where to put the launcher</li>
+<li><strong>file_name</strong> – (str) The launcher name</li>
+<li><strong>binaries_dir_name</strong> – (str) 
 the name of the repository where the binaries are, in the archive.</li>
 </ul>
 </td>
@@ -2797,10 +2734,10 @@ in the binary package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>file_dir</strong> -- (str) the directory where to put the file</li>
-<li><strong>binaries_dir_name</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>file_dir</strong> – (str) the directory where to put the file</li>
+<li><strong>binaries_dir_name</strong> – (str) 
 The name of the repository where the binaries are, in the archive.</li>
 </ul>
 </td>
@@ -2822,8 +2759,8 @@ to add in a project package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>project_file_path</strong> -- (str) The path to the local project.</li>
-<li><strong>tmp_working_dir</strong> -- (str) 
+<li><strong>project_file_path</strong> – (str) The path to the local project.</li>
+<li><strong>tmp_working_dir</strong> – (str) 
 The temporary local directory containing some specific directories
 or files needed in the project package</li>
 </ul>
@@ -2849,10 +2786,10 @@ to add in a source package.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration.</li>
-<li><strong>logger</strong> -- (Logger) the logging instance</li>
-<li><strong>options</strong> -- (OptResult) the options of the launched command</li>
-<li><strong>tmp_working_dir</strong> -- (str)
+<li><strong>config</strong> – (Config) The global configuration.</li>
+<li><strong>logger</strong> – (Logger) the logging instance</li>
+<li><strong>options</strong> – (OptResult) the options of the launched command</li>
+<li><strong>tmp_working_dir</strong> – (str)
 The temporary local directory containing some specific directories
 or files needed in the binary package</li>
 </ul>
@@ -2878,9 +2815,9 @@ that have the property given as input.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) The global config.</li>
-<li><strong>prop</strong> -- (str) The property to filter</li>
-<li><strong>value</strong> -- (str) The value of the property to filter</li>
+<li><strong>config</strong> – (Config) The global config.</li>
+<li><strong>prop</strong> – (str) The property to filter</li>
+<li><strong>value</strong> – (str) The value of the property to filter</li>
 </ul>
 </td>
 </tr>
@@ -2894,17 +2831,17 @@ that have the property given as input.</p>
 <dl class="class">
 <dt id="commands.patch.Command">
 <em class="property">class </em><code class="descclassname">commands.patch.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/patch.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.patch.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The patch command apply the patches on the sources of the application products
 if there is any.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat patch SALOME --products qt,boost</div>
+<div class="line">&gt;&gt; sat patch SALOME –products qt,boost</div>
 </div>
 <dl class="method">
 <dt id="commands.patch.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/patch.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.patch.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat patch &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat patch &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2915,7 +2852,7 @@ if there is any.</p>
 <dl class="method">
 <dt id="commands.patch.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/patch.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.patch.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat patch &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat patch &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2929,10 +2866,10 @@ if there is any.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product to be patched</li>
-<li><strong>logger</strong> -- (Logger: 
+<li><strong>logger</strong> – (Logger: 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -2950,17 +2887,17 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.prepare.Command">
 <em class="property">class </em><code class="descclassname">commands.prepare.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/prepare.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.prepare.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The prepare command gets the sources of the application products 
 and apply the patches if there is any.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat prepare SALOME --products KERNEL,GUI</div>
+<div class="line">&gt;&gt; sat prepare SALOME –products KERNEL,GUI</div>
 </div>
 <dl class="method">
 <dt id="commands.prepare.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/prepare.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.prepare.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat prepare &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat prepare &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -2971,7 +2908,7 @@ and apply the patches if there is any.</p>
 <dl class="method">
 <dt id="commands.prepare.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/prepare.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.prepare.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat prepare &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat prepare &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -2984,7 +2921,7 @@ and apply the patches if there is any.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_products</strong> -- (list) The list of products to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_products</strong> – (list) The list of products to check</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) 
 The list of product configurations 
@@ -3002,7 +2939,7 @@ that have an existing source directory.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_products</strong> -- (list) The list of products to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>l_products</strong> – (list) The list of products to check</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) 
 The list of product configurations 
@@ -3021,10 +2958,10 @@ that have one or more patches.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>arguments</strong> -- (str) The arguments from which to remove products</li>
-<li><strong>l_products_info</strong> -- (list) 
+<li><strong>arguments</strong> – (str) The arguments from which to remove products</li>
+<li><strong>l_products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -3042,21 +2979,21 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.profile.Command">
 <em class="property">class </em><code class="descclassname">commands.profile.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The profile command creates default profile.</p>
 <div class="line-block">
 <div class="line">examples: </div>
 <div class="line">&gt;&gt; sat profile [PRODUCT] </div>
-<div class="line">&gt;&gt; sat profile --prefix (string)</div>
-<div class="line">&gt;&gt; sat profile --name (string)</div>
-<div class="line">&gt;&gt; sat profile --force</div>
-<div class="line">&gt;&gt; sat profile --version (string) </div>
-<div class="line">&gt;&gt; sat profile --slogan (string) </div>
+<div class="line">&gt;&gt; sat profile –prefix (string)</div>
+<div class="line">&gt;&gt; sat profile –name (string)</div>
+<div class="line">&gt;&gt; sat profile –force</div>
+<div class="line">&gt;&gt; sat profile –version (string) </div>
+<div class="line">&gt;&gt; sat profile –slogan (string) </div>
 </div>
 <dl class="method">
 <dt id="commands.profile.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat profile &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat profile &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3067,7 +3004,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.profile.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat profile &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat profile &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3086,18 +3023,26 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.profile.profileConfigReader">
 <em class="property">class </em><code class="descclassname">commands.profile.</code><code class="descname">profileConfigReader</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#profileConfigReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.profileConfigReader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../apidoc_src/src.html#src.pyconf.ConfigReader" title="src.pyconf.ConfigReader"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.ConfigReader</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../apidoc_src/src.html#src.pyconf.ConfigReader" title="src.pyconf.ConfigReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.ConfigReader</span></code></a></p>
 <dl class="method">
 <dt id="commands.profile.profileConfigReader.parseMapping">
 <code class="descname">parseMapping</code><span class="sig-paren">(</span><em>parent</em>, <em>suffix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#profileConfigReader.parseMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.profileConfigReader.parseMapping" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse a mapping.</p>
+<p>&#64;param parent: The container to which the mapping will be added.
+&#64;type parent: A L{Container} instance.
+&#64;param suffix: The suffix for the value.
+&#64;type suffix: str
+&#64;return: a L{Mapping} instance representing the mapping.
+&#64;rtype: L{Mapping}
+&#64;raise ConfigFormatError: if a syntax error is found.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="commands.profile.profileReference">
 <em class="property">class </em><code class="descclassname">commands.profile.</code><code class="descname">profileReference</code><span class="sig-paren">(</span><em>config</em>, <em>type</em>, <em>ident</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/profile.html#profileReference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.profile.profileReference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../apidoc_src/src.html#src.pyconf.Reference" title="src.pyconf.Reference"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.Reference</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../apidoc_src/src.html#src.pyconf.Reference" title="src.pyconf.Reference"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.Reference</span></code></a></p>
 </dd></dl>
 
 <dl class="function">
@@ -3112,7 +3057,7 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.run.Command">
 <em class="property">class </em><code class="descclassname">commands.run.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/run.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.run.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The run command runs the application launcher with the given arguments.</p>
 <div class="line-block">
 <div class="line">examples:</div>
@@ -3121,7 +3066,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.run.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/run.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.run.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat run &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat run &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3132,7 +3077,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.run.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/run.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.run.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat run &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat run &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3143,20 +3088,20 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.script.Command">
 <em class="property">class </em><code class="descclassname">commands.script.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The script command executes the script(s) of the the given products in the build directory.
-This is done only for the products that are constructed using a script (build_source : 'script').
+This is done only for the products that are constructed using a script (build_source : ‘script’).
 Otherwise, nothing is done.</p>
 <div class="line-block">
 <div class="line">examples:</div>
 <div class="line-block">
-<div class="line">&gt;&gt; sat script SALOME --products Python,numpy</div>
+<div class="line">&gt;&gt; sat script SALOME –products Python,numpy</div>
 </div>
 </div>
 <dl class="method">
 <dt id="commands.script.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat script &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat script &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3167,7 +3112,7 @@ Otherwise, nothing is done.</p>
 <dl class="method">
 <dt id="commands.script.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat script &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat script &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3182,10 +3127,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>cfg</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>cfg</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -3198,16 +3143,6 @@ The logger instance to use for the display and logging</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="commands.script.log_res_step">
-<code class="descclassname">commands.script.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.log_res_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="commands.script.log_step">
-<code class="descclassname">commands.script.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.log_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="commands.script.run_script_all_products">
 <code class="descclassname">commands.script.</code><code class="descname">run_script_all_products</code><span class="sig-paren">(</span><em>config</em>, <em>products_infos</em>, <em>nb_proc</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/script.html#run_script_all_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.script.run_script_all_products" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the script in each product build directory.</p>
@@ -3216,11 +3151,11 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products_info</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products_info</strong> – (list) 
 List of (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>nb_proc</strong> -- (int) The number of processors to use</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>nb_proc</strong> – (int) The number of processors to use</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -3242,11 +3177,11 @@ in the product build directory.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p_name_info</strong> -- (tuple) 
+<li><strong>p_name_info</strong> – (tuple) 
 (str, Config) =&gt; (product_name, product_info)</li>
-<li><strong>nb_proc</strong> -- (int) The number of processors to use</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>nb_proc</strong> – (int) The number of processors to use</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -3264,16 +3199,16 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.shell.Command">
 <em class="property">class </em><code class="descclassname">commands.shell.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/shell.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.shell.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The shell command executes the shell command passed as argument.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat shell --command 'ls -lt /tmp'</div>
+<div class="line">&gt;&gt; sat shell –command ‘ls -lt /tmp’</div>
 </div>
 <dl class="method">
 <dt id="commands.shell.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/shell.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.shell.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for the command 'sat shell &lt;options&gt;'</p>
+<dd><p>Define all options for the command ‘sat shell &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3284,7 +3219,7 @@ The logger instance to use for the display and logging</li>
 <dl class="method">
 <dt id="commands.shell.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/shell.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.shell.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat shell &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat shell &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3295,17 +3230,17 @@ The logger instance to use for the display and logging</li>
 <dl class="class">
 <dt id="commands.source.Command">
 <em class="property">class </em><code class="descclassname">commands.source.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/source.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.source.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The source command gets the sources of the application products
 from cvs, git or an archive.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat source SALOME --products KERNEL,GUI</div>
+<div class="line">&gt;&gt; sat source SALOME –products KERNEL,GUI</div>
 </div>
 <dl class="method">
 <dt id="commands.source.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/source.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.source.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat source &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat source &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3316,7 +3251,7 @@ from cvs, git or an archive.</p>
 <dl class="method">
 <dt id="commands.source.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/source.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.source.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat source &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat source &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3331,9 +3266,9 @@ using the files to be tested in product information</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>product_info</strong> -- (Config)
+<li><strong>product_info</strong> – (Config)
 The configuration specific to the product to be prepared</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to be used for the logging</li>
 </ul>
 </td>
@@ -3355,10 +3290,10 @@ True if the files exists (or no files to test is provided).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>products</strong> -- (list) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>products</strong> – (list) 
 The list of tuples (product name, product informations)</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to be used for the logging</li>
 </ul>
 </td>
@@ -3380,17 +3315,17 @@ The tuple (number of success, dictionary product_name/success_fail)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product to be prepared</li>
-<li><strong>is_dev</strong> -- (bool) True if the product is in development mode</li>
-<li><strong>source_dir</strong> -- (Path) 
+<li><strong>is_dev</strong> – (bool) True if the product is in development mode</li>
+<li><strong>source_dir</strong> – (Path) 
 The Path instance corresponding to the directory 
 where to put the sources</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>pad</strong> -- (int) The gap to apply for the terminal display</li>
-<li><strong>checkout</strong> -- (bool) If True, get the source in checkout mode</li>
+<li><strong>pad</strong> – (int) The gap to apply for the terminal display</li>
+<li><strong>checkout</strong> – (bool) If True, get the source in checkout mode</li>
 </ul>
 </td>
 </tr>
@@ -3410,14 +3345,14 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product to be prepared</li>
-<li><strong>source_dir</strong> -- (Path)
+<li><strong>source_dir</strong> – (Path)
 The Path instance corresponding to the directory where to put the sources</li>
-<li><strong>logger</strong> -- (Logger)
+<li><strong>logger</strong> – (Logger)
 The logger instance to use for the display and logging</li>
-<li><strong>pad</strong> -- (int) The gap to apply for the terminal display</li>
+<li><strong>pad</strong> – (int) The gap to apply for the terminal display</li>
 </ul>
 </td>
 </tr>
@@ -3437,13 +3372,13 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>product_info</strong> -- (Config)
+<li><strong>product_info</strong> – (Config)
 The configuration specific to 
 the product to be prepared</li>
-<li><strong>source_dir</strong> -- (Path)
+<li><strong>source_dir</strong> – (Path)
 The Path instance corresponding to the directory
 where to put the sources</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -3464,17 +3399,17 @@ The logger instance to use for the display and logging</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user</strong> -- (str) The user to use in for the cvs command</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>user</strong> – (str) The user to use in for the cvs command</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product to be prepared</li>
-<li><strong>source_dir</strong> -- (Path) 
+<li><strong>source_dir</strong> – (Path) 
 The Path instance corresponding to the directory 
 where to put the sources</li>
-<li><strong>checkout</strong> -- (bool) If True, get the source in checkout mode</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>checkout</strong> – (bool) If True, get the source in checkout mode</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>pad</strong> -- (int) The gap to apply for the terminal display</li>
-<li><strong>environ</strong> -- (src.environment.Environ) 
+<li><strong>pad</strong> – (int) The gap to apply for the terminal display</li>
+<li><strong>environ</strong> – (src.environment.Environ) 
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -3500,16 +3435,16 @@ The environment to source when extracting.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product to be prepared</li>
-<li><strong>source_dir</strong> -- (Path)
+<li><strong>source_dir</strong> – (Path)
 The Path instance corresponding to the
 directory where to put the sources</li>
-<li><strong>Logger</strong> (<em>logger</em>) -- (Logger) 
+<li><strong>Logger</strong> (<em>logger</em>) – (Logger) 
 The logger instance to use for the display and logging</li>
-<li><strong>pad</strong> -- (int) The gap to apply for the terminal display</li>
-<li><strong>is_dev</strong> -- (bool) True if the product is in development mode</li>
-<li><strong>environ</strong> -- (src.environment.Environ)
+<li><strong>pad</strong> – (int) The gap to apply for the terminal display</li>
+<li><strong>is_dev</strong> – (bool) True if the product is in development mode</li>
+<li><strong>environ</strong> – (src.environment.Environ)
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -3530,17 +3465,17 @@ The environment to source when extracting.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user</strong> -- (str) The user to use in for the svn command</li>
-<li><strong>product_info</strong> -- (Config)
+<li><strong>user</strong> – (str) The user to use in for the svn command</li>
+<li><strong>product_info</strong> – (Config)
 The configuration specific to the product to be prepared</li>
-<li><strong>source_dir</strong> -- (Path)
+<li><strong>source_dir</strong> – (Path)
 The Path instance corresponding to the directory 
 where to put the sources</li>
-<li><strong>checkout</strong> -- (boolean) 
+<li><strong>checkout</strong> – (boolean) 
 If True, get the source in checkout mode</li>
-<li><strong>logger</strong> -- (Logger)
+<li><strong>logger</strong> – (Logger)
 The logger instance to use for the display and logging</li>
-<li><strong>environ</strong> -- (src.environment.Environ)
+<li><strong>environ</strong> – (src.environment.Environ)
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -3558,16 +3493,16 @@ The environment to source when extracting.</li>
 <dl class="class">
 <dt id="commands.template.Command">
 <em class="property">class </em><code class="descclassname">commands.template.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/template.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.template.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The template command creates the sources for a SALOME module from a template.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat template --name my_product_name --template PythonComponent --target /tmp</div>
+<div class="line">&gt;&gt; sat template –name my_product_name –template PythonComponent –target /tmp</div>
 </div>
 <dl class="method">
 <dt id="commands.template.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/template.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.template.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat template &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat template &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3578,7 +3513,7 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="commands.template.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/template.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.template.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat template &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat template &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3650,11 +3585,11 @@ The environment to source when extracting.</li>
 <dl class="class">
 <dt id="commands.test.Command">
 <em class="property">class </em><code class="descclassname">commands.test.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>runner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.Command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The test command runs a test base on a SALOME installation.</p>
 <div class="line-block">
 <div class="line">examples:</div>
-<div class="line">&gt;&gt; sat test SALOME --grid GEOM --session light</div>
+<div class="line">&gt;&gt; sat test SALOME –grid GEOM –session light</div>
 </div>
 <dl class="method">
 <dt id="commands.test.Command.check_option">
@@ -3664,7 +3599,7 @@ The environment to source when extracting.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> -- (Options) The options</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> – (Options) The options</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
@@ -3675,7 +3610,7 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="commands.test.Command.getParser">
 <code class="descname">getParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#Command.getParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.Command.getParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define all options for command 'sat test &lt;options&gt;'</p>
+<dd><p>Define all options for command ‘sat test &lt;options&gt;’</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -3686,7 +3621,7 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="commands.test.Command.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>cmd_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#Command.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.Command.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>method called for command 'sat test &lt;options&gt;'</p>
+<dd><p>method called for command ‘sat test &lt;options&gt;’</p>
 </dd></dl>
 
 </dd></dl>
@@ -3694,7 +3629,7 @@ The environment to source when extracting.</li>
 <dl class="function">
 <dt id="commands.test.ask_a_path">
 <code class="descclassname">commands.test.</code><code class="descname">ask_a_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/test.html#ask_a_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.test.ask_a_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>interactive as using 'raw_input'</p>
+<dd><p>interactive as using ‘raw_input’</p>
 </dd></dl>
 
 <dl class="function">
@@ -3718,8 +3653,8 @@ on the machine with the current APPLICATION and the current test base.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>test_base</strong> -- (str) The test base name (or path)</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>test_base</strong> – (str) The test base name (or path)</li>
 </ul>
 </td>
 </tr>
@@ -3803,18 +3738,20 @@ on the machine with the current APPLICATION and the current test base.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/apidoc_commands/commands.txt"
+      <li><a href="../_sources/apidoc_commands/commands.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -3825,11 +3762,11 @@ on the machine with the current APPLICATION and the current test base.</p>
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/apidoc_commands/commands.txt"
+      <a href="../_sources/apidoc_commands/commands.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

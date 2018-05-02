@@ -20,6 +20,7 @@
 
 import src.debug as DBG
 import src.returnCode as RCO
+import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -75,7 +76,7 @@ class Command(_BaseCommand):
     
 
     # check that the command has been called with an application
-    src.check_config_has_application( config )
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Get the list of products to treat
     products_infos = get_products_list(options, config, logger)
@@ -143,18 +144,6 @@ def get_products_list(options, cfg, logger):
     
     return products_infos
 
-def log_step(logger, header, step):
-    logger.info("\r%s%s" % (header, " " * 20))
-    logger.info("\r%s%s" % (header, step))
-    logger.debug("\n==== %s \n" % UTS.info(step))
-    logger.flush()
-
-def log_res_step(logger, res):
-    if res == 0:
-        logger.debug("<OK>")
-    else:
-        logger.debug("<KO>")
-
 def configure_all_products(config, products_infos, conf_option, logger):
     """
     Execute the proper configuration commands 
@@ -200,7 +189,7 @@ def configure_product(p_name_info, conf_option, config, logger):
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
           
-        log_step(logger, header, "ignored")
+        UTS.log_step(logger, header, "ignored")
         logger.info("\n")
         return 0
 
@@ -209,26 +198,26 @@ def configure_product(p_name_info, conf_option, config, logger):
     builder = src.compilation.Builder(config, logger, p_info)
     
     # Prepare the environment
-    log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, header, "PREPARE ENV")
     res_prepare = builder.prepare()
-    log_res_step(logger, res_prepare)
+    UTS.log_res_step(logger, res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     res = 0
     if src.product.product_is_autotools(p_info):
-        log_step(logger, header, "BUILDCONFIGURE")
+        UTS.log_step(logger, header, "BUILDCONFIGURE")
         res_bc = builder.build_configure()
-        log_res_step(logger, res_bc)
+        UTS.log_res_step(logger, res_bc)
         res += res_bc
-        log_step(logger, header, "CONFIGURE")
+        UTS.log_step(logger, header, "CONFIGURE")
         res_c = builder.configure(conf_option)
-        log_res_step(logger, res_c)
+        UTS.log_res_step(logger, res_c)
         res += res_c
     if src.product.product_is_cmake(p_info):
-        log_step(logger, header, "CMAKE")
+        UTS.log_step(logger, header, "CMAKE")
         res_cm = builder.cmake(conf_option)
-        log_res_step(logger, res_cm)
+        UTS.log_res_step(logger, res_cm)
         res += res_cm
     
     # Log the result

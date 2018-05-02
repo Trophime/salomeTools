@@ -1,33 +1,21 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>src package &#8212; salomeTools 5.0.0dev documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
-    <link rel="up" title="src" href="modules.html" />
     <link rel="next" title="src.colorama package" href="src.colorama.html" />
     <link rel="prev" title="src" href="modules.html" />
    
@@ -36,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body role="document">
+  </head><body>
   
 
     <div class="document">
@@ -245,9 +232,9 @@ on which SAT is running</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>distrib</strong> -- (str) 
+<li><strong>distrib</strong> – (str) 
 The distribution on which the version will be found.</li>
-<li><strong>codes</strong> -- (L{Mapping}) 
+<li><strong>codes</strong> – (L{Mapping}) 
 The map containing distribution correlation table.</li>
 </ul>
 </td>
@@ -270,7 +257,7 @@ correlation table contained in codes variable.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>codes</strong> -- (L{Mapping}) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>codes</strong> – (L{Mapping}) 
 The map containing distribution correlation table.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str)
@@ -348,15 +335,15 @@ and jsonDumps()</p>
 <dt>usage:</dt>
 <dd>&gt;&gt; import catchAll as CAA
 &gt;&gt; a = CAA.CatchAll()
-&gt;&gt; a.tintin = &quot;reporter&quot;
-&gt;&gt; a.milou = &quot;dog&quot;
-&gt;&gt; print(&quot;a=%s&quot; % a)
-&gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</dd>
+&gt;&gt; a.tintin = “reporter”
+&gt;&gt; a.milou = “dog”
+&gt;&gt; print(“a=%s” % a)
+&gt;&gt; print(“tintin: %s” % a.tintin)</dd>
 </dl>
 <dl class="class">
 <dt id="src.catchAll.CatchAll">
 <em class="property">class </em><code class="descclassname">src.catchAll.</code><code class="descname">CatchAll</code><a class="reference internal" href="../_modules/src/catchAll.html#CatchAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.catchAll.CatchAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>class as simple dynamic dictionary 
 with predefined keys as properties in
 inherited classes through __init__ method. Or NOT. 
@@ -365,15 +352,15 @@ with jsonDumps()</p>
 <p>usage:</p>
 <p>&gt;&gt; import catchAll as CAA
 &gt;&gt; a = CAA.CatchAll()
-&gt;&gt; a.tintin = &quot;reporter&quot;
-&gt;&gt; a.milou = &quot;dog&quot;
-&gt;&gt; print(&quot;a=%s&quot; % a)
-&gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</p>
+&gt;&gt; a.tintin = “reporter”
+&gt;&gt; a.milou = “dog”
+&gt;&gt; print(“a=%s” % a)
+&gt;&gt; print(“tintin: %s” % a.tintin)</p>
 <p>as</p>
 <p>&gt;&gt; a = {}
-&gt;&gt; a[&quot;tintin&quot;] = &quot;reporter&quot;
-&gt;&gt; a[&quot;milou&quot;] = &quot;dog&quot;
-&gt;&gt; print(&quot;tintin: %s&quot; % a[&quot;tintin&quot;]</p>
+&gt;&gt; a[“tintin”] = “reporter”
+&gt;&gt; a[“milou”] = “dog”
+&gt;&gt; print(“tintin: %s” % a[“tintin”]</p>
 <dl class="method">
 <dt id="src.catchAll.CatchAll.jsonDumps">
 <code class="descname">jsonDumps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/catchAll.html#CatchAll.jsonDumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.catchAll.CatchAll.jsonDumps" title="Permalink to this definition">¶</a></dt>
@@ -390,8 +377,8 @@ with jsonDumps()</p>
 <dl class="function">
 <dt id="src.catchAll.dumperType">
 <code class="descclassname">src.catchAll.</code><code class="descname">dumperType</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/catchAll.html#dumperType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.catchAll.dumperType" title="Permalink to this definition">¶</a></dt>
-<dd><p>to get a &quot;_type&quot; to trace json subclass object,
-but ignore all attributes begining with '_'</p>
+<dd><p>to get a “_type” to trace json subclass object,
+but ignore all attributes begining with ‘_’</p>
 </dd></dl>
 
 <dl class="function">
@@ -403,18 +390,20 @@ but ignore all attributes begining with '_'</p>
 </div>
 <div class="section" id="module-src.coloringSat">
 <span id="src-coloringsat-module"></span><h2>src.coloringSat module<a class="headerlink" href="#module-src.coloringSat" title="Permalink to this headline">¶</a></h2>
-<p>simple tagging as '&lt;color&gt;' for simple coloring log messages on terminal(s)
+<p>simple tagging as ‘&lt;color&gt;’ for simple coloring log messages on terminal(s)
 window or unix or ios using backend colorama</p>
-<p>using '&lt;color&gt;' because EZ human readable
-so '&lt;color&gt;' are not supposed existing in log message
-&quot;{}&quot;.format() is not choosen because &quot;{}&quot; are present
+<p>using ‘&lt;color&gt;’ because EZ human readable
+so ‘&lt;color&gt;’ are not supposed existing in log message
+“{}”.format() is not choosen because “{}” are present
 in log messages of contents of python dict (as JSON) etc.</p>
+<p>usage:
+&gt;&gt; import src.coloringSat as COLS</p>
 <p>example:
-&gt;&gt; log(&quot;this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?&quot;)</p>
+&gt;&gt; log(“this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?”)</p>
 <dl class="class">
 <dt id="src.coloringSat.ColoringStream">
 <em class="property">class </em><code class="descclassname">src.coloringSat.</code><code class="descname">ColoringStream</code><a class="reference internal" href="../_modules/src/coloringSat.html#ColoringStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.coloringSat.ColoringStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>write my stream class
 only write and flush are used for the streaming
 <a class="reference external" href="https://docs.python.org/2/library/logging.handlers.html">https://docs.python.org/2/library/logging.handlers.html</a>
@@ -434,7 +423,7 @@ only write and flush are used for the streaming
 <dl class="function">
 <dt id="src.coloringSat.cleanColors">
 <code class="descclassname">src.coloringSat.</code><code class="descname">cleanColors</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/coloringSat.html#cleanColors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.coloringSat.cleanColors" title="Permalink to this definition">¶</a></dt>
-<dd><p>clean the message of color tags '&lt;red&gt; ...</p>
+<dd><p>clean the message of color tags ‘&lt;red&gt; …</p>
 </dd></dl>
 
 <dl class="function">
@@ -457,7 +446,7 @@ only write and flush are used for the streaming
 <dl class="function">
 <dt id="src.coloringSat.toColor">
 <code class="descclassname">src.coloringSat.</code><code class="descname">toColor</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/coloringSat.html#toColor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.coloringSat.toColor" title="Permalink to this definition">¶</a></dt>
-<dd><p>automatically clean the message of color tags '&lt;red&gt; ... 
+<dd><p>automatically clean the message of color tags ‘&lt;red&gt; … 
 if the terminal output stdout is redirected by user
 if not, replace tags with ansi color codes</p>
 <p>example:
@@ -476,7 +465,7 @@ if not, replace tags with ansi color codes</p>
 <dl class="class">
 <dt id="src.compilation.Builder">
 <em class="property">class </em><code class="descclassname">src.compilation.</code><code class="descname">Builder</code><span class="sig-paren">(</span><em>config</em>, <em>logger</em>, <em>product_info</em>, <em>options=OptResult(   )</em>, <em>check_src=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/compilation.html#Builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.compilation.Builder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class to handle all construction steps, like cmake, configure, make, ...</p>
+<dd><p>Class to handle all construction steps, like cmake, configure, make, …</p>
 <dl class="method">
 <dt id="src.compilation.Builder.build_configure">
 <code class="descname">build_configure</code><span class="sig-paren">(</span><em>options=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/compilation.html#Builder.build_configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.compilation.Builder.build_configure" title="Permalink to this definition">¶</a></dt>
@@ -566,7 +555,7 @@ in the directory &lt;APPLICATION DIR&gt;/LOGS/&lt;product_name&gt;/</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> -- (str) The name of the file to write</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> – (str) The name of the file to write</td>
 </tr>
 </tbody>
 </table>
@@ -595,7 +584,7 @@ It build it from scratch.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The global config.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The global config.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(Config) 
 The config corresponding to the file created.</td>
@@ -613,9 +602,9 @@ The config corresponding to the file created.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- The options from salomeTools class initialization 
-(as '-l5' or '--overwrite')</li>
-<li><strong>sections</strong> -- (str) The config section to overwrite.</li>
+<li><strong>options</strong> – The options from salomeTools class initialization 
+(as ‘-l5’ or ‘–overwrite’)</li>
+<li><strong>sections</strong> – (str) The config section to overwrite.</li>
 </ul>
 </td>
 </tr>
@@ -635,13 +624,13 @@ The config corresponding to the file created.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>application</strong> -- (str) 
+<li><strong>application</strong> – (str) 
 The application for which salomeTools is called.</li>
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The general salomeTools options 
-(as '--overwrite' or '-v5')</li>
-<li><strong>command</strong> -- (str) The command that is called.</li>
-<li><strong>datadir</strong> -- (str) 
+(as ‘–overwrite’ or ‘-v5’)</li>
+<li><strong>command</strong> – (str) The command that is called.</li>
+<li><strong>datadir</strong> – (str) 
 The repository that contain external data for salomeTools.</li>
 </ul>
 </td>
@@ -676,7 +665,7 @@ If necessary, build it from another one or create it from scratch.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) 
 The global config (containing all pyconf).</td>
 </tr>
 </tbody>
@@ -698,7 +687,7 @@ in all the possible directories (pathList)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> -- (str) The name of the searched pyconf.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – (str) The name of the searched pyconf.</td>
 </tr>
 </tbody>
 </table>
@@ -709,14 +698,14 @@ in all the possible directories (pathList)</p>
 <dl class="function">
 <dt id="src.configManager.check_path">
 <code class="descclassname">src.configManager.</code><code class="descname">check_path</code><span class="sig-paren">(</span><em>path</em>, <em>ext=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/configManager.html#check_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.configManager.check_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a text with the input path and &quot;not found&quot; if it does not exist.</p>
+<dd><p>Construct a text with the input path and “not found” if it does not exist.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>path</strong> -- (str) The path to check.</li>
-<li><strong>ext</strong> -- (list) 
+<li><strong>path</strong> – (str) The path to check.</li>
+<li><strong>ext</strong> – (list) 
 An extension. Verify that the path extension is in the list</li>
 </ul>
 </td>
@@ -738,14 +727,14 @@ used recursively from the initial path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) 
+<li><strong>config</strong> – (Config) 
 The configuration from which the value is displayed.</li>
-<li><strong>path</strong> -- (str) The path in the configuration of the value to print.</li>
-<li><strong>show_label</strong> -- (bool) 
+<li><strong>path</strong> – (str) The path in the configuration of the value to print.</li>
+<li><strong>show_label</strong> – (bool) 
 If True, do a basic display. (useful for bash completion)</li>
-<li><strong>stream</strong> -- The output stream used</li>
-<li><strong>level</strong> -- (int) The number of spaces to add before display.</li>
-<li><strong>show_full_path</strong> -- (bool) Display full path, else relative</li>
+<li><strong>stream</strong> – The output stream used</li>
+<li><strong>level</strong> – (int) The number of spaces to add before display.</li>
+<li><strong>show_full_path</strong> – (bool) Display full path, else relative</li>
 </ul>
 </td>
 </tr>
@@ -763,8 +752,8 @@ Useful only for completion mechanism</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) The configuration where to read the values</li>
-<li><strong>args</strong> -- The path in the config from which get the keys</li>
+<li><strong>config</strong> – (Config) The configuration where to read the values</li>
+<li><strong>args</strong> – The path in the config from which get the keys</li>
 </ul>
 </td>
 </tr>
@@ -782,10 +771,10 @@ configuration regarding the passed options.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>options</strong> -- (Options) 
+<li><strong>options</strong> – (Options) 
 The Options instance that stores the commands arguments</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display and logging</li>
 </ul>
 </td>
@@ -801,9 +790,9 @@ The logger instance to use for the display and logging</li>
 <dt id="src.configManager.print_debug">
 <code class="descclassname">src.configManager.</code><code class="descname">print_debug</code><span class="sig-paren">(</span><em>config</em>, <em>aPath</em>, <em>logger</em>, <em>show_label=False</em>, <em>level=0</em>, <em>show_full_path=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/configManager.html#print_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.configManager.print_debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>logger output for debugging a config/pyconf
-lines contains: path : expression --&gt; 'evaluation'</p>
+lines contains: path : expression –&gt; ‘evaluation’</p>
 <p>example:
-PROJECTS.projects.salome.project_path : $PWD --&gt; '/tmp/SALOME'</p>
+PROJECTS.projects.salome.project_path : $PWD –&gt; ‘/tmp/SALOME’</p>
 </dd></dl>
 
 <dl class="function">
@@ -830,8 +819,8 @@ used recursively from the initial path.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) the global configuration.</li>
-<li><strong>logger</strong> -- (Logger) 
+<li><strong>config</strong> – (Config) the global configuration.</li>
+<li><strong>logger</strong> – (Logger) 
 The logger instance to use for the display</li>
 </ul>
 </td>
@@ -849,9 +838,9 @@ The logger instance to use for the display</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) the global configuration.</li>
-<li><strong>name</strong> -- (str) The name of the product</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use for the display</li>
+<li><strong>config</strong> – (Config) the global configuration.</li>
+<li><strong>name</strong> – (str) The name of the product</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use for the display</li>
 </ul>
 </td>
 </tr>
@@ -869,19 +858,19 @@ Show pretty print debug representation from instances of SAT classes
 <p>WARNING: supposedly show messages in SAT development phase, not production</p>
 <p>usage:
 &gt;&gt; import debug as DBG
-&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable)        # not shown in production 
-&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable, True)  # unconditionaly shown</p>
+&gt;&gt; DBG.write(“aTitle”, aVariable)        # not shown in production 
+&gt;&gt; DBG.write(“aTitle”, aVariable, True)  # unconditionaly shown</p>
 <dl class="class">
 <dt id="src.debug.InStream">
 <em class="property">class </em><code class="descclassname">src.debug.</code><code class="descname">InStream</code><span class="sig-paren">(</span><em>buf=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#InStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.InStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">StringIO.StringIO</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO.StringIO</span></code></p>
 <p>utility class for pyconf.Config input iostream</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="src.debug.OutStream">
 <em class="property">class </em><code class="descclassname">src.debug.</code><code class="descname">OutStream</code><span class="sig-paren">(</span><em>buf=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#OutStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.OutStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">StringIO.StringIO</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO.StringIO</span></code></p>
 <p>utility class for pyconf.Config output iostream</p>
 <dl class="method">
 <dt id="src.debug.OutStream.close">
@@ -924,6 +913,12 @@ as file .pyconf</p>
 <dt id="src.debug.indent">
 <code class="descclassname">src.debug.</code><code class="descname">indent</code><span class="sig-paren">(</span><em>text</em>, <em>amount=2</em>, <em>ch=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.indent" title="Permalink to this definition">¶</a></dt>
 <dd><p>indent multi lines message</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.debug.isTypeConfig">
+<code class="descclassname">src.debug.</code><code class="descname">isTypeConfig</code><span class="sig-paren">(</span><em>var</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#isTypeConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.isTypeConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>To know if var is instance from Config/pyconf</p>
 </dd></dl>
 
 <dl class="function">
@@ -979,9 +974,9 @@ use this only if no logger accessible for classic logger.warning(message)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str or list) the value(s) to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string (usually ':')</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str or list) the value(s) to append to key</li>
+<li><strong>sep</strong> – (str) the separator string (usually ‘:’)</li>
 </ul>
 </td>
 </tr>
@@ -998,9 +993,9 @@ use this only if no logger accessible for classic logger.warning(message)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str) the value to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string (usually ':')</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str) the value to append to key</li>
+<li><strong>sep</strong> – (str) the separator string (usually ‘:’)</li>
 </ul>
 </td>
 </tr>
@@ -1011,15 +1006,15 @@ use this only if no logger accessible for classic logger.warning(message)</p>
 <dl class="method">
 <dt id="src.environment.Environ.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environment.html#Environ.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environment.Environ.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -1030,12 +1025,12 @@ and put it in the environment variable key</p>
 <dl class="method">
 <dt id="src.environment.Environ.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environment.html#Environ.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environment.Environ.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -1049,7 +1044,7 @@ and put it in the environment variable key</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable to check</td>
 </tr>
 </tbody>
 </table>
@@ -1064,9 +1059,9 @@ and put it in the environment variable key</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str or list) the value(s) to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string (usually ':')</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str or list) the value(s) to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string (usually ‘:’)</li>
 </ul>
 </td>
 </tr>
@@ -1083,9 +1078,9 @@ and put it in the environment variable key</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str) the value to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string (usually ':')</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str) the value to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string (usually ‘:’)</li>
 </ul>
 </td>
 </tr>
@@ -1096,14 +1091,14 @@ and put it in the environment variable key</p>
 <dl class="method">
 <dt id="src.environment.Environ.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environment.html#Environ.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environment.Environ.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -1127,10 +1122,10 @@ environment (SALOME python launcher).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> -- (str) the file path</li>
-<li><strong>additional_env</strong> -- (dict) 
+<li><strong>filename</strong> – (str) the file path</li>
+<li><strong>additional_env</strong> – (dict) 
 a dictionary of additional variables to add to the environment</li>
-<li><strong>for_package</strong> -- (str) 
+<li><strong>for_package</strong> – (str) 
 If not None, produce a relative environment 
 (designed for a package)</li>
 </ul>
@@ -1149,9 +1144,9 @@ If not None, produce a relative environment
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> -- (str) the file path</li>
-<li><strong>forBuild</strong> -- (bool) if true, the build environment</li>
-<li><strong>shell</strong> -- (str) the type of file wanted (.sh, .bat)</li>
+<li><strong>filename</strong> – (str) the file path</li>
+<li><strong>forBuild</strong> – (bool) if true, the build environment</li>
+<li><strong>shell</strong> – (str) the type of file wanted (.sh, .bat)</li>
 </ul>
 </td>
 </tr>
@@ -1176,7 +1171,7 @@ If not None, produce a relative environment
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> -- (str) the commentary to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> – (str) the commentary to add</td>
 </tr>
 </tbody>
 </table>
@@ -1190,7 +1185,7 @@ If not None, produce a relative environment
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nb_line</strong> -- (int) the number of empty lines to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nb_line</strong> – (int) the number of empty lines to add</td>
 </tr>
 </tbody>
 </table>
@@ -1204,7 +1199,7 @@ If not None, produce a relative environment
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>warning</strong> -- (str) the warning to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>warning</strong> – (str) the warning to add</td>
 </tr>
 </tbody>
 </table>
@@ -1219,9 +1214,9 @@ If not None, produce a relative environment
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str) the value to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str) the value to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1237,7 +1232,7 @@ If not None, produce a relative environment
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>out</strong> -- (file) the stream where to write the environment</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>out</strong> – (file) the stream where to write the environment</td>
 </tr>
 </tbody>
 </table>
@@ -1251,7 +1246,7 @@ If not None, produce a relative environment
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -1260,12 +1255,12 @@ If not None, produce a relative environment
 <dl class="method">
 <dt id="src.environment.SalomeEnviron.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environment.html#SalomeEnviron.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environment.SalomeEnviron.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -1277,12 +1272,12 @@ If not None, produce a relative environment
 <dd><p>Get the products name to add in SALOME_MODULES environment variable
 It is the name of the product, except in the case where the is a 
 component name. And it has to be in SALOME_MODULES variable only 
-if the product has the property has_salome_hui = &quot;yes&quot;</p>
+if the product has the property has_salome_hui = “yes”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lProducts</strong> -- (list) List of products to potentially add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lProducts</strong> – (list) List of products to potentially add</td>
 </tr>
 </tbody>
 </table>
@@ -1296,7 +1291,7 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable to check</td>
 </tr>
 </tbody>
 </table>
@@ -1310,7 +1305,7 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cfg_env</strong> -- (Config) A config containing an environment</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cfg_env</strong> – (Config) A config containing an environment</td>
 </tr>
 </tbody>
 </table>
@@ -1325,9 +1320,9 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str) the value to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str) the value to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1344,9 +1339,9 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>product_info</strong> -- (Config) The product description</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
-<li><strong>native</strong> -- (bool) If True load set_native_env instead of set_env</li>
+<li><strong>product_info</strong> – (Config) The product description</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
+<li><strong>native</strong> – (bool) If True load set_native_env instead of set_env</li>
 </ul>
 </td>
 </tr>
@@ -1366,8 +1361,8 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>script_path</strong> -- (str) A path to an environment script</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
+<li><strong>script_path</strong> – (str) A path to an environment script</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
 </ul>
 </td>
 </tr>
@@ -1378,14 +1373,14 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <dl class="method">
 <dt id="src.environment.SalomeEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environment.html#SalomeEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environment.SalomeEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -1402,8 +1397,8 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>product</strong> -- (str) The product name</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
+<li><strong>product</strong> – (str) The product name</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
 </ul>
 </td>
 </tr>
@@ -1419,7 +1414,7 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> -- (Logger) The logger instance to display messages</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> – (Logger) The logger instance to display messages</td>
 </tr>
 </tbody>
 </table>
@@ -1433,7 +1428,7 @@ if the product has the property has_salome_hui = &quot;yes&quot;</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config) The product description</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config) The product description</td>
 </tr>
 </tbody>
 </table>
@@ -1449,8 +1444,8 @@ specified in env_info dictionary.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
-<li><strong>env_info</strong> -- (list) the list of products</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
+<li><strong>env_info</strong> – (list) the list of products</li>
 </ul>
 </td>
 </tr>
@@ -1467,8 +1462,8 @@ specified in env_info dictionary.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
-<li><strong>src_root</strong> -- the application working directory</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
+<li><strong>src_root</strong> – the application working directory</li>
 </ul>
 </td>
 </tr>
@@ -1490,7 +1485,7 @@ specified in env_info dictionary.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pi</strong> -- (Config) The product description</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pi</strong> – (Config) The product description</td>
 </tr>
 </tbody>
 </table>
@@ -1506,8 +1501,8 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>product_info</strong> -- (Config) The product description</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
+<li><strong>product_info</strong> – (Config) The product description</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
 </ul>
 </td>
 </tr>
@@ -1532,9 +1527,9 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>config</strong> -- (Config) the global config</li>
-<li><strong>build</strong> -- (bool) build environement if True</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to display messages</li>
+<li><strong>config</strong> – (Config) the global config</li>
+<li><strong>build</strong> – (bool) build environement if True</li>
+<li><strong>logger</strong> – (Logger) The logger instance to display messages</li>
 </ul>
 </td>
 </tr>
@@ -1549,19 +1544,19 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <dl class="docutils">
 <dt>examples: </dt>
 <dd><ul class="first last simple">
-<li>split all or specific environment variables $XXX(s)...
+<li>split all or specific environment variables $XXX(s)…
 &gt;&gt; environs.py -&gt; all
 &gt;&gt; environs.py SHELL PATH -&gt; specific $SHELL $PATH</li>
-<li>split all or specific environment variables on pattern $*XXX*(s)...
-&gt;&gt; environs.py --pat ROOT -&gt; specific $*ROOT*</li>
-<li>split search specific substrings in contents of environment variables $XXX(s)...
-&gt;&gt; environs.py --grep usr  -&gt; all specific environment variables containing usr</li>
+<li>split all or specific environment variables on pattern $*XXX*(s)…
+&gt;&gt; environs.py –pat ROOT -&gt; specific $*ROOT*</li>
+<li>split search specific substrings in contents of environment variables $XXX(s)…
+&gt;&gt; environs.py –grep usr  -&gt; all specific environment variables containing usr</li>
 </ul>
 </dd>
 <dt>tips:</dt>
 <dd><ul class="first last simple">
 <li>create unix alias as shortcut for bash console
-&gt;&gt; alias envs=&quot;.../environs.py&quot;</li>
+&gt;&gt; alias envs=”…/environs.py”</li>
 </ul>
 </dd>
 </dl>
@@ -1586,8 +1581,8 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <dl class="exception">
 <dt id="src.exceptionSat.ExceptionSat">
 <em class="property">exception </em><code class="descclassname">src.exceptionSat.</code><code class="descname">ExceptionSat</code><a class="reference internal" href="../_modules/src/exceptionSat.html#ExceptionSat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.exceptionSat.ExceptionSat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
-<p>rename Exception Class for sat convenience (for future...)</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<p>rename Exception Class for sat convenience (for future…)</p>
 </dd></dl>
 
 </div>
@@ -1596,12 +1591,12 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <dl class="class">
 <dt id="src.fileEnviron.BashFileEnviron">
 <em class="property">class </em><code class="descclassname">src.fileEnviron.</code><code class="descname">BashFileEnviron</code><span class="sig-paren">(</span><em>output</em>, <em>environ=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BashFileEnviron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BashFileEnviron" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
 <p>Class for bash shell.</p>
 <dl class="method">
 <dt id="src.fileEnviron.BashFileEnviron.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BashFileEnviron.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BashFileEnviron.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key.
 Has to be overwritten in the derived classes
 This can be seen as a virtual method</p>
@@ -1610,8 +1605,8 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -1627,7 +1622,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -1636,14 +1631,14 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.BashFileEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BashFileEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BashFileEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -1656,7 +1651,7 @@ This can be seen as a virtual method</p>
 <dl class="class">
 <dt id="src.fileEnviron.BatFileEnviron">
 <em class="property">class </em><code class="descclassname">src.fileEnviron.</code><code class="descname">BatFileEnviron</code><span class="sig-paren">(</span><em>output</em>, <em>environ=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BatFileEnviron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BatFileEnviron" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
 <p>for Windows batch shell.</p>
 <dl class="method">
 <dt id="src.fileEnviron.BatFileEnviron.add_comment">
@@ -1666,7 +1661,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> -- (str) the comment to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> – (str) the comment to add</td>
 </tr>
 </tbody>
 </table>
@@ -1675,7 +1670,7 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.BatFileEnviron.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BatFileEnviron.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BatFileEnviron.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key.
 Has to be overwritten in the derived classes
 This can be seen as a virtual method</p>
@@ -1684,8 +1679,8 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -1702,7 +1697,7 @@ In the particular windows case, do nothing</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -1711,12 +1706,12 @@ In the particular windows case, do nothing</p>
 <dl class="method">
 <dt id="src.fileEnviron.BatFileEnviron.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BatFileEnviron.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BatFileEnviron.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -1725,14 +1720,14 @@ In the particular windows case, do nothing</p>
 <dl class="method">
 <dt id="src.fileEnviron.BatFileEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#BatFileEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.BatFileEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -1745,7 +1740,7 @@ In the particular windows case, do nothing</p>
 <dl class="class">
 <dt id="src.fileEnviron.ContextFileEnviron">
 <em class="property">class </em><code class="descclassname">src.fileEnviron.</code><code class="descname">ContextFileEnviron</code><span class="sig-paren">(</span><em>output</em>, <em>environ=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ContextFileEnviron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ContextFileEnviron" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
 <p>Class for a salome context configuration file.</p>
 <dl class="method">
 <dt id="src.fileEnviron.ContextFileEnviron.add_echo">
@@ -1755,7 +1750,7 @@ In the particular windows case, do nothing</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> -- (str) the comment to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – (str) the comment to add</td>
 </tr>
 </tbody>
 </table>
@@ -1769,7 +1764,7 @@ In the particular windows case, do nothing</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> -- (str) the warning to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – (str) the warning to add</td>
 </tr>
 </tbody>
 </table>
@@ -1784,9 +1779,9 @@ In the particular windows case, do nothing</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str) the value to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str) the value to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1797,7 +1792,7 @@ In the particular windows case, do nothing</p>
 <dl class="method">
 <dt id="src.fileEnviron.ContextFileEnviron.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ContextFileEnviron.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ContextFileEnviron.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key.
 Has to be overwritten in the derived classes
 This can be seen as a virtual method</p>
@@ -1806,8 +1801,8 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -1823,7 +1818,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -1832,12 +1827,12 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.ContextFileEnviron.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ContextFileEnviron.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ContextFileEnviron.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -1852,9 +1847,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str) the value to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str) the value to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1865,14 +1860,14 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.ContextFileEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ContextFileEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ContextFileEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -1894,7 +1889,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> -- (str) the comment to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> – (str) the comment to add</td>
 </tr>
 </tbody>
 </table>
@@ -1903,12 +1898,12 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.FileEnviron.add_echo">
 <code class="descname">add_echo</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#FileEnviron.add_echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.FileEnviron.add_echo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a 'echo' in the shell file</p>
+<dd><p>Add a ‘echo’ in the shell file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> -- (str) the text to echo</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – (str) the text to echo</td>
 </tr>
 </tbody>
 </table>
@@ -1922,7 +1917,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> -- (int) the number of lines to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> – (int) the number of lines to add</td>
 </tr>
 </tbody>
 </table>
@@ -1931,12 +1926,12 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.FileEnviron.add_warning">
 <code class="descname">add_warning</code><span class="sig-paren">(</span><em>warning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#FileEnviron.add_warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.FileEnviron.add_warning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a warning &quot;echo&quot; in the shell file</p>
+<dd><p>Add a warning “echo” in the shell file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>warning</strong> -- (str) the text to echo</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>warning</strong> – (str) the text to echo</td>
 </tr>
 </tbody>
 </table>
@@ -1951,9 +1946,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str or list) the value(s) to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str or list) the value(s) to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1970,9 +1965,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str) the value to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str) the value to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -1983,7 +1978,7 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.FileEnviron.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#FileEnviron.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.FileEnviron.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key.
 Has to be overwritten in the derived classes
 This can be seen as a virtual method</p>
@@ -1992,8 +1987,8 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -2009,7 +2004,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -2018,12 +2013,12 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.FileEnviron.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#FileEnviron.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.FileEnviron.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -2037,7 +2032,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable to check</td>
 </tr>
 </tbody>
 </table>
@@ -2052,9 +2047,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str or list) the value(s) to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str or list) the value(s) to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2071,9 +2066,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- str) the value to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – str) the value to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2084,14 +2079,14 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.FileEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#FileEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.FileEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -2115,8 +2110,8 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str) the value to prepend to key</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str) the value to prepend to key</li>
 </ul>
 </td>
 </tr>
@@ -2137,7 +2132,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> -- (str) the comment to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – (str) the comment to add</td>
 </tr>
 </tbody>
 </table>
@@ -2151,7 +2146,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> -- (int) the number of lines to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> – (int) the number of lines to add</td>
 </tr>
 </tbody>
 </table>
@@ -2165,7 +2160,7 @@ This can be seen as a virtual method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> -- (str) the warning to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – (str) the warning to add</td>
 </tr>
 </tbody>
 </table>
@@ -2180,9 +2175,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str or list) the value(s) to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str or list) the value(s) to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2199,9 +2194,9 @@ This can be seen as a virtual method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to append</li>
-<li><strong>value</strong> -- (str) the value to append to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to append</li>
+<li><strong>value</strong> – (str) the value to append to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2218,15 +2213,15 @@ This can be seen as a virtual method</p>
 <dl class="method">
 <dt id="src.fileEnviron.LauncherFileEnviron.command_value">
 <code class="descname">command_value</code><span class="sig-paren">(</span><em>key</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#LauncherFileEnviron.command_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.LauncherFileEnviron.command_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value given by the system command &quot;command&quot; 
+<dd><p>Get the value given by the system command “command” 
 and put it in the environment variable key.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable</li>
-<li><strong>command</strong> -- (str) the command to execute</li>
+<li><strong>key</strong> – (str) the environment variable</li>
+<li><strong>command</strong> – (str) the command to execute</li>
 </ul>
 </td>
 </tr>
@@ -2243,7 +2238,7 @@ In the particular launcher case, do nothing</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> -- (bool) Do nothing if required is False</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>required</strong> – (bool) Do nothing if required is False</td>
 </tr>
 </tbody>
 </table>
@@ -2252,12 +2247,12 @@ In the particular launcher case, do nothing</p>
 <dl class="method">
 <dt id="src.fileEnviron.LauncherFileEnviron.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#LauncherFileEnviron.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.LauncherFileEnviron.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of the environment variable &quot;key&quot;</p>
+<dd><p>Get the value of the environment variable “key”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable</td>
 </tr>
 </tbody>
 </table>
@@ -2271,7 +2266,7 @@ In the particular launcher case, do nothing</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> -- (str) the environment variable to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – (str) the environment variable to check</td>
 </tr>
 </tbody>
 </table>
@@ -2286,9 +2281,9 @@ In the particular launcher case, do nothing</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str or list) the value(s) to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str or list) the value(s) to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2305,9 +2300,9 @@ In the particular launcher case, do nothing</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to prepend</li>
-<li><strong>value</strong> -- (str) the value to prepend to key</li>
-<li><strong>sep</strong> -- (str) the separator string</li>
+<li><strong>key</strong> – (str) the environment variable to prepend</li>
+<li><strong>value</strong> – (str) the value to prepend to key</li>
+<li><strong>sep</strong> – (str) the separator string</li>
 </ul>
 </td>
 </tr>
@@ -2318,14 +2313,14 @@ In the particular launcher case, do nothing</p>
 <dl class="method">
 <dt id="src.fileEnviron.LauncherFileEnviron.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#LauncherFileEnviron.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.LauncherFileEnviron.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the environment variable &quot;key&quot; to value &quot;value&quot;</p>
+<dd><p>Set the environment variable “key” to value “value”</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> -- (str) the environment variable to set</li>
-<li><strong>value</strong> -- (str) the value</li>
+<li><strong>key</strong> – (str) the environment variable to set</li>
+<li><strong>value</strong> – (str) the value</li>
 </ul>
 </td>
 </tr>
@@ -2338,7 +2333,7 @@ In the particular launcher case, do nothing</p>
 <dl class="class">
 <dt id="src.fileEnviron.ScreenEnviron">
 <em class="property">class </em><code class="descclassname">src.fileEnviron.</code><code class="descname">ScreenEnviron</code><span class="sig-paren">(</span><em>output</em>, <em>environ=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ScreenEnviron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ScreenEnviron" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.fileEnviron.FileEnviron" title="src.fileEnviron.FileEnviron"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.fileEnviron.FileEnviron</span></code></a></p>
 <dl class="method">
 <dt id="src.fileEnviron.ScreenEnviron.add_comment">
 <code class="descname">add_comment</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/fileEnviron.html#ScreenEnviron.add_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.fileEnviron.ScreenEnviron.add_comment" title="Permalink to this definition">¶</a></dt>
@@ -2410,9 +2405,9 @@ In the particular launcher case, do nothing</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>output</strong> -- (file) the output file stream.</li>
-<li><strong>shell</strong> -- (str) the type of shell syntax to use.</li>
-<li><strong>environ</strong> -- (dict) a potential additional environment.</li>
+<li><strong>output</strong> – (file) the output file stream.</li>
+<li><strong>shell</strong> – (str) the type of shell syntax to use.</li>
+<li><strong>environ</strong> – (dict) a potential additional environment.</li>
 </ul>
 </td>
 </tr>
@@ -2431,7 +2426,7 @@ to append or prepend.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> -- (str) The name of the variable to find the separator</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – (str) The name of the variable to find the separator</td>
 </tr>
 </tbody>
 </table>
@@ -2467,10 +2462,10 @@ to append or prepend.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>logger</strong> -- (Logger) The logging instance</li>
-<li><strong>top</strong> -- (int) the number to display</li>
-<li><strong>delai</strong> -- (int) the number max</li>
-<li><strong>ss</strong> -- (str) the string to display</li>
+<li><strong>logger</strong> – (Logger) The logging instance</li>
+<li><strong>top</strong> – (int) the number to display</li>
+<li><strong>delai</strong> – (int) the number max</li>
+<li><strong>ss</strong> – (str) the string to display</li>
 </ul>
 </td>
 </tr>
@@ -2487,9 +2482,9 @@ to append or prepend.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>logger</strong> -- (Logger) The logging instance</li>
-<li><strong>message</strong> -- (str) the text to display</li>
-<li><strong>level</strong> -- (int) the level of verbosity</li>
+<li><strong>logger</strong> – (Logger) The logging instance</li>
+<li><strong>message</strong> – (str) the text to display</li>
+<li><strong>level</strong> – (int) the level of verbosity</li>
 </ul>
 </td>
 </tr>
@@ -2511,11 +2506,20 @@ on other formatted indented on multi lines messages</dd>
 <dl class="class">
 <dt id="src.loggingSat.DefaultFormatter">
 <em class="property">class </em><code class="descclassname">src.loggingSat.</code><code class="descname">DefaultFormatter</code><span class="sig-paren">(</span><em>fmt=None</em>, <em>datefmt=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/loggingSat.html#DefaultFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.DefaultFormatter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">logging.Formatter</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Formatter</span></code></p>
 <dl class="method">
 <dt id="src.loggingSat.DefaultFormatter.format">
 <code class="descname">format</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/loggingSat.html#DefaultFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.DefaultFormatter.format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Format the specified record as text.</p>
+<p>The record’s attribute dictionary is used as the operand to a
+string formatting operation which yields the returned string.
+Before formatting the dictionary, a couple of preparatory steps
+are carried out. The message attribute of the record is computed
+using LogRecord.getMessage(). If the formatting string uses the
+time (as determined by a call to usesTime(), formatTime() is
+called to format the event time. If there is exception information,
+it is formatted using formatException() and appended to the message.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.loggingSat.DefaultFormatter.setColorLevelname">
@@ -2527,18 +2531,27 @@ on other formatted indented on multi lines messages</dd>
 <dl class="class">
 <dt id="src.loggingSat.UnittestFormatter">
 <em class="property">class </em><code class="descclassname">src.loggingSat.</code><code class="descname">UnittestFormatter</code><span class="sig-paren">(</span><em>fmt=None</em>, <em>datefmt=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/loggingSat.html#UnittestFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.UnittestFormatter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">logging.Formatter</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Formatter</span></code></p>
 <dl class="method">
 <dt id="src.loggingSat.UnittestFormatter.format">
 <code class="descname">format</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/loggingSat.html#UnittestFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.UnittestFormatter.format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Format the specified record as text.</p>
+<p>The record’s attribute dictionary is used as the operand to a
+string formatting operation which yields the returned string.
+Before formatting the dictionary, a couple of preparatory steps
+are carried out. The message attribute of the record is computed
+using LogRecord.getMessage(). If the formatting string uses the
+time (as determined by a call to usesTime(), formatTime() is
+called to format the event time. If there is exception information,
+it is formatted using formatException() and appended to the message.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="src.loggingSat.UnittestStream">
 <em class="property">class </em><code class="descclassname">src.loggingSat.</code><code class="descname">UnittestStream</code><a class="reference internal" href="../_modules/src/loggingSat.html#UnittestStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.UnittestStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>write my stream class
 only write and flush are used for the streaming
 <a class="reference external" href="https://docs.python.org/2/library/logging.handlers.html">https://docs.python.org/2/library/logging.handlers.html</a>
@@ -2598,7 +2611,7 @@ keep human readable</p>
 <dt id="src.loggingSat.initLoggerAsDefault">
 <code class="descclassname">src.loggingSat.</code><code class="descname">initLoggerAsDefault</code><span class="sig-paren">(</span><em>logger</em>, <em>fmt=None</em>, <em>level=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/loggingSat.html#initLoggerAsDefault"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.loggingSat.initLoggerAsDefault" title="Permalink to this definition">¶</a></dt>
 <dd><p>init logger as prefixed message and indented message if multi line
-exept info() outed 'as it' without any format</p>
+exept info() outed ‘as it’ without any format</p>
 </dd></dl>
 
 <dl class="function">
@@ -2629,7 +2642,7 @@ parameters in salomeTools command lines</p>
 <dl class="class">
 <dt id="src.options.OptResult">
 <em class="property">class </em><code class="descclassname">src.options.</code><code class="descname">OptResult</code><a class="reference internal" href="../_modules/src/options.html#OptResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.options.OptResult" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An instance of this class will be the object manipulated
 in code of all salomeTools commands
 The aim of this class is to have an elegant syntax to manipulate the options.</p>
@@ -2641,7 +2654,7 @@ The aim of this class is to have an elegant syntax to manipulate the options.</p
 <dl class="class">
 <dt id="src.options.Options">
 <em class="property">class </em><code class="descclassname">src.options.</code><code class="descname">Options</code><a class="reference internal" href="../_modules/src/options.html#Options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.options.Options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage all salomeTools options</p>
 <dl class="method">
 <dt id="src.options.Options.add_option">
@@ -2653,13 +2666,13 @@ of an option and append it in the options field</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>shortName</strong> -- (str) 
-The short name of the option (as '-l' for level option).</li>
-<li><strong>longName</strong> -- (str) 
-The long name of the option (as '--level' for level option).</li>
-<li><strong>optionType</strong> -- (str) The type of the option (ex &quot;int&quot;).</li>
-<li><strong>destName</strong> -- (str) The name that will be used in the code.</li>
-<li><strong>helpString</strong> -- (str) 
+<li><strong>shortName</strong> – (str) 
+The short name of the option (as ‘-l’ for level option).</li>
+<li><strong>longName</strong> – (str) 
+The long name of the option (as ‘–level’ for level option).</li>
+<li><strong>optionType</strong> – (str) The type of the option (ex “int”).</li>
+<li><strong>destName</strong> – (str) The name that will be used in the code.</li>
+<li><strong>helpString</strong> – (str) 
 The text to display when user ask for help on a command.</li>
 </ul>
 </td>
@@ -2720,7 +2733,7 @@ that gives access to all options in the code</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argList</strong> -- (list) the raw list of arguments that were passed</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argList</strong> – (list) the raw list of arguments that were passed</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(OptResult, list) as (optResult, args) 
 optResult is the option instance to manipulate in the code. 
@@ -2748,11 +2761,11 @@ that is in it</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>prod_dir</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>prod_dir</strong> – (str) 
 The product installation directory path 
 (without config-&lt;i&gt;)</li>
-<li><strong>product_info</strong> -- (Config)
+<li><strong>product_info</strong> – (Config)
 The configuration specific to the product</li>
 </ul>
 </td>
@@ -2776,7 +2789,7 @@ and some additional files if it is defined in the config</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config) 
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if it is well installed</td>
@@ -2794,10 +2807,10 @@ The configuration specific to the product</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product</li>
-<li><strong>version</strong> -- (str) The version of the product</li>
+<li><strong>version</strong> – (str) The version of the product</li>
 </ul>
 </td>
 </tr>
@@ -2817,14 +2830,14 @@ The configuration specific to the product</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>base</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>base</strong> – (str) 
 This corresponds to the value given by user in its application.pyconf 
 for the specific product. 
-If &quot;yes&quot;, the user wants the product to be in base. 
-If &quot;no&quot;, he wants the product to be in the application workdir</li>
-<li><strong>version</strong> -- (str) The version of the product</li>
-<li><strong>product_info</strong> -- (Config) The configuration specific to the product</li>
+If “yes”, the user wants the product to be in base. 
+If “no”, he wants the product to be in the application workdir</li>
+<li><strong>version</strong> – (str) The version of the product</li>
+<li><strong>product_info</strong> – (Config) The configuration specific to the product</li>
 </ul>
 </td>
 </tr>
@@ -2843,7 +2856,7 @@ If &quot;no&quot;, he wants the product to be in the application workdir</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) The list of names of the components</td>
@@ -2855,15 +2868,16 @@ The configuration specific to the product</td>
 <dl class="function">
 <dt id="src.product.get_product_config">
 <code class="descclassname">src.product.</code><code class="descname">get_product_config</code><span class="sig-paren">(</span><em>config</em>, <em>product_name</em>, <em>with_install_dir=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/product.html#get_product_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.product.get_product_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the specific configuration of a product from the global configuration</p>
+<dd><p>Get the specific configuration of a product 
+from the global configuration</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_name</strong> -- (str) The name of the product</li>
-<li><strong>with_install_dir</strong> -- (boolean)
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_name</strong> – (str) The name of the product</li>
+<li><strong>with_install_dir</strong> – (boolean)
 If false, do not provide an install directory 
 (at false only for internal use of the function check_config_exists)</li>
 </ul>
@@ -2886,8 +2900,8 @@ in the product_info dependencies</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_info</strong> -- (Config) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_info</strong> – (Config) 
 The configuration specific to the product</li>
 </ul>
 </td>
@@ -2908,10 +2922,10 @@ The configuration specific to the product</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The global configuration</li>
-<li><strong>product_name</strong> -- (str) The product name</li>
-<li><strong>version</strong> -- (str) The version of the product</li>
-<li><strong>section</strong> -- (str) 
+<li><strong>config</strong> – (Config) The global configuration</li>
+<li><strong>product_name</strong> – (str) The product name</li>
+<li><strong>version</strong> – (str) The version of the product</li>
+<li><strong>section</strong> – (str) 
 The searched section
 (if not None, the section is explicitly given)</li>
 </ul>
@@ -2926,15 +2940,15 @@ The searched section
 
 <dl class="function">
 <dt id="src.product.get_products_infos">
-<code class="descclassname">src.product.</code><code class="descname">get_products_infos</code><span class="sig-paren">(</span><em>lproducts</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/product.html#get_products_infos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.product.get_products_infos" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.product.</code><code class="descname">get_products_infos</code><span class="sig-paren">(</span><em>products</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/product.html#get_products_infos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.product.get_products_infos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the specific configuration of a list of products</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lproducts</strong> -- (list) The list of product names</li>
-<li><strong>config</strong> -- (Config) The global configuration</li>
+<li><strong>products</strong> – (list) The list of product names</li>
+<li><strong>config</strong> – (Config) The global configuration</li>
 </ul>
 </td>
 </tr>
@@ -2957,7 +2971,7 @@ as (product name, specific configuration of the product)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -2975,7 +2989,7 @@ True if the product compiles, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -2993,7 +3007,7 @@ True if the product it has an environment script, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) 
@@ -3011,7 +3025,7 @@ The path of the logo if the product has a logo, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3029,7 +3043,7 @@ True if the product has one or more patches</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3047,7 +3061,7 @@ True if the product has a SALOME gui, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3065,7 +3079,7 @@ True if the product it has a compilation script, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3083,7 +3097,7 @@ True if the product is a SALOME module, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3101,7 +3115,7 @@ True if the product is autotools, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3119,7 +3133,7 @@ True if the product is cmake, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3137,7 +3151,7 @@ True if the product is a cpp, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3155,7 +3169,7 @@ True if the product is in debug mode, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3173,7 +3187,7 @@ True if the product is in dev mode, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3191,7 +3205,7 @@ True if the product is fixed, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if the product is generated</td>
@@ -3208,7 +3222,7 @@ The configuration specific to the product</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3226,7 +3240,7 @@ True if the product has openmpi inits dependencies</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3244,7 +3258,7 @@ True if the product is native, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config) 
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3262,7 +3276,7 @@ True if the product is salome, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) 
@@ -3280,7 +3294,7 @@ True if the product has the sample type, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool)
@@ -3298,7 +3312,7 @@ True if the product is a SMESH plugin, else False</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> -- (Config)
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>product_info</strong> – (Config)
 The configuration specific to the product</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool)
@@ -3319,7 +3333,7 @@ Python 2.4.2. See the test module (test_config.py) included in the
 U{distribution&lt;<a class="reference external" href="http://www.red-dove.com/python_config">http://www.red-dove.com/python_config</a>.html|_blank&gt;} (follow the
 download link).</p>
 <p>A simple example - with the example configuration file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>messages:
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>messages:
 [
   {
     stream : `sys.stderr`
@@ -3340,7 +3354,7 @@ download link).</p>
 </pre></div>
 </div>
 <p>a program to read the configuration would be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">Config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">Config</span>
 
 <span class="n">f</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="s1">&#39;simple.cfg&#39;</span><span class="p">)</span>
 <span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -3353,7 +3367,7 @@ download link).</p>
 </pre></div>
 </div>
 <p>which, when run, would yield the console output:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Welcome</span><span class="p">,</span> <span class="n">Harry</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Welcome</span><span class="p">,</span> <span class="n">Harry</span>
 <span class="n">Welkom</span><span class="p">,</span> <span class="n">Ruud</span>
 <span class="n">Bienvenue</span><span class="p">,</span> <span class="n">Yves</span>
 </pre></div>
@@ -3368,24 +3382,24 @@ information.</p>
 takes a string (e.g. filename) and returns a stream suitable for reading. If
 unable to open the stream, an IOError exception should be thrown.</p>
 <p>The default value of this variable is L{defaultStreamOpener}. For an example
-of how it's used, see test_config.py (search for streamOpener).</p>
+of how it’s used, see test_config.py (search for streamOpener).</p>
 <dl class="class">
 <dt id="src.pyconf.Config">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>streamOrFile=None</em>, <em>parent=None</em>, <em>PWD=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Mapping" title="src.pyconf.Mapping"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.Mapping</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Mapping" title="src.pyconf.Mapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.Mapping</span></code></a></p>
 <p>This class represents a configuration, and is the only one which clients
 need to interface to, under normal circumstances.</p>
 <dl class="class">
 <dt id="src.pyconf.Config.Namespace">
 <em class="property">class </em><code class="descname">Namespace</code><a class="reference internal" href="../_modules/src/pyconf.html#Config.Namespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.Namespace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class is used for implementing default namespaces.</p>
 <p>An instance acts as a namespace.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.pyconf.Config.addNamespace">
-<code class="descclassname">Config.</code><code class="descname">addNamespace</code><span class="sig-paren">(</span><em>ns</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.addNamespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.addNamespace" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addNamespace</code><span class="sig-paren">(</span><em>ns</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.addNamespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.addNamespace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a namespace to this configuration which can be used to evaluate
 (resolve) dotted-identifier expressions.
 &#64;param ns: The namespace to be added.
@@ -3398,7 +3412,7 @@ an additional level of indirection.
 
 <dl class="method">
 <dt id="src.pyconf.Config.getByPath">
-<code class="descclassname">Config.</code><code class="descname">getByPath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.getByPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.getByPath" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getByPath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.getByPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.getByPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a value in the configuration via its path.
 &#64;param path: The path of the required value
 &#64;type path: str
@@ -3409,7 +3423,7 @@ an additional level of indirection.
 
 <dl class="method">
 <dt id="src.pyconf.Config.load">
-<code class="descclassname">Config.</code><code class="descname">load</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.load" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the configuration from the specified stream. Multiple streams can
 be used to populate the same instance, as long as there are no
 clashing keys. The stream is closed.
@@ -3422,7 +3436,7 @@ existing keys.
 
 <dl class="method">
 <dt id="src.pyconf.Config.removeNamespace">
-<code class="descclassname">Config.</code><code class="descname">removeNamespace</code><span class="sig-paren">(</span><em>ns</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.removeNamespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.removeNamespace" title="Permalink to this definition">¶</a></dt>
+<code class="descname">removeNamespace</code><span class="sig-paren">(</span><em>ns</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Config.removeNamespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Config.removeNamespace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a namespace added with L{addNamespace}.
 &#64;param ns: The namespace to be removed.
 &#64;param name: The name which was specified when L{addNamespace} was
@@ -3435,14 +3449,14 @@ called.
 <dl class="exception">
 <dt id="src.pyconf.ConfigError">
 <em class="property">exception </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigError</code><a class="reference internal" href="../_modules/src/pyconf.html#ConfigError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
 <p>This is the base class of exceptions raised by this module.</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="src.pyconf.ConfigFormatError">
 <em class="property">exception </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigFormatError</code><a class="reference internal" href="../_modules/src/pyconf.html#ConfigFormatError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigFormatError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pyconf.ConfigError" title="src.pyconf.ConfigError"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.ConfigError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.pyconf.ConfigError" title="src.pyconf.ConfigError"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.ConfigError</span></code></a></p>
 <p>This is the base class of exceptions raised due to syntax errors in
 configurations.</p>
 </dd></dl>
@@ -3450,7 +3464,7 @@ configurations.</p>
 <dl class="class">
 <dt id="src.pyconf.ConfigInputStream">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigInputStream</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigInputStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigInputStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An input stream which can read either ANSI files with default encoding
 or Unicode files with BOMs.</p>
 <p>Handles UTF-8, UTF-16LE, UTF-16BE. Could handle UTF-32 if Python had
@@ -3475,7 +3489,7 @@ built-in support.</p>
 <dl class="class">
 <dt id="src.pyconf.ConfigList">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigList</code><a class="reference internal" href="../_modules/src/pyconf.html#ConfigList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigList" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">list</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
 <p>This class implements an ordered list of configurations and allows you
 to try getting the configuration from each entry in turn, returning
 the first successfully obtained value.</p>
@@ -3497,8 +3511,8 @@ the specified path.</p>
 
 <dl class="class">
 <dt id="src.pyconf.ConfigMerger">
-<em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigMerger</code><span class="sig-paren">(</span><em>resolver=&lt;function defaultMergeResolve&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigMerger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigMerger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigMerger</code><span class="sig-paren">(</span><em>resolver=&lt;function defaultMergeResolve at 0x3561c80&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigMerger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigMerger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used for merging two configurations. If a key exists in the
 merge operand but not the merge target, then the entry is copied from the
 merge operand to the merge target. If a key exists in both configurations,
@@ -3564,7 +3578,7 @@ and the first is changed depending the keys of the second mapping.
 <dl class="class">
 <dt id="src.pyconf.ConfigOutputStream">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigOutputStream</code><span class="sig-paren">(</span><em>stream</em>, <em>encoding=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigOutputStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigOutputStream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An output stream which can write either ANSI files with default encoding
 or Unicode files with BOMs.</p>
 <p>Handles UTF-8, UTF-16LE, UTF-16BE. Could handle UTF-32 if Python had
@@ -3589,7 +3603,7 @@ built-in support.</p>
 <dl class="class">
 <dt id="src.pyconf.ConfigReader">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigReader</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigReader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class implements a parser for configurations.</p>
 <dl class="method">
 <dt id="src.pyconf.ConfigReader.getChar">
@@ -3647,7 +3661,7 @@ advance to the next token.</p>
 &#64;return: The token which was last read from the stream before this
 function is called.
 &#64;rtype: a token tuple - see L{getToken}.
-&#64;raise ConfigFormatError: If the token does not match what's expected.</p>
+&#64;raise ConfigFormatError: If the token does not match what’s expected.</p>
 </dd></dl>
 
 <dl class="method">
@@ -3766,7 +3780,7 @@ an L{Expression} or L{Reference}.</p>
 <dl class="exception">
 <dt id="src.pyconf.ConfigResolutionError">
 <em class="property">exception </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigResolutionError</code><a class="reference internal" href="../_modules/src/pyconf.html#ConfigResolutionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigResolutionError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pyconf.ConfigError" title="src.pyconf.ConfigError"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.ConfigError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.pyconf.ConfigError" title="src.pyconf.ConfigError"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.ConfigError</span></code></a></p>
 <p>This is the base class of exceptions raised due to semantic errors in
 configurations.</p>
 </dd></dl>
@@ -3774,12 +3788,12 @@ configurations.</p>
 <dl class="class">
 <dt id="src.pyconf.Container">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Container</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Container" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class is the base class for mappings and sequences.</p>
 <p>&#64;ivar path: A string which describes how to get
 to this instance from the root of the hierarchy.</p>
 <p>Example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">of</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="ow">or</span><span class="p">[</span><span class="s1">&#39;more&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">elements</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">of</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="ow">or</span><span class="p">[</span><span class="s1">&#39;more&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">elements</span>
 </pre></div>
 </div>
 <dl class="method">
@@ -3829,7 +3843,7 @@ to this instance from the root of the hierarchy.
 <dl class="class">
 <dt id="src.pyconf.Expression">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Expression</code><span class="sig-paren">(</span><em>op</em>, <em>lhs</em>, <em>rhs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Expression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class implements a value which is obtained by evaluating an expression.</p>
 <dl class="method">
 <dt id="src.pyconf.Expression.evaluate">
@@ -3850,7 +3864,7 @@ subtracting one string from another.</p>
 <dl class="class">
 <dt id="src.pyconf.Mapping">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Mapping</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Mapping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Container" title="src.pyconf.Container"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.Container</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Container" title="src.pyconf.Container"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.Container</span></code></a></p>
 <p>This internal class implements key-value mappings in configurations.</p>
 <dl class="method">
 <dt id="src.pyconf.Mapping.addMapping">
@@ -3908,7 +3922,7 @@ again and setting is False.</p>
 <dl class="class">
 <dt id="src.pyconf.Reference">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Reference</code><span class="sig-paren">(</span><em>config</em>, <em>type</em>, <em>ident</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Reference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Reference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class implements a value which is a reference to another value.</p>
 <dl class="method">
 <dt id="src.pyconf.Reference.addElement">
@@ -3946,12 +3960,12 @@ again and setting is False.</p>
 <dl class="class">
 <dt id="src.pyconf.Sequence">
 <em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">Sequence</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Container" title="src.pyconf.Container"><code class="xref py py-class docutils literal"><span class="pre">src.pyconf.Container</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#src.pyconf.Container" title="src.pyconf.Container"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.pyconf.Container</span></code></a></p>
 <p>This internal class implements a value which is a sequence of other values.</p>
 <dl class="class">
 <dt id="src.pyconf.Sequence.SeqIter">
 <em class="property">class </em><code class="descname">SeqIter</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence.SeqIter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence.SeqIter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This internal class implements an iterator for a L{Sequence} instance.</p>
 <dl class="method">
 <dt id="src.pyconf.Sequence.SeqIter.next">
@@ -3962,7 +3976,7 @@ again and setting is False.</p>
 
 <dl class="method">
 <dt id="src.pyconf.Sequence.append">
-<code class="descclassname">Sequence.</code><code class="descname">append</code><span class="sig-paren">(</span><em>item</em>, <em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence.append" title="Permalink to this definition">¶</a></dt>
+<code class="descname">append</code><span class="sig-paren">(</span><em>item</em>, <em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an item to the sequence.</p>
 <p>&#64;param item: The item to add.
 &#64;type item: any
@@ -3972,7 +3986,7 @@ again and setting is False.</p>
 
 <dl class="method">
 <dt id="src.pyconf.Sequence.writeToStream">
-<code class="descclassname">Sequence.</code><code class="descname">writeToStream</code><span class="sig-paren">(</span><em>stream</em>, <em>indent</em>, <em>container</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence.writeToStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence.writeToStream" title="Permalink to this definition">¶</a></dt>
+<code class="descname">writeToStream</code><span class="sig-paren">(</span><em>stream</em>, <em>indent</em>, <em>container</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#Sequence.writeToStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.Sequence.writeToStream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write this instance to a stream at the specified indentation level.</p>
 <p>Should be redefined in subclasses.</p>
 <p>&#64;param stream: The stream to write to
@@ -4001,10 +4015,10 @@ Returns a string indicating what action to take to resolve the conflict.</p>
 &#64;type map2: L{Mapping}.
 &#64;param key: The key in map2 (which also exists in map1).
 &#64;type key: str
-&#64;return: One of &quot;merge&quot;, &quot;append&quot;, &quot;mismatch&quot; or &quot;overwrite&quot; 
+&#64;return: One of “merge”, “append”, “mismatch” or “overwrite” 
 indicating what action should be taken. This should
 be appropriate to the objects being merged - e.g.
-there is no point returning &quot;merge&quot; if the two objects
+there is no point returning “merge” if the two objects
 are instances of L{Sequence}.
 &#64;rtype: str</p>
 </dd></dl>
@@ -4031,14 +4045,14 @@ urllib2.urlopen().</p>
 string, False is returned. An identifier consists of alphanumerics or
 underscore characters.</p>
 <p>Examples:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">isWord</span><span class="p">(</span><span class="s1">&#39;a word&#39;</span><span class="p">)</span> <span class="o">-&gt;</span><span class="kc">False</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">isWord</span><span class="p">(</span><span class="s1">&#39;a word&#39;</span><span class="p">)</span> <span class="o">-&gt;</span><span class="kc">False</span>
 <span class="n">isWord</span><span class="p">(</span><span class="s1">&#39;award&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">True</span>
 <span class="n">isWord</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">False</span>
 <span class="n">isWord</span><span class="p">(</span><span class="s1">&#39;a_b_c_&#39;</span><span class="p">)</span> <span class="o">-&gt;</span><span class="kc">True</span>
 </pre></div>
 </div>
-<p>&#64;note: isWord('9abc') will return True - not exactly correct, but adequate
-for the way it's used here.</p>
+<p>&#64;note: isWord(‘9abc’) will return True - not exactly correct, but adequate
+for the way it’s used here.</p>
 <p>&#64;param s: The name to be tested
 &#64;type s: any
 &#64;return: True if a word, else False
@@ -4050,9 +4064,9 @@ for the way it's used here.</p>
 <code class="descclassname">src.pyconf.</code><code class="descname">makePath</code><span class="sig-paren">(</span><em>prefix</em>, <em>suffix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#makePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.makePath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a path from a prefix and suffix.</p>
 <p>Examples::
-makePath('', 'suffix') -&gt; 'suffix'
-makePath('prefix', 'suffix') -&gt; 'prefix.suffix'
-makePath('prefix', '[1]') -&gt; 'prefix[1]'</p>
+makePath(‘’, ‘suffix’) -&gt; ‘suffix’
+makePath(‘prefix’, ‘suffix’) -&gt; ‘prefix.suffix’
+makePath(‘prefix’, ‘[1]’) -&gt; ‘prefix[1]’</p>
 <p>&#64;param prefix:  The prefix to use. If it evaluates as false, the suffix is returned.
 &#64;type prefix:   str
 &#64;param suffix:  The suffix to use. It is either an identifier or an index in brackets.
@@ -4065,7 +4079,7 @@ makePath('prefix', '[1]') -&gt; 'prefix[1]'</p>
 <dt id="src.pyconf.overwriteMergeResolve">
 <code class="descclassname">src.pyconf.</code><code class="descname">overwriteMergeResolve</code><span class="sig-paren">(</span><em>map1</em>, <em>map2</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#overwriteMergeResolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.overwriteMergeResolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>An overwriting resolver for merge conflicts. Calls L{defaultMergeResolve},
-but where a &quot;mismatch&quot; is detected, returns &quot;overwrite&quot; instead.</p>
+but where a “mismatch” is detected, returns “overwrite” instead.</p>
 <p>&#64;param map1: The map being merged into.
 &#64;type map1: L{Mapping}.
 &#64;param map2: The map being used as the merge operand.
@@ -4083,25 +4097,25 @@ but where a &quot;mismatch&quot; is detected, returns &quot;overwrite&quot; inst
 <dl class="class">
 <dt id="src.returnCode.ReturnCode">
 <em class="property">class </em><code class="descclassname">src.returnCode.</code><code class="descname">ReturnCode</code><span class="sig-paren">(</span><em>status=None</em>, <em>why=None</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>assume simple return code for methods, with explanation as 'why'
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>assume simple return code for methods, with explanation as ‘why’
 obviously why is why it is not OK, 
 but also why is why it is OK (if you want). 
 and optionnaly contains a return value as self.getValue()</p>
 <p>usage:
 &gt;&gt; import returnCode as RCO</p>
 <p>&gt;&gt; aValue = doSomethingToReturn()
-&gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is no problem here&quot;, aValue)
-&gt;&gt; return RCO.ReturnCode(&quot;KO&quot;, &quot;there is a problem here because etc&quot;, None)
-&gt;&gt; return RCO.ReturnCode(&quot;TIMEOUT_STATUS&quot;, &quot;too long here because etc&quot;)
-&gt;&gt; return RCO.ReturnCode(&quot;NA&quot;, &quot;not applicable here because etc&quot;)</p>
+&gt;&gt; return RCO.ReturnCode(“KO”, “there is no problem here”, aValue)
+&gt;&gt; return RCO.ReturnCode(“KO”, “there is a problem here because etc”, None)
+&gt;&gt; return RCO.ReturnCode(“TIMEOUT_STATUS”, “too long here because etc”)
+&gt;&gt; return RCO.ReturnCode(“NA”, “not applicable here because etc”)</p>
 <p>&gt;&gt; rc = doSomething()
-&gt;&gt; print(&quot;short returnCode string&quot;, str(rc))
-&gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rc))</p>
-<p>&gt;&gt; rc1 = RCO.ReturnCode(&quot;OK&quot;, ...)
-&gt;&gt; rc2 = RCO.ReturnCode(&quot;KO&quot;, ...)
+&gt;&gt; print(“short returnCode string”, str(rc))
+&gt;&gt; print(“long returnCode string with value”, repr(rc))</p>
+<p>&gt;&gt; rc1 = RCO.ReturnCode(“OK”, …)
+&gt;&gt; rc2 = RCO.ReturnCode(“KO”, …)
 &gt;&gt; rcFinal = rc1 + rc2
-&gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</p>
+&gt;&gt; print(“long returnCode string with value”, repr(rcFinal)) # KO!</p>
 <dl class="attribute">
 <dt id="src.returnCode.ReturnCode.KFSYS">
 <code class="descname">KFSYS</code><em class="property"> = 4</em><a class="headerlink" href="#src.returnCode.ReturnCode.KFSYS" title="Permalink to this definition">¶</a></dt>
@@ -4218,13 +4232,13 @@ and optionnaly contains a return value as self.getValue()</p>
 <div class="section" id="module-src.salomeTools">
 <span id="src-salometools-module"></span><h2>src.salomeTools module<a class="headerlink" href="#module-src.salomeTools" title="Permalink to this headline">¶</a></h2>
 <p>This file is the main entry file to salomeTools
-NO __main__ entry allowed, use 'sat' (in parent directory)</p>
+NO __main__ entry allowed, use ‘sat’ (in parent directory)</p>
 <dl class="class">
 <dt id="src.salomeTools.Sat">
 <em class="property">class </em><code class="descclassname">src.salomeTools.</code><code class="descname">Sat</code><span class="sig-paren">(</span><em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The main class that stores all the commands of salomeTools
-(usually known as 'runner' argument in Command classes)</p>
+(usually known as ‘runner’ argument in Command classes)</p>
 <dl class="method">
 <dt id="src.salomeTools.Sat.assumeAsList">
 <code class="descname">assumeAsList</code><span class="sig-paren">(</span><em>strOrList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat.assumeAsList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat.assumeAsList" title="Permalink to this definition">¶</a></dt>
@@ -4233,12 +4247,12 @@ NO __main__ entry allowed, use 'sat' (in parent directory)</p>
 <dl class="method">
 <dt id="src.salomeTools.Sat.execute_cli">
 <code class="descname">execute_cli</code><span class="sig-paren">(</span><em>cli_arguments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat.execute_cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat.execute_cli" title="Permalink to this definition">¶</a></dt>
-<dd><p>select first argument as a command in directory 'commands', and launch on arguments</p>
+<dd><p>select first argument as a command in directory ‘commands’, and launch on arguments</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cli_arguments</strong> -- (str or list) The sat cli arguments (as sys.argv)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cli_arguments</strong> – (str or list) The sat cli arguments (as sys.argv)</td>
 </tr>
 </tbody>
 </table>
@@ -4258,7 +4272,7 @@ NO __main__ entry allowed, use 'sat' (in parent directory)</p>
 <dl class="method">
 <dt id="src.salomeTools.Sat.getCommandInstance">
 <code class="descname">getCommandInstance</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat.getCommandInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat.getCommandInstance" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns inherited instance of Command(_BaseCmd) for command 'name'
+<dd><p>returns inherited instance of Command(_BaseCmd) for command ‘name’
 if module not loaded yet, load it.</p>
 </dd></dl>
 
@@ -4280,7 +4294,7 @@ if module not loaded yet, load it.</p>
 <dl class="method">
 <dt id="src.salomeTools.Sat.getModule">
 <code class="descname">getModule</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#Sat.getModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.Sat.getModule" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns only-one-time loaded module Command 'name'
+<dd><p>returns only-one-time loaded module Command ‘name’
 assume load if not done yet</p>
 </dd></dl>
 
@@ -4312,12 +4326,12 @@ assume load if not done yet</p>
 <dl class="function">
 <dt id="src.salomeTools.find_command_list">
 <code class="descclassname">src.salomeTools.</code><code class="descname">find_command_list</code><span class="sig-paren">(</span><em>dirPath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#find_command_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.find_command_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse files in dirPath that end with '.py' : it gives commands list</p>
+<dd><p>Parse files in dirPath that end with ‘.py’ : it gives commands list</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dirPath</strong> -- (str) The directory path where to search the commands</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dirPath</strong> – (str) The directory path where to search the commands</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) the list containing the commands name</td>
 </tr>
@@ -4341,8 +4355,8 @@ assume load if not done yet</p>
 <dt id="src.salomeTools.launchSat">
 <code class="descclassname">src.salomeTools.</code><code class="descname">launchSat</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#launchSat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.launchSat" title="Permalink to this definition">¶</a></dt>
 <dd><p>launch sat as subprocess.Popen
-command as string ('sat --help' for example)
-used for unittest, or else...</p>
+command as string (‘sat –help’ for example)
+used for unittest, or else…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -4357,8 +4371,8 @@ used for unittest, or else...</p>
 <dt id="src.salomeTools.setLocale">
 <code class="descclassname">src.salomeTools.</code><code class="descname">setLocale</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/salomeTools.html#setLocale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.salomeTools.setLocale" title="Permalink to this definition">¶</a></dt>
 <dd><p>reset initial locale at any moment 
-'fr' or else (TODO) from initial environment var '$LANG'
-'i18n' as 'internationalization'</p>
+‘fr’ or else (TODO) from initial environment var ‘$LANG’
+‘i18n’ as ‘internationalization’</p>
 </dd></dl>
 
 <dl class="function">
@@ -4385,9 +4399,9 @@ like open a browser or an editor, or call a git command</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>from_what</strong> -- (str) The path to the archive.</li>
-<li><strong>where</strong> -- (str) The path where to extract.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use.</li>
+<li><strong>from_what</strong> – (str) The path to the archive.</li>
+<li><strong>where</strong> – (str) The path where to extract.</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use.</li>
 </ul>
 </td>
 </tr>
@@ -4407,16 +4421,16 @@ like open a browser or an editor, or call a git command</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>protocol</strong> -- (str) The cvs protocol.</li>
-<li><strong>user</strong> -- (str) The user to be used.</li>
-<li><strong>server</strong> -- (str) The remote cvs server.</li>
-<li><strong>base</strong> -- (str) .</li>
-<li><strong>tag</strong> -- (str) The tag.</li>
-<li><strong>product</strong> -- (str) The product.</li>
-<li><strong>where</strong> -- (str) The path where to extract.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use.</li>
-<li><strong>checkout</strong> -- (bool) If true use checkout cvs.</li>
-<li><strong>environment</strong> -- (Environ) 
+<li><strong>protocol</strong> – (str) The cvs protocol.</li>
+<li><strong>user</strong> – (str) The user to be used.</li>
+<li><strong>server</strong> – (str) The remote cvs server.</li>
+<li><strong>base</strong> – (str) .</li>
+<li><strong>tag</strong> – (str) The tag.</li>
+<li><strong>product</strong> – (str) The product.</li>
+<li><strong>where</strong> – (str) The path where to extract.</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use.</li>
+<li><strong>checkout</strong> – (bool) If true use checkout cvs.</li>
+<li><strong>environment</strong> – (Environ) 
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -4437,11 +4451,11 @@ The environment to source when extracting.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>from_what</strong> -- (str) The remote git repository.</li>
-<li><strong>tag</strong> -- (str) The tag.</li>
-<li><strong>where</strong> -- (str) The path where to extract.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use.</li>
-<li><strong>environment</strong> -- (Environ) 
+<li><strong>from_what</strong> – (str) The remote git repository.</li>
+<li><strong>tag</strong> – (str) The tag.</li>
+<li><strong>where</strong> – (str) The path where to extract.</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use.</li>
+<li><strong>environment</strong> – (Environ) 
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -4462,8 +4476,8 @@ The environment to source when extracting.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>editor</strong> -- (str) The editor to use.</li>
-<li><strong>filePath</strong> -- (str) The path to the file to open.</li>
+<li><strong>editor</strong> – (str) The editor to use.</li>
+<li><strong>filePath</strong> – (str) The path to the file to open.</li>
 </ul>
 </td>
 </tr>
@@ -4480,13 +4494,13 @@ The environment to source when extracting.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user</strong> -- (str) The user to be used.</li>
-<li><strong>from_what</strong> -- (str) The remote git repository.</li>
-<li><strong>tag</strong> -- (str) The tag.</li>
-<li><strong>where</strong> -- (str) The path where to extract.</li>
-<li><strong>logger</strong> -- (Logger) The logger instance to use.</li>
-<li><strong>checkout</strong> -- (bool) If true use checkout svn.</li>
-<li><strong>environment</strong> -- (Environ)
+<li><strong>user</strong> – (str) The user to be used.</li>
+<li><strong>from_what</strong> – (str) The remote git repository.</li>
+<li><strong>tag</strong> – (str) The tag.</li>
+<li><strong>where</strong> – (str) The path where to extract.</li>
+<li><strong>logger</strong> – (Logger) The logger instance to use.</li>
+<li><strong>checkout</strong> – (bool) If true use checkout svn.</li>
+<li><strong>environment</strong> – (Environ)
 The environment to source when extracting.</li>
 </ul>
 </td>
@@ -4504,7 +4518,7 @@ The environment to source when extracting.</li>
 <dl class="class">
 <dt id="src.template.MyTemplate">
 <em class="property">class </em><code class="descclassname">src.template.</code><code class="descname">MyTemplate</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/template.html#MyTemplate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.template.MyTemplate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">string.Template</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">string.Template</span></code></p>
 <dl class="attribute">
 <dt id="src.template.MyTemplate.delimiter">
 <code class="descname">delimiter</code><em class="property"> = '\xc2\xa4'</em><a class="headerlink" href="#src.template.MyTemplate.delimiter" title="Permalink to this definition">¶</a></dt>
@@ -4512,7 +4526,7 @@ The environment to source when extracting.</li>
 
 <dl class="attribute">
 <dt id="src.template.MyTemplate.pattern">
-<code class="descname">pattern</code><em class="property"> = &lt;_sre.SRE_Pattern object&gt;</em><a class="headerlink" href="#src.template.MyTemplate.pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pattern</code><em class="property"> = &lt;_sre.SRE_Pattern object at 0x412cde0&gt;</em><a class="headerlink" href="#src.template.MyTemplate.pattern" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -4612,7 +4626,7 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.write_test_margin">
 <code class="descname">write_test_margin</code><span class="sig-paren">(</span><em>tab</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.write_test_margin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.write_test_margin" title="Permalink to this definition">¶</a></dt>
-<dd><p>indent with '| ... +' to show test results.</p>
+<dd><p>indent with ‘| … +’ to show test results.</p>
 </dd></dl>
 
 </dd></dl>
@@ -4733,14 +4747,14 @@ all-in-one import srs.utilsSat as UTS</p>
 
 <dl class="function">
 <dt id="src.utilsSat.check_config_has_application">
-<code class="descclassname">src.utilsSat.</code><code class="descname">check_config_has_application</code><span class="sig-paren">(</span><em>config</em>, <em>details=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#check_config_has_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.check_config_has_application" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.utilsSat.</code><code class="descname">check_config_has_application</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#check_config_has_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.check_config_has_application" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the config has the key APPLICATION. 
 Else raise an exception.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The config.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The config.</td>
 </tr>
 </tbody>
 </table>
@@ -4748,14 +4762,35 @@ Else raise an exception.</p>
 
 <dl class="function">
 <dt id="src.utilsSat.check_config_has_profile">
-<code class="descclassname">src.utilsSat.</code><code class="descname">check_config_has_profile</code><span class="sig-paren">(</span><em>config</em>, <em>details=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#check_config_has_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.check_config_has_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.utilsSat.</code><code class="descname">check_config_has_profile</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#check_config_has_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.check_config_has_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the config has the key APPLICATION.profile.
 Else, raise an exception.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The config.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The config.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.utilsSat.check_has_key">
+<code class="descclassname">src.utilsSat.</code><code class="descname">check_has_key</code><span class="sig-paren">(</span><em>inConfig</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#check_has_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.check_has_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the in-Config node has the named key (as an attribute)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inConfig</strong> – (Config or Mapping etc) The in-Config node</li>
+<li><strong>key</strong> – (str) The key to check presence in in-Config node</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(RCO.ReturnCode) ‘OK’ if presence</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -4785,7 +4820,7 @@ returns list year, mon, day, hour, minutes, seconds</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> -- (str) The date in format YYYYMMDD_HHMMSS</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> – (str) The date in format YYYYMMDD_HHMMSS</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(tuple) as (str,str,str,str,str,str)
 The same date and time in separate variables.</td>
@@ -4802,7 +4837,7 @@ The same date and time in separate variables.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_list</strong> -- (list) The list to copy</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_list</strong> – (list) The list to copy</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) The copy of the list</td>
 </tr>
@@ -4818,7 +4853,7 @@ The same date and time in separate variables.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> -- (str) The path.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> – (str) The path.</td>
 </tr>
 </tbody>
 </table>
@@ -4842,9 +4877,9 @@ to add to all paths in lpath.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>file_name</strong> -- (str) The file name to search</li>
-<li><strong>lpath</strong> -- (list) The list of directories where to search</li>
-<li><strong>additional_dir</strong> -- (str) The name of the additional directory</li>
+<li><strong>file_name</strong> – (str) The file name to search</li>
+<li><strong>lpath</strong> – (list) The list of directories where to search</li>
+<li><strong>additional_dir</strong> – (str) The name of the additional directory</li>
 </ul>
 </td>
 </tr>
@@ -4858,12 +4893,12 @@ to add to all paths in lpath.</p>
 <dl class="function">
 <dt id="src.utilsSat.formatTuples">
 <code class="descclassname">src.utilsSat.</code><code class="descname">formatTuples</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#formatTuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.formatTuples" title="Permalink to this definition">¶</a></dt>
-<dd><p>Format 'label = value' the tuples in a tabulated way.</p>
+<dd><p>Format ‘label = value’ the tuples in a tabulated way.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tuples</strong> -- (list) The list of tuples to format</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tuples</strong> – (list) The list of tuples to format</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) The tabulated text. (as mutiples lines)</td>
 </tr>
@@ -4874,15 +4909,15 @@ to add to all paths in lpath.</p>
 <dl class="function">
 <dt id="src.utilsSat.formatValue">
 <code class="descclassname">src.utilsSat.</code><code class="descname">formatValue</code><span class="sig-paren">(</span><em>label</em>, <em>value</em>, <em>suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#formatValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.formatValue" title="Permalink to this definition">¶</a></dt>
-<dd><p>format 'label = value' with the info color</p>
+<dd><p>format ‘label = value’ with the info color</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> -- (int) the label to print.</li>
-<li><strong>value</strong> -- (str) the value to print.</li>
-<li><strong>suffix</strong> -- (str) the optionnal suffix to add at the end.</li>
+<li><strong>label</strong> – (int) the label to print.</li>
+<li><strong>value</strong> – (str) the value to print.</li>
+<li><strong>suffix</strong> – (str) the optionnal suffix to add at the end.</li>
 </ul>
 </td>
 </tr>
@@ -4898,7 +4933,7 @@ to add to all paths in lpath.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The global Config instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The global Config instance.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) The path of the products base.</td>
 </tr>
@@ -4917,9 +4952,9 @@ else, return the found value</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> -- (Config) The config.</li>
-<li><strong>param_name</strong> -- (str) the name of the parameter to get the value</li>
-<li><strong>default</strong> -- (str) The value to return if param_name is not in config</li>
+<li><strong>config</strong> – (Config) The config.</li>
+<li><strong>param_name</strong> – (str) the name of the parameter to get the value</li>
+<li><strong>default</strong> – (str) The value to return if param_name is not in config</li>
 </ul>
 </td>
 </tr>
@@ -4933,12 +4968,12 @@ else, return the found value</p>
 <dl class="function">
 <dt id="src.utilsSat.get_launcher_name">
 <code class="descclassname">src.utilsSat.</code><code class="descname">get_launcher_name</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#get_launcher_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.get_launcher_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of salome launcher.</p>
+<dd><p>Returns the name of application file launcher, ‘salome’ by default.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The global Config instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The global Config instance.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) The name of salome launcher.</td>
 </tr>
@@ -4954,7 +4989,7 @@ else, return the found value</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- (Config) The global Config instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> – (Config) The global Config instance.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) The path of the logs.</td>
 </tr>
@@ -5011,8 +5046,8 @@ else, return the found value</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dirPath</strong> -- (str) the directory where to search the files</li>
-<li><strong>expression</strong> -- (str) the regular expression of files to find</li>
+<li><strong>dirPath</strong> – (str) the directory where to search the files</li>
+<li><strong>expression</strong> – (str) the regular expression of files to find</li>
 </ul>
 </td>
 </tr>
@@ -5024,9 +5059,19 @@ else, return the found value</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="src.utilsSat.log_res_step">
+<code class="descclassname">src.utilsSat.</code><code class="descname">log_res_step</code><span class="sig-paren">(</span><em>logger</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#log_res_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.log_res_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.utilsSat.log_step">
+<code class="descclassname">src.utilsSat.</code><code class="descname">log_step</code><span class="sig-paren">(</span><em>logger</em>, <em>header</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#log_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.log_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="src.utilsSat.logger_info_tuples">
 <code class="descclassname">src.utilsSat.</code><code class="descname">logger_info_tuples</code><span class="sig-paren">(</span><em>logger</em>, <em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#logger_info_tuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.logger_info_tuples" title="Permalink to this definition">¶</a></dt>
-<dd><p>for convenience
+<dd><p>For convenience
 format as formatTuples() and call logger.info()</p>
 </dd></dl>
 
@@ -5060,7 +5105,7 @@ precedence goes to key value pairs in latter dicts.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> -- (str) The date to transform</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> – (str) The date to transform</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) The date in the new format</td>
 </tr>
@@ -5086,7 +5131,7 @@ precedence goes to key value pairs in latter dicts.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_list</strong> -- (list) The list to modify</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_list</strong> – (list) The list to modify</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) The without any item</td>
 </tr>
@@ -5103,9 +5148,9 @@ precedence goes to key value pairs in latter dicts.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>file_in</strong> -- (str) The file name</li>
-<li><strong>str_in</strong> -- (str) The string to search</li>
-<li><strong>str_out</strong> -- (str) The string to replace.</li>
+<li><strong>file_in</strong> – (str) The file name</li>
+<li><strong>str_in</strong> – (str) The string to search</li>
+<li><strong>str_out</strong> – (str) The string to replace.</li>
 </ul>
 </td>
 </tr>
@@ -5129,11 +5174,11 @@ has to be shown or not in the hat log.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>logFilePath</strong> -- (str) the path to the command xml log file</li>
-<li><strong>cmd</strong> -- (str) the command of the log file</li>
-<li><strong>application</strong> -- (str) 
+<li><strong>logFilePath</strong> – (str) the path to the command xml log file</li>
+<li><strong>cmd</strong> – (str) the command of the log file</li>
+<li><strong>application</strong> – (str) 
 The application passed as parameter to the salomeTools command</li>
-<li><strong>notShownCommands</strong> -- (list) 
+<li><strong>notShownCommands</strong> – (list) 
 The list of commands that are not shown by default</li>
 </ul>
 </td>
@@ -5162,7 +5207,7 @@ in order to be compatible with old python versions</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timedelta</strong> -- (datetime.timedelta) 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timedelta</strong> – (datetime.timedelta) 
 The delta between two dates</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) 
@@ -5182,8 +5227,8 @@ and have a name like YYYYMMDD_HHMMSS_namecmd.xml</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>logDir</strong> -- (str) the directory to parse</li>
-<li><strong>application</strong> -- (str) the name of the application if there is any</li>
+<li><strong>logDir</strong> – (str) the directory to parse</li>
+<li><strong>application</strong> – (str) the name of the application if there is any</li>
 </ul>
 </td>
 </tr>
@@ -5217,7 +5262,7 @@ and have a name like YYYYMMDD_HHMMSS_namecmd.xml</p>
 <dl class="class">
 <dt id="src.xmlManager.ReadXmlFile">
 <em class="property">class </em><code class="descclassname">src.xmlManager.</code><code class="descname">ReadXmlFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/xmlManager.html#ReadXmlFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.xmlManager.ReadXmlFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage reading of an xml log file</p>
 <dl class="method">
 <dt id="src.xmlManager.ReadXmlFile.getRootAttrib">
@@ -5241,7 +5286,7 @@ and have a name like YYYYMMDD_HHMMSS_namecmd.xml</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_name</strong> -- (str) the name of the node</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_name</strong> – (str) the name of the node</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) the attibutes of the node node_name in self.xmlroot</td>
 </tr>
@@ -5258,7 +5303,7 @@ that corresponds to the parameter node</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> -- (str) the name of the node from which get the text</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – (str) the name of the node from which get the text</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(str) 
 The text of the first node that has name 
@@ -5273,7 +5318,7 @@ that corresponds to the parameter node</td>
 <dl class="class">
 <dt id="src.xmlManager.XmlLogFile">
 <em class="property">class </em><code class="descclassname">src.xmlManager.</code><code class="descname">XmlLogFile</code><span class="sig-paren">(</span><em>filePath</em>, <em>rootname</em>, <em>attrib={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/xmlManager.html#XmlLogFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.xmlManager.XmlLogFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to manage writing in salomeTools xml log file</p>
 <dl class="method">
 <dt id="src.xmlManager.XmlLogFile.add_simple_node">
@@ -5284,9 +5329,9 @@ that corresponds to the parameter node</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node_name</strong> -- (str) the name of the node to add</li>
-<li><strong>text</strong> -- (str) the text of the node</li>
-<li><strong>attrib</strong> -- (dict)
+<li><strong>node_name</strong> – (str) the name of the node to add</li>
+<li><strong>text</strong> – (str) the text of the node</li>
+<li><strong>attrib</strong> – (dict)
 The dictionary containing the attribute of the new node</li>
 </ul>
 </td>
@@ -5304,8 +5349,8 @@ The dictionary containing the attribute of the new node</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node_name</strong> -- (str) The name of the node on which append text</li>
-<li><strong>attrib</strong> -- (dict) The attrib to append</li>
+<li><strong>node_name</strong> – (str) The name of the node on which append text</li>
+<li><strong>attrib</strong> – (dict) The attrib to append</li>
 </ul>
 </td>
 </tr>
@@ -5322,8 +5367,8 @@ The dictionary containing the attribute of the new node</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node_name</strong> -- (str) The name of the node on which append text</li>
-<li><strong>text</strong> -- (str) The text to append</li>
+<li><strong>node_name</strong> – (str) The name of the node on which append text</li>
+<li><strong>text</strong> – (str) The text to append</li>
 </ul>
 </td>
 </tr>
@@ -5339,7 +5384,7 @@ The dictionary containing the attribute of the new node</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stylesheet</strong> -- (str) The stylesheet to apply to the xml file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stylesheet</strong> – (str) The stylesheet to apply to the xml file</td>
 </tr>
 </tbody>
 </table>
@@ -5356,11 +5401,11 @@ The dictionary containing the attribute of the new node</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>root_node</strong> -- (etree.Element) 
+<li><strong>root_node</strong> – (etree.Element) 
 the Etree element where to add the new node</li>
-<li><strong>node_name</strong> -- (str) the name of the node to add</li>
-<li><strong>text</strong> -- (str) the text of the node</li>
-<li><strong>attrib</strong> -- (dict) 
+<li><strong>node_name</strong> – (str) the name of the node to add</li>
+<li><strong>text</strong> – (str) the text of the node</li>
+<li><strong>attrib</strong> – (dict) 
 the dictionary containing the attribute(s) of the new node</li>
 </ul>
 </td>
@@ -5378,9 +5423,9 @@ the dictionary containing the attribute(s) of the new node</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>root_node</strong> -- (etree.Element)
+<li><strong>root_node</strong> – (etree.Element)
 the Etree element where to append the new attibutes</li>
-<li><strong>attrib</strong> -- (dict) The attrib to append</li>
+<li><strong>attrib</strong> – (dict) The attrib to append</li>
 </ul>
 </td>
 </tr>
@@ -5399,11 +5444,11 @@ Return the node</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>xmlroot</strong> -- (etree.Element) 
+<li><strong>xmlroot</strong> – (etree.Element) 
 the Etree element where to search</li>
-<li><strong>name_node</strong> -- (str) the name of node to search</li>
-<li><strong>key</strong> -- (str) the key to search</li>
-<li><strong>value</strong> -- (str) the value to search</li>
+<li><strong>name_node</strong> – (str) the name of node to search</li>
+<li><strong>key</strong> – (str) the key to search</li>
+<li><strong>value</strong> – (str) the value to search</li>
 </ul>
 </td>
 </tr>
@@ -5423,9 +5468,9 @@ the Etree element where to search</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> -- (str) The path to the file to create</li>
-<li><strong>xmlroot</strong> -- (etree.Element) the Etree element to write to the file</li>
-<li><strong>stylesheet</strong> -- (str) The stylesheet to add to the begin of the file</li>
+<li><strong>filename</strong> – (str) The path to the file to create</li>
+<li><strong>xmlroot</strong> – (etree.Element) the Etree element to write to the file</li>
+<li><strong>stylesheet</strong> – (str) The stylesheet to add to the begin of the file</li>
 </ul>
 </td>
 </tr>
@@ -5494,18 +5539,20 @@ the Etree element where to search</li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/apidoc_src/src.txt"
+      <li><a href="../_sources/apidoc_src/src.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -5516,11 +5563,11 @@ the Etree element where to search</li>
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/apidoc_src/src.txt"
+      <a href="../_sources/apidoc_src/src.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
