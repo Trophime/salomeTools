@@ -23,6 +23,7 @@ import re
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -90,7 +91,7 @@ class Command(_BaseCommand):
         for p_name, __ in products_infos:
             args_product_opt += ',' + p_name
 
-    ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
+    ldev_products = [p for p in products_infos if PROD.product_is_dev(p[1])]
     args_product_opt_clean = args_product_opt
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)

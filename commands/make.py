@@ -23,6 +23,9 @@ import re
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
+import src.compilation as COMP
+import src.architecture as ARCH
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -130,11 +133,10 @@ def get_products_list(options, cfg, logger):
     
     # Construct the list of tuple containing 
     # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
+    products_infos = PROD.get_products_infos(products, cfg)
     
-    products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_native(pi[1]) or 
-                                     src.product.product_is_fixed(pi[1]))]
+    products_infos = [pi for pi in products_infos \
+      if not(PROD.product_is_native(pi[1]) or PROD.product_is_fixed(pi[1]))]
     
     return products_infos
 
@@ -187,7 +189,7 @@ def make_product(p_name_info, make_option, config, logger):
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
-    builder = src.compilation.Builder(config, logger, p_info)
+    builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
     UTS.log_step(logger, header, "PREPARE ENV")
@@ -200,7 +202,7 @@ def make_product(p_name_info, make_option, config, logger):
 
     nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
     UTS.log_step(logger, header, "MAKE -j" + str(nb_proc))
-    if src.architecture.is_windows():
+    if ARCH.is_windows():
         res = builder.wmake(nb_proc, make_opt_without_j)
     else:
         res = builder.make(nb_proc, make_opt_without_j)

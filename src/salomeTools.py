@@ -300,9 +300,6 @@ class Sat(object):
         # sat <options> <args>
         # (the list of possible options is at the beginning of this file)
         
-
-        self.CONFIG_FILENAME = "sat-config.pyconf"
-        
         self.configManager = None # the config Manager that will be used to set self.config
         self.config = None # the config that will be read using pyconf module
         self.logger = logger # the logger that will be use

@@ -26,6 +26,13 @@ usage:
 
 import pprint as PP
 
+_OK_STATUS = "OK"
+_KO_STATUS = "KO"
+_NA_STATUS = "NA" # not applicable
+_UNKNOWN_STATUS = "ND" # not defined
+_KNOWNFAILURE_STATUS = "KF"
+_TIMEOUT_STATUS = "TIMEOUT"
+
 #####################################################
 class ReturnCode(object):
   """
@@ -53,12 +60,12 @@ class ReturnCode(object):
   >> print("long returnCode string with value", repr(rcFinal)) # KO!
   """
 
-  OK_STATUS = "OK"
-  KO_STATUS = "KO"
-  NA_STATUS = "NA" # not applicable
-  UNKNOWN_STATUS = "ND" # not defined
-  KNOWNFAILURE_STATUS = "KF"
-  TIMEOUT_STATUS = "TIMEOUT"
+  OK_STATUS = _OK_STATUS
+  KO_STATUS = _OK_STATUS
+  NA_STATUS = _NA_STATUS # not applicable
+  UNKNOWN_STATUS = _UNKNOWN_STATUS # not defined
+  KNOWNFAILURE_STATUS = _KNOWNFAILURE_STATUS
+  TIMEOUT_STATUS = _TIMEOUT_STATUS
 
   # integer for sys.exit(anInt)
   # OKSYS and KOSYS seems equal on linux or windows

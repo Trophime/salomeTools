@@ -30,7 +30,9 @@ import src.ElementTree as ET
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
+import src.environment as ENVI
 
 ########################################################################
 # Command class
@@ -97,8 +99,8 @@ Note:     this command will ssh to retrieve information to each machine in the l
     options = self.getOptions()
     
     # check for APPLICATION
-    rc = UTS.check_config_has_application(config)
-    if not rc.isOk(): return rc
+    returnCode = UTS.check_config_has_application(config)
+    if not returnCode.isOk(): return returnCode
 
     application = config.VARS.application
     logger.info(_("Building application for <header>%s<reset>\n") % application)
@@ -185,9 +187,8 @@ Note:     this command will ssh to retrieve information to each machine in the l
     return RCO.ReturnCode("OK")
 
 
-
-# Creates an alias for runAppli.
 def make_alias(appli_path, alias_path, force=False):
+    """Creates an alias for runAppli"""
     assert len(alias_path) > 0, "Bad name for alias"
     if os.path.exists(alias_path) and not force:
         raise Exception(_("Cannot create the alias '%s'\n") % alias_path)
@@ -206,15 +207,13 @@ def add_module_to_appli(out, module, has_gui, module_path, logger, flagline):
               (module, has_gui, module_path))
     return flagline
 
-##
-# Creates the config file to create an application with the list of modules.
 def create_config_file(config, modules, env_file, logger):
-
+    """Creates the config file to create an application with the list of modules."""
     samples = ""
     if 'SAMPLES' in config.APPLICATION.products:
-        samples = src.product.get_product_config(config, 'SAMPLES').source_dir
+        samples = PROD.get_product_config(config, 'SAMPLES').source_dir
 
-    config_file = src.get_tmp_filename(config, "appli_config.xml")
+    config_file = UTS.get_tmp_filename(config, "appli_config.xml")
     f = open(config_file, "w")
 
     f.write('<application>\n')
@@ -227,14 +226,14 @@ def create_config_file(config, modules, env_file, logger):
 
     flagline = False
     for m in modules:
-        mm = src.product.get_product_config(config, m)
-        if src.product.product_is_smesh_plugin(mm):
+        mm = PROD.get_product_config(config, m)
+        if PROD.product_is_smesh_plugin(mm):
             continue
 
         if 'install_dir' in mm and bool(mm.install_dir):
-            if src.product.product_is_cpp(mm):
+            if PROD.product_is_cpp(mm):
                 # cpp module
-                for aa in src.product.get_product_components(mm):
+                for aa in PROD.get_product_components(mm):
                     install_dir = os.path.join(config.APPLICATION.workdir,
                                                "INSTALL")
                     mp = os.path.join(install_dir, aa)
@@ -311,12 +310,11 @@ def customize_app(config, appli_dir, logger):
     f.write(etree.tostring(document, encoding='utf-8'))
     f.close()
 
-##
-# Generates the application with the config_file.
 def generate_application(config, appli_dir, config_file, logger):
+    """Generates the application with the config_file."""
     target_dir = os.path.dirname(appli_dir)
 
-    install_KERNEL_dir = src.product.get_product_config(config,
+    install_KERNEL_dir = PROD.get_product_config(config,
                                                         'KERNEL').install_dir
     script = os.path.join(install_KERNEL_dir, "bin", "salome", "appli_gen.py")
     if not os.path.exists(script):
@@ -325,10 +323,7 @@ def generate_application(config, appli_dir, config_file, logger):
     # Add SALOME python in the environment in order to avoid python version 
     # problems at appli_gen.py call
     if 'Python' in config.APPLICATION.products:
-        envi = src.environment.SalomeEnviron(config,
-                                             src.environment.Environ(
-                                                              dict(os.environ)),
-                                             True)
+        envi = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), True)
         envi.set_a_product('Python', logger)
     
     command = "python %s --prefix=%s --config=%s" % (script,
@@ -354,10 +349,8 @@ def get_step(logger, message, pad=50):
     """
     return "%s %s " % (message, '.' * (pad - len(message.decode("UTF-8"))))
 
-##
-# Creates a SALOME application.
 def create_application(config, appli_dir, catalog, logger, display=True):
-      
+    """reates a SALOME application."""  
     SALOME_modules = get_SALOME_modules(config)
     
     warn = ['KERNEL', 'GUI']
@@ -381,9 +374,9 @@ def create_application(config, appli_dir, catalog, logger, display=True):
 def get_SALOME_modules(config):
     l_modules = []
     for product in config.APPLICATION.products:
-        product_info = src.product.get_product_config(config, product)
-        if (src.product.product_is_SALOME(product_info) or 
-               src.product.product_is_generated(product_info)):
+        product_info = PROD.get_product_config(config, product)
+        if (PROD.product_is_SALOME(product_info) or 
+               PROD.product_is_generated(product_info)):
             l_modules.append(product)
     return l_modules
 
@@ -400,7 +393,7 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     logger.info(get_step(_("Creating environment files")))
     status = "<KO>"
 
-    VersionSalome = src.get_salome_version(config)
+    VersionSalome = UTS.get_salome_version(config)
     if VersionSalome >= 820:
         # for salome 8+ we use a salome context file for the virtual app
         app_shell="cfg"
@@ -457,7 +450,7 @@ def generate_catalog(machines, config, logger):
     cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
     user = getpass.getuser()
 
-    catfile = src.get_tmp_filename(config, "CatalogResources.xml")
+    catfile = UTS.get_tmp_filename(config, "CatalogResources.xml")
     catalog = file(catfile, "w")
     catalog.write("""\
 <!DOCTYPE ResourcesCatalog>

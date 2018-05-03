@@ -23,6 +23,7 @@ import subprocess
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 import commands.prepare
 
@@ -126,7 +127,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
     """
 
     # if the product is native, do not apply patch
-    if src.product.product_is_native(product_info):
+    if PROD.product_is_native(product_info):
         # display and log
         logger.info('%s: ' % UTS.label(product_info.name))
         logger.info(' ' * (max_product_name_len - len(product_info.name)))

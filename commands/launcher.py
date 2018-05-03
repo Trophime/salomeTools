@@ -26,7 +26,10 @@ import stat
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
+import src.environment as ENVI
+import src.fileEnviron as FENV
 
 ########################################################################
 # Command class
@@ -74,7 +77,7 @@ class Command(_BaseCommand):
     if options.name:
         launcher_name = options.name
     else:
-        launcher_name = src.get_launcher_name(config)
+        launcher_name = UTS.get_launcher_name(config)
 
     # set the launcher path
     launcher_path = config.APPLICATION.workdir
@@ -132,31 +135,27 @@ def generate_launch_file(config,
 
     # get KERNEL bin installation path 
     # (in order for the launcher to get python salomeContext API)
-    kernel_cfg = src.product.get_product_config(config, "KERNEL")
-    if not src.product.check_installation(kernel_cfg):
+    kernel_cfg = PROD.get_product_config(config, "KERNEL")
+    if not PROD.check_installation(kernel_cfg):
         raise Exception(_("KERNEL is not installed"))
     kernel_root_dir = kernel_cfg.install_dir
 
     # set kernel bin dir (considering fhs property)
-    if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
+    if UTS.get_property_in_product_cfg(kernel_cfg, "fhs"):
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
     else:
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
 
     # Get the launcher template
-    withProfile = src.fileEnviron.withProfile\
-                     .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
-                     .replace("KERNEL_INSTALL_DIR", kernel_root_dir)
+    withProfile = FENV.withProfile\
+      .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
+      .replace("KERNEL_INSTALL_DIR", kernel_root_dir)
 
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
 
     # create an environment file writer
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           pathlauncher,
-                                           src_root=None,
-                                           env_info=None)
+    writer = ENVI.FileEnvWriter(config, logger, pathlauncher, src_root=None, env_info=None)
 
     # Display some information
     if display:
@@ -207,7 +206,7 @@ def generate_catalog(machines, config, logger):
     user = getpass.getuser()
 
     # Create the catalog path
-    catfile = src.get_tmp_filename(config, "CatalogResources.xml")
+    catfile = UTS.get_tmp_filename(config, "CatalogResources.xml")
     catalog = file(catfile, "w")
     
     # Write into it

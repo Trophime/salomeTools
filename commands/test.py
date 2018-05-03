@@ -30,6 +30,7 @@ import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
 import src.ElementTree as etree
 import src.xmlManager as XMLMGR
+import src.architecture as ARCH
 
 try:
     from hashlib import sha1
@@ -80,14 +81,13 @@ Optional: set the display where to launch SALOME.
     if not options.launcher:
         options.launcher = ""
     elif not os.path.isabs(options.launcher):
-        if not src.config_has_application(config):
-            raise Exception(
-                _("An application is required to use a relative path with option --appli") )
+        returnCode = UTS.check_config_has_application(config)
+        if not returnCode.isOk():
+            msg = _("An application is required to use a relative path with option --appli")
+            raise Exception(msg)
         options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
-
         if not os.path.exists(options.launcher):
-            raise Exception(
-                _("Launcher not found: %s") % options.launcher )
+            raise Exception(_("Launcher %s not found") % options.launcher )
     return
 
   def run(self, cmd_arguments):
@@ -441,7 +441,7 @@ def create_test_report(config,
     
     # Get some information to put in the xml file
     application_name = config.VARS.application
-    withappli = src.config_has_application(config)
+    withappli = UTS.check_config_has_application(config).isOk()
     
     first_time = False
     if not os.path.exists(xml_history_path):
@@ -465,7 +465,6 @@ def create_test_report(config,
                 prod_node.remove(node)
                 
         ASNODE(prod_node, "version_to_download", config.APPLICATION.name)
-        
         ASNODE(prod_node, "out_dir", config.APPLICATION.workdir)
 
     # add environment
@@ -615,7 +614,7 @@ def create_test_report(config,
                     if 'callback' in script:
                         try:
                             cnode = ASNODE(tn, "callback")
-                            if src.architecture.is_windows():
+                            if ARCH.is_windows():
                                 import string
                                 cnode.text = filter(
                                                 lambda x: x in string.printable,
@@ -658,9 +657,9 @@ def create_test_report(config,
 
                     # calculate status
                     nb += 1
-                    if script.res == src.OK_STATUS: nb_pass += 1
-                    elif script.res == src.TIMEOUT_STATUS: nb_timeout += 1
-                    elif script.res == src.KO_STATUS: nb_failed += 1
+                    if script.res == RCO._OK_STATUS: nb_pass += 1
+                    elif script.res == RCO._TIMEOUT_STATUS: nb_timeout += 1
+                    elif script.res == RCO._KO_STATUS: nb_failed += 1
                     else: nb_not_run += 1
 
                     if "known_error" in script:
@@ -680,7 +679,7 @@ def create_test_report(config,
                         if overdue:
                             kf_script.attrib['overdue'] = str(overdue)
                         
-                    elif script.res == src.KO_STATUS:
+                    elif script.res == RCO._KO_STATUS:
                         new_err = ASNODE(new_errors, "new_error")
                         script_path = os.path.join(test.grid,
                                                    test.session, script.name)
@@ -713,7 +712,7 @@ def create_test_report(config,
 
     XMLMGR.write_report(os.path.join(dest_path, xmlname), root, "test.xsl")
     XMLMGR.write_report(xml_history_path, root, "test_history.xsl")
-    return src.OK_STATUS
+    return RCO._OK_STATUS
 
 def generate_history_xml_path(config, test_base):
     """

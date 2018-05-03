@@ -43,6 +43,10 @@ import src.debug as DBG # Easy print stderr (for DEBUG only)
 ##############################################################################
 # file system utilities
 ##############################################################################
+def get_CONFIG_FILENAME():
+    """get initial config.pyconf"""
+    return "sat-config.pyconf"
+    
 def ensure_path_exists(path):
     """Create a path if not existing
     
@@ -273,7 +277,7 @@ def get_config_key(inConfig, key, default):
     :param inConfig: (Config or Mapping etc) The in-Config node.
     :param key: (str) the name of the parameter to get the value
     :param default: (str) The value to return if key is not in-Config
-    :return: if supposedly leaf (str),else (in-Config Node) 
+    :return: (if supposedly leaf (str),else (in-Config Node) 
     """
     if check_has_key(inConfig, key).isOk():
       return inConfig[key]
@@ -316,14 +320,12 @@ def get_log_path(config):
     :return: (str) The path of the logs.
     """
     if "log_dir" not in config.LOCAL:
-        local_file_path = os.path.join(config.VARS.salometoolsway,
-                                      "data",
-                                      "local.pyconf")
+        local_file_path = os.path.join(
+          config.VARS.salometoolsway, "data", "local.pyconf" )
         msg = _("Please define a log_dir in the file %s") % local_file_path
         raise Exception(msg)
       
     log_dir_path = os.path.abspath(config.LOCAL.log_dir)
-    
     return log_dir_path
 
 def get_salome_version(config):
@@ -332,10 +334,7 @@ def get_salome_version(config):
     else:
         KERNEL_info = product.get_product_config(config, "KERNEL")
         VERSION = os.path.join(
-                            KERNEL_info.install_dir,
-                            "bin",
-                            "salome",
-                            "VERSION")
+          KERNEL_info.install_dir, "bin", "salome", "VERSION" )
         if not os.path.isfile(VERSION):
             return None
             

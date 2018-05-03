@@ -21,8 +21,11 @@
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
+import src.compilation as COMP
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
+import src.environment as ENVI
 
 ########################################################################
 # Command class
@@ -75,7 +78,7 @@ class Command(_BaseCommand):
     logger.info( _('Generation of SALOME modules for application %s\n') % \
         UTS.label(config.VARS.application) )
 
-    status = src.KO_STATUS
+    status = RCO._KO_STATUS
 
     # verify that YACSGEN is available
     returnCode = check_yacsgen(config, options.yacsgen, logger)
@@ -110,8 +113,8 @@ class Command(_BaseCommand):
             logger.error(_("Unknown product %s") % lprod)
             continue
 
-        pi = src.product.get_product_config(config, product)
-        if not src.product.product_is_generated(pi):
+        pi = PROD.get_product_config(config, product)
+        if not PROD.product_is_generated(pi):
             logger.info(_("not a generated product %s") % lprod)
             continue
 
@@ -121,7 +124,7 @@ class Command(_BaseCommand):
         except Exception as exc:
             result = str(exc)
 
-        if result != src.OK_STATUS:
+        if result != RCO._OK_STATUS:
             result = _("ERROR: %s") % result
             details.append([product, result])
 
@@ -138,7 +141,7 @@ class Command(_BaseCommand):
 def generate_component_list(config, product_info, context, logger):
     res = "?"
     logger.info("\n")
-    for compo in src.product.get_product_components(product_info):
+    for compo in PROD.get_product_components(product_info):
         header = "  %s %s " % (UTS.label(compo), "." * (20 - len(compo)))
         res = generate_component(config,
                                  compo,
@@ -187,7 +190,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     config.PRODUCTS.addMapping(compo, PYCONF.Mapping(config), "")
     config.PRODUCTS[compo].default = compo_info
 
-    builder = src.compilation.Builder(config, logger, compo_info, check_src=False)
+    builder = COMP.Builder(config, logger, compo_info, check_src=False)
     builder.header = header
 
     # generate the component
@@ -218,7 +221,7 @@ def generate_component(config, compo, product_info, context, header, logger):
 
     
     # determine salome version
-    VersionSalome = src.get_salome_version(config)
+    VersionSalome = UTS.get_salome_version(config)
     if VersionSalome >= 750 :
         use_autotools=False
         builder.log('USE CMAKE', 3)
@@ -236,7 +239,7 @@ def generate_component(config, compo, product_info, context, header, logger):
         sys.stdout = logger.logTxtFile
         sys.stderr = logger.logTxtFile
 
-        if src.product.product_is_mpi(product_info):
+        if PROD.product_is_mpi(product_info):
             salome_compo = module_generator.HXX2SALOMEParaComponent(hxxfile,
                                                                     cpplib,
                                                                     cpp_path)
@@ -245,7 +248,7 @@ def generate_component(config, compo, product_info, context, header, logger):
                                                                 cpplib,
                                                                 cpp_path)
 
-        if src.product.product_has_salome_gui(product_info):
+        if PROD.product_has_salome_gui(product_info):
             # get files to build a template GUI
             gui_files = salome_compo.getGUIfilesTemplate(compo)
         else:
@@ -261,7 +264,7 @@ def generate_component(config, compo, product_info, context, header, logger):
             builder.log('BUID_CONFIGURE (no bootstrap)', 3)
             g.bootstrap(compo_info.source_dir, logger.logTxtFile)
 
-        result = src.OK_STATUS
+        result = RCO._OK_STATUS
     finally:
         sys.stdout = prevstdout
         sys.stderr = prevstderr
@@ -282,20 +285,17 @@ def generate_component(config, compo, product_info, context, header, logger):
     # copy specified logo in generated component install directory
     # rem : logo is not copied in source dir because this would require
     #       to modify the generated makefile
-    logo_path = src.product.product_has_logo(product_info)
+    logo_path = PROD.product_has_logo(product_info)
     if logo_path:
         destlogo = os.path.join(compo_info.install_dir, "share", "salome",
             "resources", compo.lower(), compo + ".png")
-        src.Path(logo_path).copyfile(destlogo)
+        UTS.Path(logo_path).copyfile(destlogo)
 
     return result
 
 def build_context(config, logger):
     products_list = [ 'KERNEL', 'GUI' ]
-    ctxenv = src.environment.SalomeEnviron(config,
-                                           src.environment.Environ(dict(
-                                                                   os.environ)),
-                                           True)
+    ctxenv = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), True)
     ctxenv.silent = True
     ctxenv.set_full_environ(logger, config.APPLICATION.products.keys())
 
@@ -367,7 +367,7 @@ def check_yacsgen(config, directory, logger):
         yacsgen_dir = directory
         yacs_src = _("Using YACSGEN from command line")
     elif 'YACSGEN' in config.APPLICATION.products:
-        yacsgen_info = src.product.get_product_config(config, 'YACSGEN')
+        yacsgen_info = PROD.get_product_config(config, 'YACSGEN')
         yacsgen_dir = yacsgen_info.install_dir
         yacs_src = _("Using YACSGEN from application")
     elif os.environ.has_key("YACSGEN_ROOT_DIR"):
@@ -390,7 +390,7 @@ def check_yacsgen(config, directory, logger):
     
     pv = os.getenv("PYTHON_VERSION")
     if pv is None:
-        python_info = src.product.get_product_config(config, "Python")
+        python_info = PROD.get_product_config(config, "Python")
         pv = '.'.join(python_info.version.split('.')[:2])
     assert pv is not None, "$PYTHON_VERSION not defined"
     yacsgen_dir = os.path.join(yacsgen_dir, "lib", "python%s" % pv, "site-packages")

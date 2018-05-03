@@ -22,6 +22,8 @@ import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
+import src.environment as ENVI
+import src.architecture as ARCH
 
 # list of available shells with extensions
 C_SHELLS = { "bash": "sh", "bat": "bat", "cfg" : "cfg" }
@@ -91,7 +93,7 @@ class Command(_BaseCommand):
     
     if options.shell == []:
         shell = ["bash"]
-        if src.architecture.is_windows():
+        if ARCH.is_windows():
             shell = ["bat"]
     else:
         shell = options.shell
@@ -152,13 +154,9 @@ def write_all_source_files(config,
         if shell not in C_SHELLS:
             logger.warning(_("Unknown shell: %s\n") % shell)
         else:
-            shells_list.append(src.environment.Shell(shell, C_SHELLS[shell]))
+            shells_list.append(ENVI.Shell(shell, C_SHELLS[shell]))
     
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           out_dir,
-                                           src_root,
-                                           env_info)
+    writer = ENVI.FileEnvWriter(config, logger, out_dir, src_root, env_info)
     writer.silent = silent
     files = []
     for_build = True

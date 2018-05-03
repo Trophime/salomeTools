@@ -23,8 +23,10 @@ import shutil
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 import src.system as SYSS
+import src.environment as ENVI
 
 
 ########################################################################
@@ -235,7 +237,7 @@ def get_source_from_dir(product_info, source_dir, logger):
         return False
     
     logger.info('DIR: %s ... ' % UTS.info(product_info.dir_info.dir))
-    retcode = src.Path(product_info.dir_info.dir).copy(source_dir) 
+    retcode = UTS.Path(product_info.dir_info.dir).copy(source_dir) 
     return retcode
     
 def get_source_from_cvs(user,
@@ -362,8 +364,7 @@ def get_product_sources(config,
     
     # Get the application environment
     logger.info(_("Set the application environment\n"))
-    env_appli = src.environment.SalomeEnviron(config,
-                                      src.environment.Environ(dict(os.environ)))
+    env_appli = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)))
     env_appli.set_application_env(logger)
     
     # Call the right function to get sources regarding the product settings
@@ -444,11 +445,11 @@ def get_all_product_sources(config, products, logger):
     for product_name, product_info in products:
         # get product name, product informations and the directory where to put
         # the sources
-        if (not (src.product.product_is_fixed(product_info) or 
-                 src.product.product_is_native(product_info))):
-            source_dir = src.Path(product_info.source_dir)
+        if (not (PROD.product_is_fixed(product_info) or 
+                 PROD.product_is_native(product_info))):
+            source_dir = UTS.Path(product_info.source_dir)
         else:
-            source_dir = src.Path('')
+            source_dir = UTS.Path('')
 
         # display and log
         logger.info('%s: ' % UTS.label(product_name))
@@ -456,7 +457,7 @@ def get_all_product_sources(config, products, logger):
         
         # Remove the existing source directory if 
         # the product is not in development mode
-        is_dev = src.product.product_is_dev(product_info)
+        is_dev = PROD.product_is_dev(product_info)
         if source_dir.exists():
             logger.info("<OK>\n")
             msg = _("Nothing done because source directory existing yet.\n")
@@ -501,8 +502,8 @@ def get_all_product_sources(config, products, logger):
             res = "<KO>"
         
         # print the result
-        if not(src.product.product_is_fixed(product_info) or 
-               src.product.product_is_native(product_info)):
+        if not(PROD.product_is_fixed(product_info) or 
+               PROD.product_is_native(product_info)):
             logger.info('%s\n' % res)
 
     return good_result, results

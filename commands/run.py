@@ -68,7 +68,7 @@ class Command(_BaseCommand):
     UTS.check_config_has_application(config).raiseIfKo()
 
     # Determine launcher path 
-    launcher_name = src.get_launcher_name(config)
+    launcher_name = UTS.get_launcher_name(config)
     launcher_dir = config.APPLICATION.workdir
     
     # Check the launcher existence

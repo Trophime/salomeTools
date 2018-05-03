@@ -36,7 +36,11 @@ import imp
 import subprocess
 
 import src.pyconf as PYCONF
+import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
+import src.environment as ENVI
+import src.architecture as ARCH
 
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
@@ -46,7 +50,7 @@ DEFAULT_TIMEOUT = 150
 # Get directory to be used for the temporary files.
 #
 def getTmpDirDEFAULT():
-    if src.architecture.is_windows():
+    if ARCH.is_windows():
         directory = os.getenv("TEMP")
     else:
         # for Linux: use /tmp/logs/{user} folder
@@ -132,7 +136,7 @@ class Test:
                          'dir': testbase_name }
 
             self.logger.debug("> %s" % cmd)
-            if src.architecture.is_windows():
+            if ARCH.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
@@ -171,12 +175,11 @@ class Test:
             
             # Get the application environment
             self.logger.debug(_("Set the application environment"))
-            env_appli = src.environment.SalomeEnviron(self.config,
-                                      src.environment.Environ(dict(os.environ)))
+            env_appli = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)))
             env_appli.set_application_env(self.logger)
             
             self.logger.debug("> %s" % cmd)
-            if src.architecture.is_windows():
+            if ARCH.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
@@ -248,12 +251,14 @@ class Test:
 
         self.currentTestBase = test_base_name
 
-    ##
-    # Searches if the script is declared in known errors pyconf.
-    # Update the status if needed.
+
     def search_known_errors(self, status, test_grid, test_session, test):
+        """
+        Searches if the script is declared in known errors pyconf.
+        Update the status if needed.
+        """
         test_path = os.path.join(test_grid, test_session, test)
-        if not src.config_has_application(self.config):
+        if not UTS.check_config_has_application(self.config).isOk():
             return status, []
 
         if self.known_errors is None:
@@ -265,7 +270,7 @@ class Test:
         if error is None:
             return status, []
         
-        if status == src.OK_STATUS:
+        if status == RCO._OK_STATUS:
             if not error.fixed:
                 # the error is fixed
                 self.known_errors.fix_error(error)
@@ -287,8 +292,8 @@ class Test:
         delta = self.known_errors.get_expecting_days(error)
         kfres = [ error.date, error.expected, error.comment, error.fixed ]
         if delta < 0:
-            return src.KO_STATUS, kfres
-        return src.KNOWNFAILURE_STATUS, kfres
+            return RCO._KO_STATUS, kfres
+        return RCO._KNOWNFAILURE_STATUS, kfres
 
     ##
     # Read the *.result.py files.
@@ -307,15 +312,15 @@ class Test:
                 gdic, ldic = {}, {}
                 execfile(resfile, gdic, ldic)
 
-                status = src.TIMEOUT_STATUS
+                status = RCO._TIMEOUT_STATUS
                 if not has_timed_out:
-                    status = src.KO_STATUS
+                    status = RCO._KO_STATUS
 
                 if ldic.has_key('status'):
                     status = ldic['status']
 
                 expected = []
-                if status == src.KO_STATUS or status == src.OK_STATUS:
+                if status == RCO._KO_STATUS or status == RCO._OK_STATUS:
                     status, expected = self.search_known_errors(status,
                                                             self.currentgrid,
                                                             self.currentsession,
@@ -324,7 +329,7 @@ class Test:
                 callback = ""
                 if ldic.has_key('callback'):
                     callback = ldic['callback']
-                elif status == src.KO_STATUS:
+                elif status == RCO._KO_STATUS:
                     callback = "CRASH"
 
                 exec_time = -1
@@ -398,19 +403,18 @@ class Test:
     def get_tmp_dir(self):
         # Rare case where there is no KERNEL in grid list 
         # (for example MED_STANDALONE)
-        if ('APPLICATION' in self.config 
-                and 'KERNEL' not in self.config.APPLICATION.products 
-                and 'KERNEL_ROOT_DIR' not in os.environ):
+        if ('APPLICATION' in self.config and \
+           'KERNEL' not in self.config.APPLICATION.products and \
+           'KERNEL_ROOT_DIR' not in os.environ):
             return getTmpDirDEFAULT
         
         # Case where "sat test" is launched in an existing SALOME environment
         if 'KERNEL_ROOT_DIR' in os.environ:
             root_dir =  os.environ['KERNEL_ROOT_DIR']
         
-        if ('APPLICATION' in self.config 
-                and 'KERNEL' in self.config.APPLICATION.products):
-            root_dir = src.product.get_product_config(self.config,
-                                                      "KERNEL").install_dir
+        if ('APPLICATION' in self.config and \
+           'KERNEL' in self.config.APPLICATION.products):
+            root_dir = PROD.get_product_config(self.config, "KERNEL").install_dir
 
         # Case where there the appli option is called (with path to launcher)
         if len(self.launcher) > 0:
@@ -438,15 +442,12 @@ class Test:
                             stdout=subprocess.PIPE,
                             shell=True,
                             executable='/bin/bash').communicate()
-            print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
+            
             for resLine in subproc_res:
                 print "- '#%s#'" % resLine
             
             root_dir = subproc_res[0].split()[-1]
 
-        # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-        #               de remontee de log des tests
-        print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" % root_dir
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
@@ -492,7 +493,7 @@ class Test:
             binSalome = "runSalome"
             binPython = "python" 
             killSalome = "killSalome.py"   
-            src.environment.load_environment(self.config, False, self.logger)         
+            ENVI.load_environment(self.config, False, self.logger)         
             return binSalome, binPython, killSalome
         
         # Case where there the appli option is called (with path to launcher)
@@ -519,7 +520,7 @@ class Test:
                 return binSalome, binPython, killSalome
 
         # SALOME version detection and APPLI repository detection
-        VersionSalome = src.get_salome_version(self.config)
+        VersionSalome = UTS.get_salome_version(self.config)
         appdir = 'APPLI'
         if "APPLI" in self.config and "application_name" in self.config.APPLI:
             appdir = self.config.APPLI.application_name
@@ -531,12 +532,12 @@ class Test:
                                      "runAppli")
             binPython = "python"
             killSalome = "killSalome.py"
-            src.environment.load_environment(self.config, False, self.logger)           
+            ENVI.load_environment(self.config, False, self.logger)           
             return binSalome, binPython, killSalome
         
         # Case where SALOME has the launcher that uses the SalomeContext API
         else:            
-            launcher_name = src.get_launcher_name(self.config)
+            launcher_name = UTS.get_launcher_name(self.config)
             binSalome = os.path.join(self.config.APPLICATION.workdir,
                                      launcher_name)
             
@@ -622,12 +623,12 @@ class Test:
             script_info.name = sr
             script_info.res = script_results[sr][0]
             script_info.time = script_results[sr][1]
-            if script_info.res == src.TIMEOUT_STATUS:
+            if script_info.res == RCO._TIMEOUT_STATUS:
                 script_info.time = time_out
             if script_info.time < 1e-3: script_info.time = 0
 
             callback = script_results[sr][2]
-            if script_info.res != src.OK_STATUS and len(callback) > 0:
+            if script_info.res != RCO._OK_STATUS and len(callback) > 0:
                 script_info.callback = callback
 
             kfres = script_results[sr][3]
@@ -658,13 +659,13 @@ class Test:
                 self.logger.error("Exception in %s\n%s" % \
                     (script_info.name, UTS.red(callback)))
 
-            if script_info.res == src.OK_STATUS:
+            if script_info.res == RCO._OK_STATUS:
                 self.nb_succeed += 1
-            elif script_info.res == src.KNOWNFAILURE_STATUS:
+            elif script_info.res == RCO._KNOWNFAILURE_STATUS:
                 self.nb_acknoledge += 1
-            elif script_info.res == src.TIMEOUT_STATUS:
+            elif script_info.res == RCO._TIMEOUT_STATUS:
                 self.nb_timeout += 1
-            elif script_info.res == src.NA_STATUS:
+            elif script_info.res == RCO._NA_STATUS:
                 self.nb_run -= 1
             elif script_info.res == "?":
                 self.nb_not_run += 1

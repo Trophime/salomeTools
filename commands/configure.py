@@ -21,6 +21,8 @@
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
+import src.compilation as COMP
 from src.salomeTools import _BaseCommand
 
 ########################################################################
@@ -138,9 +140,10 @@ def get_products_list(options, cfg, logger):
     
     # Construct the list of tuple containing 
     # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
+    products_infos = PROD.get_products_infos(products, cfg)
     
-    products_infos = [pi for pi in products_infos if not(src.product.product_is_native(pi[1]) or src.product.product_is_fixed(pi[1]))]
+    products_infos = [pi for pi in products_infos \
+      if not(PROD.product_is_native(pi[1]) or PROD.product_is_fixed(pi[1]))]
     
     return products_infos
 
@@ -195,7 +198,7 @@ def configure_product(p_name_info, conf_option, config, logger):
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
-    builder = src.compilation.Builder(config, logger, p_info)
+    builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
     UTS.log_step(logger, header, "PREPARE ENV")
@@ -205,7 +208,7 @@ def configure_product(p_name_info, conf_option, config, logger):
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     res = 0
-    if src.product.product_is_autotools(p_info):
+    if PROD.product_is_autotools(p_info):
         UTS.log_step(logger, header, "BUILDCONFIGURE")
         res_bc = builder.build_configure()
         UTS.log_res_step(logger, res_bc)
@@ -214,7 +217,7 @@ def configure_product(p_name_info, conf_option, config, logger):
         res_c = builder.configure(conf_option)
         UTS.log_res_step(logger, res_c)
         res += res_c
-    if src.product.product_is_cmake(p_info):
+    if PROD.product_is_cmake(p_info):
         UTS.log_step(logger, header, "CMAKE")
         res_cm = builder.cmake(conf_option)
         UTS.log_res_step(logger, res_cm)

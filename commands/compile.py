@@ -23,6 +23,7 @@ import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
 import src.pyconf as PYCONF
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
@@ -198,10 +199,9 @@ def get_products_list(options, cfg, logger):
     
     # Construct the list of tuple containing 
     # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
+    products_infos = PROD.get_products_infos(products, cfg)
     
-    products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_fixed(pi[1]))]
+    products_infos = [pi for pi in products_infos if not(PROD.product_is_fixed(pi[1]))]
     
     return products_infos
 
@@ -210,10 +210,10 @@ def get_children(config, p_name_p_info):
     p_name, __ = p_name_p_info
     # Get all products of the application
     products = config.APPLICATION.products
-    products_infos = src.product.get_products_infos(products, config)
+    products_infos = PROD.get_products_infos(products, config)
     for p_name_potential_child, p_info_potential_child in products_infos:
-        if ("depend" in p_info_potential_child and 
-                p_name in p_info_potential_child.depend):
+        if ("depend" in p_info_potential_child and \
+            p_name in p_info_potential_child.depend):
             l_res.append(p_name_potential_child)
     return l_res
 
@@ -250,14 +250,13 @@ is not present in application %(appli_name)s.""" %
                       "product_name" : p_name.name, 
                       "appli_name" : config.VARS.application} )
                 raise Exception(msg)
-            prod_info_child = src.product.get_product_config(config,
-                                                              child_name)
+            prod_info_child = PROD.get_product_config(config, child_name)
             pname_pinfo_child = (prod_info_child.name, prod_info_child)
             # Do not append the child if it is native or fixed and 
             # the corresponding parameter is called
             if without_native_fixed:
-                if not(src.product.product_is_native(prod_info_child) or 
-                       src.product.product_is_fixed(prod_info_child)):
+                if not(PROD.product_is_native(prod_info_child) or \
+                   PROD.product_is_fixed(prod_info_child)):
                     l_children.append(pname_pinfo_child)
             else:
                 l_children.append(pname_pinfo_child)
@@ -297,14 +296,13 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
                                     "product_name" : p_name, 
                                     "appli_name" : config.VARS.application})
                 raise Exception(msg)
-            prod_info_father = src.product.get_product_config(config,
-                                                              father_name)
+            prod_info_father = PROD.get_product_config(config, father_name)
             pname_pinfo_father = (prod_info_father.name, prod_info_father)
             # Do not append the father if it is native or fixed and 
             # the corresponding parameter is called
             if without_native_fixed:
-                if not(src.product.product_is_native(prod_info_father) or 
-                       src.product.product_is_fixed(prod_info_father)):
+                if not(PROD.product_is_native(prod_info_father) or \
+                   PROD.product_is_fixed(prod_info_father)):
                     l_fathers.append(pname_pinfo_father)
             else:
                 l_fathers.append(pname_pinfo_father)
@@ -324,7 +322,7 @@ def sort_products(config, p_infos):
     :param p_infos: (list) 
       List of (str, Config) => (product_name, product_info)
     """
-    l_prod_sorted = src.deepcopy_list(p_infos)
+    l_prod_sorted = UTS.deepcopy_list(p_infos)
     for prod in p_infos:
         l_fathers = get_recursive_fathers(config,
                                           prod,
@@ -343,7 +341,7 @@ def sort_products(config, p_infos):
     return l_prod_sorted
 
 def extend_with_fathers(config, p_infos):
-    p_infos_res = src.deepcopy_list(p_infos)
+    p_infos_res = UTS.deepcopy_list(p_infos)
     for p_name_p_info in p_infos:
         fathers = get_recursive_fathers(config,
                                         p_name_p_info,
@@ -354,7 +352,7 @@ def extend_with_fathers(config, p_infos):
     return p_infos_res
 
 def extend_with_children(config, p_infos):
-    p_infos_res = src.deepcopy_list(p_infos)
+    p_infos_res = UTS.deepcopy_list(p_infos)
     for p_name_p_info in p_infos:
         children = get_recursive_children(config,
                                         p_name_p_info,
@@ -368,7 +366,7 @@ def check_dependencies(config, p_name_p_info):
     l_depends_not_installed = []
     fathers = get_recursive_fathers(config, p_name_p_info, without_native_fixed=True)
     for p_name_father, p_info_father in fathers:
-        if not(src.product.check_installation(p_info_father)):
+        if not(PROD.check_installation(p_info_father)):
             l_depends_not_installed.append(p_name_father)
     return l_depends_not_installed
 
@@ -405,7 +403,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
             continue
 
         # Do nothing if the product is native
-        if src.product.product_is_native(p_info):
+        if PROD.product_is_native(p_info):
             UTS.log_step(logger, header, "native")
             logger.info("\n")
             continue
@@ -434,10 +432,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Recompute the product information to get the right install_dir
         # (it could change if there is a clean of the install directory)
-        p_info = src.product.get_product_config(config, p_name)
+        p_info = PROD.get_product_config(config, p_name)
         
         # Check if it was already successfully installed
-        if src.product.check_installation(p_info):
+        if PROD.check_installation(p_info):
             logger.info(_("Already installed\n"))
             continue
         
@@ -530,8 +528,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # build_sources : cmake     -> cmake, make, make install
     # build_sources : script    -> script executions
     res = 0
-    if (src.product.product_is_autotools(p_info) or 
-                                          src.product.product_is_cmake(p_info)):
+    if (PROD.product_is_autotools(p_info) or PROD.product_is_cmake(p_info)):
         res, len_end_line, error_step = compile_product_cmake_autotools(sat,
                                                                   p_name_info,
                                                                   config,
@@ -539,7 +536,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
                                                                   logger,
                                                                   header,
                                                                   len_end)
-    if src.product.product_has_script(p_info):
+    if PROD.product_has_script(p_info):
         res, len_end_line, error_step = compile_product_script(sat,
                                                                   p_name_info,
                                                                   config,
@@ -617,7 +614,7 @@ def compile_product_cmake_autotools(sat,
         # Logging and sat command call for make step
         # Logging take account of the fact that the product has a compilation 
         # script or not
-        if src.product.product_has_script(p_info):
+        if PROD.product_has_script(p_info):
             # if the product has a compilation script, 
             # it is executed during make step
             scrit_path_display = UTS.label(
@@ -704,10 +701,10 @@ def add_compile_config_file(p_info, config):
             compile_cfg.addMapping(prod_name,
                                    PYCONF.Mapping(compile_cfg),
                                    "")
-        prod_dep_info = src.product.get_product_config(config, prod_name, False)
+        prod_dep_info = PROD.get_product_config(config, prod_name, False)
         compile_cfg[prod_name] = prod_dep_info.version
     # Write it in the install directory of the product
-    compile_cfg_path = os.path.join(p_info.install_dir, src.CONFIG_FILENAME)
+    compile_cfg_path = os.path.join(p_info.install_dir, UTS.get_CONFIG_FILENAME())
     f = open(compile_cfg_path, 'w')
     compile_cfg.__save__(f)
     f.close()

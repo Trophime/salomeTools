@@ -162,7 +162,7 @@ Use the --list option to get the possible files.\n""") % config_file
             return RCO.ReturnCode("KO", msg)
         l_conf_files_path.append(file_jobs_cfg)
         # Read the config that is in the file
-        one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
+        one_config_jobs = UTS.read_config_from_a_file(file_jobs_cfg)
         merger.merge(config_jobs, one_config_jobs)
     
     info = [(_("Platform"), config.VARS.dist),
@@ -184,7 +184,7 @@ Use the --list option to get the possible files.\n""") % config_file
     # on every machine
     name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
                             for path in l_conf_files_path]) + ".pyconf"
-    path_pyconf = src.get_tmp_filename(config, name_pyconf)
+    path_pyconf = UTS.get_tmp_filename(config, name_pyconf)
     #Save config
     f = file( path_pyconf , 'w')
     config_jobs.__save__(f)
@@ -329,13 +329,11 @@ class Machine(object):
                              username=self.user,
                              password = self.password)
         except self.paramiko.AuthenticationException:
-            message = src.KO_STATUS + _("Authentication failed")
+            message = RCO._KO_STATUS + _("Authentication failed")
         except self.paramiko.BadHostKeyException:
-            message = (src.KO_STATUS + 
-                       _("The server's host key could not be verified"))
+            message = (RCO._KO_STATUS + _("The server's host key could not be verified"))
         except self.paramiko.SSHException:
-            message = ( _("SSHException error connecting or "
-                          "establishing an SSH session"))            
+            message = ( _("SSHException error connecting or establishing an SSH session"))            
         except:
             message = ( _("Error connecting or establishing an SSH session"))
         else:
@@ -538,7 +536,7 @@ class Job(object):
         cmd_pid = 'ps aux | grep "' + self.command + '" | awk \'{print $2}\''
         (_, out_pid, _) = self.machine.exec_command(cmd_pid, self.logger)
         pids_cmd = out_pid.readlines()
-        pids_cmd = [str(src.only_numbers(pid)) for pid in pids_cmd]
+        pids_cmd = [str(UTS.only_numbers(pid)) for pid in pids_cmd]
         pids+=pids_cmd
         return pids
     
@@ -610,7 +608,7 @@ class Job(object):
             return
         
         # First get the file that contains the list of log files to get
-        tmp_file_path = src.get_tmp_filename(self.config, "list_log_files.txt")
+        tmp_file_path = UTS.get_tmp_filename(self.config, "list_log_files.txt")
         remote_path = os.path.join(self.machine.sat_path, "list_log_files.txt")
         self.machine.sftp.get(remote_path, tmp_file_path)
         
@@ -1210,7 +1208,7 @@ The job will not be launched.
         self.logger.info(tiret_line + text_line + "|\n" + tiret_line)
         
         # The infinite loop that runs the jobs
-        l_jobs_not_started = src.deepcopy_list(self.ljobs)
+        l_jobs_not_started = UTS.deepcopy_list(self.ljobs)
         while len(self._l_jobs_finished) != len(self.ljobs):
             new_job_start = False
             for host_port in self.lhosts:

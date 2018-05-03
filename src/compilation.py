@@ -16,6 +16,13 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""
+utilities to build and compile 
+
+Usage:
+>> import src.compilation as COMP
+"""
+
 import os
 import subprocess
 import sys
@@ -23,6 +30,9 @@ import shutil
 
 from src.options import OptResult
 import src.utilsSat as UTS
+import src.product as PROD
+import src.environment as ENVI
+import src.architecture as ARCH
 
 
 C_COMPILE_ENV_LIST = "CC CXX F77 CFLAGS CXXFLAGS LIBS LDFLAGS".split()
@@ -41,9 +51,9 @@ class Builder:
         self.logger = logger
         self.options = options
         self.product_info = product_info
-        self.build_dir = src.Path(self.product_info.build_dir)
-        self.source_dir = src.Path(self.product_info.source_dir)
-        self.install_dir = src.Path(self.product_info.install_dir)
+        self.build_dir = UTS.Path(self.product_info.build_dir)
+        self.source_dir = UTS.Path(self.product_info.source_dir)
+        self.install_dir = UTS.Path(self.product_info.install_dir)
         self.header = ""
         self.debug_mode = False
         if "debug" in self.product_info and self.product_info.debug == "yes":
@@ -73,21 +83,18 @@ class Builder:
         self.log('\n', 4)
 
         # add products in depend and opt_depend list recursively
-        environ_info = src.product.get_product_dependencies(self.config,
-                                                            self.product_info)
+        environ_info = PROD.get_product_dependencies(self.config, self.product_info)
         #environ_info.append(self.product_info.name)
 
         # create build environment
-        self.build_environ = src.environment.SalomeEnviron(self.config,
-                                      src.environment.Environ(dict(os.environ)),
-                                      True)
+        self.build_environ = ENVI.SalomeEnviron(
+          self.config, ENVI.Environ(dict(os.environ)), True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
         # create runtime environment
-        self.launch_environ = src.environment.SalomeEnviron(self.config,
-                                      src.environment.Environ(dict(os.environ)),
-                                      False)
+        self.launch_environ = ENVI.SalomeEnviron(
+          self.config, ENVI.Environ(dict(os.environ)), False)
         self.launch_environ.silent = True # no need to show here
         self.launch_environ.set_full_environ(self.logger, environ_info)
 
@@ -299,7 +306,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     ##
     # Runs 'make_check'.
     def check(self, command=""):
-        if src.architecture.is_windows():
+        if ARCH.is_windows():
             cmd = 'msbuild RUN_TESTS.vcxproj'
         else :
             if self.product_info.build_source=="autotools" :
@@ -424,7 +431,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     def do_batch_script_build(self, script, nb_proc):
 
-        if src.architecture.is_windows():
+        if ARCH.is_windows():
             make_options = "/maxcpucount:%s" % nb_proc
         else :
             make_options = "-j%s" % nb_proc

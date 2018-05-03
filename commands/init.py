@@ -158,7 +158,7 @@ def check_path(path_to_check, logger):
         return 0
     
     # Get the path
-    path = src.Path(path_to_check)
+    path = UTS.Path(path_to_check)
     
     # If it is a file, do nothing and return error
     if path.isfile():

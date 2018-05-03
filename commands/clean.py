@@ -22,6 +22,7 @@ import re
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 
 # Compatibility python 2/3 for input function
@@ -163,7 +164,7 @@ def get_source_directories(products_infos, without_dev):
     l_dir_source = []
     for __, product_info in products_infos:
         if product_has_dir(product_info, without_dev):
-            l_dir_source.append(src.Path(product_info.source_dir))
+            l_dir_source.append(UTS.Path(product_info.source_dir))
     return l_dir_source
 
 def get_build_directories(products_infos):
@@ -179,7 +180,7 @@ def get_build_directories(products_infos):
     for __, product_info in products_infos:
         if product_has_dir(product_info):
             if "build_dir" in product_info:
-                l_dir_build.append(src.Path(product_info.build_dir))
+                l_dir_build.append(UTS.Path(product_info.build_dir))
     return l_dir_build
 
 def get_install_directories(products_infos):
@@ -194,7 +195,7 @@ def get_install_directories(products_infos):
     l_dir_install = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
-            l_dir_install.append(src.Path(product_info.install_dir))
+            l_dir_install.append(UTS.Path(product_info.install_dir))
     return l_dir_install
 
 def product_has_dir(product_info, without_dev=False):
@@ -208,11 +209,11 @@ def product_has_dir(product_info, without_dev=False):
       True if there is a source, build and install
       directory corresponding to the product described by product_info.
     """
-    if (src.product.product_is_native(product_info) or 
-                            src.product.product_is_fixed(product_info)):
+    if (PROD.product_is_native(product_info) or \
+        PROD.product_is_fixed(product_info)):
         return False
     if without_dev:
-        if src.product.product_is_dev(product_info):
+        if PROD.product_is_dev(product_info):
             return False
     return True
     

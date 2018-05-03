@@ -19,6 +19,9 @@
 """
 Contains the methods 
 relative to the product notion of salomeTools
+
+| usage:
+| >> import src.product as PROD
 """
 
 import os
@@ -26,6 +29,7 @@ import re
 
 import src.pyconf as PYCONF
 import src.utilsSat as UTS
+import src.architecture as ARCH
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
@@ -216,7 +220,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 raise Exception(
                     _("Compilation script not found: %s") % script_name)
             prod_info.compil_script = script_path
-            if src.architecture.is_windows():
+            if ARCH.is_windows():
                 prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
        
         # Check that the script is executable
@@ -315,8 +319,8 @@ def get_product_section(config, product_name, version, section=None):
                         if VERSION_DELIMITER in section_name]
     for section_range in l_section_ranges:
         minimum, maximum = section_range.split(VERSION_DELIMITER)
-        if (src.only_numbers(version) >= src.only_numbers(minimum)
-                    and src.only_numbers(version) <= src.only_numbers(maximum)):
+        if UTS.only_numbers(version) >= UTS.only_numbers(minimum) and \
+           UTS.only_numbers(version) <= UTS.only_numbers(maximum):
             # returns specific information for the versions
             prod_info = config.PRODUCTS[product_name][section_range]
             prod_info.section = section_range
@@ -427,7 +431,7 @@ def check_config_exists(config, prod_dir, prod_info):
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        config_file = os.path.join(prod_dir, dir_or_file, src.CONFIG_FILENAME)
+        config_file = os.path.join(prod_dir, dir_or_file, UTS.get_CONFIG_FILENAME())
         if not os.path.exists(config_file):
             continue
         

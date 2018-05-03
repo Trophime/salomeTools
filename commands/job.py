@@ -107,7 +107,7 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
     UTS.logger_info_tuples(logger, info)
     
     # Read the config that is in the file
-    config_jobs = src.read_config_from_a_file(file_jobs_cfg)
+    config_jobs = UTS.read_config_from_a_file(file_jobs_cfg)
     
     # Find the job and its commands
     found = False
@@ -134,7 +134,7 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
         if cmd_exe == "sat":
             # use the salomeTools parser to get the options of the command
             sat_parser = salomeTools.parser
-            input_parser = src.remove_item_from_list(command.split(' ')[1:], "")
+            input_parser = UTS.remove_item_from_list(command.split(' ')[1:], "")
             (options, argus) = sat_parser.parse_args(input_parser)
             # Verify if there is a changed option
             for attr in dir(options):

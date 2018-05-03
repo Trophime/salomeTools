@@ -20,6 +20,8 @@
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
+import src.compilation as COMP
 from src.salomeTools import _BaseCommand
 
 CHECK_PROPERTY = "has_unit_tests"
@@ -131,11 +133,10 @@ def get_products_list(options, cfg, logger):
     
     # Construct the list of tuple containing 
     # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
+    products_infos = PROD.get_products_infos(products, cfg)
     
-    products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_native(pi[1]) or 
-                                     src.product.product_is_fixed(pi[1]))]
+    products_infos = [pi for pi in products_infos \
+       if not(PROD.product_is_native(pi[1]) or PROD.product_is_fixed(pi[1])) ]
     
     return products_infos
 
@@ -180,13 +181,13 @@ def check_product(p_name_info, config, logger):
     # Verify if the command has to be launched or not
     ignored = False
     msg += ""
-    if not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
+    if not UTS.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
         msg += _("The product %s is defined as not having tests: product ignored.\n") % p_name
         ignored = True
     if "build_dir" not in p_info:
         msg += _("The product %s have no 'build_dir' key: product ignored.\n") % p_name
         ignored = True
-    if not src.product.product_compiles(p_info):
+    if not PROD.product_compiles(p_info):
         msg += _("The product %s is defined as not compiling: product ignored.\n") % p_name
         ignored = True
     
@@ -194,7 +195,7 @@ def check_product(p_name_info, config, logger):
     # Get the command to execute for script products
     cmd_found = True
     command = ""
-    if src.product.product_has_script(p_info) and not ignored:
+    if PROD.product_has_script(p_info) and not ignored:
         command = UTS.get_config_key(p_info, "test_build", "Not found")
         if command == "Not found":
             cmd_found = False
@@ -213,7 +214,7 @@ is not defined in the definition of %(name)\n""") % p_name
     
     # Instantiate the class that manages all the construction commands
     # like cmake, check, make install, make test, environment management, etc...
-    builder = src.compilation.Builder(config, logger, p_info)
+    builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
     UTS.log_step(logger, header, "PREPARE ENV")

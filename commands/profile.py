@@ -23,6 +23,7 @@ import subprocess
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 import src.pyconf as PYCONF
 from src.salomeTools import _BaseCommand
 
@@ -154,18 +155,18 @@ def generate_profile_sources( config, options, logger ):
     Generates the sources of the profile
     """
     #Check script app-quickstart.py exists
-    kernel_cfg = src.product.get_product_config(config, "KERNEL")
+    kernel_cfg = PROD.get_product_config(config, "KERNEL")
     kernel_root_dir = kernel_cfg.install_dir
-    if not src.product.check_installation(kernel_cfg):
+    if not PROD.check_installation(kernel_cfg):
         raise Exception(_("KERNEL is not installed"))
     script = os.path.join(kernel_root_dir,"bin","salome","app-quickstart.py")
     if not os.path.exists( script ):
         raise Exception( _("KERNEL's install has not the script app-quickstart.py") )
 
     # Check that GUI is installed
-    gui_cfg = src.product.get_product_config(config, "GUI")
+    gui_cfg = PROD.get_product_config(config, "GUI")
     gui_root_dir = gui_cfg.install_dir
-    if not src.product.check_installation(gui_cfg):
+    if not PROD.check_installation(gui_cfg):
         raise Exception(_("GUI is not installed"))
 
     #Set prefix option passed to app-quickstart.py

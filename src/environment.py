@@ -16,6 +16,9 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""
+"""
+
 import os
 import subprocess
 import string
@@ -716,7 +719,7 @@ class FileEnvWriter:
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
-        tmp = src.fileEnviron.get_file_environ(env_file, shell, {})
+        tmp = FENV.get_file_environ(env_file, shell, {})
         env = SalomeEnviron(self.config, tmp, forBuild, for_package=for_package)
         env.silent = self.silent
 
@@ -760,9 +763,7 @@ class FileEnvWriter:
             self.logger.info(_("Create configuration file %s\n") % UTS.label(filename.name))
 
         # create then env object
-        tmp = src.fileEnviron.get_file_environ(filename, 
-                                               "cfgForPy", 
-                                               {})
+        tmp = FENV.get_file_environ(filename, "cfgForPy", {})
         # environment for launch
         env = SalomeEnviron(self.config,
                             tmp,

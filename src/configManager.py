@@ -26,12 +26,12 @@ import StringIO as SIO
 import src.debug as DBG
 import src.loggingSat as LOG
 import src.returnCode as RCO
-import src.architecture as ARCH
 import src.utilsSat as UTS
 import src.pyconf as PYCONF
 import src.product as PROD
 import src.environment as ENVI
 import src.fileEnviron as FENV
+import src.architecture as ARCH
 
 
 class ConfigOpener:

@@ -21,6 +21,7 @@
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 
 
@@ -116,7 +117,7 @@ class Command(_BaseCommand):
         else:
             # find all installation paths
             all_products = cfg_APP.products.keys()
-            l_product_cfg = src.product.get_products_infos(all_products, config)
+            l_product_cfg = PROD.get_products_infos(all_products, config)
             l_dir_path = [pi.install_dir for tmp, pi in l_product_cfg]
     
     # Get the files to ignore during the searching
@@ -135,7 +136,7 @@ class Command(_BaseCommand):
         directories_ignored = options.exclude_path
     
     # Check the directories
-    l_path = src.deepcopy_list(l_dir_path)
+    l_path = UTS.deepcopy_list(l_dir_path)
     l_dir_path = []
     for dir_path in l_path:
         if not(os.path.isdir(dir_path)):
