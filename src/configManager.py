@@ -21,6 +21,7 @@ import platform
 import datetime
 import shutil
 import sys
+import StringIO as SIO
 
 import src.debug as DBG
 import src.loggingSat as LOG
@@ -28,6 +29,10 @@ import src.returnCode as RCO
 import src.architecture as ARCH
 import src.utilsSat as UTS
 import src.pyconf as PYCONF
+import src.product as PROD
+import src.environment as ENVI
+import src.fileEnviron as FENV
+
 
 class ConfigOpener:
     """
@@ -476,22 +481,24 @@ class ConfigManager:
         return self.user_config_file_path     
 
 def check_path(path, ext=[]):
-    """Construct a text with the input path and "not found" if it does not exist.
+    """
+    Construct a text with the input path and colorized critical
+    '** not found' if it does not exist.
+    '** bad extension' if extension problem.
     
     :param path: (str) The path to check.
-    :param ext: (list) 
-      An extension. Verify that the path extension is in the list
+    :param ext: (list) Verify that the path extension is in the list
     :return: (str) The string of the path with information
     """
     # check if file exists
     if not os.path.exists(path):
-        return "path '%s' ** not found" % path
+        return "%s <critical>** not found" % path
 
     # check extension
     if len(ext) > 0:
         fe = os.path.splitext(path)[1].lower()
         if fe not in ext:
-            return "path '%s' ** bad extension" % path
+            return "%s <critical>** bad extension" % path
 
     return path
 
@@ -501,100 +508,97 @@ def show_product_info(config, name, logger):
     :param config: (Config) the global configuration.
     :param name: (str) The name of the product
     :param logger: (Logger) The logger instance to use for the display
-    """
-    
-    def msgAdd(label, value):
+    """    
+    def msgFmt(label, value):
         """
         local short named macro for convenience
-        appending show_product_info.msg variable
+        appending show_product_info msg variable
         """
-        msg += "  %s = %s\n" % (label, value)
-        return
-    
+        return "  %s = %s\n" % (label, UTS.info(value))
+        
     msg = "" # used msgAdd()
-    msg += _("%s is a product\n") % UTS.blue(name)
-    pinfo = src.product.get_product_config(config, name)
+    msg += _("\n%s is a product\n") % UTS.label(name)
+    pinfo = PROD.get_product_config(config, name)
+    # DBG.write("pinffo", pinfo, True)
 
     if "depend" in pinfo:
-        msgAdd("depends on", ', '.join(pinfo.depend))
-
+        msg += msgFmt("depends on", ', '.join(sorted(pinfo.depend)))
+    
     if "opt_depend" in pinfo:
-        msgAdd("optional", ', '.join(pinfo.opt_depend))
+        msg += msgFmt("optional", ', '.join(sorted(pinfo.opt_depend)))
 
     # information on pyconf
-    msg += UTS.label("configuration:\n")
+    msg += UTS.label("\nconfiguration:\n")
     if "from_file" in pinfo:
-        msgAdd("pyconf file path", pinfo.from_file)
+        msg += msgFmt("pyconf file path", pinfo.from_file)
     if "section" in pinfo:
-        msgAdd("section", pinfo.section)
+        msg += msgFmt("section", pinfo.section)
 
     # information on prepare
-    msg += UTS.label("prepare:\n")
+    msg += UTS.label("\nprepare:\n")
 
-    is_dev = src.product.product_is_dev(pinfo)
+    is_dev = PROD.product_is_dev(pinfo)
     method = pinfo.get_source
     if is_dev:
         method += " (dev)"
-    msgAdd("get method", method)
+    msg += msgFmt("get method", method)
 
     if method == 'cvs':
-        msgAdd("server", pinfo.cvs_info.server)
-        msgAdd("base module", pinfo.cvs_info.module_base)
-        msgAdd("source", pinfo.cvs_info.source)
-        msgAdd("tag", pinfo.cvs_info.tag)
+        msg += msgFmt("server", pinfo.cvs_info.server)
+        msg += msgFmt("base module", pinfo.cvs_info.module_base)
+        msg += msgFmt("source", pinfo.cvs_info.source)
+        msg += msgFmt("tag", pinfo.cvs_info.tag)
 
     elif method == 'svn':
-        msgAdd("repo", pinfo.svn_info.repo)
+        msg += msgFmt("repo", pinfo.svn_info.repo)
 
     elif method == 'git':
-        msgAdd("repo", pinfo.git_info.repo)
-        msgAdd("tag", pinfo.git_info.tag)
+        msg += msgFmt("repo", pinfo.git_info.repo)
+        msg += msgFmt("tag", pinfo.git_info.tag)
 
     elif method == 'archive':
-        msgAdd("get from", check_path(pinfo.archive_info.archive_name))
+        msg += msgFmt("get from", check_path(pinfo.archive_info.archive_name))
 
     if 'patches' in pinfo:
         for patch in pinfo.patches:
-            msgAdd("patch", check_path(patch))
+            msg += msgFmt("patch", check_path(patch))
 
-    if src.product.product_is_fixed(pinfo):
-        msgAdd("install_dir", check_path(pinfo.install_dir))
+    if PROD.product_is_fixed(pinfo):
+        msg += msgFmt("install_dir", check_path(pinfo.install_dir))
 
-    logger.info(msg) # return possible
-    if src.product.product_is_native(pinfo) or src.product.product_is_fixed(pinfo):
+    if PROD.product_is_native(pinfo) or PROD.product_is_fixed(pinfo):
+        logger.info(msg) # return possible
         return
     
     # information on compilation
-    msg = "\n\n"
-    if src.product.product_compiles(pinfo):
-        msg += "compile:\n"
-        msgAdd("compilation method", pinfo.build_source)
+    if PROD.product_compiles(pinfo):
+        msg += UTS.label("\ncompile:\n")
+        msg += msgFmt("compilation method", pinfo.build_source)
         if pinfo.build_source == "script" and "compil_script" in pinfo:
-            msgAdd("Compilation script", pinfo.compil_script)
+            msg += msgFmt("Compilation script", pinfo.compil_script)
         if 'nb_proc' in pinfo:
-            msgAdd("make -j", pinfo.nb_proc)
-        msgAdd("source dir", check_path(pinfo.source_dir))
+            msg += msgFmt("make -j", pinfo.nb_proc)
+        msg += msgFmt("source dir", check_path(pinfo.source_dir))
         if 'install_dir' in pinfo:
-            msgAdd("build dir", check_path(pinfo.build_dir))
-            msgAdd("install dir", check_path(pinfo.install_dir))
+            msg += msgFmt("build dir", check_path(pinfo.build_dir))
+            msg += msgFmt("install dir", check_path(pinfo.install_dir))
         else:
             msg += "  %s\n" % UTS.red(_("no install dir"))
     else:
         msg += "%s\n" % UTS.red(_("This product does not compile"))
-
-    logger.info(msg)
     
     # information on environment
-    msg = UTS.label("\nenviron:\n")
+    msg += UTS.label("\nenviron:\n")
     if "environ" in pinfo and "env_script" in pinfo.environ:
-        msgAdd("script", check_path(pinfo.environ.env_script))
-    logger.info(msg)
+        msg += msgFmt("script", check_path(pinfo.environ.env_script))
+       
+    outStream = SIO.StringIO()
+    screenEnv = FENV.ScreenEnviron(outStream)
+    salEnv = ENVI.SalomeEnviron(config, screenEnv, False)
     
-    zz = src.environment.SalomeEnviron(
-           config, src.fileEnviron.ScreenEnviron(logger), False)
-    zz.set_python_libdirs()
-    
-    zz.set_a_product(name, logger)
+    salEnv.set_python_libdirs()
+    salEnv.set_a_product(name, logger)
+    logger.info(msg + outStream.getvalue())
     return
         
 def show_patchs(config, logger):
@@ -608,8 +612,8 @@ def show_patchs(config, logger):
     msg = ""
     for product in config.APPLICATION.products:
         nb = len_max-len(product)-2
-        product_info = src.product.get_product_config(config, product)
-        if src.product.product_has_patches(product_info):
+        product_info = PROD.get_product_config(config, product)
+        if PROD.product_has_patches(product_info):
             msg += "<header>%s: <reset>" % product
             msg += " "*nb + "%s\n" % product_info.patches[0]
             if len(product_info.patches) > 1:
@@ -850,6 +854,6 @@ def get_products_list(self, options, cfg, logger):
         
         # Construct the list of tuple containing 
         # the products name and their definition
-        products_infos = src.product.get_products_infos(products, cfg)
+        products_infos = PROD.get_products_infos(products, cfg)
         
         return products_infos

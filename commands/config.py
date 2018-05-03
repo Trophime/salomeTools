@@ -137,13 +137,15 @@ If a name is given the new config file takes the given name."""))
     
     # case : give information about the product in parameter
     elif options.info:
-        src.check_config_has_application(config)
-        if options.info in config.APPLICATION.products:
-            show_product_info(config, options.info, logger)
-            return RCO.ReturnCode("OK", "options.info")
-        raise Exception(
-            _("%(product_name)s is not a product of %(application_name)s.") % \
-            {'product_name' : options.info, 'application_name' : config.VARS.application} )
+        UTS.check_config_has_application(config).raiseIfKo()
+        cfg_products = config.APPLICATION.products
+        if options.info in cfg_products:
+            CFGMGR.show_product_info(config, options.info, logger)
+            return RCO.ReturnCode("OK", "product '%s' found in products" % options.info)
+        msg = _("product '%s' is not defined in application '%s'.") % \
+                (options.info, config.VARS.application)
+        logger.error(msg)
+        return RCO.ReturnCode("KO", msg)
     
     # case : copy an existing <application>.pyconf 
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
@@ -220,10 +222,10 @@ If a name is given the new config file takes the given name."""))
 
     # case : give a synthetic view of all patches used in the application
     elif options.show_patchs:
-        src.check_config_has_application(config)
+        UTS.check_config_has_application(config).raiseIfKo()
         # Print some informations
         logger.info(_('Show the patchs of application %s\n') % \
-                     UTS.label(config.VARS.application))
+                      UTS.label(config.VARS.application))
         show_patchs(config, logger)
     
     # case: print all the products name of the application (internal use for completion)

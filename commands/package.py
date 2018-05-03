@@ -179,7 +179,7 @@ Use one of the following options:
     # if the package contains binaries or sources:
     if options.binaries or options.sources:
         # Check that the command has been called with an application
-        src.check_config_has_application(config)
+        UTS.check_config_has_application(config).raiseIfKo()
 
         # Display information
         logger.info(_("Packaging application %s\n") % \
@@ -1355,7 +1355,7 @@ def update_config(config, prop, value):
     :param prop: (str) The property to filter
     :param value: (str) The value of the property to filter
     """
-    src.check_config_has_application(config)
+    UTS.check_config_has_application(config).raiseIfKo()
     l_product_to_remove = []
     for product_name in config.APPLICATION.products.keys():
         prod_cfg = src.product.get_product_config(config, product_name)

@@ -65,7 +65,7 @@ Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
-n.b. DIM is not assumed in win32
+note: DIM is not assumed in win32
 """
 
 # dir(ST)
@@ -83,7 +83,7 @@ _tags = (
   ("<bright>", ST.BRIGHT),
   ("<normal>", ST.NORMAL),
   ("<reset>", ST.RESET_ALL),
-  ("<info>", ST.RESET_ALL),
+  ("<info>", FG.MAGENTA),
   ("<header>", FG.BLUE),
   ("<label>", FG.CYAN),
   ("<success>", FG.GREEN),

@@ -109,14 +109,15 @@ class Command(_BaseCommand):
     if options.path:
         l_dir_path = options.path
     else:
-        src.check_config_has_application(config)
+        UTS.check_config_has_application(config).raiseIfKo()
+        cfg_APP = config.APPLICATION
         if options.sources:
-            l_dir_path = [os.path.join(config.APPLICATION.workdir, "SOURCES")]
+            l_dir_path = [os.path.join(cfg_APP.workdir, "SOURCES")]
         else:
             # find all installation paths
-            all_products = config.APPLICATION.products.keys()
+            all_products = cfg_APP.products.keys()
             l_product_cfg = src.product.get_products_infos(all_products, config)
-            l_dir_path = [pi.install_dir for __, pi in l_product_cfg]
+            l_dir_path = [pi.install_dir for tmp, pi in l_product_cfg]
     
     # Get the files to ignore during the searching
     files_ignored = default_files_ignored
@@ -218,7 +219,7 @@ class Command(_BaseCommand):
             msg += rep + " "
         logger.info(msg + "\n")
 
-    return 0
+    return RCO.ReturnCode("OK", "find_duplicates command done")
 
 
 def list_directory(lpath, extension_ignored, files_ignored, directories_ignored):

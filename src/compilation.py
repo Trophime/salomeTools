@@ -25,13 +25,7 @@ from src.options import OptResult
 import src.utilsSat as UTS
 
 
-C_COMPILE_ENV_LIST = ["CC",
-                      "CXX",
-                      "F77",
-                      "CFLAGS",
-                      "CXXFLAGS",
-                      "LIBS",
-                      "LDFLAGS"]
+C_COMPILE_ENV_LIST = "CC CXX F77 CFLAGS CXXFLAGS LIBS LDFLAGS".split()
 
 class Builder:
     """
@@ -454,7 +448,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     def do_script_build(self, script, number_of_proc=0):
         # define make options (may not be used by the script)
         if number_of_proc==0:
-            nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
+            nb_proc = UTS.get_config_key(self.product_info,"nb_proc", 0)
             if nb_proc == 0: 
                 nb_proc = self.config.VARS.nb_proc
         else:

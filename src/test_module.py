@@ -229,14 +229,13 @@ class Test:
             return 1
 
         if test_base_info.get_sources == "dir":
-            self.prepare_testbase_from_dir(test_base_name,
-                                           test_base_info.info.dir)
+            self.prepare_testbase_from_dir(test_base_name, test_base_info.info.dir)
         elif test_base_info.get_sources == "git":
             self.prepare_testbase_from_git(test_base_name,
                                        test_base_info.info.base,
                                        self.config.APPLICATION.test_base.tag)
         elif test_base_info.get_sources == "svn":
-            svn_user = src.get_cfg_param(test_base_info.info,
+            svn_user = UTS.get_config_key(test_base_info.info,
                                          "svn_user",
                                          self.config.USER.svn_user)
             self.prepare_testbase_from_svn(svn_user,

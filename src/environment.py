@@ -21,7 +21,10 @@ import subprocess
 import string
 import sys
 
+import src.utilsSat as UTS
 import src.pyconf as PYCONF
+import src.product as PROD
+import src.architecture as ARCH
 
 class Environ:
     """
@@ -318,15 +321,13 @@ class SalomeEnviron:
         
         :param lProducts: (list) List of products to potentially add
         """
-        lProdHasGui = [p for p in lProducts if 'properties' in 
-            src.product.get_product_config(self.cfg, p) and
-            'has_salome_gui' in 
-            src.product.get_product_config(self.cfg, p).properties and
-            src.product.get_product_config(self.cfg,
-                                           p).properties.has_salome_gui=='yes']
+        lProdHasGui = [ p for p in lProducts if 'properties' in 
+            PROD.get_product_config(self.cfg, p) and \
+            'has_salome_gui' in PROD.get_product_config(self.cfg, p).properties and \
+            PROD.get_product_config(self.cfg, p).properties.has_salome_gui=='yes' ]
         lProdName = []
         for ProdName in lProdHasGui:
-            pi = src.product.get_product_config(self.cfg, ProdName)
+            pi = PROD.get_product_config(self.cfg, ProdName)
             if 'component_name' in pi:
                 lProdName.append(pi.component_name)
             else:
@@ -377,10 +378,10 @@ class SalomeEnviron:
             elif not self.silent:
                 logger.warning(_("No install_dir for product %s\n") % product_info.name)
         
-        source_in_package = src.get_property_in_product_cfg(product_info, "sources_in_package")
+        source_in_package = UTS.get_property_in_product_cfg(product_info, "sources_in_package")
         if not self.for_package or source_in_package == "yes":
             # set source dir, unless no source dir
-            if not src.product.product_is_fixed(product_info):
+            if not PROD.product_is_fixed(product_info):
                 src_dir = product_info.name + "_SRC_DIR"
                 if not self.is_defined(src_dir):
                     if not self.for_package:
@@ -410,7 +411,7 @@ class SalomeEnviron:
                 lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
                 l_binpath_libpath.append( (bin_path, lib_path) )
 
-        if src.get_property_in_product_cfg(pi, "fhs"):
+        if UTS.get_property_in_product_cfg(pi, "fhs"):
             lib_path = os.path.join(env_root_dir, 'lib')
             pylib1_path = os.path.join(env_root_dir, self.python_lib0)
             pylib2_path = os.path.join(env_root_dir, self.python_lib1)
@@ -428,7 +429,7 @@ class SalomeEnviron:
         for bin_path, lib_path in l_binpath_libpath:
             if not self.forBuild:
                 self.prepend('PATH', bin_path)
-                if src.architecture.is_windows():
+                if ARCH.is_windows():
                     self.prepend('PATH', lib_path)
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
@@ -454,7 +455,7 @@ class SalomeEnviron:
         for bin_path, lib_path in l_binpath_libpath:
             if not self.forBuild:
                 self.prepend('PATH', bin_path)
-                if src.architecture.is_windows():
+                if ARCH.is_windows():
                     self.prepend('PATH', lib_path)
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
@@ -512,37 +513,35 @@ class SalomeEnviron:
         :param product: (str) The product name
         :param logger: (Logger) The logger instance to display messages
         """
-
+        logger.debug(_("Setting environment for %s\n") % product)
+        
         # Get the informations corresponding to the product
-        pi = src.product.get_product_config(self.cfg, product)
+        pi = PROD.get_product_config(self.cfg, product)
         
         if self.for_package:
             pi.install_dir = os.path.join("out_dir_Path", self.for_package, pi.name)
-
-        if not self.silent:
-            logger.info(_("Setting environment for %s\n") % product)
 
         self.add_line(1)
         self.add_comment('setting environ for ' + product)
             
         # Do not define environment if the product is native
-        if src.product.product_is_native(pi):
-            if src.product.product_has_env_script(pi):
+        if PROD.product_is_native(pi):
+            if PROD.product_has_env_script(pi):
                 self.run_env_script(pi, native=True)
             return
                
         # Set an additional environment for SALOME products
-        if src.product.product_is_salome(pi):
+        if PROD.product_is_salome(pi):
             # set environment using definition of the product
             self.set_salome_minimal_product_env(pi, logger)
             self.set_salome_generic_product_env(pi)
         
-        if src.product.product_is_cpp(pi):
+        if PROD.product_is_cpp(pi):
             # set a specific environment for cpp modules
             self.set_salome_minimal_product_env(pi, logger)
             self.set_cpp_env(pi)
             
-            if src.product.product_is_generated(pi):
+            if PROD.product_is_generated(pi):
                 if "component_name" in pi:
                     # hack the source and install directories in order to point  
                     # on the generated product source install directories
@@ -580,8 +579,6 @@ class SalomeEnviron:
                 self.run_env_script(pi, logger)
 
         
-            
-
     def run_env_script(self, product_info, logger=None, native=False):
         """Runs an environment script. 
         

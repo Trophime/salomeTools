@@ -264,24 +264,21 @@ def check_config_has_profile(config):
       msg = _("An 'APPLICATION.profile' is found in config.")
       return RCO.ReturnCode("OK", msg)
 
-
-def config_has_application(config):
-    return 'APPLICATION' in config
-
-def get_cfg_param(config, param_name, default):
+def get_config_key(inConfig, key, default):
     """
-    Search for param_name value in config.
-    If param_name is not in config, then return default,
+    Search for key value in config node 'inConfig[key]' as 'inConfig.key'
+    If key is not in inCconfig, then return default,
     else, return the found value
        
-    :param config: (Config) The config.
-    :param param_name: (str) the name of the parameter to get the value
-    :param default: (str) The value to return if param_name is not in config
-    :return: (str) see initial description of the function
+    :param inConfig: (Config or Mapping etc) The in-Config node.
+    :param key: (str) the name of the parameter to get the value
+    :param default: (str) The value to return if key is not in-Config
+    :return: if supposedly leaf (str),else (in-Config Node) 
     """
-    if param_name in config:
-        return config[param_name]
-    return default
+    if check_has_key(inConfig, key).isOk():
+      return inConfig[key]
+    else:
+      return default
 
 def get_base_path(config):
     """Returns the path of the products base.

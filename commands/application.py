@@ -108,7 +108,8 @@ Note:     this command will ssh to retrieve information to each machine in the l
         msg = _("The section APPLICATION.virtual_app is not defined in the product.")
         logger.error(UTS.red(msg))
         return RCO.ReturnCode("KO", msg)
-
+    virtual_app = config.APPLICATION.virtual_app
+    
     # get application dir
     target_dir = config.APPLICATION.workdir
     if options.target:
@@ -116,16 +117,15 @@ Note:     this command will ssh to retrieve information to each machine in the l
 
     # set list of modules
     if options.modules:
-        config.APPLICATION.virtual_app['modules'] = options.modules
+        virtual_app['modules'] = options.modules
 
     # set name and application_name
     if options.name:
-        config.APPLICATION.virtual_app['name'] = options.name
-        config.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
+        virtual_app['name'] = options.name
+        virtual_app['application_name'] = options.name + "_appdir"
     
-    application_name = src.get_cfg_param(config.APPLICATION.virtual_app,
-                                         "application_name",
-                                         config.APPLICATION.virtual_app.name + "_appdir")
+    default = config.APPLICATION.virtual_app.name + "_appdir"
+    application_name = UTS.get_config_key(virtual_app, "application_name", default)
     appli_dir = os.path.join(target_dir, application_name)
 
     fmt = "  %s = %s\n" # as "  label = value\n"
@@ -139,21 +139,18 @@ Note:     this command will ssh to retrieve information to each machine in the l
     elif options.gencat:
         # generate catalog for given list of computers
         catalog_src = options.gencat
-        catalog = generate_catalog(options.gencat.split(","),
-                                   config,logger)
-    elif 'catalog' in config.APPLICATION.virtual_app:
+        catalog = generate_catalog(options.gencat.split(","), config,logger)
+    elif 'catalog' in virtual_app:
         # use catalog specified in the product
-        if config.APPLICATION.virtual_app.catalog.endswith(".xml"):
+        if virtual_app.catalog.endswith(".xml"):
             # catalog as a file
-            catalog = config.APPLICATION.virtual_app.catalog
+            catalog = virtual_app.catalog
         else:
             # catalog as a list of computers
-            catalog_src = config.APPLICATION.virtual_app.catalog
-            mlist = filter(lambda l: len(l.strip()) > 0,
-                           config.APPLICATION.virtual_app.catalog.split(","))
+            catalog_src = virtual_app.catalog
+            mlist = filter(lambda l: len(l.strip()) > 0, virtual_app.catalog.split(","))
             if len(mlist) > 0:
-                catalog = generate_catalog(config.APPLICATION.virtual_app.catalog.split(","),
-                                           config, logger)
+                catalog = generate_catalog(virtual_app.catalog.split(","), config, logger)
 
     # display which catalog is used
     if len(catalog) > 0:
@@ -250,7 +247,7 @@ def create_config_file(config, modules, env_file, logger):
             else:
                 # regular module
                 mp = mm.install_dir
-                gui = src.get_cfg_param(mm, "has_gui", "yes")
+                gui = UTS.get_config_key(mm, "has_gui", "yes")
                 flagline = add_module_to_appli(f, m, gui, mp, logger, flagline)
 
     f.write('</modules>\n')

@@ -88,19 +88,19 @@ class Command(_BaseCommand):
     logger = self.getLogger()
     options = self.getOptions()
   
-    src.check_config_has_application(config)
+    UTS.check_config_has_application(config).raiseIfKo()
 
     if options.prefix is None:
         msg = _("The --%s argument is required\n") % "prefix"
         logger.error(msg)
         return RCO.ReturnCode("KO", msg)
     
-    retcode = generate_profile_sources(config, options, logger)
+    returnCode = generate_profile_sources(config, options, logger)
 
     if not options.no_update :
         update_pyconf(config, options)
 
-    return retcode
+    return returnCode
 
 
 # Class that overrides common.Reference

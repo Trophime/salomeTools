@@ -202,7 +202,7 @@ def find_products_with_patchs(l_products):
     l_res = []
     for p_name_p_cfg in l_products:
         __, prod_cfg = p_name_p_cfg
-        l_patchs = src.get_cfg_param(prod_cfg, "patches", [])
+        l_patchs = UTS.get_config_key(prod_cfg, "patches", [])
         if len(l_patchs)>0:
             l_res.append(p_name_p_cfg)
     return l_res

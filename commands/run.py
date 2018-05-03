@@ -65,7 +65,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
 
     # check for product
-    src.check_config_has_application(config)
+    UTS.check_config_has_application(config).raiseIfKo()
 
     # Determine launcher path 
     launcher_name = src.get_launcher_name(config)
@@ -74,8 +74,8 @@ class Command(_BaseCommand):
     # Check the launcher existence
     if launcher_name not in  os.listdir(launcher_dir):
         message = _("""\
-The launcher %(1)s was not found in directory '%(2)s'.
-Did you run the command 'sat launcher' ?\n""") % {"1": launcher_name, "2": launcher_dir}
+The launcher %s was not found in directory '%s'.
+Did you run the command 'sat launcher' ?""") % (launcher_name, launcher_dir)
         raise Exception(message)
           
     launcher_path = os.path.join(launcher_dir, launcher_name)

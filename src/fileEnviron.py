@@ -17,6 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import src.utilsSat as UTS
 
 bat_header="""\
 @echo off
@@ -76,10 +77,12 @@ export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
 ###########################################################################
 """
 
-cfg_header="""[SALOME Configuration]
+cfg_header="""\
+[SALOME Configuration]
 """
 
-Launcher_header="""# a generated SALOME Configuration file using python syntax
+Launcher_header="""\
+# a generated SALOME Configuration file using python syntax
 """
 
 def get_file_environ(output, shell, environ=None):
@@ -381,8 +384,8 @@ class ContextFileEnviron(FileEnviron):
         :param key: (str) the environment variable
         :param command: (str) the command to execute
         """
-        raise NotImplementedError("command_value is not implement "
-                                  "for salome context files!")
+        raise NotImplementedError(
+          "command_value is not implemented for salome context files.")
 
     def add_echo(self, text):
         """Add a comment
@@ -396,7 +399,7 @@ class ContextFileEnviron(FileEnviron):
         
         :param text: (str) the warning to add
         """
-        self.add_comment("WARNING %s"  % warning)
+        self.add_comment("WARNING %s" % warning)
 
     def prepend_value(self, key, value, sep=os.pathsep):
         """prepend value to key using sep
@@ -675,10 +678,8 @@ class ScreenEnviron(FileEnviron):
 
     def write(self, command, name, value, sign="="):
         import src
-        self.output.write("  %s%s %s %s %s\n" % \
-            (UTS.label(command),
-             " " * (12 - len(command)),
-             UTS.info(name), sign, value))
+        self.output.write("  %s%s %s %s %s\n" %  \
+          (UTS.label(command), " " * (12 - len(command)), UTS.info(name), sign, value) )
 
     def is_defined(self, name):
         return self.defined.has_key(name)
@@ -707,6 +708,7 @@ class ScreenEnviron(FileEnviron):
 
     def run_env_script(self, module, script):
         self.write("load", script, "", sign="")
+
 
 # The SALOME launcher template 
 withProfile =  """\

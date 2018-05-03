@@ -160,7 +160,7 @@ class Command(_BaseCommand):
 
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
-        src.check_config_has_application(config)
+        UTS.check_config_has_application(config).raiseIfKo()
         rootLogDir = os.path.join(config.APPLICATION.workdir, 'LOGS')
         UTS.ensure_path_exists(rootLogDir)
         log_dirs = os.listdir(rootLogDir)

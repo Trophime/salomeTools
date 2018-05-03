@@ -189,7 +189,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
     except:
       aStream.write("<blue>%s%s<reset> : '%s'\n" % (indstr, path, str(config)))
       return     
-    for key in sorted(order):
+    for key in sorted(data): #order): # data as sort alphabetical, order as initial order
       value = data[key]
       strType = str(type(value))
       if debug: print indstr + 'strType = %s' % strType, key

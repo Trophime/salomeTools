@@ -70,7 +70,7 @@ class Command(_BaseCommand):
     options = self.getOptions()
     
     # Check that the command has been called with an application
-    src.check_config_has_application(config)
+    UTS.check_config_has_application(config).raiseIfKo()
     
     logger.info( _('Generation of SALOME modules for application %s\n') % \
         UTS.label(config.VARS.application) )

@@ -195,7 +195,7 @@ def check_product(p_name_info, config, logger):
     cmd_found = True
     command = ""
     if src.product.product_has_script(p_info) and not ignored:
-        command = src.get_cfg_param(p_info, "test_build", "Not found")
+        command = UTS.get_config_key(p_info, "test_build", "Not found")
         if command == "Not found":
             cmd_found = False
             msg = _("""\
