@@ -31,6 +31,7 @@ from src.salomeTools import _BaseCommand
 import src.ElementTree as etree
 import src.xmlManager as XMLMGR
 import src.architecture as ARCH
+import src.test_module as TMOD
 
 try:
     from hashlib import sha1
@@ -45,7 +46,7 @@ class Command(_BaseCommand):
   """
   The test command runs a test base on a SALOME installation.
   
-  | examples:
+  | Examples:
   | >> sat test SALOME --grid GEOM --session light
   """
   
@@ -226,19 +227,19 @@ Please specify an application or a launcher
 
     fmt = "  %s = %s\n"
     msg  = fmt % (_('Display'), os.environ['DISPLAY'])
-    msg += fmt % (_('Timeout'), src.test_module.DEFAULT_TIMEOUT)
+    msg += fmt % (_('Timeout'), TMOD.DEFAULT_TIMEOUT)
     msg += fmt % (_("Working dir"), base_dir)
     logger.info(msg)
 
     # create the test object
-    test_runner = src.test_module.Test(config,
-                                  logger,
-                                  base_dir,
-                                  testbase=test_base,
-                                  grids=options.grids,
-                                  sessions=options.sessions,
-                                  launcher=options.launcher,
-                                  show_desktop=show_desktop)
+    test_runner = TMOD.Test(config,
+                            logger,
+                            base_dir,
+                            testbase=test_base,
+                            grids=options.grids,
+                            sessions=options.sessions,
+                            launcher=options.launcher,
+                            show_desktop=show_desktop)
     
     if not test_runner.test_base_found:
         # Fail 
@@ -435,6 +436,9 @@ def create_test_report(config,
     """
     Creates the XML report for a product.
     """
+    ASNODE = XMLMGR.add_simple_node # shortcut
+    ETELEM = etree.Element # shortcut
+
     # get the date and hour of the launching of the command, in order to keep
     # history
     date_hour = config.VARS.datehour
@@ -446,8 +450,8 @@ def create_test_report(config,
     first_time = False
     if not os.path.exists(xml_history_path):
         first_time = True
-        root = etree.Element("salome")
-        prod_node = etree.Element("product", name=application_name, build=xmlname)
+        root = ETELEM("salome")
+        prod_node = ETELEM("product", name=application_name, build=xmlname)
         root.append(prod_node)
     else:
         root = etree.parse(xml_history_path).getroot()
@@ -455,8 +459,6 @@ def create_test_report(config,
     
     prod_node.attrib["history_file"] = os.path.basename(xml_history_path)
     prod_node.attrib["global_res"] = retcode
-    
-    ASNODE = XMLMGR.add_simple_node # shortcut
     
     if withappli:
         if not first_time:
@@ -473,17 +475,12 @@ def create_test_report(config,
                 prod_node.remove(node)
         
     exec_node = ASNODE(prod_node, "exec")
-    exec_node.append(etree.Element("env", name="Host", value=config.VARS.node))
-    exec_node.append(etree.Element("env", name="Architecture",
-                                   value=config.VARS.dist))
-    exec_node.append(etree.Element("env", name="Number of processors",
-                                   value=str(config.VARS.nb_proc)))    
-    exec_node.append(etree.Element("env", name="Begin date",
-                                   value=src.parse_date(date_hour)))
-    exec_node.append(etree.Element("env", name="Command",
-                                   value=config.VARS.command))
-    exec_node.append(etree.Element("env", name="sat version",
-                                   value=config.INTERNAL.sat_version))
+    exec_node.append(ETELEM("env", name="Host", value=config.VARS.node))
+    exec_node.append(ETELEM("env", name="Architecture", value=config.VARS.dist))
+    exec_node.append(ETELEM("env", name="Number of processors", value=str(config.VARS.nb_proc)))    
+    exec_node.append(ETELEM("env", name="Begin date", value=UTS.parse_date(date_hour)))
+    exec_node.append(ETELEM("env", name="Command", value=config.VARS.command))
+    exec_node.append(ETELEM("env", name="sat version", value=config.INTERNAL.sat_version))
 
     if 'TESTS' in config:
         if first_time:

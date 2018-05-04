@@ -54,6 +54,8 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
+<span class="kn">import</span> <span class="nn">src.compilation</span> <span class="k">as</span> <span class="nn">COMP</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 
 <span class="c1">########################################################################</span>
@@ -65,7 +67,7 @@
 <span class="sd">  This is done only for the products that are constructed using a script (build_source : &#39;script&#39;).</span>
 <span class="sd">  Otherwise, nothing is done.</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  |  &gt;&gt; sat script SALOME --products Python,numpy</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -169,11 +171,10 @@
     
     <span class="c1"># Construct the list of tuple containing </span>
     <span class="c1"># the products name and their definition</span>
-    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
     
-    <span class="n">products_infos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span> <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">products_infos</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span>
-                                     <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> 
-                                     <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="mi">1</span><span class="p">]))]</span>
+    <span class="n">products_infos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span> <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">products_infos</span> \
+      <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">PROD</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="mi">1</span><span class="p">]))]</span>
     
     <span class="k">return</span> <span class="n">products_infos</span></div>
 
@@ -223,14 +224,14 @@
     <span class="n">test1</span> <span class="o">=</span> <span class="s2">&quot;properties&quot;</span> <span class="ow">in</span> <span class="n">p_info</span> <span class="ow">and</span> \
             <span class="s2">&quot;compilation&quot;</span> <span class="ow">in</span> <span class="n">p_info</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span> \
             <span class="n">p_info</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">compilation</span> <span class="o">==</span> <span class="s2">&quot;no&quot;</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="n">test1</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_has_script</span><span class="p">(</span><span class="n">p_info</span><span class="p">))</span> <span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">test1</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_has_script</span><span class="p">(</span><span class="n">p_info</span><span class="p">))</span> <span class="p">):</span>
         <span class="n">UTS</span><span class="o">.</span><span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;ignored&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span>
 
     <span class="c1"># Instantiate the class that manages all the construction commands</span>
     <span class="c1"># like cmake, make, make install, make test, environment management, etc...</span>
-    <span class="n">builder</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">compilation</span><span class="o">.</span><span class="n">Builder</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">p_info</span><span class="p">)</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">COMP</span><span class="o">.</span><span class="n">Builder</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">p_info</span><span class="p">)</span>
     
     <span class="c1"># Prepare the environment</span>
     <span class="n">UTS</span><span class="o">.</span><span class="n">log_step</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="s2">&quot;PREPARE ENV&quot;</span><span class="p">)</span>

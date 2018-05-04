@@ -18,9 +18,9 @@
 
 """
 Contains the methods 
-relative to the product notion of salomeTools
+relative to the product notion of salomeTools.
 
-| usage:
+| Usage:
 | >> import src.product as PROD
 """
 
@@ -383,7 +383,7 @@ def get_base_install_dir(config, prod_info, version):
     :param version: (str) The version of the product    
     :return: (str) The path of the product installation
     """    
-    base_path = src.get_base_path(config) 
+    base_path = UTS.get_base_path(config) 
     prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
     if not os.path.exists(prod_dir):
         return os.path.join(prod_dir, "config-1")

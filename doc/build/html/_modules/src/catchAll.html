@@ -50,18 +50,18 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
-<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">define class as a simple dictionary with keys</span>
 <span class="sd">with pretty print __str__ and __repr__ (indented as recursive)</span>
 <span class="sd">and jsonDumps()</span>
 
-<span class="sd">usage:</span>
-<span class="sd">  &gt;&gt; import catchAll as CAA</span>
-<span class="sd">  &gt;&gt; a = CAA.CatchAll()</span>
-<span class="sd">  &gt;&gt; a.tintin = &quot;reporter&quot;</span>
-<span class="sd">  &gt;&gt; a.milou = &quot;dog&quot;</span>
-<span class="sd">  &gt;&gt; print(&quot;a=%s&quot; % a)</span>
-<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import catchAll as CAA</span>
+<span class="sd">| &gt;&gt; a = CAA.CatchAll()</span>
+<span class="sd">| &gt;&gt; a.tintin = &quot;reporter&quot;</span>
+<span class="sd">| &gt;&gt; a.milou = &quot;dog&quot;</span>
+<span class="sd">| &gt;&gt; print(&quot;a=%s&quot; % a)</span>
+<span class="sd">| &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
@@ -91,28 +91,27 @@
 
 <span class="c1">########################################################################################</span>
 <div class="viewcode-block" id="CatchAll"><a class="viewcode-back" href="../../apidoc_src/src.html#src.catchAll.CatchAll">[docs]</a><span class="k">class</span> <span class="nc">CatchAll</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;\</span>
+  <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  class as simple dynamic dictionary </span>
 <span class="sd">  with predefined keys as properties in</span>
 <span class="sd">  inherited classes through __init__ method. Or NOT. </span>
 <span class="sd">  with pretty print __str__ and __repr__ (indented as recursive)</span>
 <span class="sd">  with jsonDumps()</span>
 <span class="sd">  </span>
-<span class="sd">  usage:</span>
+<span class="sd">  | Usage:</span>
+<span class="sd">  | &gt;&gt; import catchAll as CAA</span>
+<span class="sd">  | &gt;&gt; a = CAA.CatchAll()</span>
+<span class="sd">  | &gt;&gt; a.tintin = &quot;reporter&quot;</span>
+<span class="sd">  | &gt;&gt; a.milou = &quot;dog&quot;</span>
+<span class="sd">  | &gt;&gt; print(&quot;a=%s&quot; % a)</span>
+<span class="sd">  | &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
+<span class="sd">  | </span>
+<span class="sd">  | as</span>
 <span class="sd">  </span>
-<span class="sd">  &gt;&gt; import catchAll as CAA</span>
-<span class="sd">  &gt;&gt; a = CAA.CatchAll()</span>
-<span class="sd">  &gt;&gt; a.tintin = &quot;reporter&quot;</span>
-<span class="sd">  &gt;&gt; a.milou = &quot;dog&quot;</span>
-<span class="sd">  &gt;&gt; print(&quot;a=%s&quot; % a)</span>
-<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a.tintin)</span>
-
-<span class="sd">  as</span>
-<span class="sd">  </span>
-<span class="sd">  &gt;&gt; a = {}</span>
-<span class="sd">  &gt;&gt; a[&quot;tintin&quot;] = &quot;reporter&quot;</span>
-<span class="sd">  &gt;&gt; a[&quot;milou&quot;] = &quot;dog&quot;</span>
-<span class="sd">  &gt;&gt; print(&quot;tintin: %s&quot; % a[&quot;tintin&quot;]</span>
+<span class="sd">  | &gt;&gt; a = {}</span>
+<span class="sd">  | &gt;&gt; a[&quot;tintin&quot;] = &quot;reporter&quot;</span>
+<span class="sd">  | &gt;&gt; a[&quot;milou&quot;] = &quot;dog&quot;</span>
+<span class="sd">  | &gt;&gt; print(&quot;tintin: %s&quot; % a[&quot;tintin&quot;]</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
   <span class="k">def</span> <span class="nf">__repr__asList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

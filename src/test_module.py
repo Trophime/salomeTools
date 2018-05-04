@@ -17,6 +17,13 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""
+test_module for test base dir/git/svn etc
+
+| Usage:
+| >> import src.test_module as TMOD
+"""
+
 # Python 2/3 compatibility for execfile function
 try:
     execfile
@@ -41,15 +48,15 @@ import src.utilsSat as UTS
 import src.product as PROD
 import src.environment as ENVI
 import src.architecture as ARCH
+import src.fork as FORK
 
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
 
 DEFAULT_TIMEOUT = 150
 
-# Get directory to be used for the temporary files.
-#
 def getTmpDirDEFAULT():
+    """Get directory to be used for the temporary files."""
     if ARCH.is_windows():
         directory = os.getenv("TEMP")
     else:
@@ -204,9 +211,8 @@ class Test:
             self.logger.error(_("svn is not installed. exiting...\n"))
             sys.exit(0)
 
-    ##
-    # Configure tests base.
     def prepare_testbase(self, test_base_name):
+        """Configure tests base."""
         logger = self.logger
         logger.info("  %s = %s\n" % (_("Test base"), test_base_name))
 
@@ -295,9 +301,9 @@ class Test:
             return RCO._KO_STATUS, kfres
         return RCO._KNOWNFAILURE_STATUS, kfres
 
-    ##
-    # Read the *.result.py files.
+
     def read_results(self, listTest, has_timed_out):
+        """Read the xxx.result.py files."""
         results = {}
         for test in listTest:
             resfile = os.path.join(self.currentDir,
@@ -367,40 +373,38 @@ class Test:
 
         return results
 
-    ##
-    # Generates the script to be run by Salome.
-    # This python script includes init and close statements and a loop
-    # calling all the scripts of a single directory.
     def generate_script(self, listTest, script_path, ignoreList):
-        # open template file
-        template_file = open(os.path.join(self.config.VARS.srcDir,
-                                          "test_module",
-                                          "script_test_module.pyTemplate"), 'r')
-        template = string.Template(template_file.read())
+        """
+        Generates the script to be run by Salome.
+        This python script includes init and close statements and a loop
+        calling all the scripts of a single directory.
+        """
+        JOIN = os.path.join #shortcut
+        # open/read template file
+        nameFile = JOIN(self.config.VARS.srcDir, "test_module", "script_test_module.pyTemplate")
+        with open(nameFile, 'r') as f:
+          template = string.Template(f.read())
         
         # create substitution dictionary
         d = dict()
-        d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
-        d['tmpDir'] = os.path.join(self.tmp_working_dir, 'WORK')
-        d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test_module")
-        d['sessionDir'] = os.path.join(self.currentDir,
-                                    self.currentgrid,
-                                    self.currentsession)
-        d['resultFile'] = os.path.join(self.tmp_working_dir,
-                                       'WORK',
-                                       'exec_result')
+        d['resourcesWay'] = JOIN(self.currentDir, 'RESSOURCES')
+        d['tmpDir'] = JOIN(self.tmp_working_dir, 'WORK')
+        d['toolsWay'] = JOIN(self.config.VARS.srcDir, "test_module")
+        d['sessionDir'] = JOIN(self.currentDir, self.currentgrid, self.currentsession)
+        d['resultFile'] = JOIN(self.tmp_working_dir, 'WORK', 'exec_result')
         d['listTest'] = listTest
         d['sessionName'] = self.currentsession
         d['ignore'] = ignoreList
 
         # create script with template
-        script = open(script_path, 'w')
-        script.write(template.safe_substitute(d))
-        script.close()
+        with open(script_path, 'w') as f:
+          f.write(template.safe_substitute(d))
 
-    # Find the getTmpDir function that gives access to *pidict file directory.
-    # (the *pidict file exists when SALOME is launched) 
     def get_tmp_dir(self):
+        """
+        Find the getTmpDir function that gives access to xxxpidict file directory.
+        (the xxxpidict file exists when SALOME is launched)
+        """
         # Rare case where there is no KERNEL in grid list 
         # (for example MED_STANDALONE)
         if ('APPLICATION' in self.config and \
@@ -432,12 +436,6 @@ class Test:
                        "ROOT_DIR\"]' > tmpscript.py; %s shell" + 
                        " tmpscript.py") % self.launcher
 
-            # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-            #               de remontee de log des tests
-            #root_dir = subprocess.Popen(cmd,
-            #                stdout=subprocess.PIPE,
-            #                shell=True,
-            #                executable='/bin/bash').communicate()[0].split()[-1]
             subproc_res = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             shell=True,
@@ -548,9 +546,8 @@ class Test:
         return binSalome, binPython, killSalome
         
 
-    ##
-    # Runs tests of a session (using a single instance of Salome).
     def run_tests(self, listTest, ignoreList):
+        """Runs tests of a session (using a single instance of Salome)."""
         out_path = os.path.join(self.currentDir,
                                 self.currentgrid,
                                 self.currentsession)
@@ -578,7 +575,7 @@ class Test:
         elapsed = -1
         if self.currentsession.startswith("NOGUI_"):
             # runSalome -t (bash)
-            status, elapsed = src.fork.batch(
+            status, elapsed = FORK.batch(
                 binSalome, self.logger,
                 os.path.join(self.tmp_working_dir, "WORK"),
                 [ "-t", "--shutdown-server=1", script_path ],
@@ -586,7 +583,7 @@ class Test:
 
         elif self.currentsession.startswith("PY_"):
             # python script.py
-            status, elapsed = src.fork.batch(
+            status, elapsed = FORK.batch(
                 binPython, self.logger,
                 os.path.join(self.tmp_working_dir, "WORK"),
                 [script_path],
@@ -595,7 +592,7 @@ class Test:
         else:
             opt = "-z 0"
             if self.show_desktop: opt = "--show-desktop=0"
-            status, elapsed = src.fork.batch_salome(
+            status, elapsed = FORK.batch_salome(
                 binSalome, self.logger,
                 os.path.join(self.tmp_working_dir, "WORK"),
                 [ opt, "--shutdown-server=1", script_path ],
@@ -672,10 +669,8 @@ class Test:
 
         self.config.TESTS.append(test_info, '')
 
-    ##
-    # Runs all tests of a session.
     def run_session_tests(self):
-       
+        """Runs all tests of a session."""
         self.logger.info(self.write_test_margin(2))
         self.logger.info("Session = %s\n" % UTS.label(self.currentsession))
 
@@ -695,9 +690,8 @@ class Test:
 
         self.run_tests(tests, ignoreDict)
 
-    ##
-    # Runs all tests of a grid.
     def run_grid_tests(self):
+        """Runs all tests of a grid."""
         self.logger.info(self.write_test_margin(1))
         self.logger.info("grid = %s\n" % UTS.label(self.currentgrid))
 
@@ -844,9 +838,11 @@ class Test:
 
         return self.nb_run - self.nb_succeed - self.nb_acknoledge
 
-    # Write margin to show test results.
     def write_test_margin(self, tab):
-        """indent with '| ... +' to show test results."""
+        """
+        Write margin to show test results.
+        indent with '| ... +'
+        """
         if tab == 0:
             return ""
         return "|   " * (tab - 1) + "+ "

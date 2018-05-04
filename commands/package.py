@@ -37,6 +37,7 @@ import src.pyconf as PYCONF
 import src.utilsSat as UTS
 import src.environment as ENVI
 import src.architecture as ARCH
+import src.template as TPLATE
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -105,7 +106,7 @@ class Command(_BaseCommand):
   | 3- The project archive. It contains a project (give the project file path as argument).
   | 4- The salomeTools archive. It contains salomeTools.
   | 
-  | examples:
+  | Examples:
   | >> sat package SALOME --binaries --sources
   """
   
@@ -592,8 +593,8 @@ def produce_install_bin_file(config,
     # open the file and write into it
     # use codec utf-8 as sat variables are in unicode
     with codecs.open(filepath, "w", 'utf-8') as installbin_file:
-        installbin_template_path = os.path.join(config.VARS.internal_dir,
-                                        "INSTALL_BIN.template")
+        installbin_template_path = os.path.join(
+          config.VARS.internal_dir, "INSTALL_BIN.template")
         
         # build the name of the directory that will contain the binaries
         binaries_dir_name = "BINARIES-" + config.VARS.dist
@@ -611,7 +612,7 @@ def produce_install_bin_file(config,
         d["SUBSTITUTION_LOOP"]=loop_cmd
         
         # substitute the template and write it in file
-        content=src.template.substitute(installbin_template_path, d)
+        content = TPLATE.substitute(installbin_template_path, d)
         installbin_file.write(content)
         # change the rights in order to make the file executable for everybody
         os.chmod(filepath,
@@ -1253,7 +1254,10 @@ def project_package(project_file_path, tmp_working_dir):
     return d_project
 
 def add_readme(config, options, where):
-    readme_path = os.path.join(where, "README")
+    JOIN = os.path.join # shortcut
+    intDir = config.VARS.internal_dir # shortcut
+  
+    readme_path = JOIN(where, "README")
     with codecs.open(readme_path, "w", 'utf-8') as f:
 
     # templates for building the header
@@ -1288,18 +1292,12 @@ The procedure to do it is:
 
 """
         readme_header_tpl=string.Template(readme_header)
-        readme_template_path_bin = os.path.join(config.VARS.internal_dir,
-                "README_BIN.template")
-        readme_template_path_bin_launcher = os.path.join(config.VARS.internal_dir,
-                "README_LAUNCHER.template")
-        readme_template_path_bin_virtapp = os.path.join(config.VARS.internal_dir,
-                "README_BIN_VIRTUAL_APP.template")
-        readme_template_path_src = os.path.join(config.VARS.internal_dir,
-                "README_SRC.template")
-        readme_template_path_pro = os.path.join(config.VARS.internal_dir,
-                "README_PROJECT.template")
-        readme_template_path_sat = os.path.join(config.VARS.internal_dir,
-                "README_SAT.template")
+        readme_template_path_bin = JOIN(intDir, "README_BIN.template")
+        readme_template_path_bin_launcher = JOIN(intDir, "README_LAUNCHER.template")
+        readme_template_path_bin_virtapp = JOIN(intDir, "README_BIN_VIRTUAL_APP.template")
+        readme_template_path_src = JOIN(intDir, "README_SRC.template")
+        readme_template_path_pro = JOIN(intDir, "README_PROJECT.template")
+        readme_template_path_sat = os.path.join(intDir, "README_SAT.template")
 
         # prepare substitution dictionary
         d = dict()
@@ -1322,23 +1320,23 @@ The procedure to do it is:
 
         # write the specific sections
         if options.binaries:
-            f.write(src.template.substitute(readme_template_path_bin, d))
+            f.write(TPLATE.substitute(readme_template_path_bin, d))
             if "virtual_app" in d:
-                f.write(src.template.substitute(readme_template_path_bin_virtapp, d))
+                f.write(TPLATE.substitute(readme_template_path_bin_virtapp, d))
             if "launcher" in d:
-                f.write(src.template.substitute(readme_template_path_bin_launcher, d))
+                f.write(TPLATE.substitute(readme_template_path_bin_launcher, d))
 
         if options.sources:
-            f.write(src.template.substitute(readme_template_path_src, d))
+            f.write(TPLATE.substitute(readme_template_path_src, d))
 
         if options.binaries and options.sources:
             f.write(readme_compilation_with_binaries)
 
         if options.project:
-            f.write(src.template.substitute(readme_template_path_pro, d))
+            f.write(TPLATE.substitute(readme_template_path_pro, d))
 
         if options.sat:
-            f.write(src.template.substitute(readme_template_path_sat, d))
+            f.write(TPLATE.substitute(readme_template_path_sat, d))
     
     return readme_path
 

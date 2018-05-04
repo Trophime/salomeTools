@@ -56,8 +56,10 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 <span class="kn">import</span> <span class="nn">src.system</span> <span class="k">as</span> <span class="nn">SYSS</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
 
 
 <span class="c1">########################################################################</span>
@@ -68,7 +70,7 @@
 <span class="sd">  The source command gets the sources of the application products</span>
 <span class="sd">  from cvs, git or an archive.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat source SALOME --products KERNEL,GUI</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -268,7 +270,7 @@
         <span class="k">return</span> <span class="kc">False</span>
     
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DIR: </span><span class="si">%s</span><span class="s1"> ... &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">))</span>
-    <span class="n">retcode</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)</span> 
+    <span class="n">retcode</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">dir_info</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)</span> 
     <span class="k">return</span> <span class="n">retcode</span></div>
     
 <div class="viewcode-block" id="get_source_from_cvs"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.source.get_source_from_cvs">[docs]</a><span class="k">def</span> <span class="nf">get_source_from_cvs</span><span class="p">(</span><span class="n">user</span><span class="p">,</span>
@@ -395,8 +397,7 @@
     
     <span class="c1"># Get the application environment</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Set the application environment</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
-    <span class="n">env_appli</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
-                                      <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)))</span>
+    <span class="n">env_appli</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)))</span>
     <span class="n">env_appli</span><span class="o">.</span><span class="n">set_application_env</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
     
     <span class="c1"># Call the right function to get sources regarding the product settings</span>
@@ -477,11 +478,11 @@
     <span class="k">for</span> <span class="n">product_name</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products</span><span class="p">:</span>
         <span class="c1"># get product name, product informations and the directory where to put</span>
         <span class="c1"># the sources</span>
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
-                 <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">))):</span>
-            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+                 <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">))):</span>
+            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">source_dir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="c1"># display and log</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: &#39;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">product_name</span><span class="p">))</span>
@@ -489,7 +490,7 @@
         
         <span class="c1"># Remove the existing source directory if </span>
         <span class="c1"># the product is not in development mode</span>
-        <span class="n">is_dev</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span>
+        <span class="n">is_dev</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">source_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&lt;OK&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Nothing done because source directory existing yet.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -534,8 +535,8 @@
             <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;KO&gt;&quot;</span>
         
         <span class="c1"># print the result</span>
-        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
-               <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+               <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">res</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">good_result</span><span class="p">,</span> <span class="n">results</span></div>

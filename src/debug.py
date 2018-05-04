@@ -18,17 +18,17 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """
-This file assume DEBUG functionalities use
+This file assume DEBUG functionalities use.
 Print salomeTools debug messages in sys.stderr.
 Show pretty print debug representation from instances of SAT classes 
 (pretty print src.pyconf.Config)
 
-WARNING: supposedly show messages in SAT development phase, not production
-
-usage:
->> import debug as DBG
->> DBG.write("aTitle", aVariable)        # not shown in production 
->> DBG.write("aTitle", aVariable, True)  # unconditionaly shown 
+| Warning: supposedly show messages in SAT development phase, not production
+| 
+| Usage:
+| >> import debug as DBG
+| >> DBG.write("aTitle", aVariable)        # not shown in production 
+| >> DBG.write("aTitle", aVariable, True)  # unconditionaly shown 
 """
 
 import os

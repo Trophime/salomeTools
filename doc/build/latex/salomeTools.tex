@@ -55,7 +55,7 @@
 
 
 \title{salomeTools Documentation}
-\date{May 02, 2018}
+\date{May 04, 2018}
 \release{5.0.0dev}
 \author{CEA DEN/DANS/DM2S/STMF/LGLS}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -2777,16 +2777,16 @@ Checks windows OS
 define class as a simple dictionary with keys
 with pretty print \_\_str\_\_ and \_\_repr\_\_ (indented as recursive)
 and jsonDumps()
-\begin{description}
-\item[{usage:}] \leavevmode
-\textgreater{}\textgreater{} import catchAll as CAA
-\textgreater{}\textgreater{} a = CAA.CatchAll()
-\textgreater{}\textgreater{} a.tintin = “reporter”
-\textgreater{}\textgreater{} a.milou = “dog”
-\textgreater{}\textgreater{} print(“a=\%s” \% a)
-\textgreater{}\textgreater{} print(“tintin: \%s” \% a.tintin)
 
-\end{description}
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import catchAll as CAA
+\item[] \textgreater{}\textgreater{} a = CAA.CatchAll()
+\item[] \textgreater{}\textgreater{} a.tintin = “reporter”
+\item[] \textgreater{}\textgreater{} a.milou = “dog”
+\item[] \textgreater{}\textgreater{} print(“a=\%s” \% a)
+\item[] \textgreater{}\textgreater{} print(“tintin: \%s” \% a.tintin)
+\end{DUlineblock}
 \index{CatchAll (class in src.catchAll)}
 
 \begin{fulllineitems}
@@ -2799,21 +2799,24 @@ inherited classes through \_\_init\_\_ method. Or NOT.
 with pretty print \_\_str\_\_ and \_\_repr\_\_ (indented as recursive)
 with jsonDumps()
 
-usage:
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import catchAll as CAA
+\item[] \textgreater{}\textgreater{} a = CAA.CatchAll()
+\item[] \textgreater{}\textgreater{} a.tintin = “reporter”
+\item[] \textgreater{}\textgreater{} a.milou = “dog”
+\item[] \textgreater{}\textgreater{} print(“a=\%s” \% a)
+\item[] \textgreater{}\textgreater{} print(“tintin: \%s” \% a.tintin)
+\item[] 
+\item[] as
+\end{DUlineblock}
 
-\textgreater{}\textgreater{} import catchAll as CAA
-\textgreater{}\textgreater{} a = CAA.CatchAll()
-\textgreater{}\textgreater{} a.tintin = “reporter”
-\textgreater{}\textgreater{} a.milou = “dog”
-\textgreater{}\textgreater{} print(“a=\%s” \% a)
-\textgreater{}\textgreater{} print(“tintin: \%s” \% a.tintin)
-
-as
-
-\textgreater{}\textgreater{} a = \{\}
-\textgreater{}\textgreater{} a{[}“tintin”{]} = “reporter”
-\textgreater{}\textgreater{} a{[}“milou”{]} = “dog”
-\textgreater{}\textgreater{} print(“tintin: \%s” \% a{[}“tintin”{]}
+\begin{DUlineblock}{0em}
+\item[] \textgreater{}\textgreater{} a = \{\}
+\item[] \textgreater{}\textgreater{} a{[}“tintin”{]} = “reporter”
+\item[] \textgreater{}\textgreater{} a{[}“milou”{]} = “dog”
+\item[] \textgreater{}\textgreater{} print(“tintin: \%s” \% a{[}“tintin”{]}
+\end{DUlineblock}
 \index{jsonDumps() (src.catchAll.CatchAll method)}
 
 \begin{fulllineitems}
@@ -2853,18 +2856,19 @@ to get direct default jsonDumps method
 \subsubsection{src.coloringSat module}
 \label{\detokenize{apidoc_src/src:module-src.coloringSat}}\label{\detokenize{apidoc_src/src:src-coloringsat-module}}\index{src.coloringSat (module)}
 simple tagging as ‘\textless{}color\textgreater{}’ for simple coloring log messages on terminal(s)
-window or unix or ios using backend colorama
-
-using ‘\textless{}color\textgreater{}’ because EZ human readable
-so ‘\textless{}color\textgreater{}’ are not supposed existing in log message
+window or unix or ios using backend colorama.
+Using ‘\textless{}color\textgreater{}’ because EZ human readable,
+So ‘\textless{}color\textgreater{}’ are not supposed existing in log message.
 “\{\}”.format() is not choosen because “\{\}” are present
 in log messages of contents of python dict (as JSON) etc.
 
-usage:
-\textgreater{}\textgreater{} import src.coloringSat as COLS
-
-example:
-\textgreater{}\textgreater{} log(“this is in \textless{}green\textgreater{}color green\textless{}reset\textgreater{}, OK is in blue: \textless{}blue\textgreater{}OK?”)
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.coloringSat as COLS
+\item[] 
+\item[] Example:
+\item[] \textgreater{}\textgreater{} log(“this is in \textless{}green\textgreater{}color green\textless{}reset\textgreater{}, OK is in blue: \textless{}blue\textgreater{}OK?”)
+\end{DUlineblock}
 \index{ColoringStream (class in src.coloringSat)}
 
 \begin{fulllineitems}
@@ -2944,7 +2948,14 @@ for test debug no wrapping
 
 
 \subsubsection{src.compilation module}
-\label{\detokenize{apidoc_src/src:module-src.compilation}}\label{\detokenize{apidoc_src/src:src-compilation-module}}\index{src.compilation (module)}\index{Builder (class in src.compilation)}
+\label{\detokenize{apidoc_src/src:module-src.compilation}}\label{\detokenize{apidoc_src/src:src-compilation-module}}\index{src.compilation (module)}
+Utilities to build and compile
+
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.compilation as COMP
+\end{DUlineblock}
+\index{Builder (class in src.compilation)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.compilation.Builder}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.compilation.}}\sphinxbfcode{\sphinxupquote{Builder}}}{\emph{config}, \emph{logger}, \emph{product\_info}, \emph{options=OptResult(   )}, \emph{check\_src=True}}{}
@@ -3209,15 +3220,16 @@ The method that returns the entire path of the pyconf searched
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.configManager.check_path}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.configManager.}}\sphinxbfcode{\sphinxupquote{check\_path}}}{\emph{path}, \emph{ext={[}{]}}}{}
-Construct a text with the input path and “not found” if it does not exist.
+Construct a text with the input path and colorized critical
+‘** not found’ if it does not exist.
+‘** bad extension’ if extension problem.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
 \sphinxstyleliteralstrong{\sphinxupquote{path}} \textendash{} (str) The path to check.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{ext}} \textendash{} (list) 
-An extension. Verify that the path extension is in the list
+\sphinxstyleliteralstrong{\sphinxupquote{ext}} \textendash{} (list) Verify that the path extension is in the list
 
 \end{itemize}
 
@@ -3317,8 +3329,10 @@ The logger instance to use for the display and logging
 logger output for debugging a config/pyconf
 lines contains: path : expression \textendash{}\textgreater{} ‘evaluation’
 
-example:
-PROJECTS.projects.salome.project\_path : \$PWD \textendash{}\textgreater{} ‘/tmp/SALOME’
+\begin{DUlineblock}{0em}
+\item[] Example:
+\item[] PROJECTS.projects.salome.project\_path : \$PWD \textendash{}\textgreater{} ‘/tmp/SALOME’
+\end{DUlineblock}
 
 \end{fulllineitems}
 
@@ -3382,17 +3396,19 @@ Display on the terminal and logger information about a product.
 
 \subsubsection{src.debug module}
 \label{\detokenize{apidoc_src/src:module-src.debug}}\label{\detokenize{apidoc_src/src:src-debug-module}}\index{src.debug (module)}
-This file assume DEBUG functionalities use
+This file assume DEBUG functionalities use.
 Print salomeTools debug messages in sys.stderr.
 Show pretty print debug representation from instances of SAT classes 
 (pretty print src.pyconf.Config)
 
-WARNING: supposedly show messages in SAT development phase, not production
-
-usage:
-\textgreater{}\textgreater{} import debug as DBG
-\textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable)        \# not shown in production 
-\textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable, True)  \# unconditionaly shown
+\begin{DUlineblock}{0em}
+\item[] Warning: supposedly show messages in SAT development phase, not production
+\item[] 
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import debug as DBG
+\item[] \textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable)        \# not shown in production 
+\item[] \textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable, True)  \# unconditionaly shown 
+\end{DUlineblock}
 \index{InStream (class in src.debug)}
 
 \begin{fulllineitems}
@@ -4141,31 +4157,35 @@ Loads the environment (used to run the tests, for example).
 \subsubsection{src.environs module}
 \label{\detokenize{apidoc_src/src:module-src.environs}}\label{\detokenize{apidoc_src/src:src-environs-module}}\index{src.environs (module)}
 Utility for print environment variables
-\begin{description}
-\item[{examples: }] \leavevmode\begin{itemize}
-\item {} 
-split all or specific environment variables \$XXX(s)…
-\textgreater{}\textgreater{} environs.py -\textgreater{} all
-\textgreater{}\textgreater{} environs.py SHELL PATH -\textgreater{} specific \$SHELL \$PATH
 
-\item {} 
-split all or specific environment variables on pattern \$*XXX*(s)…
-\textgreater{}\textgreater{} environs.py \textendash{}pat ROOT -\textgreater{} specific \$*ROOT*
-
-\item {} 
-split search specific substrings in contents of environment variables \$XXX(s)…
-\textgreater{}\textgreater{} environs.py \textendash{}grep usr  -\textgreater{} all specific environment variables containing usr
-
-\end{itemize}
-
-\item[{tips:}] \leavevmode\begin{itemize}
-\item {} 
-create unix alias as shortcut for bash console
-\textgreater{}\textgreater{} alias envs=”…/environs.py”
-
-\end{itemize}
-
-\end{description}
+\begin{DUlineblock}{0em}
+\item[] Examples: 
+\item[] - split all or specific environment variables \$XXX(s)…
+\item[]
+\begin{DUlineblock}{\DUlineblockindent}
+\item[] \textgreater{}\textgreater{} environs.py -\textgreater{} all
+\item[] \textgreater{}\textgreater{} environs.py SHELL PATH -\textgreater{} specific \$SHELL \$PATH
+\item[] 
+\end{DUlineblock}
+\item[] - split all or specific environment variables on pattern \$*XXX*(s)…
+\item[]
+\begin{DUlineblock}{\DUlineblockindent}
+\item[] \textgreater{}\textgreater{} environs.py \textendash{}pat ROOT -\textgreater{} specific \$*ROOT* 
+\item[] 
+\end{DUlineblock}
+\item[] - split search specific substrings in contents of environment variables \$XXX(s)…
+\item[]
+\begin{DUlineblock}{\DUlineblockindent}
+\item[] \textgreater{}\textgreater{} environs.py \textendash{}grep usr  -\textgreater{} all specific environment variables containing usr
+\item[] 
+\end{DUlineblock}
+\item[] Tips:
+\item[] - create unix alias as shortcut for bash console
+\item[]
+\begin{DUlineblock}{\DUlineblockindent}
+\item[] \textgreater{}\textgreater{} alias envs=”…/environs.py”
+\end{DUlineblock}
+\end{DUlineblock}
 \index{print\_grep\_environs() (in module src.environs)}
 
 \begin{fulllineitems}
@@ -5364,9 +5384,11 @@ An instance of this class will be the object manipulated
 in code of all salomeTools commands
 The aim of this class is to have an elegant syntax to manipulate the options.
 
-example: 
-\textgreater{}\textgreater{} print(options.level)
-\textgreater{}\textgreater{} 5
+\begin{DUlineblock}{0em}
+\item[] Example: 
+\item[] \textgreater{}\textgreater{} print(options.level)
+\item[] \textgreater{}\textgreater{} 5
+\end{DUlineblock}
 
 \end{fulllineitems}
 
@@ -5480,7 +5502,12 @@ args is the full raw list of passed options
 \subsubsection{src.product module}
 \label{\detokenize{apidoc_src/src:module-src.product}}\label{\detokenize{apidoc_src/src:src-product-module}}\index{src.product (module)}
 Contains the methods 
-relative to the product notion of salomeTools
+relative to the product notion of salomeTools.
+
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.product as PROD
+\end{DUlineblock}
 \index{check\_config\_exists() (in module src.product)}
 
 \begin{fulllineitems}
@@ -6316,7 +6343,7 @@ the specified path.
 \index{ConfigMerger (class in src.pyconf)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{apidoc_src/src:src.pyconf.ConfigMerger}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.pyconf.}}\sphinxbfcode{\sphinxupquote{ConfigMerger}}}{\emph{resolver=\textless{}function defaultMergeResolve at 0x3561c80\textgreater{}}}{}
+\phantomsection\label{\detokenize{apidoc_src/src:src.pyconf.ConfigMerger}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.pyconf.}}\sphinxbfcode{\sphinxupquote{ConfigMerger}}}{\emph{resolver=\textless{}function defaultMergeResolve at 0x3b22aa0\textgreater{}}}{}
 Bases: \sphinxcode{\sphinxupquote{object}}
 
 This class is used for merging two configurations. If a key exists in the
@@ -7066,8 +7093,10 @@ but where a “mismatch” is detected, returns “overwrite” instead.
 \label{\detokenize{apidoc_src/src:module-src.returnCode}}\label{\detokenize{apidoc_src/src:src-returncode-module}}\index{src.returnCode (module)}
 This file contains ReturnCode class
 
-usage:
-\textgreater{}\textgreater{} import returnCode as RCO
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import returnCode as RCO
+\end{DUlineblock}
 \index{ReturnCode (class in src.returnCode)}
 
 \begin{fulllineitems}
@@ -7079,7 +7108,7 @@ obviously why is why it is not OK,
 but also why is why it is OK (if you want). 
 and optionnaly contains a return value as self.getValue()
 
-usage:
+Usage:
 \textgreater{}\textgreater{} import returnCode as RCO
 
 \textgreater{}\textgreater{} aValue = doSomethingToReturn()
@@ -7117,7 +7146,7 @@ usage:
 \index{KO\_STATUS (src.returnCode.ReturnCode attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{apidoc_src/src:src.returnCode.ReturnCode.KO_STATUS}}\pysigline{\sphinxbfcode{\sphinxupquote{KO\_STATUS}}\sphinxbfcode{\sphinxupquote{ = 'KO'}}}
+\phantomsection\label{\detokenize{apidoc_src/src:src.returnCode.ReturnCode.KO_STATUS}}\pysigline{\sphinxbfcode{\sphinxupquote{KO\_STATUS}}\sphinxbfcode{\sphinxupquote{ = 'OK'}}}
 \end{fulllineitems}
 
 \index{NASYS (src.returnCode.ReturnCode attribute)}
@@ -7422,11 +7451,11 @@ force english at any moment
 \label{\detokenize{apidoc_src/src:src-system-module}}\label{\detokenize{apidoc_src/src:module-src.system}}\index{src.system (module)}
 All utilities method doing a system call, 
 like open a browser or an editor, or call a git command
-\begin{description}
-\item[{usage:}] \leavevmode
-\textgreater{}\textgreater{} import src.system as SYSS
 
-\end{description}
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.system as SYSS
+\end{DUlineblock}
 \index{archive\_extract() (in module src.system)}
 
 \begin{fulllineitems}
@@ -7591,7 +7620,14 @@ The environment to source when extracting.
 
 
 \subsubsection{src.template module}
-\label{\detokenize{apidoc_src/src:module-src.template}}\label{\detokenize{apidoc_src/src:src-template-module}}\index{src.template (module)}\index{MyTemplate (class in src.template)}
+\label{\detokenize{apidoc_src/src:module-src.template}}\label{\detokenize{apidoc_src/src:src-template-module}}\index{src.template (module)}
+template for substitute strings in template files
+
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.template as TPLATE
+\end{DUlineblock}
+\index{MyTemplate (class in src.template)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.template.MyTemplate}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.template.}}\sphinxbfcode{\sphinxupquote{MyTemplate}}}{\emph{template}}{}
@@ -7605,7 +7641,7 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 \index{pattern (src.template.MyTemplate attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{apidoc_src/src:src.template.MyTemplate.pattern}}\pysigline{\sphinxbfcode{\sphinxupquote{pattern}}\sphinxbfcode{\sphinxupquote{ = \textless{}\_sre.SRE\_Pattern object at 0x412cde0\textgreater{}}}}
+\phantomsection\label{\detokenize{apidoc_src/src:src.template.MyTemplate.pattern}}\pysigline{\sphinxbfcode{\sphinxupquote{pattern}}\sphinxbfcode{\sphinxupquote{ = \textless{}\_sre.SRE\_Pattern object at 0x40e4170\textgreater{}}}}
 \end{fulllineitems}
 
 
@@ -7620,7 +7656,14 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 
 \subsubsection{src.test\_module module}
-\label{\detokenize{apidoc_src/src:module-src.test_module}}\label{\detokenize{apidoc_src/src:src-test-module-module}}\index{src.test\_module (module)}\index{Test (class in src.test\_module)}
+\label{\detokenize{apidoc_src/src:module-src.test_module}}\label{\detokenize{apidoc_src/src:src-test-module-module}}\index{src.test\_module (module)}
+test\_module for test base dir/git/svn etc
+
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.test\_module as TMOD
+\end{DUlineblock}
+\index{Test (class in src.test\_module)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.test\_module.}}\sphinxbfcode{\sphinxupquote{Test}}}{\emph{config}, \emph{logger}, \emph{tmp\_working\_dir}, \emph{testbase=''}, \emph{grids=None}, \emph{sessions=None}, \emph{launcher=''}, \emph{show\_desktop=True}}{}~\index{generate\_launching\_commands() (src.test\_module.Test method)}
@@ -7633,6 +7676,10 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.generate_script}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{generate\_script}}}{\emph{listTest}, \emph{script\_path}, \emph{ignoreList}}{}
+Generates the script to be run by Salome.
+This python script includes init and close statements and a loop
+calling all the scripts of a single directory.
+
 \end{fulllineitems}
 
 \index{get\_test\_timeout() (src.test\_module.Test method)}
@@ -7645,12 +7692,17 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.get_tmp_dir}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{get\_tmp\_dir}}}{}{}
+Find the getTmpDir function that gives access to xxxpidict file directory.
+(the xxxpidict file exists when SALOME is launched)
+
 \end{fulllineitems}
 
 \index{prepare\_testbase() (src.test\_module.Test method)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.prepare_testbase}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{prepare\_testbase}}}{\emph{test\_base\_name}}{}
+Configure tests base.
+
 \end{fulllineitems}
 
 \index{prepare\_testbase\_from\_dir() (src.test\_module.Test method)}
@@ -7675,6 +7727,8 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.read_results}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{read\_results}}}{\emph{listTest}, \emph{has\_timed\_out}}{}
+Read the xxx.result.py files.
+
 \end{fulllineitems}
 
 \index{run\_all\_tests() (src.test\_module.Test method)}
@@ -7687,6 +7741,8 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.run_grid_tests}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{run\_grid\_tests}}}{}{}
+Runs all tests of a grid.
+
 \end{fulllineitems}
 
 \index{run\_script() (src.test\_module.Test method)}
@@ -7699,6 +7755,8 @@ Bases: \sphinxcode{\sphinxupquote{string.Template}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.run_session_tests}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{run\_session\_tests}}}{}{}
+Runs all tests of a session.
+
 \end{fulllineitems}
 
 \index{run\_testbase\_tests() (src.test\_module.Test method)}
@@ -7713,19 +7771,25 @@ Runs test testbase
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.run_tests}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{run\_tests}}}{\emph{listTest}, \emph{ignoreList}}{}
+Runs tests of a session (using a single instance of Salome).
+
 \end{fulllineitems}
 
 \index{search\_known\_errors() (src.test\_module.Test method)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.search_known_errors}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{search\_known\_errors}}}{\emph{status}, \emph{test\_grid}, \emph{test\_session}, \emph{test}}{}
+Searches if the script is declared in known errors pyconf.
+Update the status if needed.
+
 \end{fulllineitems}
 
 \index{write\_test\_margin() (src.test\_module.Test method)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.Test.write_test_margin}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{write\_test\_margin}}}{\emph{tab}}{}
-indent with ‘\textbar{} … +’ to show test results.
+Write margin to show test results.
+indent with ‘\textbar{} … +’
 
 \end{fulllineitems}
 
@@ -7736,6 +7800,8 @@ indent with ‘\textbar{} … +’ to show test results.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_src/src:src.test_module.getTmpDirDEFAULT}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.test\_module.}}\sphinxbfcode{\sphinxupquote{getTmpDirDEFAULT}}}{}{}
+Get directory to be used for the temporary files.
+
 \end{fulllineitems}
 
 
@@ -7746,9 +7812,11 @@ utilities for sat
 general useful simple methods
 all-in-one import srs.utilsSat as UTS
 
-usage:
-\textgreater{}\textgreater{} import srsc.utilsSat as UTS
-\textgreater{}\textgreater{} UTS.ensure\_path\_exists(path)
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import srsc.utilsSat as UTS
+\item[] \textgreater{}\textgreater{} UTS.ensure\_path\_exists(path)
+\end{DUlineblock}
 \index{Path (class in src.utilsSat)}
 
 \begin{fulllineitems}
@@ -7919,12 +7987,6 @@ Check that the in-Config node has the named key (as an attribute)
 
 \end{fulllineitems}
 
-\index{config\_has\_application() (in module src.utilsSat)}
-
-\begin{fulllineitems}
-\phantomsection\label{\detokenize{apidoc_src/src:src.utilsSat.config_has_application}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.utilsSat.}}\sphinxbfcode{\sphinxupquote{config\_has\_application}}}{\emph{config}}{}
-\end{fulllineitems}
-
 \index{critical() (in module src.utilsSat)}
 
 \begin{fulllineitems}
@@ -8057,6 +8119,14 @@ format ‘label = value’ with the info color
 
 \end{fulllineitems}
 
+\index{get\_CONFIG\_FILENAME() (in module src.utilsSat)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{apidoc_src/src:src.utilsSat.get_CONFIG_FILENAME}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.utilsSat.}}\sphinxbfcode{\sphinxupquote{get\_CONFIG\_FILENAME}}}{}{}
+get initial config.pyconf
+
+\end{fulllineitems}
+
 \index{get\_base\_path() (in module src.utilsSat)}
 
 \begin{fulllineitems}
@@ -8073,28 +8143,28 @@ Returns the path of the products base.
 
 \end{fulllineitems}
 
-\index{get\_cfg\_param() (in module src.utilsSat)}
+\index{get\_config\_key() (in module src.utilsSat)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{apidoc_src/src:src.utilsSat.get_cfg_param}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.utilsSat.}}\sphinxbfcode{\sphinxupquote{get\_cfg\_param}}}{\emph{config}, \emph{param\_name}, \emph{default}}{}
-Search for param\_name value in config.
-If param\_name is not in config, then return default,
+\phantomsection\label{\detokenize{apidoc_src/src:src.utilsSat.get_config_key}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.utilsSat.}}\sphinxbfcode{\sphinxupquote{get\_config\_key}}}{\emph{inConfig}, \emph{key}, \emph{default}}{}
+Search for key value in config node ‘inConfig{[}key{]}’ as ‘inConfig.key’
+If key is not in inCconfig, then return default,
 else, return the found value
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{config}} \textendash{} (Config) The config.
+\sphinxstyleliteralstrong{\sphinxupquote{inConfig}} \textendash{} (Config or Mapping etc) The in-Config node.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{param\_name}} \textendash{} (str) the name of the parameter to get the value
+\sphinxstyleliteralstrong{\sphinxupquote{key}} \textendash{} (str) the name of the parameter to get the value
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{default}} \textendash{} (str) The value to return if param\_name is not in config
+\sphinxstyleliteralstrong{\sphinxupquote{default}} \textendash{} (str) The value to return if key is not in-Config
 
 \end{itemize}
 
 \item[{Returns}] \leavevmode
-(str) see initial description of the function
+(if supposedly leaf (str),else (in-Config Node)
 
 \end{description}\end{quote}
 
@@ -8425,11 +8495,11 @@ and have a name like YYYYMMDD\_HHMMSS\_namecmd.xml
 \subsubsection{src.xmlManager module}
 \label{\detokenize{apidoc_src/src:src-xmlmanager-module}}\label{\detokenize{apidoc_src/src:module-src.xmlManager}}\index{src.xmlManager (module)}
 Utilities to read xml logging files
-\begin{description}
-\item[{usage:}] \leavevmode
-\textgreater{}\textgreater{} import src.xmlManager as XMLMGR
 
-\end{description}
+\begin{DUlineblock}{0em}
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import src.xmlManager as XMLMGR
+\end{DUlineblock}
 \index{ReadXmlFile (class in src.xmlManager)}
 
 \begin{fulllineitems}
@@ -8746,12 +8816,16 @@ add the definition of a module to out stream.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_commands/commands:commands.application.create_application}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{commands.application.}}\sphinxbfcode{\sphinxupquote{create\_application}}}{\emph{config}, \emph{appli\_dir}, \emph{catalog}, \emph{logger}, \emph{display=True}}{}
+reates a SALOME application.
+
 \end{fulllineitems}
 
 \index{create\_config\_file() (in module commands.application)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_commands/commands:commands.application.create_config_file}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{commands.application.}}\sphinxbfcode{\sphinxupquote{create\_config\_file}}}{\emph{config}, \emph{modules}, \emph{env\_file}, \emph{logger}}{}
+Creates the config file to create an application with the list of modules.
+
 \end{fulllineitems}
 
 \index{customize\_app() (in module commands.application)}
@@ -8766,6 +8840,8 @@ Customizes the application by editing SalomeApp.xml.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_commands/commands:commands.application.generate_application}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{commands.application.}}\sphinxbfcode{\sphinxupquote{generate\_application}}}{\emph{config}, \emph{appli\_dir}, \emph{config\_file}, \emph{logger}}{}
+Generates the application with the config\_file.
+
 \end{fulllineitems}
 
 \index{generate\_catalog() (in module commands.application)}
@@ -8804,6 +8880,8 @@ avoid colors ‘\textless{}color\textgreater{}’ for now in message
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{apidoc_commands/commands:commands.application.make_alias}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{commands.application.}}\sphinxbfcode{\sphinxupquote{make\_alias}}}{\emph{appli\_path}, \emph{alias\_path}, \emph{force=False}}{}
+Creates an alias for runAppli
+
 \end{fulllineitems}
 
 
@@ -8821,7 +8899,7 @@ It is possible to reduce the list of products to check
 by using the \textendash{}products option
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat check SALOME \textendash{}products KERNEL,GUI,GEOM
 \end{DUlineblock}
 \index{getParser() (commands.check.Command method)}
@@ -8948,7 +9026,7 @@ Use the options to define what directories you want to suppress and
 to reduce the list of products
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat clean SALOME \textendash{}build \textendash{}install \textendash{}properties is\_salome\_module:yes
 \end{DUlineblock}
 \index{getParser() (commands.clean.Command method)}
@@ -9089,7 +9167,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The compile command constructs the products of the application
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat compile SALOME \textendash{}products KERNEL,GUI,MEDCOUPLING \textendash{}clean\_all
 \end{DUlineblock}
 \index{getParser() (commands.compile.Command method)}
@@ -9403,7 +9481,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The config command allows manipulation and operation on config ‘.pyconf’ files.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat config \textendash{}list
 \item[] \textgreater{}\textgreater{} sat config SALOME \textendash{}edit
 \item[] \textgreater{}\textgreater{} sat config SALOME \textendash{}copy SALOME-new
@@ -9459,7 +9537,7 @@ The possible compilation modes are ‘cmake’, ‘autotools’, or ‘script’
 \item[] script:    (do nothing)
 \item[] 
 \end{DUlineblock}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat configure SALOME \textendash{}products KERNEL,GUI,PARAVIS
 \end{DUlineblock}
 \index{getParser() (commands.configure.Command method)}
@@ -9588,7 +9666,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The environ command generates the environment files of your application.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat environ SALOME
 \end{DUlineblock}
 \index{getParser() (commands.environ.Command method)}
@@ -9674,7 +9752,7 @@ in INSTALL directory (or the optionally given directory) and
 prints the found files to the terminal.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat find\_duplicates \textendash{}path /tmp
 \end{DUlineblock}
 \index{getParser() (commands.find\_duplicates.Command method)}
@@ -9785,7 +9863,7 @@ The generate command generates SALOME modules from ‘pure cpp’ products.
 \begin{DUlineblock}{0em}
 \item[] warning: this command NEEDS YACSGEN to run.
 \item[] 
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat generate SALOME \textendash{}products FLICACPP
 \end{DUlineblock}
 \index{getParser() (commands.generate.Command method)}
@@ -9989,7 +10067,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 
 The job command executes the commands of the job defined
 in the jobs configuration file  
-\textbar{} examples:
+\textbar{} Examples:
 \textbar{} \textgreater{}\textgreater{} sat job \textendash{}jobs\_config my\_jobs \textendash{}name my\_job”
 \index{getParser() (commands.job.Command method)}
 
@@ -10029,7 +10107,7 @@ The jobs command command launches maintenances that are described in
 the dedicated jobs configuration file.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat jobs \textendash{}name my\_jobs \textendash{}publish
 \end{DUlineblock}
 \index{getParser() (commands.jobs.Command method)}
@@ -10788,7 +10866,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The launcher command generates a SALOME launcher.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat launcher SALOME 
 \end{DUlineblock}
 \index{getParser() (commands.launcher.Command method)}
@@ -10913,7 +10991,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The log command gives access to the logs produced by the salomeTools commands.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat log
 \end{DUlineblock}
 \index{getParser() (commands.log.Command method)}
@@ -11055,7 +11133,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The make command executes the ‘make’ command in the build directory.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat make SALOME \textendash{}products Python,KERNEL,GUI
 \end{DUlineblock}
 \index{getParser() (commands.make.Command method)}
@@ -11192,7 +11270,7 @@ In case of product constructed using a script (build\_source : ‘script’),
 then the makeinstall command do nothing.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat makeinstall SALOME \textendash{}products KERNEL,GUI
 \end{DUlineblock}
 \index{getParser() (commands.makeinstall.Command method)}
@@ -11322,7 +11400,7 @@ The package command creates an archive.
 \item[] 3- The project archive. It contains a project (give the project file path as argument).
 \item[] 4- The salomeTools archive. It contains salomeTools.
 \item[] 
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat package SALOME \textendash{}binaries \textendash{}sources
 \end{DUlineblock}
 \index{getParser() (commands.package.Command method)}
@@ -11896,7 +11974,7 @@ The patch command apply the patches on the sources of the application products
 if there is any.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat patch SALOME \textendash{}products qt,boost
 \end{DUlineblock}
 \index{getParser() (commands.patch.Command method)}
@@ -12067,7 +12145,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The profile command creates default profile.
 
 \begin{DUlineblock}{0em}
-\item[] examples: 
+\item[] Examples: 
 \item[] \textgreater{}\textgreater{} sat profile {[}PRODUCT{]} 
 \item[] \textgreater{}\textgreater{} sat profile \textendash{}prefix (string)
 \item[] \textgreater{}\textgreater{} sat profile \textendash{}name (string)
@@ -12166,7 +12244,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The run command runs the application launcher with the given arguments.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat run SALOME
 \end{DUlineblock}
 \index{getParser() (commands.run.Command method)}
@@ -12208,7 +12286,7 @@ This is done only for the products that are constructed using a script (build\_s
 Otherwise, nothing is done.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[]
 \begin{DUlineblock}{\DUlineblockindent}
 \item[] \textgreater{}\textgreater{} sat script SALOME \textendash{}products Python,numpy
@@ -12340,7 +12418,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The shell command executes the shell command passed as argument.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat shell \textendash{}command ‘ls -lt /tmp’
 \end{DUlineblock}
 \index{getParser() (commands.shell.Command method)}
@@ -12381,7 +12459,7 @@ The source command gets the sources of the application products
 from cvs, git or an archive.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat source SALOME \textendash{}products KERNEL,GUI
 \end{DUlineblock}
 \index{getParser() (commands.source.Command method)}
@@ -12707,7 +12785,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The template command creates the sources for a SALOME module from a template.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat template \textendash{}name my\_product\_name \textendash{}template PythonComponent \textendash{}target /tmp
 \end{DUlineblock}
 \index{getParser() (commands.template.Command method)}
@@ -12821,7 +12899,7 @@ Bases: \sphinxcode{\sphinxupquote{src.salomeTools.\_BaseCommand}}
 The test command runs a test base on a SALOME installation.
 
 \begin{DUlineblock}{0em}
-\item[] examples:
+\item[] Examples:
 \item[] \textgreater{}\textgreater{} sat test SALOME \textendash{}grid GEOM \textendash{}session light
 \end{DUlineblock}
 \index{check\_option() (commands.test.Command method)}

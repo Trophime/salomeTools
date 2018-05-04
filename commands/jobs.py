@@ -68,7 +68,7 @@ class Command(_BaseCommand):
   The jobs command command launches maintenances that are described in 
   the dedicated jobs configuration file.
 
-  | examples:
+  | Examples:
   | >> sat jobs --name my_jobs --publish
   """
   

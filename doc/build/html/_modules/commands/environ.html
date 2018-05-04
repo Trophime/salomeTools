@@ -55,6 +55,8 @@
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
 
 <span class="c1"># list of available shells with extensions</span>
 <span class="n">C_SHELLS</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;bash&quot;</span><span class="p">:</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="s2">&quot;bat&quot;</span><span class="p">:</span> <span class="s2">&quot;bat&quot;</span><span class="p">,</span> <span class="s2">&quot;cfg&quot;</span> <span class="p">:</span> <span class="s2">&quot;cfg&quot;</span> <span class="p">}</span>
@@ -68,7 +70,7 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  The environ command generates the environment files of your application.</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat environ SALOME</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -124,7 +126,7 @@
     
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">shell</span> <span class="o">==</span> <span class="p">[]:</span>
         <span class="n">shell</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
             <span class="n">shell</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bat&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">shell</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">shell</span>
@@ -185,13 +187,9 @@
         <span class="k">if</span> <span class="n">shell</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">C_SHELLS</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unknown shell: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">shell</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">shells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Shell</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">C_SHELLS</span><span class="p">[</span><span class="n">shell</span><span class="p">]))</span>
+            <span class="n">shells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ENVI</span><span class="o">.</span><span class="n">Shell</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">C_SHELLS</span><span class="p">[</span><span class="n">shell</span><span class="p">]))</span>
     
-    <span class="n">writer</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">FileEnvWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
-                                           <span class="n">logger</span><span class="p">,</span>
-                                           <span class="n">out_dir</span><span class="p">,</span>
-                                           <span class="n">src_root</span><span class="p">,</span>
-                                           <span class="n">env_info</span><span class="p">)</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">FileEnvWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">src_root</span><span class="p">,</span> <span class="n">env_info</span><span class="p">)</span>
     <span class="n">writer</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
     <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">for_build</span> <span class="o">=</span> <span class="kc">True</span>

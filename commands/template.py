@@ -44,7 +44,7 @@ class Command(_BaseCommand):
   """
   The template command creates the sources for a SALOME module from a template.
 
-  | examples:
+  | Examples:
   | >> sat template --name my_product_name --template PythonComponent --target /tmp
   """
   
@@ -390,9 +390,11 @@ def prepare_from_template(config,
     logger.debug(_("Ignore Filters =") + " %s\n" % ', '.join(tsettings.ignore_filters))
     dico = tsettings.get_parameters(conf_values)
 
-    # override standard string.Template class to use the desire delimiter
+
     class CompoTemplate(string.Template):
+        """override standard string.Template class to use the desire delimiter"""
         delimiter = tsettings.delimiter_char
+
 
     # do substitution
     pathlen = len(target_dir) + 1

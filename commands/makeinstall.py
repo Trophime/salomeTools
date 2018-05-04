@@ -34,7 +34,7 @@ class Command(_BaseCommand):
   In case of product constructed using a script (build_source : 'script'), 
   then the makeinstall command do nothing.
   
-  | examples:
+  | Examples:
   | >> sat makeinstall SALOME --products KERNEL,GUI
   """
   

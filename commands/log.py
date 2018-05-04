@@ -46,7 +46,7 @@ class Command(_BaseCommand):
   """
   The log command gives access to the logs produced by the salomeTools commands.
 
-  | examples:
+  | Examples:
   | >> sat log
   """
   

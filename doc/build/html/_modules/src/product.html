@@ -51,7 +51,10 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Contains the methods </span>
-<span class="sd">relative to the product notion of salomeTools</span>
+<span class="sd">relative to the product notion of salomeTools.</span>
+
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import src.product as PROD</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -59,6 +62,7 @@
 
 <span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
 
 <span class="n">AVAILABLE_VCS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;svn&#39;</span><span class="p">,</span> <span class="s1">&#39;cvs&#39;</span><span class="p">]</span>
 <span class="n">config_expression</span> <span class="o">=</span> <span class="s2">&quot;^config-\d+$&quot;</span>
@@ -249,7 +253,7 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
                     <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Compilation script not found: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">script_name</span><span class="p">)</span>
             <span class="n">prod_info</span><span class="o">.</span><span class="n">compil_script</span> <span class="o">=</span> <span class="n">script_path</span>
-            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
                 <span class="n">prod_info</span><span class="o">.</span><span class="n">compil_script</span> <span class="o">=</span> <span class="n">prod_info</span><span class="o">.</span><span class="n">compil_script</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;.sh&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="s2">&quot;.bat&quot;</span>
        
         <span class="c1"># Check that the script is executable</span>
@@ -348,8 +352,8 @@
                         <span class="k">if</span> <span class="n">VERSION_DELIMITER</span> <span class="ow">in</span> <span class="n">section_name</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">section_range</span> <span class="ow">in</span> <span class="n">l_section_ranges</span><span class="p">:</span>
         <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span> <span class="o">=</span> <span class="n">section_range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">VERSION_DELIMITER</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">src</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">minimum</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="n">src</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">src</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">maximum</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">UTS</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">minimum</span><span class="p">)</span> <span class="ow">and</span> \
+           <span class="n">UTS</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">maximum</span><span class="p">):</span>
             <span class="c1"># returns specific information for the versions</span>
             <span class="n">prod_info</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="p">[</span><span class="n">product_name</span><span class="p">][</span><span class="n">section_range</span><span class="p">]</span>
             <span class="n">prod_info</span><span class="o">.</span><span class="n">section</span> <span class="o">=</span> <span class="n">section_range</span>
@@ -412,7 +416,7 @@
 <span class="sd">    :param version: (str) The version of the product    </span>
 <span class="sd">    :return: (str) The path of the product installation</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
-    <span class="n">base_path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_base_path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> 
+    <span class="n">base_path</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_base_path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> 
     <span class="n">prod_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">prod_info</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">version</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">,</span> <span class="s2">&quot;config-1&quot;</span><span class="p">)</span>
@@ -460,7 +464,7 @@
             <span class="k">continue</span>
         <span class="c1"># check if there is the file sat-config.pyconf file in the installation</span>
         <span class="c1"># directory    </span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">,</span> <span class="n">dir_or_file</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">CONFIG_FILENAME</span><span class="p">)</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prod_dir</span><span class="p">,</span> <span class="n">dir_or_file</span><span class="p">,</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_CONFIG_FILENAME</span><span class="p">())</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
             <span class="k">continue</span>
         

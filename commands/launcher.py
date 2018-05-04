@@ -38,7 +38,7 @@ class Command(_BaseCommand):
   """
   The launcher command generates a SALOME launcher.
   
-  | examples:
+  | Examples:
   | >> sat launcher SALOME 
   """
   

@@ -68,7 +68,7 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  The config command allows manipulation and operation on config &#39;.pyconf&#39; files.</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat config --list</span>
 <span class="sd">  | &gt;&gt; sat config SALOME --edit</span>
 <span class="sd">  | &gt;&gt; sat config SALOME --copy SALOME-new</span>
@@ -170,13 +170,15 @@
     
     <span class="c1"># case : give information about the product in parameter</span>
     <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
-        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
-            <span class="n">show_product_info</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;options.info&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(product_name)s</span><span class="s2"> is not a product of </span><span class="si">%(application_name)s</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="o">%</span> \
-            <span class="p">{</span><span class="s1">&#39;product_name&#39;</span> <span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="s1">&#39;application_name&#39;</span> <span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">}</span> <span class="p">)</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
+        <span class="n">cfg_products</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span> <span class="ow">in</span> <span class="n">cfg_products</span><span class="p">:</span>
+            <span class="n">CFGMGR</span><span class="o">.</span><span class="n">show_product_info</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;product &#39;</span><span class="si">%s</span><span class="s2">&#39; found in products&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;product &#39;</span><span class="si">%s</span><span class="s2">&#39; is not defined in application &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
     
     <span class="c1"># case : copy an existing &lt;application&gt;.pyconf </span>
     <span class="c1"># to ~/.salomeTools/Applications/LOCAL_&lt;application&gt;.pyconf</span>
@@ -253,10 +255,10 @@
 
     <span class="c1"># case : give a synthetic view of all patches used in the application</span>
     <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">show_patchs</span><span class="p">:</span>
-        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
         <span class="c1"># Print some informations</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Show the patchs of application </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> \
-                     <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">))</span>
+                      <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span><span class="p">))</span>
         <span class="n">show_patchs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
     
     <span class="c1"># case: print all the products name of the application (internal use for completion)</span>

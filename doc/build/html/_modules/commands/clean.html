@@ -55,6 +55,7 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 
 <span class="c1"># Compatibility python 2/3 for input function</span>
@@ -76,7 +77,7 @@
 <span class="sd">  Use the options to define what directories you want to suppress and </span>
 <span class="sd">  to reduce the list of products</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat clean SALOME --build --install --properties is_salome_module:yes</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -196,7 +197,7 @@
     <span class="n">l_dir_source</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">without_dev</span><span class="p">):</span>
-            <span class="n">l_dir_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
+            <span class="n">l_dir_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">l_dir_source</span></div>
 
 <div class="viewcode-block" id="get_build_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.get_build_directories">[docs]</a><span class="k">def</span> <span class="nf">get_build_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">):</span>
@@ -212,7 +213,7 @@
     <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
             <span class="k">if</span> <span class="s2">&quot;build_dir&quot;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
-                <span class="n">l_dir_build</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_dir</span><span class="p">))</span>
+                <span class="n">l_dir_build</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_dir</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">l_dir_build</span></div>
 
 <div class="viewcode-block" id="get_install_directories"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.get_install_directories">[docs]</a><span class="k">def</span> <span class="nf">get_install_directories</span><span class="p">(</span><span class="n">products_infos</span><span class="p">):</span>
@@ -227,7 +228,7 @@
     <span class="n">l_dir_install</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">product_info</span> <span class="ow">in</span> <span class="n">products_infos</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-            <span class="n">l_dir_install</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
+            <span class="n">l_dir_install</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">l_dir_install</span></div>
 
 <div class="viewcode-block" id="product_has_dir"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.clean.product_has_dir">[docs]</a><span class="k">def</span> <span class="nf">product_has_dir</span><span class="p">(</span><span class="n">product_info</span><span class="p">,</span> <span class="n">without_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -241,11 +242,11 @@
 <span class="sd">      True if there is a source, build and install</span>
 <span class="sd">      directory corresponding to the product described by product_info.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
-                            <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">PROD</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> \
+        <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">without_dev</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
     

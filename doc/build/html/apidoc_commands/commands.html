@@ -84,12 +84,14 @@ see Command class docstring, also used for help</p>
 <dl class="function">
 <dt id="commands.application.create_application">
 <code class="descclassname">commands.application.</code><code class="descname">create_application</code><span class="sig-paren">(</span><em>config</em>, <em>appli_dir</em>, <em>catalog</em>, <em>logger</em>, <em>display=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#create_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.create_application" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>reates a SALOME application.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="commands.application.create_config_file">
 <code class="descclassname">commands.application.</code><code class="descname">create_config_file</code><span class="sig-paren">(</span><em>config</em>, <em>modules</em>, <em>env_file</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#create_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.create_config_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the config file to create an application with the list of modules.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="commands.application.customize_app">
@@ -100,7 +102,8 @@ see Command class docstring, also used for help</p>
 <dl class="function">
 <dt id="commands.application.generate_application">
 <code class="descclassname">commands.application.</code><code class="descname">generate_application</code><span class="sig-paren">(</span><em>config</em>, <em>appli_dir</em>, <em>config_file</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#generate_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.generate_application" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates the application with the config_file.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="commands.application.generate_catalog">
@@ -130,7 +133,8 @@ avoid colors ‘&lt;color&gt;’ for now in message</p>
 <dl class="function">
 <dt id="commands.application.make_alias">
 <code class="descclassname">commands.application.</code><code class="descname">make_alias</code><span class="sig-paren">(</span><em>appli_path</em>, <em>alias_path</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/commands/application.html#make_alias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commands.application.make_alias" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates an alias for runAppli</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-commands.check">
@@ -144,7 +148,7 @@ all the products of the application.
 It is possible to reduce the list of products to check
 by using the –products option</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat check SALOME –products KERNEL,GUI,GEOM</div>
 </div>
 <dl class="method">
@@ -253,7 +257,7 @@ of the application products.
 Use the options to define what directories you want to suppress and 
 to reduce the list of products</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat clean SALOME –build –install –properties is_salome_module:yes</div>
 </div>
 <dl class="method">
@@ -383,7 +387,7 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The compile command constructs the products of the application</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat compile SALOME –products KERNEL,GUI,MEDCOUPLING –clean_all</div>
 </div>
 <dl class="method">
@@ -649,7 +653,7 @@ List of (str, Config) =&gt; (product_name, product_info)</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The config command allows manipulation and operation on config ‘.pyconf’ files.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat config –list</div>
 <div class="line">&gt;&gt; sat config SALOME –edit</div>
 <div class="line">&gt;&gt; sat config SALOME –copy SALOME-new</div>
@@ -695,7 +699,7 @@ The possible compilation modes are ‘cmake’, ‘autotools’, or ‘script’
 <div class="line">script:    (do nothing)</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat configure SALOME –products KERNEL,GUI,PARAVIS</div>
 </div>
 <dl class="method">
@@ -802,7 +806,7 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The environ command generates the environment files of your application.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat environ SALOME</div>
 </div>
 <dl class="method">
@@ -866,7 +870,7 @@ If True, do not print anything in the terminal</li>
 in INSTALL directory (or the optionally given directory) and 
 prints the found files to the terminal.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat find_duplicates –path /tmp</div>
 </div>
 <dl class="method">
@@ -962,7 +966,7 @@ and files_out is is the list of files</p>
 <div class="line-block">
 <div class="line">warning: this command NEEDS YACSGEN to run.</div>
 <div class="line"><br /></div>
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat generate SALOME –products FLICACPP</div>
 </div>
 <dl class="method">
@@ -1135,7 +1139,7 @@ with value The path to yacsgen directory if ok</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The job command executes the commands of the job defined
 in the jobs configuration file  
-| examples:
+| Examples:
 | &gt;&gt; sat job –jobs_config my_jobs –name my_job”</p>
 <dl class="method">
 <dt id="commands.job.Command.getParser">
@@ -1166,7 +1170,7 @@ in the jobs configuration file
 <p>The jobs command command launches maintenances that are described in 
 the dedicated jobs configuration file.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat jobs –name my_jobs –publish</div>
 </div>
 <dl class="method">
@@ -1891,7 +1895,7 @@ the config corresponding to the jos description</td>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The launcher command generates a SALOME launcher.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat launcher SALOME </div>
 </div>
 <dl class="method">
@@ -1994,7 +1998,7 @@ The dict giving additional environment variables</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The log command gives access to the logs produced by the salomeTools commands.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat log</div>
 </div>
 <dl class="method">
@@ -2118,7 +2122,7 @@ Get the last log command file path.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The make command executes the ‘make’ command in the build directory.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat make SALOME –products Python,KERNEL,GUI</div>
 </div>
 <dl class="method">
@@ -2232,7 +2236,7 @@ The logger instance to use for the display and logging</li>
 In case of product constructed using a script (build_source : ‘script’), 
 then the makeinstall command do nothing.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat makeinstall SALOME –products KERNEL,GUI</div>
 </div>
 <dl class="method">
@@ -2344,7 +2348,7 @@ The logger instance to use for the display and logging</li>
 <div class="line">3- The project archive. It contains a project (give the project file path as argument).</div>
 <div class="line">4- The salomeTools archive. It contains salomeTools.</div>
 <div class="line"><br /></div>
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat package SALOME –binaries –sources</div>
 </div>
 <dl class="method">
@@ -2835,7 +2839,7 @@ that have the property given as input.</p>
 <p>The patch command apply the patches on the sources of the application products
 if there is any.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat patch SALOME –products qt,boost</div>
 </div>
 <dl class="method">
@@ -2982,7 +2986,7 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The profile command creates default profile.</p>
 <div class="line-block">
-<div class="line">examples: </div>
+<div class="line">Examples: </div>
 <div class="line">&gt;&gt; sat profile [PRODUCT] </div>
 <div class="line">&gt;&gt; sat profile –prefix (string)</div>
 <div class="line">&gt;&gt; sat profile –name (string)</div>
@@ -3060,7 +3064,7 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The run command runs the application launcher with the given arguments.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat run SALOME</div>
 </div>
 <dl class="method">
@@ -3093,7 +3097,7 @@ The logger instance to use for the display and logging</li>
 This is done only for the products that are constructed using a script (build_source : ‘script’).
 Otherwise, nothing is done.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line-block">
 <div class="line">&gt;&gt; sat script SALOME –products Python,numpy</div>
 </div>
@@ -3202,7 +3206,7 @@ The logger instance to use for the display and logging</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The shell command executes the shell command passed as argument.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat shell –command ‘ls -lt /tmp’</div>
 </div>
 <dl class="method">
@@ -3234,7 +3238,7 @@ The logger instance to use for the display and logging</li>
 <p>The source command gets the sources of the application products
 from cvs, git or an archive.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat source SALOME –products KERNEL,GUI</div>
 </div>
 <dl class="method">
@@ -3496,7 +3500,7 @@ The environment to source when extracting.</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The template command creates the sources for a SALOME module from a template.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat template –name my_product_name –template PythonComponent –target /tmp</div>
 </div>
 <dl class="method">
@@ -3588,7 +3592,7 @@ The environment to source when extracting.</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">src.salomeTools._BaseCommand</span></code></p>
 <p>The test command runs a test base on a SALOME installation.</p>
 <div class="line-block">
-<div class="line">examples:</div>
+<div class="line">Examples:</div>
 <div class="line">&gt;&gt; sat test SALOME –grid GEOM –session light</div>
 </div>
 <dl class="method">

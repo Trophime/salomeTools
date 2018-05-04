@@ -17,14 +17,14 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
+"""
 utilities for sat
 general useful simple methods
 all-in-one import srs.utilsSat as UTS
 
-usage:
->> import srsc.utilsSat as UTS
->> UTS.ensure_path_exists(path)
+| Usage:
+| >> import srsc.utilsSat as UTS
+| >> UTS.ensure_path_exists(path)
 """
 
 import os

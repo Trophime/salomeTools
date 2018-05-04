@@ -54,6 +54,7 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 
 
@@ -75,7 +76,7 @@
 <span class="sd">  in INSTALL directory (or the optionally given directory) and </span>
 <span class="sd">  prints the found files to the terminal.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat find_duplicates --path /tmp</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -142,14 +143,15 @@
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
         <span class="n">l_dir_path</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">path</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
+        <span class="n">cfg_APP</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
-            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;SOURCES&quot;</span><span class="p">)]</span>
+            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cfg_APP</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;SOURCES&quot;</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># find all installation paths</span>
-            <span class="n">all_products</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="n">l_product_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">all_products</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="o">.</span><span class="n">install_dir</span> <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">l_product_cfg</span><span class="p">]</span>
+            <span class="n">all_products</span> <span class="o">=</span> <span class="n">cfg_APP</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">l_product_cfg</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">all_products</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="o">.</span><span class="n">install_dir</span> <span class="k">for</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">l_product_cfg</span><span class="p">]</span>
     
     <span class="c1"># Get the files to ignore during the searching</span>
     <span class="n">files_ignored</span> <span class="o">=</span> <span class="n">default_files_ignored</span>
@@ -167,7 +169,7 @@
         <span class="n">directories_ignored</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">exclude_path</span>
     
     <span class="c1"># Check the directories</span>
-    <span class="n">l_path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">l_dir_path</span><span class="p">)</span>
+    <span class="n">l_path</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="n">l_dir_path</span><span class="p">)</span>
     <span class="n">l_dir_path</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="n">l_path</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)):</span>
@@ -251,7 +253,7 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">rep</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="mi">0</span></div></div>
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">,</span> <span class="s2">&quot;find_duplicates command done&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="list_directory"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.find_duplicates.list_directory">[docs]</a><span class="k">def</span> <span class="nf">list_directory</span><span class="p">(</span><span class="n">lpath</span><span class="p">,</span> <span class="n">extension_ignored</span><span class="p">,</span> <span class="n">files_ignored</span><span class="p">,</span> <span class="n">directories_ignored</span><span class="p">):</span>

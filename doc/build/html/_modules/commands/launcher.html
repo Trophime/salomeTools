@@ -59,7 +59,10 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
+<span class="kn">import</span> <span class="nn">src.fileEnviron</span> <span class="k">as</span> <span class="nn">FENV</span>
 
 <span class="c1">########################################################################</span>
 <span class="c1"># Command class</span>
@@ -68,7 +71,7 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  The launcher command generates a SALOME launcher.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat launcher SALOME </span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -107,7 +110,7 @@
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
         <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="c1"># set the launcher path</span>
     <span class="n">launcher_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span>
@@ -165,31 +168,27 @@
 
     <span class="c1"># get KERNEL bin installation path </span>
     <span class="c1"># (in order for the launcher to get python salomeContext API)</span>
-    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
+    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PROD</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL is not installed&quot;</span><span class="p">))</span>
     <span class="n">kernel_root_dir</span> <span class="o">=</span> <span class="n">kernel_cfg</span><span class="o">.</span><span class="n">install_dir</span>
 
     <span class="c1"># set kernel bin dir (considering fhs property)</span>
-    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">get_property_in_product_cfg</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">,</span> <span class="s2">&quot;fhs&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_property_in_product_cfg</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">,</span> <span class="s2">&quot;fhs&quot;</span><span class="p">):</span>
         <span class="n">bin_kernel_install_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">)</span> 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">bin_kernel_install_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span><span class="s2">&quot;salome&quot;</span><span class="p">)</span> 
 
     <span class="c1"># Get the launcher template</span>
-    <span class="n">withProfile</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">fileEnviron</span><span class="o">.</span><span class="n">withProfile</span>\
-                     <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;BIN_KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">bin_kernel_install_dir</span><span class="p">)</span>\
-                     <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">kernel_root_dir</span><span class="p">)</span>
+    <span class="n">withProfile</span> <span class="o">=</span> <span class="n">FENV</span><span class="o">.</span><span class="n">withProfile</span>\
+      <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;BIN_KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">bin_kernel_install_dir</span><span class="p">)</span>\
+      <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;KERNEL_INSTALL_DIR&quot;</span><span class="p">,</span> <span class="n">kernel_root_dir</span><span class="p">)</span>
 
     <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="o">=</span> <span class="n">withProfile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                                 <span class="s2">&quot;# here your local standalone environment</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># create an environment file writer</span>
-    <span class="n">writer</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">FileEnvWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
-                                           <span class="n">logger</span><span class="p">,</span>
-                                           <span class="n">pathlauncher</span><span class="p">,</span>
-                                           <span class="n">src_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                           <span class="n">env_info</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">FileEnvWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">pathlauncher</span><span class="p">,</span> <span class="n">src_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">env_info</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># Display some information</span>
     <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
@@ -240,7 +239,7 @@
     <span class="n">user</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
 
     <span class="c1"># Create the catalog path</span>
-    <span class="n">catfile</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
+    <span class="n">catfile</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
     <span class="n">catalog</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">catfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
     
     <span class="c1"># Write into it</span>

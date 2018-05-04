@@ -49,14 +49,21 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">template for substitute strings in template files</span>
+
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import src.template as TPLATE</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">string</span>
 
 <div class="viewcode-block" id="MyTemplate"><a class="viewcode-back" href="../../apidoc_src/src.html#src.template.MyTemplate">[docs]</a><span class="k">class</span> <span class="nc">MyTemplate</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">):</span>
     <span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;¤&#39;</span></div>
 
 <div class="viewcode-block" id="substitute"><a class="viewcode-back" href="../../apidoc_src/src.html#src.template.substitute">[docs]</a><span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="n">subst_dic</span><span class="p">):</span>
-    <span class="n">template</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">template</span> <span class="o">=</span> <span class="n">MyTemplate</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+      <span class="n">template</span> <span class="o">=</span> <span class="n">MyTemplate</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="n">subst_dic</span><span class="p">)</span></div>
 

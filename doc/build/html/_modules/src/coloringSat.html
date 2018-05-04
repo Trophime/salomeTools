@@ -36,18 +36,17 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">simple tagging as &#39;&lt;color&gt;&#39; for simple coloring log messages on terminal(s)</span>
-<span class="sd">window or unix or ios using backend colorama</span>
-
-<span class="sd">using &#39;&lt;color&gt;&#39; because EZ human readable</span>
-<span class="sd">so &#39;&lt;color&gt;&#39; are not supposed existing in log message</span>
+<span class="sd">window or unix or ios using backend colorama.</span>
+<span class="sd">Using &#39;&lt;color&gt;&#39; because EZ human readable,</span>
+<span class="sd">So &#39;&lt;color&gt;&#39; are not supposed existing in log message.</span>
 <span class="sd">&quot;{}&quot;.format() is not choosen because &quot;{}&quot; are present</span>
 <span class="sd">in log messages of contents of python dict (as JSON) etc.</span>
 
-<span class="sd">usage:</span>
-<span class="sd">&gt;&gt; import src.coloringSat as COLS</span>
-
-<span class="sd">example:</span>
-<span class="sd">&gt;&gt; log(&quot;this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?&quot;)</span>
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import src.coloringSat as COLS</span>
+<span class="sd">| </span>
+<span class="sd">| Example:</span>
+<span class="sd">| &gt;&gt; log(&quot;this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?&quot;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -72,15 +71,15 @@
 <span class="sd">To do cross-platform colored output, </span>
 <span class="sd">you can use Colorama&#39;s AnsiToWin32 proxy directly:</span>
 
-<span class="sd">example:</span>
-<span class="sd">  import sys</span>
-<span class="sd">  from colorama import init, AnsiToWin32, Fore</span>
-<span class="sd">  init(wrap=False)</span>
-<span class="sd">  stream = AnsiToWin32(sys.stderr).stream</span>
-<span class="sd">  # Python 2</span>
-<span class="sd">  print &gt;&gt;stream, Fore.BLUE + &#39;blue text on stderr&#39;</span>
-<span class="sd">  # Python 3</span>
-<span class="sd">  print(Fore.BLUE + &#39;blue text on stderr&#39;, file=stream)</span>
+<span class="sd">| Example:</span>
+<span class="sd">| &gt;&gt;  import sys</span>
+<span class="sd">| &gt;&gt;  from colorama import init, AnsiToWin32, Fore</span>
+<span class="sd">| &gt;&gt;  init(wrap=False)</span>
+<span class="sd">| &gt;&gt;  stream = AnsiToWin32(sys.stderr).stream</span>
+<span class="sd">| &gt;&gt;  # Python 2</span>
+<span class="sd">| &gt;&gt;  print &gt;&gt;stream, Fore.BLUE + &#39;blue text on stderr&#39;</span>
+<span class="sd">| &gt;&gt;  # Python 3</span>
+<span class="sd">| &gt;&gt;  print(Fore.BLUE + &#39;blue text on stderr&#39;, file=stream)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">colorama</span> <span class="k">as</span> <span class="nn">CLRM</span>
@@ -98,7 +97,7 @@
 <span class="sd">Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.</span>
 <span class="sd">Style: DIM, NORMAL, BRIGHT, RESET_ALL</span>
 
-<span class="sd">n.b. DIM is not assumed in win32</span>
+<span class="sd">note: DIM is not assumed in win32</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># dir(ST)</span>
@@ -116,7 +115,7 @@
   <span class="p">(</span><span class="s2">&quot;&lt;bright&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">),</span>
   <span class="p">(</span><span class="s2">&quot;&lt;normal&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">),</span>
   <span class="p">(</span><span class="s2">&quot;&lt;reset&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
-  <span class="p">(</span><span class="s2">&quot;&lt;info&gt;&quot;</span><span class="p">,</span> <span class="n">ST</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">),</span>
+  <span class="p">(</span><span class="s2">&quot;&lt;info&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">MAGENTA</span><span class="p">),</span>
   <span class="p">(</span><span class="s2">&quot;&lt;header&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">BLUE</span><span class="p">),</span>
   <span class="p">(</span><span class="s2">&quot;&lt;label&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">CYAN</span><span class="p">),</span>
   <span class="p">(</span><span class="s2">&quot;&lt;success&gt;&quot;</span><span class="p">,</span> <span class="n">FG</span><span class="o">.</span><span class="n">GREEN</span><span class="p">),</span>

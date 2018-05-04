@@ -56,6 +56,7 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 
@@ -66,7 +67,7 @@
   <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">  The profile command creates default profile.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples: </span>
+<span class="sd">  | Examples: </span>
 <span class="sd">  | &gt;&gt; sat profile [PRODUCT] </span>
 <span class="sd">  | &gt;&gt; sat profile --prefix (string)</span>
 <span class="sd">  | &gt;&gt; sat profile --name (string)</span>
@@ -121,19 +122,19 @@
     <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
     <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
   
-    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The --</span><span class="si">%s</span><span class="s2"> argument is required</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;prefix&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
     
-    <span class="n">retcode</span> <span class="o">=</span> <span class="n">generate_profile_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">returnCode</span> <span class="o">=</span> <span class="n">generate_profile_sources</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">no_update</span> <span class="p">:</span>
         <span class="n">update_pyconf</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">retcode</span></div></div>
+    <span class="k">return</span> <span class="n">returnCode</span></div></div>
 
 
 <span class="c1"># Class that overrides common.Reference</span>
@@ -187,18 +188,18 @@
 <span class="sd">    Generates the sources of the profile</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#Check script app-quickstart.py exists</span>
-    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
+    <span class="n">kernel_cfg</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span>
     <span class="n">kernel_root_dir</span> <span class="o">=</span> <span class="n">kernel_cfg</span><span class="o">.</span><span class="n">install_dir</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PROD</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">kernel_cfg</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL is not installed&quot;</span><span class="p">))</span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kernel_root_dir</span><span class="p">,</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span><span class="s2">&quot;salome&quot;</span><span class="p">,</span><span class="s2">&quot;app-quickstart.py&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span> <span class="n">script</span> <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;KERNEL&#39;s install has not the script app-quickstart.py&quot;</span><span class="p">)</span> <span class="p">)</span>
 
     <span class="c1"># Check that GUI is installed</span>
-    <span class="n">gui_cfg</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;GUI&quot;</span><span class="p">)</span>
+    <span class="n">gui_cfg</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;GUI&quot;</span><span class="p">)</span>
     <span class="n">gui_root_dir</span> <span class="o">=</span> <span class="n">gui_cfg</span><span class="o">.</span><span class="n">install_dir</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">gui_cfg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PROD</span><span class="o">.</span><span class="n">check_installation</span><span class="p">(</span><span class="n">gui_cfg</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;GUI is not installed&quot;</span><span class="p">))</span>
 
     <span class="c1">#Set prefix option passed to app-quickstart.py</span>

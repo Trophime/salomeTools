@@ -17,18 +17,18 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
+"""
 define class as a simple dictionary with keys
 with pretty print __str__ and __repr__ (indented as recursive)
 and jsonDumps()
 
-usage:
-  >> import catchAll as CAA
-  >> a = CAA.CatchAll()
-  >> a.tintin = "reporter"
-  >> a.milou = "dog"
-  >> print("a=%s" % a)
-  >> print("tintin: %s" % a.tintin)
+| Usage:
+| >> import catchAll as CAA
+| >> a = CAA.CatchAll()
+| >> a.tintin = "reporter"
+| >> a.milou = "dog"
+| >> print("a=%s" % a)
+| >> print("tintin: %s" % a.tintin)
 """
 
 import pprint as PP
@@ -58,28 +58,27 @@ def jsonDumps(obj):
 
 ########################################################################################
 class CatchAll(object):
-  """\
+  """
   class as simple dynamic dictionary 
   with predefined keys as properties in
   inherited classes through __init__ method. Or NOT. 
   with pretty print __str__ and __repr__ (indented as recursive)
   with jsonDumps()
   
-  usage:
+  | Usage:
+  | >> import catchAll as CAA
+  | >> a = CAA.CatchAll()
+  | >> a.tintin = "reporter"
+  | >> a.milou = "dog"
+  | >> print("a=%s" % a)
+  | >> print("tintin: %s" % a.tintin)
+  | 
+  | as
   
-  >> import catchAll as CAA
-  >> a = CAA.CatchAll()
-  >> a.tintin = "reporter"
-  >> a.milou = "dog"
-  >> print("a=%s" % a)
-  >> print("tintin: %s" % a.tintin)
-
-  as
-  
-  >> a = {}
-  >> a["tintin"] = "reporter"
-  >> a["milou"] = "dog"
-  >> print("tintin: %s" % a["tintin"]
+  | >> a = {}
+  | >> a["tintin"] = "reporter"
+  | >> a["milou"] = "dog"
+  | >> print("tintin: %s" % a["tintin"]
   """
   
   def __repr__asList(self):

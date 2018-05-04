@@ -79,7 +79,7 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  The log command gives access to the logs produced by the salomeTools commands.</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat log</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -193,7 +193,7 @@
 
     <span class="c1"># If the last option is invoked, just, show the last log file</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">last_terminal</span><span class="p">:</span>
-        <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
         <span class="n">rootLogDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s1">&#39;LOGS&#39;</span><span class="p">)</span>
         <span class="n">UTS</span><span class="o">.</span><span class="n">ensure_path_exists</span><span class="p">(</span><span class="n">rootLogDir</span><span class="p">)</span>
         <span class="n">log_dirs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">rootLogDir</span><span class="p">)</span>

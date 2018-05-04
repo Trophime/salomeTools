@@ -63,6 +63,8 @@
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
 <span class="kn">import</span> <span class="nn">src.ElementTree</span> <span class="k">as</span> <span class="nn">etree</span>
 <span class="kn">import</span> <span class="nn">src.xmlManager</span> <span class="k">as</span> <span class="nn">XMLMGR</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
+<span class="kn">import</span> <span class="nn">src.test_module</span> <span class="k">as</span> <span class="nn">TMOD</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">sha1</span>
@@ -77,7 +79,7 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  The test command runs a test base on a SALOME installation.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat test SALOME --grid GEOM --session light</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -113,14 +115,13 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">:</span>
         <span class="n">options</span><span class="o">.</span><span class="n">launcher</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;An application is required to use a relative path with option --appli&quot;</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">returnCode</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">returnCode</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;An application is required to use a relative path with option --appli&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="n">options</span><span class="o">.</span><span class="n">launcher</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Launcher not found: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">launcher</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Launcher </span><span class="si">%s</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">launcher</span> <span class="p">)</span>
     <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.test.Command.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_arguments</span><span class="p">):</span>
@@ -259,19 +260,19 @@
 
     <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
     <span class="n">msg</span>  <span class="o">=</span> <span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Display&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DISPLAY&#39;</span><span class="p">])</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Timeout&#39;</span><span class="p">),</span> <span class="n">src</span><span class="o">.</span><span class="n">test_module</span><span class="o">.</span><span class="n">DEFAULT_TIMEOUT</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Timeout&#39;</span><span class="p">),</span> <span class="n">TMOD</span><span class="o">.</span><span class="n">DEFAULT_TIMEOUT</span><span class="p">)</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Working dir&quot;</span><span class="p">),</span> <span class="n">base_dir</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="c1"># create the test object</span>
-    <span class="n">test_runner</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">test_module</span><span class="o">.</span><span class="n">Test</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
-                                  <span class="n">logger</span><span class="p">,</span>
-                                  <span class="n">base_dir</span><span class="p">,</span>
-                                  <span class="n">testbase</span><span class="o">=</span><span class="n">test_base</span><span class="p">,</span>
-                                  <span class="n">grids</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">grids</span><span class="p">,</span>
-                                  <span class="n">sessions</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">sessions</span><span class="p">,</span>
-                                  <span class="n">launcher</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">,</span>
-                                  <span class="n">show_desktop</span><span class="o">=</span><span class="n">show_desktop</span><span class="p">)</span>
+    <span class="n">test_runner</span> <span class="o">=</span> <span class="n">TMOD</span><span class="o">.</span><span class="n">Test</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+                            <span class="n">logger</span><span class="p">,</span>
+                            <span class="n">base_dir</span><span class="p">,</span>
+                            <span class="n">testbase</span><span class="o">=</span><span class="n">test_base</span><span class="p">,</span>
+                            <span class="n">grids</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">grids</span><span class="p">,</span>
+                            <span class="n">sessions</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">sessions</span><span class="p">,</span>
+                            <span class="n">launcher</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">launcher</span><span class="p">,</span>
+                            <span class="n">show_desktop</span><span class="o">=</span><span class="n">show_desktop</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="ow">not</span> <span class="n">test_runner</span><span class="o">.</span><span class="n">test_base_found</span><span class="p">:</span>
         <span class="c1"># Fail </span>
@@ -468,19 +469,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates the XML report for a product.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ASNODE</span> <span class="o">=</span> <span class="n">XMLMGR</span><span class="o">.</span><span class="n">add_simple_node</span> <span class="c1"># shortcut</span>
+    <span class="n">ETELEM</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span> <span class="c1"># shortcut</span>
+
     <span class="c1"># get the date and hour of the launching of the command, in order to keep</span>
     <span class="c1"># history</span>
     <span class="n">date_hour</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">datehour</span>
     
     <span class="c1"># Get some information to put in the xml file</span>
     <span class="n">application_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span>
-    <span class="n">withappli</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">withappli</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">isOk</span><span class="p">()</span>
     
     <span class="n">first_time</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_history_path</span><span class="p">):</span>
         <span class="n">first_time</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;salome&quot;</span><span class="p">)</span>
-        <span class="n">prod_node</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">application_name</span><span class="p">,</span> <span class="n">build</span><span class="o">=</span><span class="n">xmlname</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;salome&quot;</span><span class="p">)</span>
+        <span class="n">prod_node</span> <span class="o">=</span> <span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">application_name</span><span class="p">,</span> <span class="n">build</span><span class="o">=</span><span class="n">xmlname</span><span class="p">)</span>
         <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prod_node</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_history_path</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
@@ -489,8 +493,6 @@
     <span class="n">prod_node</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;history_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">xml_history_path</span><span class="p">)</span>
     <span class="n">prod_node</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;global_res&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">retcode</span>
     
-    <span class="n">ASNODE</span> <span class="o">=</span> <span class="n">XMLMGR</span><span class="o">.</span><span class="n">add_simple_node</span> <span class="c1"># shortcut</span>
-    
     <span class="k">if</span> <span class="n">withappli</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">first_time</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">(</span><span class="n">prod_node</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;version_to_download&quot;</span><span class="p">)</span> <span class="o">+</span> 
@@ -498,7 +500,6 @@
                 <span class="n">prod_node</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
                 
         <span class="n">ASNODE</span><span class="p">(</span><span class="n">prod_node</span><span class="p">,</span> <span class="s2">&quot;version_to_download&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        
         <span class="n">ASNODE</span><span class="p">(</span><span class="n">prod_node</span><span class="p">,</span> <span class="s2">&quot;out_dir&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span>
 
     <span class="c1"># add environment</span>
@@ -507,17 +508,12 @@
                 <span class="n">prod_node</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         
     <span class="n">exec_node</span> <span class="o">=</span> <span class="n">ASNODE</span><span class="p">(</span><span class="n">prod_node</span><span class="p">,</span> <span class="s2">&quot;exec&quot;</span><span class="p">)</span>
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Host&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Architecture&quot;</span><span class="p">,</span>
-                                   <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">dist</span><span class="p">))</span>
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Number of processors&quot;</span><span class="p">,</span>
-                                   <span class="n">value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">nb_proc</span><span class="p">)))</span>    
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Begin date&quot;</span><span class="p">,</span>
-                                   <span class="n">value</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">parse_date</span><span class="p">(</span><span class="n">date_hour</span><span class="p">)))</span>
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-                                   <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">command</span><span class="p">))</span>
-    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sat version&quot;</span><span class="p">,</span>
-                                   <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">sat_version</span><span class="p">))</span>
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Host&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Architecture&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">dist</span><span class="p">))</span>
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Number of processors&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">nb_proc</span><span class="p">)))</span>    
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Begin date&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">UTS</span><span class="o">.</span><span class="n">parse_date</span><span class="p">(</span><span class="n">date_hour</span><span class="p">)))</span>
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Command&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">command</span><span class="p">))</span>
+    <span class="n">exec_node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ETELEM</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sat version&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">INTERNAL</span><span class="o">.</span><span class="n">sat_version</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="s1">&#39;TESTS&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">first_time</span><span class="p">:</span>
@@ -648,7 +644,7 @@
                     <span class="k">if</span> <span class="s1">&#39;callback&#39;</span> <span class="ow">in</span> <span class="n">script</span><span class="p">:</span>
                         <span class="k">try</span><span class="p">:</span>
                             <span class="n">cnode</span> <span class="o">=</span> <span class="n">ASNODE</span><span class="p">(</span><span class="n">tn</span><span class="p">,</span> <span class="s2">&quot;callback&quot;</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
                                 <span class="kn">import</span> <span class="nn">string</span>
                                 <span class="n">cnode</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
                                                 <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">printable</span><span class="p">,</span>
@@ -691,9 +687,9 @@
 
                     <span class="c1"># calculate status</span>
                     <span class="n">nb</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">:</span> <span class="n">nb_pass</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">TIMEOUT_STATUS</span><span class="p">:</span> <span class="n">nb_timeout</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span><span class="p">:</span> <span class="n">nb_failed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span><span class="p">:</span> <span class="n">nb_pass</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_TIMEOUT_STATUS</span><span class="p">:</span> <span class="n">nb_timeout</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span><span class="p">:</span> <span class="n">nb_failed</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">else</span><span class="p">:</span> <span class="n">nb_not_run</span> <span class="o">+=</span> <span class="mi">1</span>
 
                     <span class="k">if</span> <span class="s2">&quot;known_error&quot;</span> <span class="ow">in</span> <span class="n">script</span><span class="p">:</span>
@@ -713,7 +709,7 @@
                         <span class="k">if</span> <span class="n">overdue</span><span class="p">:</span>
                             <span class="n">kf_script</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;overdue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">overdue</span><span class="p">)</span>
                         
-                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span><span class="p">:</span>
+                    <span class="k">elif</span> <span class="n">script</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span><span class="p">:</span>
                         <span class="n">new_err</span> <span class="o">=</span> <span class="n">ASNODE</span><span class="p">(</span><span class="n">new_errors</span><span class="p">,</span> <span class="s2">&quot;new_error&quot;</span><span class="p">)</span>
                         <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
                                                    <span class="n">test</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">script</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -746,7 +742,7 @@
 
     <span class="n">XMLMGR</span><span class="o">.</span><span class="n">write_report</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest_path</span><span class="p">,</span> <span class="n">xmlname</span><span class="p">),</span> <span class="n">root</span><span class="p">,</span> <span class="s2">&quot;test.xsl&quot;</span><span class="p">)</span>
     <span class="n">XMLMGR</span><span class="o">.</span><span class="n">write_report</span><span class="p">(</span><span class="n">xml_history_path</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s2">&quot;test_history.xsl&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span></div>
+    <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span></div>
 
 <div class="viewcode-block" id="generate_history_xml_path"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.test.generate_history_xml_path">[docs]</a><span class="k">def</span> <span class="nf">generate_history_xml_path</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">test_base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>

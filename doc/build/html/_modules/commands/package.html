@@ -64,9 +64,13 @@ from commands.application import get_SALOME_modules
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
+import src.product as PROD
 from src.salomeTools import _BaseCommand
 import src.pyconf as PYCONF
 import src.utilsSat as UTS
+import src.environment as ENVI
+import src.architecture as ARCH
+import src.template as TPLATE
 
 BINARY = &quot;binary&quot;
 SOURCE = &quot;Source&quot;
@@ -135,7 +139,7 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \&quot;..\&quot; + $VAR
   | 3- The project archive. It contains a project (give the project file path as argument).
   | 4- The salomeTools archive. It contains salomeTools.
   | 
-  | examples:
+  | Examples:
   | &gt;&gt; sat package SALOME --binaries --sources
   &quot;&quot;&quot;
   
@@ -212,7 +216,7 @@ Use one of the following options:
     # if the package contains binaries or sources:
     if options.binaries or options.sources:
         # Check that the command has been called with an application
-        src.check_config_has_application(config)
+        UTS.check_config_has_application(config).raiseIfKo()
 
         # Display information
         logger.info(_(&quot;Packaging application %s\n&quot;) % \
@@ -469,14 +473,14 @@ check if at least one of the following options was selected:
     kernel_root_dir = os.path.join(binaries_dir_name, &quot;KERNEL&quot;)
 
     # set kernel bin dir (considering fhs property)
-    kernel_cfg = src.product.get_product_config(config, &quot;KERNEL&quot;)
-    if src.get_property_in_product_cfg(kernel_cfg, &quot;fhs&quot;):
+    kernel_cfg = PROD.get_product_config(config, &quot;KERNEL&quot;)
+    if UTS.get_property_in_product_cfg(kernel_cfg, &quot;fhs&quot;):
         bin_kernel_install_dir = os.path.join(kernel_root_dir,&quot;bin&quot;) 
     else:
         bin_kernel_install_dir = os.path.join(kernel_root_dir,&quot;bin&quot;,&quot;salome&quot;) 
 
     # Get the launcher template and do substitutions
-    withProfile = src.fileEnviron.withProfile
+    withProfile = FENV.withProfile
 
     withProfile = withProfile.replace(
         &quot;ABSOLUTE_APPLI_PATH&#39;] = &#39;KERNEL_INSTALL_DIR&#39;&quot;,
@@ -485,14 +489,10 @@ check if at least one of the following options was selected:
         &quot; &#39;BIN_KERNEL_INSTALL_DIR&#39;&quot;,
         &quot; out_dir_Path + &#39;&quot; + config.VARS.sep + bin_kernel_install_dir + &quot;&#39;&quot;)
 
-    before, after = withProfile.split(
-                                &quot;# here your local standalone environment\n&quot;)
+    before, after = withProfile.split(&quot;# here your local standalone environment\n&quot;)
 
     # create an environment file writer
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           file_dir,
-                                           src_root=None)
+    writer = ENVI.FileEnvWriter(config, logger, file_dir, src_root=None)
     
     filepath = os.path.join(file_dir, file_name)
     # open the file and write into it
@@ -506,7 +506,7 @@ check if at least one of the following options was selected:
     launch_file.close()
     
     # Little hack to put out_dir_Path outside the strings
-    src.replace_in_file(filepath, &#39;r&quot;out_dir_Path&#39;, &#39;out_dir_Path + r&quot;&#39; )
+    UTS.replace_in_file(filepath, &#39;r&quot;out_dir_Path&#39;, &#39;out_dir_Path + r&quot;&#39; )
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
@@ -581,10 +581,7 @@ except:
     :return: (list) The list of path of the produced environment files
     &quot;&quot;&quot;  
     # create an environment file writer
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           file_dir,
-                                           src_root=None)
+    writer = ENVI.FileEnvWriter(config, logger, file_dir, src_root=None)
     
     # Write
     filepath = writer.write_env_file(&quot;env_launch.sh&quot;,
@@ -593,7 +590,7 @@ except:
                           for_package = binaries_dir_name)
 
     # Little hack to put out_dir_Path as environment variable
-    src.replace_in_file(filepath, &#39;&quot;out_dir_Path&#39;, &#39;&quot;${out_dir_Path}&#39; )
+    UTS.replace_in_file(filepath, &#39;&quot;out_dir_Path&#39;, &#39;&quot;${out_dir_Path}&#39; )
 
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
@@ -629,8 +626,8 @@ except:
     # open the file and write into it
     # use codec utf-8 as sat variables are in unicode
     with codecs.open(filepath, &quot;w&quot;, &#39;utf-8&#39;) as installbin_file:
-        installbin_template_path = os.path.join(config.VARS.internal_dir,
-                                        &quot;INSTALL_BIN.template&quot;)
+        installbin_template_path = os.path.join(
+          config.VARS.internal_dir, &quot;INSTALL_BIN.template&quot;)
         
         # build the name of the directory that will contain the binaries
         binaries_dir_name = &quot;BINARIES-&quot; + config.VARS.dist
@@ -648,7 +645,7 @@ except:
         d[&quot;SUBSTITUTION_LOOP&quot;]=loop_cmd
         
         # substitute the template and write it in file
-        content=src.template.substitute(installbin_template_path, d)
+        content = TPLATE.substitute(installbin_template_path, d)
         installbin_file.write(content)
         # change the rights in order to make the file executable for everybody
         os.chmod(filepath,
@@ -685,15 +682,15 @@ except:
     
     text_to_add = &quot;&quot;
     for product_name in get_SALOME_modules(config):
-        product_info = src.product.get_product_config(config, product_name)
+        product_info = PROD.get_product_config(config, product_name)
        
-        if src.product.product_is_smesh_plugin(product_info):
+        if PROD.product_is_smesh_plugin(product_info):
             continue
 
         if &#39;install_dir&#39; in product_info and bool(product_info.install_dir):
-            if src.product.product_is_cpp(product_info):
+            if PROD.product_is_cpp(product_info):
                 # cpp module
-                for cpp_name in src.product.get_product_components(product_info):
+                for cpp_name in PROD.get_product_components(product_info):
                     line_to_add = (&quot;&lt;module name=\&quot;&quot; + 
                                    cpp_name + 
                                    &quot;\&quot; gui=\&quot;yes\&quot; path=\&quot;&#39;&#39;&#39; + &quot;
@@ -746,7 +743,7 @@ except:
 
     # Get the list of product installation to add to the archive
     l_products_name = config.APPLICATION.products.keys()
-    l_product_info = src.product.get_products_infos(l_products_name,
+    l_product_info = PROD.get_products_infos(l_products_name,
                                                     config)
     l_install_dir = []
     l_source_dir = []
@@ -756,7 +753,7 @@ except:
 
         # Add the sources of the products that have the property 
         # sources_in_package : &quot;yes&quot;
-        if src.get_property_in_product_cfg(prod_info,
+        if UTS.get_property_in_product_cfg(prod_info,
                                            &quot;sources_in_package&quot;) == &quot;yes&quot;:
             if os.path.exists(prod_info.source_dir):
                 l_source_dir.append((prod_name, prod_info.source_dir))
@@ -764,19 +761,19 @@ except:
                 l_sources_not_present.append(prod_name)
 
         # ignore the native and fixed products for install directories
-        if (src.product.product_is_native(prod_info) 
-                or src.product.product_is_fixed(prod_info)
-                or not src.product.product_compiles(prod_info)):
+        if (PROD.product_is_native(prod_info) 
+                or PROD.product_is_fixed(prod_info)
+                or not PROD.product_compiles(prod_info)):
             continue
-        if src.product.check_installation(prod_info):
+        if PROD.check_installation(prod_info):
             l_install_dir.append((prod_name, prod_info.install_dir))
         else:
             l_not_installed.append(prod_name)
         
         # Add also the cpp generated modules (if any)
-        if src.product.product_is_cpp(prod_info):
+        if PROD.product_is_cpp(prod_info):
             # cpp module
-            for name_cpp in src.product.get_product_components(prod_info):
+            for name_cpp in PROD.get_product_components(prod_info):
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            &quot;INSTALL&quot;, name_cpp) 
                 if os.path.exists(install_dir):
@@ -823,11 +820,11 @@ except:
     # for packages of SALOME applications including KERNEL, 
     # we produce a salome launcher or a virtual application (depending on salome version)
     if &#39;KERNEL&#39; in config.APPLICATION.products:
-        VersionSalome = src.get_salome_version(config)
+        VersionSalome = UTS.get_salome_version(config)
         # Case where SALOME has the launcher that uses the SalomeContext API
         if VersionSalome &gt;= 730:
             # create the relative launcher and add it to the files to add
-            launcher_name = src.get_launcher_name(config)
+            launcher_name = UTS.get_launcher_name(config)
             launcher_package = produce_relative_launcher(config,
                                                  logger,
                                                  tmp_working_dir,
@@ -902,7 +899,7 @@ except:
     d_sat = {&quot;salomeTools&quot; : (tmp_sat, &quot;salomeTools&quot;)}
     
     # Add a sat symbolic link if not win
-    if not src.architecture.is_windows():
+    if not ARCH.is_windows():
         tmp_satlink_path = os.path.join(tmp_working_dir, &#39;sat&#39;)
         try:
             t = os.getcwd()
@@ -917,7 +914,7 @@ except:
         
         d_sat[&quot;sat link&quot;] = (tmp_satlink_path, &quot;sat&quot;)
     
-    d_source = src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
+    d_source = UTS.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
     return d_source</div>
 
 <div class="viewcode-block" id="get_archives"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.get_archives">[docs]</a>def get_archives(config, logger):
@@ -934,14 +931,14 @@ except:
     &quot;&quot;&quot;
     # Get the list of product informations
     l_products_name = config.APPLICATION.products.keys()
-    l_product_info = src.product.get_products_infos(l_products_name,
+    l_product_info = PROD.get_products_infos(l_products_name,
                                                     config)
     d_archives = {}
     l_pinfo_vcs = []
     for p_name, p_info in l_product_info:
         # ignore the native and fixed products
-        if (src.product.product_is_native(p_info) 
-                or src.product.product_is_fixed(p_info)):
+        if (PROD.product_is_native(p_info) 
+                or PROD.product_is_fixed(p_info)):
             continue
         if p_info.get_source == &quot;archive&quot;:
             archive_path = p_info.archive_info.archive_name
@@ -966,8 +963,8 @@ except:
       The path to the local salomeTools directory to add in the package
     &quot;&quot;&quot;
     # Copy sat in the temporary working directory
-    sat_tmp_path = src.Path(os.path.join(tmp_working_dir, &quot;salomeTools&quot;))
-    sat_running_path = src.Path(config.VARS.salometoolsway)
+    sat_tmp_path = UTS.Path(os.path.join(tmp_working_dir, &quot;salomeTools&quot;))
+    sat_running_path = UTS.Path(config.VARS.salometoolsway)
     sat_running_path.copy(sat_tmp_path)
     
     # Update the local.pyconf file that contains the path to the project
@@ -1102,7 +1099,7 @@ except:
     # (compilation, environment, patches)
     # and create the pyconf file to add to the project
     lproducts_name = config.APPLICATION.products.keys()
-    l_products = src.product.get_products_infos(lproducts_name, config)
+    l_products = PROD.get_products_infos(lproducts_name, config)
     for p_name, p_info in l_products:
         find_product_scripts_and_pyconf(p_name,
                                         p_info,
@@ -1155,22 +1152,22 @@ except:
     product_pyconf_cfg = PYCONF.Config(product_pyconf_path)
 
     # find the compilation script if any
-    if src.product.product_has_script(p_info):
-        compil_script_path = src.Path(p_info.compil_script)
+    if PROD.product_has_script(p_info):
+        compil_script_path = UTS.Path(p_info.compil_script)
         compil_script_path.copy(compil_scripts_tmp_dir)
         product_pyconf_cfg[p_info.section].compil_script = os.path.basename(
                                                     p_info.compil_script)
     # find the environment script if any
-    if src.product.product_has_env_script(p_info):
-        env_script_path = src.Path(p_info.environ.env_script)
+    if PROD.product_has_env_script(p_info):
+        env_script_path = UTS.Path(p_info.environ.env_script)
         env_script_path.copy(env_scripts_tmp_dir)
         product_pyconf_cfg[p_info.section].environ.env_script = os.path.basename(
                                                 p_info.environ.env_script)
     # find the patches if any
-    if src.product.product_has_patches(p_info):
+    if PROD.product_has_patches(p_info):
         patches = PYCONF.Sequence()
         for patch_path in p_info.patches:
-            p_path = src.Path(patch_path)
+            p_path = UTS.Path(patch_path)
             p_path.copy(patches_tmp_dir)
             patches.append(os.path.basename(patch_path), &quot;&quot;)
 
@@ -1185,7 +1182,7 @@ except:
                                                                       info][key]
     else:
         # if the product is not archive, then make it become archive.
-        if src.product.product_is_vcs(p_info):
+        if PROD.product_is_vcs(p_info):
             product_pyconf_cfg[p_info.section].get_source = &quot;archive&quot;
             if not &quot;archive_info&quot; in product_pyconf_cfg[p_info.section]:
                 product_pyconf_cfg[p_info.section].addMapping(&quot;archive_info&quot;,
@@ -1290,7 +1287,10 @@ except:
     return d_project</div>
 
 <div class="viewcode-block" id="add_readme"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.package.add_readme">[docs]</a>def add_readme(config, options, where):
-    readme_path = os.path.join(where, &quot;README&quot;)
+    JOIN = os.path.join # shortcut
+    intDir = config.VARS.internal_dir # shortcut
+  
+    readme_path = JOIN(where, &quot;README&quot;)
     with codecs.open(readme_path, &quot;w&quot;, &#39;utf-8&#39;) as f:
 
     # templates for building the header
@@ -1325,18 +1325,12 @@ The procedure to do it is:
 
 &quot;&quot;&quot;
         readme_header_tpl=string.Template(readme_header)
-        readme_template_path_bin = os.path.join(config.VARS.internal_dir,
-                &quot;README_BIN.template&quot;)
-        readme_template_path_bin_launcher = os.path.join(config.VARS.internal_dir,
-                &quot;README_LAUNCHER.template&quot;)
-        readme_template_path_bin_virtapp = os.path.join(config.VARS.internal_dir,
-                &quot;README_BIN_VIRTUAL_APP.template&quot;)
-        readme_template_path_src = os.path.join(config.VARS.internal_dir,
-                &quot;README_SRC.template&quot;)
-        readme_template_path_pro = os.path.join(config.VARS.internal_dir,
-                &quot;README_PROJECT.template&quot;)
-        readme_template_path_sat = os.path.join(config.VARS.internal_dir,
-                &quot;README_SAT.template&quot;)
+        readme_template_path_bin = JOIN(intDir, &quot;README_BIN.template&quot;)
+        readme_template_path_bin_launcher = JOIN(intDir, &quot;README_LAUNCHER.template&quot;)
+        readme_template_path_bin_virtapp = JOIN(intDir, &quot;README_BIN_VIRTUAL_APP.template&quot;)
+        readme_template_path_src = JOIN(intDir, &quot;README_SRC.template&quot;)
+        readme_template_path_pro = JOIN(intDir, &quot;README_PROJECT.template&quot;)
+        readme_template_path_sat = os.path.join(intDir, &quot;README_SAT.template&quot;)
 
         # prepare substitution dictionary
         d = dict()
@@ -1350,7 +1344,7 @@ The procedure to do it is:
             d[&#39;application&#39;] = config.VARS.application
             f.write(&quot;# Application: &quot; + d[&#39;application&#39;] + &quot;\n&quot;)
             if &#39;KERNEL&#39; in config.APPLICATION.products:
-                VersionSalome = src.get_salome_version(config)
+                VersionSalome = UTS.get_salome_version(config)
                 # Case where SALOME has the launcher that uses the SalomeContext API
                 if VersionSalome &gt;= 730:
                     d[&#39;launcher&#39;] = config.APPLICATION.profile.launcher_name
@@ -1359,23 +1353,23 @@ The procedure to do it is:
 
         # write the specific sections
         if options.binaries:
-            f.write(src.template.substitute(readme_template_path_bin, d))
+            f.write(TPLATE.substitute(readme_template_path_bin, d))
             if &quot;virtual_app&quot; in d:
-                f.write(src.template.substitute(readme_template_path_bin_virtapp, d))
+                f.write(TPLATE.substitute(readme_template_path_bin_virtapp, d))
             if &quot;launcher&quot; in d:
-                f.write(src.template.substitute(readme_template_path_bin_launcher, d))
+                f.write(TPLATE.substitute(readme_template_path_bin_launcher, d))
 
         if options.sources:
-            f.write(src.template.substitute(readme_template_path_src, d))
+            f.write(TPLATE.substitute(readme_template_path_src, d))
 
         if options.binaries and options.sources:
             f.write(readme_compilation_with_binaries)
 
         if options.project:
-            f.write(src.template.substitute(readme_template_path_pro, d))
+            f.write(TPLATE.substitute(readme_template_path_pro, d))
 
         if options.sat:
-            f.write(src.template.substitute(readme_template_path_sat, d))
+            f.write(TPLATE.substitute(readme_template_path_sat, d))
     
     return readme_path</div>
 
@@ -1388,11 +1382,11 @@ The procedure to do it is:
     :param prop: (str) The property to filter
     :param value: (str) The value of the property to filter
     &quot;&quot;&quot;
-    src.check_config_has_application(config)
+    UTS.check_config_has_application(config).raiseIfKo()
     l_product_to_remove = []
     for product_name in config.APPLICATION.products.keys():
-        prod_cfg = src.product.get_product_config(config, product_name)
-        if src.get_property_in_product_cfg(prod_cfg, prop) == value:
+        prod_cfg = PROD.get_product_config(config, product_name)
+        if UTS.get_property_in_product_cfg(prod_cfg, prop) == value:
             l_product_to_remove.append(product_name)
     for product_name in l_product_to_remove:
         config.APPLICATION.products.__delitem__(product_name)</div>

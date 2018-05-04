@@ -64,7 +64,7 @@
 <span class="sd">  The job command executes the commands of the job defined</span>
 <span class="sd">  in the jobs configuration file\</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat job --jobs_config my_jobs --name my_job&quot;</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -140,7 +140,7 @@
     <span class="n">UTS</span><span class="o">.</span><span class="n">logger_info_tuples</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
     
     <span class="c1"># Read the config that is in the file</span>
-    <span class="n">config_jobs</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">read_config_from_a_file</span><span class="p">(</span><span class="n">file_jobs_cfg</span><span class="p">)</span>
+    <span class="n">config_jobs</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">read_config_from_a_file</span><span class="p">(</span><span class="n">file_jobs_cfg</span><span class="p">)</span>
     
     <span class="c1"># Find the job and its commands</span>
     <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -167,7 +167,7 @@
         <span class="k">if</span> <span class="n">cmd_exe</span> <span class="o">==</span> <span class="s2">&quot;sat&quot;</span><span class="p">:</span>
             <span class="c1"># use the salomeTools parser to get the options of the command</span>
             <span class="n">sat_parser</span> <span class="o">=</span> <span class="n">salomeTools</span><span class="o">.</span><span class="n">parser</span>
-            <span class="n">input_parser</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">remove_item_from_list</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">input_parser</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">remove_item_from_list</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">argus</span><span class="p">)</span> <span class="o">=</span> <span class="n">sat_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">input_parser</span><span class="p">)</span>
             <span class="c1"># Verify if there is a changed option</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>

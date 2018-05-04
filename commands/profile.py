@@ -34,7 +34,7 @@ class Command(_BaseCommand):
   """\
   The profile command creates default profile.
   
-  | examples: 
+  | Examples: 
   | >> sat profile [PRODUCT] 
   | >> sat profile --prefix (string)
   | >> sat profile --name (string)

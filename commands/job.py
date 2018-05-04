@@ -31,7 +31,7 @@ class Command(_BaseCommand):
   The job command executes the commands of the job defined
   in the jobs configuration file\
   
-  | examples:
+  | Examples:
   | >> sat job --jobs_config my_jobs --name my_job"
   """
   

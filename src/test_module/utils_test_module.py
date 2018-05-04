@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+"""
+ToolBox for test framework salome and
+Exception class for test errors.
+"""
+
 import os
 import string
 import subprocess
 
-"""
-ToolBox for test framework salome
-Exception class for test errors.
-"""
 
 class SatTestError(Exception):
     def __init__(self, value):
@@ -41,9 +42,8 @@ def compFloat(f1, f2, tol=10e-10):
         comp = "KO"
     return comp
 
-##
-# Compares 2 files.
 def compFiles(f1, f2, tol=0):
+    """Compares 2 files."""
     assert os.path.exists(f1), "compFiles: file not found: %s" % f1
     assert os.path.exists(f2), "compFiles: file not found: %s" % f2
     diffLine = os.popen("diff -y --suppress-common-lines %s %s" % (f1, f2))
@@ -56,9 +56,8 @@ def compFiles(f1, f2, tol=0):
         comp = "KO"
     return comp
 
-##
-# Uses mdump to dump a med file.
 def mdump_med(med_file, dump_file, options):
+    """Uses mdump to dump a med file."""
     assert isinstance(options, list), "Bad options for mdump: %s" % options
     assert len(options) == 3, "Bad options for mdump: %s" % options
     cmd = "mdump %s %s" % (med_file, " ".join(options))
@@ -71,9 +70,8 @@ def mdump_med(med_file, dump_file, options):
 
     return st
 
-##
-# Compares 2 med files by using mdump.
 def compMED(file1, file2, tol=0, diff_flags=""):
+    """Compares 2 med files by using mdump."""
     assert os.path.exists(file1), "compMED: file not found: %s" % file1
     assert os.path.exists(file2), "compMED: file not found: %s" % file2
     

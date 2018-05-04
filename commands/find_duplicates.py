@@ -43,7 +43,7 @@ class Command(_BaseCommand):
   in INSTALL directory (or the optionally given directory) and 
   prints the found files to the terminal.
   
-  | examples:
+  | Examples:
   | >> sat find_duplicates --path /tmp
   """
   

@@ -34,9 +34,9 @@ class OptResult(object):
     in code of all salomeTools commands
     The aim of this class is to have an elegant syntax to manipulate the options.
     
-    example: 
-    >> print(options.level)
-    >> 5
+    | Example: 
+    | >> print(options.level)
+    | >> 5
     """
     def __init__(self):
         """Initialization

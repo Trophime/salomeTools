@@ -35,7 +35,7 @@ class Command(_BaseCommand):
   The patch command apply the patches on the sources of the application products
   if there is any.
 
-  | examples:
+  | Examples:
   | >> sat patch SALOME --products qt,boost
   """
   

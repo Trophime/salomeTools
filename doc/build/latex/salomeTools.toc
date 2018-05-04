@@ -92,57 +92,57 @@
 \contentsline {subsubsection}{src.architecture module}{35}{subsubsection*.175}
 \contentsline {subsubsection}{src.catchAll module}{35}{subsubsection*.182}
 \contentsline {subsubsection}{src.coloringSat module}{36}{subsubsection*.188}
-\contentsline {subsubsection}{src.compilation module}{36}{subsubsection*.198}
-\contentsline {subsubsection}{src.configManager module}{37}{subsubsection*.217}
-\contentsline {subsubsection}{src.debug module}{39}{subsubsection*.234}
-\contentsline {subsubsection}{src.environment module}{40}{subsubsection*.250}
+\contentsline {subsubsection}{src.compilation module}{37}{subsubsection*.198}
+\contentsline {subsubsection}{src.configManager module}{38}{subsubsection*.217}
+\contentsline {subsubsection}{src.debug module}{40}{subsubsection*.234}
+\contentsline {subsubsection}{src.environment module}{41}{subsubsection*.250}
 \contentsline {subsubsection}{src.environs module}{44}{subsubsection*.288}
-\contentsline {subsubsection}{src.exceptionSat module}{44}{subsubsection*.292}
-\contentsline {subsubsection}{src.fileEnviron module}{44}{subsubsection*.294}
-\contentsline {subsubsection}{src.fork module}{49}{subsubsection*.359}
-\contentsline {subsubsection}{src.loggingSat module}{50}{subsubsection*.365}
-\contentsline {subsubsection}{src.options module}{51}{subsubsection*.385}
-\contentsline {subsubsection}{src.product module}{52}{subsubsection*.394}
-\contentsline {subsubsection}{src.pyconf module}{55}{subsubsection*.424}
-\contentsline {subsubsection}{src.returnCode module}{63}{subsubsection*.496}
-\contentsline {subsubsection}{src.salomeTools module}{64}{subsubsection*.519}
-\contentsline {subsubsection}{src.system module}{65}{subsubsection*.540}
-\contentsline {subsubsection}{src.template module}{66}{subsubsection*.546}
-\contentsline {subsubsection}{src.test\_module module}{66}{subsubsection*.551}
-\contentsline {subsubsection}{src.utilsSat module}{67}{subsubsection*.571}
-\contentsline {subsubsection}{src.xmlManager module}{70}{subsubsection*.638}
-\contentsline {subsubsection}{Module contents}{72}{subsubsection*.652}
-\contentsline {section}{\numberline {4.2}commands}{72}{section.4.2}
-\contentsline {subsection}{\numberline {4.2.1}commands package}{72}{subsection.4.2.1}
-\contentsline {subsubsection}{Submodules}{72}{subsubsection*.653}
-\contentsline {subsubsection}{commands.application module}{72}{subsubsection*.654}
-\contentsline {subsubsection}{commands.check module}{73}{subsubsection*.669}
-\contentsline {subsubsection}{commands.clean module}{74}{subsubsection*.677}
-\contentsline {subsubsection}{commands.compile module}{75}{subsubsection*.687}
-\contentsline {subsubsection}{commands.config module}{77}{subsubsection*.705}
-\contentsline {subsubsection}{commands.configure module}{77}{subsubsection*.710}
-\contentsline {subsubsection}{commands.environ module}{78}{subsubsection*.718}
-\contentsline {subsubsection}{commands.find\_duplicates module}{79}{subsubsection*.724}
-\contentsline {subsubsection}{commands.generate module}{80}{subsubsection*.733}
-\contentsline {subsubsection}{commands.init module}{81}{subsubsection*.743}
-\contentsline {subsubsection}{commands.job module}{81}{subsubsection*.751}
-\contentsline {subsubsection}{commands.jobs module}{82}{subsubsection*.756}
-\contentsline {subsubsection}{commands.launcher module}{86}{subsubsection*.813}
-\contentsline {subsubsection}{commands.log module}{87}{subsubsection*.821}
-\contentsline {subsubsection}{commands.make module}{88}{subsubsection*.833}
-\contentsline {subsubsection}{commands.makeinstall module}{89}{subsubsection*.842}
-\contentsline {subsubsection}{commands.package module}{90}{subsubsection*.850}
-\contentsline {subsubsection}{commands.patch module}{94}{subsubsection*.874}
-\contentsline {subsubsection}{commands.prepare module}{95}{subsubsection*.880}
-\contentsline {subsubsection}{commands.profile module}{95}{subsubsection*.888}
-\contentsline {subsubsection}{commands.run module}{96}{subsubsection*.899}
-\contentsline {subsubsection}{commands.script module}{96}{subsubsection*.904}
-\contentsline {subsubsection}{commands.shell module}{97}{subsubsection*.912}
-\contentsline {subsubsection}{commands.source module}{98}{subsubsection*.917}
-\contentsline {subsubsection}{commands.template module}{100}{subsubsection*.931}
-\contentsline {subsubsection}{commands.test module}{101}{subsubsection*.948}
-\contentsline {subsubsection}{Module contents}{101}{subsubsection*.960}
-\contentsline {chapter}{\numberline {5}Release Notes}{103}{chapter.5}
-\contentsline {section}{\numberline {5.1}Release notes}{103}{section.5.1}
-\contentsline {chapter}{Python Module Index}{105}{section*.961}
-\contentsline {chapter}{Index}{107}{section*.962}
+\contentsline {subsubsection}{src.exceptionSat module}{45}{subsubsection*.292}
+\contentsline {subsubsection}{src.fileEnviron module}{45}{subsubsection*.294}
+\contentsline {subsubsection}{src.fork module}{50}{subsubsection*.359}
+\contentsline {subsubsection}{src.loggingSat module}{51}{subsubsection*.365}
+\contentsline {subsubsection}{src.options module}{52}{subsubsection*.385}
+\contentsline {subsubsection}{src.product module}{53}{subsubsection*.394}
+\contentsline {subsubsection}{src.pyconf module}{56}{subsubsection*.424}
+\contentsline {subsubsection}{src.returnCode module}{64}{subsubsection*.496}
+\contentsline {subsubsection}{src.salomeTools module}{65}{subsubsection*.519}
+\contentsline {subsubsection}{src.system module}{66}{subsubsection*.540}
+\contentsline {subsubsection}{src.template module}{67}{subsubsection*.546}
+\contentsline {subsubsection}{src.test\_module module}{67}{subsubsection*.551}
+\contentsline {subsubsection}{src.utilsSat module}{68}{subsubsection*.571}
+\contentsline {subsubsection}{src.xmlManager module}{72}{subsubsection*.638}
+\contentsline {subsubsection}{Module contents}{74}{subsubsection*.652}
+\contentsline {section}{\numberline {4.2}commands}{74}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}commands package}{74}{subsection.4.2.1}
+\contentsline {subsubsection}{Submodules}{74}{subsubsection*.653}
+\contentsline {subsubsection}{commands.application module}{74}{subsubsection*.654}
+\contentsline {subsubsection}{commands.check module}{75}{subsubsection*.669}
+\contentsline {subsubsection}{commands.clean module}{76}{subsubsection*.677}
+\contentsline {subsubsection}{commands.compile module}{77}{subsubsection*.687}
+\contentsline {subsubsection}{commands.config module}{79}{subsubsection*.705}
+\contentsline {subsubsection}{commands.configure module}{79}{subsubsection*.710}
+\contentsline {subsubsection}{commands.environ module}{80}{subsubsection*.718}
+\contentsline {subsubsection}{commands.find\_duplicates module}{81}{subsubsection*.724}
+\contentsline {subsubsection}{commands.generate module}{82}{subsubsection*.733}
+\contentsline {subsubsection}{commands.init module}{82}{subsubsection*.743}
+\contentsline {subsubsection}{commands.job module}{83}{subsubsection*.751}
+\contentsline {subsubsection}{commands.jobs module}{83}{subsubsection*.756}
+\contentsline {subsubsection}{commands.launcher module}{88}{subsubsection*.813}
+\contentsline {subsubsection}{commands.log module}{89}{subsubsection*.821}
+\contentsline {subsubsection}{commands.make module}{90}{subsubsection*.833}
+\contentsline {subsubsection}{commands.makeinstall module}{91}{subsubsection*.842}
+\contentsline {subsubsection}{commands.package module}{92}{subsubsection*.850}
+\contentsline {subsubsection}{commands.patch module}{96}{subsubsection*.874}
+\contentsline {subsubsection}{commands.prepare module}{96}{subsubsection*.880}
+\contentsline {subsubsection}{commands.profile module}{97}{subsubsection*.888}
+\contentsline {subsubsection}{commands.run module}{98}{subsubsection*.899}
+\contentsline {subsubsection}{commands.script module}{98}{subsubsection*.904}
+\contentsline {subsubsection}{commands.shell module}{99}{subsubsection*.912}
+\contentsline {subsubsection}{commands.source module}{99}{subsubsection*.917}
+\contentsline {subsubsection}{commands.template module}{102}{subsubsection*.931}
+\contentsline {subsubsection}{commands.test module}{102}{subsubsection*.948}
+\contentsline {subsubsection}{Module contents}{103}{subsubsection*.960}
+\contentsline {chapter}{\numberline {5}Release Notes}{105}{chapter.5}
+\contentsline {section}{\numberline {5.1}Release notes}{105}{section.5.1}
+\contentsline {chapter}{Python Module Index}{107}{section*.961}
+\contentsline {chapter}{Index}{109}{section*.962}

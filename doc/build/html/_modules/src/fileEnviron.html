@@ -50,6 +50,7 @@
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
 
 <span class="n">bat_header</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">@echo off</span>
@@ -109,10 +110,12 @@
 <span class="s2">###########################################################################</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-<span class="n">cfg_header</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[SALOME Configuration]</span>
+<span class="n">cfg_header</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">[SALOME Configuration]</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-<span class="n">Launcher_header</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;# a generated SALOME Configuration file using python syntax</span>
+<span class="n">Launcher_header</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2"># a generated SALOME Configuration file using python syntax</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="get_file_environ"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.get_file_environ">[docs]</a><span class="k">def</span> <span class="nf">get_file_environ</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">shell</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -414,8 +417,8 @@
 <span class="sd">        :param key: (str) the environment variable</span>
 <span class="sd">        :param command: (str) the command to execute</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;command_value is not implement &quot;</span>
-                                  <span class="s2">&quot;for salome context files!&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+          <span class="s2">&quot;command_value is not implemented for salome context files.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ContextFileEnviron.add_echo"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.ContextFileEnviron.add_echo">[docs]</a>    <span class="k">def</span> <span class="nf">add_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a comment</span>
@@ -429,7 +432,7 @@
 <span class="sd">        </span>
 <span class="sd">        :param text: (str) the warning to add</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s2">&quot;WARNING </span><span class="si">%s</span><span class="s2">&quot;</span>  <span class="o">%</span> <span class="n">warning</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s2">&quot;WARNING </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">warning</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ContextFileEnviron.prepend_value"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.ContextFileEnviron.prepend_value">[docs]</a>    <span class="k">def</span> <span class="nf">prepend_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;prepend value to key using sep</span>
@@ -708,10 +711,8 @@
 
 <div class="viewcode-block" id="ScreenEnviron.write"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.ScreenEnviron.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">src</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
-            <span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">command</span><span class="p">),</span>
-             <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">12</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="p">)),</span>
-             <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">sign</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>  \
+          <span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">12</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="p">)),</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">sign</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScreenEnviron.is_defined"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.ScreenEnviron.is_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
@@ -740,6 +741,7 @@
 
 <div class="viewcode-block" id="ScreenEnviron.run_env_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.fileEnviron.ScreenEnviron.run_env_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_env_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">script</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div></div>
+
 
 <span class="c1"># The SALOME launcher template </span>
 <span class="n">withProfile</span> <span class="o">=</span>  <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>

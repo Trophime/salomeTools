@@ -49,6 +49,13 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities to build and compile </span>
+
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import src.compilation as COMP</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -56,15 +63,12 @@
 
 <span class="kn">from</span> <span class="nn">src.options</span> <span class="k">import</span> <span class="n">OptResult</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
 
 
-<span class="n">C_COMPILE_ENV_LIST</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CC&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;CXX&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;F77&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;CFLAGS&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;CXXFLAGS&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;LIBS&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;LDFLAGS&quot;</span><span class="p">]</span>
+<span class="n">C_COMPILE_ENV_LIST</span> <span class="o">=</span> <span class="s2">&quot;CC CXX F77 CFLAGS CXXFLAGS LIBS LDFLAGS&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Builder"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder">[docs]</a><span class="k">class</span> <span class="nc">Builder</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -80,9 +84,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span> <span class="o">=</span> <span class="n">product_info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_dir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug_mode</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">debug</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
@@ -112,21 +116,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
         <span class="c1"># add products in depend and opt_depend list recursively</span>
-        <span class="n">environ_info</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                                                            <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">)</span>
+        <span class="n">environ_info</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">)</span>
         <span class="c1">#environ_info.append(self.product_info.name)</span>
 
         <span class="c1"># create build environment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                                      <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span>
-                                      <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">output_verbose_level</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build_environ</span><span class="o">.</span><span class="n">set_full_environ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">environ_info</span><span class="p">)</span>
         
         <span class="c1"># create runtime environment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">launch_environ</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                                      <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span>
-                                      <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">launch_environ</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">launch_environ</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># no need to show here</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">launch_environ</span><span class="o">.</span><span class="n">set_full_environ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">environ_info</span><span class="p">)</span>
 
@@ -338,7 +339,7 @@
     <span class="c1">##</span>
     <span class="c1"># Runs &#39;make_check&#39;.</span>
 <div class="viewcode-block" id="Builder.check"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;msbuild RUN_TESTS.vcxproj&#39;</span>
         <span class="k">else</span> <span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="o">.</span><span class="n">build_source</span><span class="o">==</span><span class="s2">&quot;autotools&quot;</span> <span class="p">:</span>
@@ -463,7 +464,7 @@
 
 <div class="viewcode-block" id="Builder.do_batch_script_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_batch_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_batch_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">nb_proc</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
             <span class="n">make_options</span> <span class="o">=</span> <span class="s2">&quot;/maxcpucount:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nb_proc</span>
         <span class="k">else</span> <span class="p">:</span>
             <span class="n">make_options</span> <span class="o">=</span> <span class="s2">&quot;-j</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nb_proc</span>
@@ -487,7 +488,7 @@
 <div class="viewcode-block" id="Builder.do_script_build"><a class="viewcode-back" href="../../apidoc_src/src.html#src.compilation.Builder.do_script_build">[docs]</a>    <span class="k">def</span> <span class="nf">do_script_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">number_of_proc</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># define make options (may not be used by the script)</span>
         <span class="k">if</span> <span class="n">number_of_proc</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-            <span class="n">nb_proc</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">,</span><span class="s2">&quot;nb_proc&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">nb_proc</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_config_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_info</span><span class="p">,</span><span class="s2">&quot;nb_proc&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">nb_proc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
                 <span class="n">nb_proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">nb_proc</span>
         <span class="k">else</span><span class="p">:</span>

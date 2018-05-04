@@ -36,7 +36,7 @@ class Command(_BaseCommand):
 
   | warning: this command NEEDS YACSGEN to run.
   | 
-  | examples:
+  | Examples:
   | >> sat generate SALOME --products FLICACPP
   """
   

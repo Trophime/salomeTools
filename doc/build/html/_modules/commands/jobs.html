@@ -101,7 +101,7 @@
 <span class="sd">  The jobs command command launches maintenances that are described in </span>
 <span class="sd">  the dedicated jobs configuration file.</span>
 
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat jobs --name my_jobs --publish</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -195,7 +195,7 @@
             <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="n">l_conf_files_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_jobs_cfg</span><span class="p">)</span>
         <span class="c1"># Read the config that is in the file</span>
-        <span class="n">one_config_jobs</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">read_config_from_a_file</span><span class="p">(</span><span class="n">file_jobs_cfg</span><span class="p">)</span>
+        <span class="n">one_config_jobs</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">read_config_from_a_file</span><span class="p">(</span><span class="n">file_jobs_cfg</span><span class="p">)</span>
         <span class="n">merger</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">config_jobs</span><span class="p">,</span> <span class="n">one_config_jobs</span><span class="p">)</span>
     
     <span class="n">info</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Platform&quot;</span><span class="p">),</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">dist</span><span class="p">),</span>
@@ -217,7 +217,7 @@
     <span class="c1"># on every machine</span>
     <span class="n">name_pyconf</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.pyconf&#39;</span><span class="p">)]</span> 
                             <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">l_conf_files_path</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.pyconf&quot;</span>
-    <span class="n">path_pyconf</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name_pyconf</span><span class="p">)</span>
+    <span class="n">path_pyconf</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name_pyconf</span><span class="p">)</span>
     <span class="c1">#Save config</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span> <span class="n">path_pyconf</span> <span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
     <span class="n">config_jobs</span><span class="o">.</span><span class="n">__save__</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -362,13 +362,11 @@
                              <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
                              <span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AuthenticationException</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Authentication failed&quot;</span><span class="p">)</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Authentication failed&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">paramiko</span><span class="o">.</span><span class="n">BadHostKeyException</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span> <span class="o">+</span> 
-                       <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The server&#39;s host key could not be verified&quot;</span><span class="p">))</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The server&#39;s host key could not be verified&quot;</span><span class="p">))</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">paramiko</span><span class="o">.</span><span class="n">SSHException</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;SSHException error connecting or &quot;</span>
-                          <span class="s2">&quot;establishing an SSH session&quot;</span><span class="p">))</span>            
+            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;SSHException error connecting or establishing an SSH session&quot;</span><span class="p">))</span>            
         <span class="k">except</span><span class="p">:</span>
             <span class="n">message</span> <span class="o">=</span> <span class="p">(</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Error connecting or establishing an SSH session&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -571,7 +569,7 @@
         <span class="n">cmd_pid</span> <span class="o">=</span> <span class="s1">&#39;ps aux | grep &quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">+</span> <span class="s1">&#39;&quot; | awk </span><span class="se">\&#39;</span><span class="s1">{print $2}</span><span class="se">\&#39;</span><span class="s1">&#39;</span>
         <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">out_pid</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="n">cmd_pid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">pids_cmd</span> <span class="o">=</span> <span class="n">out_pid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">pids_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">pids_cmd</span><span class="p">]</span>
+        <span class="n">pids_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">only_numbers</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">pids_cmd</span><span class="p">]</span>
         <span class="n">pids</span><span class="o">+=</span><span class="n">pids_cmd</span>
         <span class="k">return</span> <span class="n">pids</span></div>
     
@@ -643,7 +641,7 @@
             <span class="k">return</span>
         
         <span class="c1"># First get the file that contains the list of log files to get</span>
-        <span class="n">tmp_file_path</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;list_log_files.txt&quot;</span><span class="p">)</span>
+        <span class="n">tmp_file_path</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;list_log_files.txt&quot;</span><span class="p">)</span>
         <span class="n">remote_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">machine</span><span class="o">.</span><span class="n">sat_path</span><span class="p">,</span> <span class="s2">&quot;list_log_files.txt&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">machine</span><span class="o">.</span><span class="n">sftp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remote_path</span><span class="p">,</span> <span class="n">tmp_file_path</span><span class="p">)</span>
         
@@ -1243,7 +1241,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">tiret_line</span> <span class="o">+</span> <span class="n">text_line</span> <span class="o">+</span> <span class="s2">&quot;|</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tiret_line</span><span class="p">)</span>
         
         <span class="c1"># The infinite loop that runs the jobs</span>
-        <span class="n">l_jobs_not_started</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ljobs</span><span class="p">)</span>
+        <span class="n">l_jobs_not_started</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">deepcopy_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ljobs</span><span class="p">)</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_jobs_finished</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ljobs</span><span class="p">):</span>
             <span class="n">new_job_start</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">host_port</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lhosts</span><span class="p">:</span>

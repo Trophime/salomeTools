@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# %% LICENSE_SALOME_CEA_BEGIN
 # Copyright (C) 2008-2018  CEA/DEN
 # 
 # This library is free software; you can redistribute it and/or
@@ -19,14 +18,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 # 
 # See http://www.salome-platform.org or email : webmaster.salome@opencascade.com
-# %% LICENSE_END
 
 
 """
-test all SAT unittest files (test*.py) existing in subdirectories of a root directory
+Test all SAT unittest files (test*.py) existing in subdirectories of a root directory
 
-example:
-  AllTestLauncherSat.py --rootPath='.' --pattern='test*.py'
+| Example:
+| >> AllTestLauncherSat.py --rootPath='.' --pattern='test*.py'
 """
 
 """
@@ -127,7 +125,7 @@ def grepInEnv(search=""):
   env=os.environ
   for i in sorted(env):
      done=False
-     for j in env[i].split(":"):
+     for j in env[i].split(":"): 
        if search in j:
            if not done:
              print i+" contains " 

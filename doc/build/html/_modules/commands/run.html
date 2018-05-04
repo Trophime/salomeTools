@@ -65,7 +65,7 @@
   <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">  The run command runs the application launcher with the given arguments.</span>
 <span class="sd">  </span>
-<span class="sd">  | examples:</span>
+<span class="sd">  | Examples:</span>
 <span class="sd">  | &gt;&gt; sat run SALOME</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   
@@ -98,17 +98,17 @@
     <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
 
     <span class="c1"># check for product</span>
-    <span class="n">src</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">raiseIfKo</span><span class="p">()</span>
 
     <span class="c1"># Determine launcher path </span>
-    <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="n">launcher_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span>
     
     <span class="c1"># Check the launcher existence</span>
     <span class="k">if</span> <span class="n">launcher_name</span> <span class="ow">not</span> <span class="ow">in</span>  <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">launcher_dir</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">The launcher </span><span class="si">%(1)s</span><span class="s2"> was not found in directory &#39;</span><span class="si">%(2)s</span><span class="s2">&#39;.</span>
-<span class="s2">Did you run the command &#39;sat launcher&#39; ?</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="n">launcher_name</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="n">launcher_dir</span><span class="p">}</span>
+<span class="s2">The launcher </span><span class="si">%s</span><span class="s2"> was not found in directory &#39;</span><span class="si">%s</span><span class="s2">&#39;.</span>
+<span class="s2">Did you run the command &#39;sat launcher&#39; ?&quot;&quot;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">launcher_name</span><span class="p">,</span> <span class="n">launcher_dir</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
           
     <span class="n">launcher_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">launcher_dir</span><span class="p">,</span> <span class="n">launcher_name</span><span class="p">)</span>

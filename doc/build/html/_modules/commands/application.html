@@ -63,7 +63,9 @@
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
 <span class="kn">from</span> <span class="nn">src.salomeTools</span> <span class="k">import</span> <span class="n">_BaseCommand</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
 
 <span class="c1">########################################################################</span>
 <span class="c1"># Command class</span>
@@ -130,8 +132,8 @@
     <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptions</span><span class="p">()</span>
     
     <span class="c1"># check for APPLICATION</span>
-    <span class="n">rc</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">rc</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span> <span class="k">return</span> <span class="n">rc</span>
+    <span class="n">returnCode</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">returnCode</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span> <span class="k">return</span> <span class="n">returnCode</span>
 
     <span class="n">application</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">application</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Building application for &lt;header&gt;</span><span class="si">%s</span><span class="s2">&lt;reset&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">application</span><span class="p">)</span>
@@ -141,7 +143,8 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The section APPLICATION.virtual_app is not defined in the product.&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;KO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
-
+    <span class="n">virtual_app</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span>
+    
     <span class="c1"># get application dir</span>
     <span class="n">target_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
@@ -149,16 +152,15 @@
 
     <span class="c1"># set list of modules</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">modules</span>
+        <span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">modules</span>
 
     <span class="c1"># set name and application_name</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;application_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_appdir&quot;</span>
+        <span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">virtual_app</span><span class="p">[</span><span class="s1">&#39;application_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_appdir&quot;</span>
     
-    <span class="n">application_name</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="p">,</span>
-                                         <span class="s2">&quot;application_name&quot;</span><span class="p">,</span>
-                                         <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_appdir&quot;</span><span class="p">)</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_appdir&quot;</span>
+    <span class="n">application_name</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_config_key</span><span class="p">(</span><span class="n">virtual_app</span><span class="p">,</span> <span class="s2">&quot;application_name&quot;</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
     <span class="n">appli_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">application_name</span><span class="p">)</span>
 
     <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="c1"># as &quot;  label = value\n&quot;</span>
@@ -172,21 +174,18 @@
     <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">gencat</span><span class="p">:</span>
         <span class="c1"># generate catalog for given list of computers</span>
         <span class="n">catalog_src</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">gencat</span>
-        <span class="n">catalog</span> <span class="o">=</span> <span class="n">generate_catalog</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">gencat</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
-                                   <span class="n">config</span><span class="p">,</span><span class="n">logger</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="s1">&#39;catalog&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="p">:</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">generate_catalog</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">gencat</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">config</span><span class="p">,</span><span class="n">logger</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;catalog&#39;</span> <span class="ow">in</span> <span class="n">virtual_app</span><span class="p">:</span>
         <span class="c1"># use catalog specified in the product</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xml&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xml&quot;</span><span class="p">):</span>
             <span class="c1"># catalog as a file</span>
-            <span class="n">catalog</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span>
+            <span class="n">catalog</span> <span class="o">=</span> <span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># catalog as a list of computers</span>
-            <span class="n">catalog_src</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span>
-            <span class="n">mlist</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
-                           <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+            <span class="n">catalog_src</span> <span class="o">=</span> <span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span>
+            <span class="n">mlist</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mlist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">catalog</span> <span class="o">=</span> <span class="n">generate_catalog</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
-                                           <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+                <span class="n">catalog</span> <span class="o">=</span> <span class="n">generate_catalog</span><span class="p">(</span><span class="n">virtual_app</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 
     <span class="c1"># display which catalog is used</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -221,9 +220,8 @@
     <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">ReturnCode</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span></div></div>
 
 
-
-<span class="c1"># Creates an alias for runAppli.</span>
 <div class="viewcode-block" id="make_alias"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.application.make_alias">[docs]</a><span class="k">def</span> <span class="nf">make_alias</span><span class="p">(</span><span class="n">appli_path</span><span class="p">,</span> <span class="n">alias_path</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates an alias for runAppli&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">alias_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Bad name for alias&quot;</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">alias_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cannot create the alias &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">alias_path</span><span class="p">)</span>
@@ -242,15 +240,13 @@
               <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">has_gui</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">flagline</span></div>
 
-<span class="c1">##</span>
-<span class="c1"># Creates the config file to create an application with the list of modules.</span>
 <div class="viewcode-block" id="create_config_file"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.application.create_config_file">[docs]</a><span class="k">def</span> <span class="nf">create_config_file</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">env_file</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;Creates the config file to create an application with the list of modules.&quot;&quot;&quot;</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;SAMPLES&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
-        <span class="n">samples</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;SAMPLES&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">source_dir</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;SAMPLES&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">source_dir</span>
 
-    <span class="n">config_file</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;appli_config.xml&quot;</span><span class="p">)</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;appli_config.xml&quot;</span><span class="p">)</span>
     <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;application&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -263,14 +259,14 @@
 
     <span class="n">flagline</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-        <span class="n">mm</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_smesh_plugin</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+        <span class="n">mm</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_smesh_plugin</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="k">if</span> <span class="s1">&#39;install_dir&#39;</span> <span class="ow">in</span> <span class="n">mm</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">install_dir</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_cpp</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_cpp</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
                 <span class="c1"># cpp module</span>
-                <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_components</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_components</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
                     <span class="n">install_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span>
                                                <span class="s2">&quot;INSTALL&quot;</span><span class="p">)</span>
                     <span class="n">mp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">install_dir</span><span class="p">,</span> <span class="n">aa</span><span class="p">)</span>
@@ -283,7 +279,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># regular module</span>
                 <span class="n">mp</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">install_dir</span>
-                <span class="n">gui</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="s2">&quot;has_gui&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+                <span class="n">gui</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_config_key</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="s2">&quot;has_gui&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span>
                 <span class="n">flagline</span> <span class="o">=</span> <span class="n">add_module_to_appli</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">gui</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">flagline</span><span class="p">)</span>
 
     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;/modules&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -347,12 +343,11 @@
     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<span class="c1">##</span>
-<span class="c1"># Generates the application with the config_file.</span>
 <div class="viewcode-block" id="generate_application"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.application.generate_application">[docs]</a><span class="k">def</span> <span class="nf">generate_application</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">appli_dir</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates the application with the config_file.&quot;&quot;&quot;</span>
     <span class="n">target_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">appli_dir</span><span class="p">)</span>
 
-    <span class="n">install_KERNEL_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">install_KERNEL_dir</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
                                                         <span class="s1">&#39;KERNEL&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">install_dir</span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">install_KERNEL_dir</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;salome&quot;</span><span class="p">,</span> <span class="s2">&quot;appli_gen.py&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script</span><span class="p">):</span>
@@ -361,10 +356,7 @@
     <span class="c1"># Add SALOME python in the environment in order to avoid python version </span>
     <span class="c1"># problems at appli_gen.py call</span>
     <span class="k">if</span> <span class="s1">&#39;Python&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
-        <span class="n">envi</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span>
-                                             <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span>
-                                                              <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span>
-                                             <span class="kc">True</span><span class="p">)</span>
+        <span class="n">envi</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">envi</span><span class="o">.</span><span class="n">set_a_product</span><span class="p">(</span><span class="s1">&#39;Python&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
     
     <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;python </span><span class="si">%s</span><span class="s2"> --prefix=</span><span class="si">%s</span><span class="s2"> --config=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">script</span><span class="p">,</span>
@@ -390,10 +382,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">pad</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))))</span></div>
 
-<span class="c1">##</span>
-<span class="c1"># Creates a SALOME application.</span>
 <div class="viewcode-block" id="create_application"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.application.create_application">[docs]</a><span class="k">def</span> <span class="nf">create_application</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">appli_dir</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-      
+    <span class="sd">&quot;&quot;&quot;reates a SALOME application.&quot;&quot;&quot;</span>  
     <span class="n">SALOME_modules</span> <span class="o">=</span> <span class="n">get_SALOME_modules</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     
     <span class="n">warn</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;KERNEL&#39;</span><span class="p">,</span> <span class="s1">&#39;GUI&#39;</span><span class="p">]</span>
@@ -417,9 +407,9 @@
 <div class="viewcode-block" id="get_SALOME_modules"><a class="viewcode-back" href="../../apidoc_commands/commands.html#commands.application.get_SALOME_modules">[docs]</a><span class="k">def</span> <span class="nf">get_SALOME_modules</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="n">l_modules</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
-        <span class="n">product_info</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_SALOME</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
-               <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_generated</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
+        <span class="n">product_info</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">PROD</span><span class="o">.</span><span class="n">product_is_SALOME</span><span class="p">(</span><span class="n">product_info</span><span class="p">)</span> <span class="ow">or</span> 
+               <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_generated</span><span class="p">(</span><span class="n">product_info</span><span class="p">)):</span>
             <span class="n">l_modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">l_modules</span></div>
 
@@ -436,7 +426,7 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">get_step</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Creating environment files&quot;</span><span class="p">)))</span>
     <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;&lt;KO&gt;&quot;</span>
 
-    <span class="n">VersionSalome</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_salome_version</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">VersionSalome</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_salome_version</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">VersionSalome</span> <span class="o">&gt;=</span> <span class="mi">820</span><span class="p">:</span>
         <span class="c1"># for salome 8+ we use a salome context file for the virtual app</span>
         <span class="n">app_shell</span><span class="o">=</span><span class="s2">&quot;cfg&quot;</span>
@@ -493,7 +483,7 @@
     <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;&quot;cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal&quot;&#39;</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
 
-    <span class="n">catfile</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
+    <span class="n">catfile</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_tmp_filename</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;CatalogResources.xml&quot;</span><span class="p">)</span>
     <span class="n">catalog</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">catfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">&lt;!DOCTYPE ResourcesCatalog&gt;</span>

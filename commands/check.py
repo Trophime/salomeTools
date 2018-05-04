@@ -36,7 +36,7 @@ class Command(_BaseCommand):
   It is possible to reduce the list of products to check
   by using the --products option
 
-  | examples:
+  | Examples:
   | >> sat check SALOME --products KERNEL,GUI,GEOM
   """
   

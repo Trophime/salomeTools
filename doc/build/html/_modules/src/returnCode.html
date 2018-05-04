@@ -53,11 +53,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file contains ReturnCode class</span>
 
-<span class="sd">usage:</span>
-<span class="sd">&gt;&gt; import returnCode as RCO</span>
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import returnCode as RCO</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">PP</span>
+
+<span class="n">_OK_STATUS</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
+<span class="n">_KO_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KO&quot;</span>
+<span class="n">_NA_STATUS</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span> <span class="c1"># not applicable</span>
+<span class="n">_UNKNOWN_STATUS</span> <span class="o">=</span> <span class="s2">&quot;ND&quot;</span> <span class="c1"># not defined</span>
+<span class="n">_KNOWNFAILURE_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KF&quot;</span>
+<span class="n">_TIMEOUT_STATUS</span> <span class="o">=</span> <span class="s2">&quot;TIMEOUT&quot;</span>
 
 <span class="c1">#####################################################</span>
 <div class="viewcode-block" id="ReturnCode"><a class="viewcode-back" href="../../apidoc_src/src.html#src.returnCode.ReturnCode">[docs]</a><span class="k">class</span> <span class="nc">ReturnCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -67,7 +74,7 @@
 <span class="sd">  but also why is why it is OK (if you want). </span>
 <span class="sd">  and optionnaly contains a return value as self.getValue()</span>
 <span class="sd">  </span>
-<span class="sd">  usage:</span>
+<span class="sd">  Usage:</span>
 <span class="sd">  &gt;&gt; import returnCode as RCO</span>
 <span class="sd">  </span>
 <span class="sd">  &gt;&gt; aValue = doSomethingToReturn()</span>
@@ -86,12 +93,12 @@
 <span class="sd">  &gt;&gt; print(&quot;long returnCode string with value&quot;, repr(rcFinal)) # KO!</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="n">OK_STATUS</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
-  <span class="n">KO_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KO&quot;</span>
-  <span class="n">NA_STATUS</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span> <span class="c1"># not applicable</span>
-  <span class="n">UNKNOWN_STATUS</span> <span class="o">=</span> <span class="s2">&quot;ND&quot;</span> <span class="c1"># not defined</span>
-  <span class="n">KNOWNFAILURE_STATUS</span> <span class="o">=</span> <span class="s2">&quot;KF&quot;</span>
-  <span class="n">TIMEOUT_STATUS</span> <span class="o">=</span> <span class="s2">&quot;TIMEOUT&quot;</span>
+  <span class="n">OK_STATUS</span> <span class="o">=</span> <span class="n">_OK_STATUS</span>
+  <span class="n">KO_STATUS</span> <span class="o">=</span> <span class="n">_OK_STATUS</span>
+  <span class="n">NA_STATUS</span> <span class="o">=</span> <span class="n">_NA_STATUS</span> <span class="c1"># not applicable</span>
+  <span class="n">UNKNOWN_STATUS</span> <span class="o">=</span> <span class="n">_UNKNOWN_STATUS</span> <span class="c1"># not defined</span>
+  <span class="n">KNOWNFAILURE_STATUS</span> <span class="o">=</span> <span class="n">_KNOWNFAILURE_STATUS</span>
+  <span class="n">TIMEOUT_STATUS</span> <span class="o">=</span> <span class="n">_TIMEOUT_STATUS</span>
 
   <span class="c1"># integer for sys.exit(anInt)</span>
   <span class="c1"># OKSYS and KOSYS seems equal on linux or windows</span>

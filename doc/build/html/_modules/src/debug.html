@@ -51,17 +51,17 @@
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This file assume DEBUG functionalities use</span>
+<span class="sd">This file assume DEBUG functionalities use.</span>
 <span class="sd">Print salomeTools debug messages in sys.stderr.</span>
 <span class="sd">Show pretty print debug representation from instances of SAT classes </span>
 <span class="sd">(pretty print src.pyconf.Config)</span>
 
-<span class="sd">WARNING: supposedly show messages in SAT development phase, not production</span>
-
-<span class="sd">usage:</span>
-<span class="sd">&gt;&gt; import debug as DBG</span>
-<span class="sd">&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable)        # not shown in production </span>
-<span class="sd">&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable, True)  # unconditionaly shown </span>
+<span class="sd">| Warning: supposedly show messages in SAT development phase, not production</span>
+<span class="sd">| </span>
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import debug as DBG</span>
+<span class="sd">| &gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable)        # not shown in production </span>
+<span class="sd">| &gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable, True)  # unconditionaly shown </span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -222,7 +222,7 @@
     <span class="k">except</span><span class="p">:</span>
       <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;blue&gt;</span><span class="si">%s%s</span><span class="s2">&lt;reset&gt; : &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">)))</span>
       <span class="k">return</span>     
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">):</span> <span class="c1">#order): # data as sort alphabetical, order as initial order</span>
       <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
       <span class="n">strType</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
       <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">print</span> <span class="n">indstr</span> <span class="o">+</span> <span class="s1">&#39;strType = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">strType</span><span class="p">,</span> <span class="n">key</span>

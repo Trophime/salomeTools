@@ -50,6 +50,13 @@
 <span class="c1">#  License along with this library; if not, write to the Free Software</span>
 <span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">test_module for test base dir/git/svn etc</span>
+
+<span class="sd">| Usage:</span>
+<span class="sd">| &gt;&gt; import src.test_module as TMOD</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="c1"># Python 2/3 compatibility for execfile function</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">execfile</span>
@@ -69,17 +76,21 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 
 <span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
+<span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
+<span class="kn">import</span> <span class="nn">src.fork</span> <span class="k">as</span> <span class="nn">FORK</span>
 
 <span class="c1"># directories not considered as test grids</span>
 <span class="n">C_IGNORE_GRIDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.git&#39;</span><span class="p">,</span> <span class="s1">&#39;.svn&#39;</span><span class="p">,</span> <span class="s1">&#39;RESSOURCES&#39;</span><span class="p">]</span>
 
 <span class="n">DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">150</span>
 
-<span class="c1"># Get directory to be used for the temporary files.</span>
-<span class="c1">#</span>
 <div class="viewcode-block" id="getTmpDirDEFAULT"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.getTmpDirDEFAULT">[docs]</a><span class="k">def</span> <span class="nf">getTmpDirDEFAULT</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Get directory to be used for the temporary files.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
         <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TEMP&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># for Linux: use /tmp/logs/{user} folder</span>
@@ -165,7 +176,7 @@
                          <span class="s1">&#39;dir&#39;</span><span class="p">:</span> <span class="n">testbase_name</span> <span class="p">}</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
                 <span class="c1"># preexec_fn not supported on windows platform</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
                                 <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;BASES&#39;</span><span class="p">),</span>
@@ -204,12 +215,11 @@
             
             <span class="c1"># Get the application environment</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Set the application environment&quot;</span><span class="p">))</span>
-            <span class="n">env_appli</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                                      <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)))</span>
+            <span class="n">env_appli</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">Environ</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)))</span>
             <span class="n">env_appli</span><span class="o">.</span><span class="n">set_application_env</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
             
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
                 <span class="c1"># preexec_fn not supported on windows platform</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
                                 <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;BASES&#39;</span><span class="p">),</span>
@@ -234,9 +244,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;svn is not installed. exiting...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Configure tests base.</span>
 <div class="viewcode-block" id="Test.prepare_testbase"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.prepare_testbase">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_testbase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_base_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Configure tests base.&quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Test base&quot;</span><span class="p">),</span> <span class="n">test_base_name</span><span class="p">))</span>
 
@@ -262,14 +271,13 @@
             <span class="k">return</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">test_base_info</span><span class="o">.</span><span class="n">get_sources</span> <span class="o">==</span> <span class="s2">&quot;dir&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prepare_testbase_from_dir</span><span class="p">(</span><span class="n">test_base_name</span><span class="p">,</span>
-                                           <span class="n">test_base_info</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepare_testbase_from_dir</span><span class="p">(</span><span class="n">test_base_name</span><span class="p">,</span> <span class="n">test_base_info</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">test_base_info</span><span class="o">.</span><span class="n">get_sources</span> <span class="o">==</span> <span class="s2">&quot;git&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prepare_testbase_from_git</span><span class="p">(</span><span class="n">test_base_name</span><span class="p">,</span>
                                        <span class="n">test_base_info</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">,</span>
                                        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">test_base</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">test_base_info</span><span class="o">.</span><span class="n">get_sources</span> <span class="o">==</span> <span class="s2">&quot;svn&quot;</span><span class="p">:</span>
-            <span class="n">svn_user</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_cfg_param</span><span class="p">(</span><span class="n">test_base_info</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+            <span class="n">svn_user</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_config_key</span><span class="p">(</span><span class="n">test_base_info</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
                                          <span class="s2">&quot;svn_user&quot;</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">USER</span><span class="o">.</span><span class="n">svn_user</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prepare_testbase_from_svn</span><span class="p">(</span><span class="n">svn_user</span><span class="p">,</span>
@@ -282,12 +290,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">currentTestBase</span> <span class="o">=</span> <span class="n">test_base_name</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Searches if the script is declared in known errors pyconf.</span>
-    <span class="c1"># Update the status if needed.</span>
+
 <div class="viewcode-block" id="Test.search_known_errors"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.search_known_errors">[docs]</a>    <span class="k">def</span> <span class="nf">search_known_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">test_grid</span><span class="p">,</span> <span class="n">test_session</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Searches if the script is declared in known errors pyconf.</span>
+<span class="sd">        Update the status if needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_grid</span><span class="p">,</span> <span class="n">test_session</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">config_has_application</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">UTS</span><span class="o">.</span><span class="n">check_config_has_application</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">isOk</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_errors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -299,7 +309,7 @@
         <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="p">[]</span>
         
-        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">error</span><span class="o">.</span><span class="n">fixed</span><span class="p">:</span>
                 <span class="c1"># the error is fixed</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">known_errors</span><span class="o">.</span><span class="n">fix_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
@@ -321,12 +331,12 @@
         <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_errors</span><span class="o">.</span><span class="n">get_expecting_days</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
         <span class="n">kfres</span> <span class="o">=</span> <span class="p">[</span> <span class="n">error</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">expected</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">fixed</span> <span class="p">]</span>
         <span class="k">if</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span><span class="p">,</span> <span class="n">kfres</span>
-        <span class="k">return</span> <span class="n">src</span><span class="o">.</span><span class="n">KNOWNFAILURE_STATUS</span><span class="p">,</span> <span class="n">kfres</span></div>
+            <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span><span class="p">,</span> <span class="n">kfres</span>
+        <span class="k">return</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KNOWNFAILURE_STATUS</span><span class="p">,</span> <span class="n">kfres</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Read the *.result.py files.</span>
+
 <div class="viewcode-block" id="Test.read_results"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.read_results">[docs]</a>    <span class="k">def</span> <span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">has_timed_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the xxx.result.py files.&quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">listTest</span><span class="p">:</span>
             <span class="n">resfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span>
@@ -341,15 +351,15 @@
                 <span class="n">gdic</span><span class="p">,</span> <span class="n">ldic</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
                 <span class="n">execfile</span><span class="p">(</span><span class="n">resfile</span><span class="p">,</span> <span class="n">gdic</span><span class="p">,</span> <span class="n">ldic</span><span class="p">)</span>
 
-                <span class="n">status</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">TIMEOUT_STATUS</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_TIMEOUT_STATUS</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">has_timed_out</span><span class="p">:</span>
-                    <span class="n">status</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span>
 
                 <span class="k">if</span> <span class="n">ldic</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">):</span>
                     <span class="n">status</span> <span class="o">=</span> <span class="n">ldic</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span>
 
                 <span class="n">expected</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span><span class="p">:</span>
                     <span class="n">status</span><span class="p">,</span> <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_known_errors</span><span class="p">(</span><span class="n">status</span><span class="p">,</span>
                                                             <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">,</span>
                                                             <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">,</span>
@@ -358,7 +368,7 @@
                 <span class="n">callback</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                 <span class="k">if</span> <span class="n">ldic</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s1">&#39;callback&#39;</span><span class="p">):</span>
                     <span class="n">callback</span> <span class="o">=</span> <span class="n">ldic</span><span class="p">[</span><span class="s1">&#39;callback&#39;</span><span class="p">]</span>
-                <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">KO_STATUS</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KO_STATUS</span><span class="p">:</span>
                     <span class="n">callback</span> <span class="o">=</span> <span class="s2">&quot;CRASH&quot;</span>
 
                 <span class="n">exec_time</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -396,55 +406,52 @@
 
         <span class="k">return</span> <span class="n">results</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Generates the script to be run by Salome.</span>
-    <span class="c1"># This python script includes init and close statements and a loop</span>
-    <span class="c1"># calling all the scripts of a single directory.</span>
 <div class="viewcode-block" id="Test.generate_script"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.generate_script">[docs]</a>    <span class="k">def</span> <span class="nf">generate_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">script_path</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
-        <span class="c1"># open template file</span>
-        <span class="n">template_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span>
-                                          <span class="s2">&quot;test_module&quot;</span><span class="p">,</span>
-                                          <span class="s2">&quot;script_test_module.pyTemplate&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">template_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the script to be run by Salome.</span>
+<span class="sd">        This python script includes init and close statements and a loop</span>
+<span class="sd">        calling all the scripts of a single directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">JOIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span> <span class="c1">#shortcut</span>
+        <span class="c1"># open/read template file</span>
+        <span class="n">nameFile</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span> <span class="s2">&quot;test_module&quot;</span><span class="p">,</span> <span class="s2">&quot;script_test_module.pyTemplate&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">nameFile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+          <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
         
         <span class="c1"># create substitution dictionary</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resourcesWay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span> <span class="s1">&#39;RESSOURCES&#39;</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;tmpDir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;WORK&#39;</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;toolsWay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span> <span class="s2">&quot;test_module&quot;</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;sessionDir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resultFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span>
-                                       <span class="s1">&#39;WORK&#39;</span><span class="p">,</span>
-                                       <span class="s1">&#39;exec_result&#39;</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resourcesWay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span> <span class="s1">&#39;RESSOURCES&#39;</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;tmpDir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;WORK&#39;</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;toolsWay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">VARS</span><span class="o">.</span><span class="n">srcDir</span><span class="p">,</span> <span class="s2">&quot;test_module&quot;</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;sessionDir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resultFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JOIN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s1">&#39;WORK&#39;</span><span class="p">,</span> <span class="s1">&#39;exec_result&#39;</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;listTest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">listTest</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;sessionName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ignoreList</span>
 
         <span class="c1"># create script with template</span>
-        <span class="n">script</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
-        <span class="n">script</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
-        <span class="n">script</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+          <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="n">d</span><span class="p">))</span></div>
 
-    <span class="c1"># Find the getTmpDir function that gives access to *pidict file directory.</span>
-    <span class="c1"># (the *pidict file exists when SALOME is launched) </span>
 <div class="viewcode-block" id="Test.get_tmp_dir"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.get_tmp_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_tmp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the getTmpDir function that gives access to xxxpidict file directory.</span>
+<span class="sd">        (the xxxpidict file exists when SALOME is launched)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Rare case where there is no KERNEL in grid list </span>
         <span class="c1"># (for example MED_STANDALONE)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> 
-                <span class="ow">and</span> <span class="s1">&#39;KERNEL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span> 
-                <span class="ow">and</span> <span class="s1">&#39;KERNEL_ROOT_DIR&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> \
+           <span class="s1">&#39;KERNEL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span> <span class="ow">and</span> \
+           <span class="s1">&#39;KERNEL_ROOT_DIR&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">getTmpDirDEFAULT</span>
         
         <span class="c1"># Case where &quot;sat test&quot; is launched in an existing SALOME environment</span>
         <span class="k">if</span> <span class="s1">&#39;KERNEL_ROOT_DIR&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">root_dir</span> <span class="o">=</span>  <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;KERNEL_ROOT_DIR&#39;</span><span class="p">]</span>
         
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> 
-                <span class="ow">and</span> <span class="s1">&#39;KERNEL&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">):</span>
-            <span class="n">root_dir</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                                                      <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">install_dir</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;APPLICATION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> \
+           <span class="s1">&#39;KERNEL&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">):</span>
+            <span class="n">root_dir</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;KERNEL&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">install_dir</span>
 
         <span class="c1"># Case where there the appli option is called (with path to launcher)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">launcher</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -462,25 +469,16 @@
                        <span class="s2">&quot;ROOT_DIR</span><span class="se">\&quot;</span><span class="s2">]&#39; &gt; tmpscript.py; </span><span class="si">%s</span><span class="s2"> shell&quot;</span> <span class="o">+</span> 
                        <span class="s2">&quot; tmpscript.py&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">launcher</span>
 
-            <span class="c1"># OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb</span>
-            <span class="c1">#               de remontee de log des tests</span>
-            <span class="c1">#root_dir = subprocess.Popen(cmd,</span>
-            <span class="c1">#                stdout=subprocess.PIPE,</span>
-            <span class="c1">#                shell=True,</span>
-            <span class="c1">#                executable=&#39;/bin/bash&#39;).communicate()[0].split()[-1]</span>
             <span class="n">subproc_res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
                             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
                             <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">executable</span><span class="o">=</span><span class="s1">&#39;/bin/bash&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
-            <span class="nb">print</span> <span class="s2">&quot;TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = &quot;</span>
+            
             <span class="k">for</span> <span class="n">resLine</span> <span class="ow">in</span> <span class="n">subproc_res</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot;- &#39;#</span><span class="si">%s</span><span class="s2">#&#39;&quot;</span> <span class="o">%</span> <span class="n">resLine</span>
             
             <span class="n">root_dir</span> <span class="o">=</span> <span class="n">subproc_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="c1"># OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb</span>
-        <span class="c1">#               de remontee de log des tests</span>
-        <span class="nb">print</span> <span class="s2">&quot;TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = &#39;#</span><span class="si">%s</span><span class="s2">#&#39;&quot;</span> <span class="o">%</span> <span class="n">root_dir</span>
         
         <span class="c1"># import grid salome_utils from KERNEL that gives </span>
         <span class="c1"># the right getTmpDir function</span>
@@ -526,7 +524,7 @@
             <span class="n">binSalome</span> <span class="o">=</span> <span class="s2">&quot;runSalome&quot;</span>
             <span class="n">binPython</span> <span class="o">=</span> <span class="s2">&quot;python&quot;</span> 
             <span class="n">killSalome</span> <span class="o">=</span> <span class="s2">&quot;killSalome.py&quot;</span>   
-            <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">load_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>         
+            <span class="n">ENVI</span><span class="o">.</span><span class="n">load_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>         
             <span class="k">return</span> <span class="n">binSalome</span><span class="p">,</span> <span class="n">binPython</span><span class="p">,</span> <span class="n">killSalome</span>
         
         <span class="c1"># Case where there the appli option is called (with path to launcher)</span>
@@ -553,7 +551,7 @@
                 <span class="k">return</span> <span class="n">binSalome</span><span class="p">,</span> <span class="n">binPython</span><span class="p">,</span> <span class="n">killSalome</span>
 
         <span class="c1"># SALOME version detection and APPLI repository detection</span>
-        <span class="n">VersionSalome</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_salome_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">VersionSalome</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_salome_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">appdir</span> <span class="o">=</span> <span class="s1">&#39;APPLI&#39;</span>
         <span class="k">if</span> <span class="s2">&quot;APPLI&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="s2">&quot;application_name&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLI</span><span class="p">:</span>
             <span class="n">appdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLI</span><span class="o">.</span><span class="n">application_name</span>
@@ -565,12 +563,12 @@
                                      <span class="s2">&quot;runAppli&quot;</span><span class="p">)</span>
             <span class="n">binPython</span> <span class="o">=</span> <span class="s2">&quot;python&quot;</span>
             <span class="n">killSalome</span> <span class="o">=</span> <span class="s2">&quot;killSalome.py&quot;</span>
-            <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">load_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>           
+            <span class="n">ENVI</span><span class="o">.</span><span class="n">load_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>           
             <span class="k">return</span> <span class="n">binSalome</span><span class="p">,</span> <span class="n">binPython</span><span class="p">,</span> <span class="n">killSalome</span>
         
         <span class="c1"># Case where SALOME has the launcher that uses the SalomeContext API</span>
         <span class="k">else</span><span class="p">:</span>            
-            <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">launcher_name</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">get_launcher_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="n">binSalome</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span>
                                      <span class="n">launcher_name</span><span class="p">)</span>
             
@@ -581,9 +579,8 @@
         <span class="k">return</span> <span class="n">binSalome</span><span class="p">,</span> <span class="n">binPython</span><span class="p">,</span> <span class="n">killSalome</span></div>
         
 
-    <span class="c1">##</span>
-    <span class="c1"># Runs tests of a session (using a single instance of Salome).</span>
 <div class="viewcode-block" id="Test.run_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listTest</span><span class="p">,</span> <span class="n">ignoreList</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs tests of a session (using a single instance of Salome).&quot;&quot;&quot;</span>
         <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDir</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">)</span>
@@ -611,7 +608,7 @@
         <span class="n">elapsed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;NOGUI_&quot;</span><span class="p">):</span>
             <span class="c1"># runSalome -t (bash)</span>
-            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">fork</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">FORK</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
                 <span class="n">binSalome</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s2">&quot;WORK&quot;</span><span class="p">),</span>
                 <span class="p">[</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--shutdown-server=1&quot;</span><span class="p">,</span> <span class="n">script_path</span> <span class="p">],</span>
@@ -619,7 +616,7 @@
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;PY_&quot;</span><span class="p">):</span>
             <span class="c1"># python script.py</span>
-            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">fork</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">FORK</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
                 <span class="n">binPython</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s2">&quot;WORK&quot;</span><span class="p">),</span>
                 <span class="p">[</span><span class="n">script_path</span><span class="p">],</span>
@@ -628,7 +625,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">opt</span> <span class="o">=</span> <span class="s2">&quot;-z 0&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_desktop</span><span class="p">:</span> <span class="n">opt</span> <span class="o">=</span> <span class="s2">&quot;--show-desktop=0&quot;</span>
-            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">fork</span><span class="o">.</span><span class="n">batch_salome</span><span class="p">(</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">FORK</span><span class="o">.</span><span class="n">batch_salome</span><span class="p">(</span>
                 <span class="n">binSalome</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_working_dir</span><span class="p">,</span> <span class="s2">&quot;WORK&quot;</span><span class="p">),</span>
                 <span class="p">[</span> <span class="n">opt</span><span class="p">,</span> <span class="s2">&quot;--shutdown-server=1&quot;</span><span class="p">,</span> <span class="n">script_path</span> <span class="p">],</span>
@@ -656,12 +653,12 @@
             <span class="n">script_info</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">sr</span>
             <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">script_results</span><span class="p">[</span><span class="n">sr</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">script_info</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">script_results</span><span class="p">[</span><span class="n">sr</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">TIMEOUT_STATUS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_TIMEOUT_STATUS</span><span class="p">:</span>
                 <span class="n">script_info</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time_out</span>
             <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">time</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span> <span class="n">script_info</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="mi">0</span>
 
             <span class="n">callback</span> <span class="o">=</span> <span class="n">script_results</span><span class="p">[</span><span class="n">sr</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">!=</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">!=</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">script_info</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
 
             <span class="n">kfres</span> <span class="o">=</span> <span class="n">script_results</span><span class="p">[</span><span class="n">sr</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
@@ -692,23 +689,21 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in </span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
                     <span class="p">(</span><span class="n">script_info</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">callback</span><span class="p">)))</span>
 
-            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">OK_STATUS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_OK_STATUS</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_succeed</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">KNOWNFAILURE_STATUS</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_KNOWNFAILURE_STATUS</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_acknoledge</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">TIMEOUT_STATUS</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_TIMEOUT_STATUS</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_timeout</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">src</span><span class="o">.</span><span class="n">NA_STATUS</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">RCO</span><span class="o">.</span><span class="n">_NA_STATUS</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_run</span> <span class="o">-=</span> <span class="mi">1</span>
             <span class="k">elif</span> <span class="n">script_info</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_not_run</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">TESTS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_info</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Runs all tests of a session.</span>
 <div class="viewcode-block" id="Test.run_session_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_session_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_session_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-       
+        <span class="sd">&quot;&quot;&quot;Runs all tests of a session.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_test_margin</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Session = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentsession</span><span class="p">))</span>
 
@@ -728,9 +723,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_tests</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">ignoreDict</span><span class="p">)</span></div>
 
-    <span class="c1">##</span>
-    <span class="c1"># Runs all tests of a grid.</span>
 <div class="viewcode-block" id="Test.run_grid_tests"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.run_grid_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_grid_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs all tests of a grid.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_test_margin</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentgrid</span><span class="p">))</span>
 
@@ -877,9 +871,11 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_run</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_succeed</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_acknoledge</span></div>
 
-    <span class="c1"># Write margin to show test results.</span>
 <div class="viewcode-block" id="Test.write_test_margin"><a class="viewcode-back" href="../../apidoc_src/src.html#src.test_module.Test.write_test_margin">[docs]</a>    <span class="k">def</span> <span class="nf">write_test_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;indent with &#39;| ... +&#39; to show test results.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write margin to show test results.</span>
+<span class="sd">        indent with &#39;| ... +&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">tab</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;|   &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">tab</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;+ &quot;</span></div></div>

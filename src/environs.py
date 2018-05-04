@@ -4,20 +4,20 @@
 __doc__="""
 Utility for print environment variables
 
-examples: 
-  - split all or specific environment variables $XXX(s)...
-    >> environs.py -> all
-    >> environs.py SHELL PATH -> specific $SHELL $PATH
-    
-  - split all or specific environment variables on pattern $*XXX*(s)...
-    >> environs.py --pat ROOT -> specific $*ROOT* 
-    
-  - split search specific substrings in contents of environment variables $XXX(s)...
-    >> environs.py --grep usr  -> all specific environment variables containing usr
-
-tips:
-  - create unix alias as shortcut for bash console
-    >> alias envs=".../environs.py"
+| Examples: 
+| - split all or specific environment variables $XXX(s)...
+|   >> environs.py -> all
+|   >> environs.py SHELL PATH -> specific $SHELL $PATH
+|     
+| - split all or specific environment variables on pattern $*XXX*(s)...
+|   >> environs.py --pat ROOT -> specific $*ROOT* 
+|     
+| - split search specific substrings in contents of environment variables $XXX(s)...
+|   >> environs.py --grep usr  -> all specific environment variables containing usr
+| 
+| Tips:
+| - create unix alias as shortcut for bash console
+|   >> alias envs=".../environs.py"
 """
 
 import sys

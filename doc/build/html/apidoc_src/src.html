@@ -331,15 +331,15 @@ on which salomeTools is running.</p>
 <p>define class as a simple dictionary with keys
 with pretty print __str__ and __repr__ (indented as recursive)
 and jsonDumps()</p>
-<dl class="docutils">
-<dt>usage:</dt>
-<dd>&gt;&gt; import catchAll as CAA
-&gt;&gt; a = CAA.CatchAll()
-&gt;&gt; a.tintin = “reporter”
-&gt;&gt; a.milou = “dog”
-&gt;&gt; print(“a=%s” % a)
-&gt;&gt; print(“tintin: %s” % a.tintin)</dd>
-</dl>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import catchAll as CAA</div>
+<div class="line">&gt;&gt; a = CAA.CatchAll()</div>
+<div class="line">&gt;&gt; a.tintin = “reporter”</div>
+<div class="line">&gt;&gt; a.milou = “dog”</div>
+<div class="line">&gt;&gt; print(“a=%s” % a)</div>
+<div class="line">&gt;&gt; print(“tintin: %s” % a.tintin)</div>
+</div>
 <dl class="class">
 <dt id="src.catchAll.CatchAll">
 <em class="property">class </em><code class="descclassname">src.catchAll.</code><code class="descname">CatchAll</code><a class="reference internal" href="../_modules/src/catchAll.html#CatchAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.catchAll.CatchAll" title="Permalink to this definition">¶</a></dt>
@@ -349,18 +349,23 @@ with predefined keys as properties in
 inherited classes through __init__ method. Or NOT. 
 with pretty print __str__ and __repr__ (indented as recursive)
 with jsonDumps()</p>
-<p>usage:</p>
-<p>&gt;&gt; import catchAll as CAA
-&gt;&gt; a = CAA.CatchAll()
-&gt;&gt; a.tintin = “reporter”
-&gt;&gt; a.milou = “dog”
-&gt;&gt; print(“a=%s” % a)
-&gt;&gt; print(“tintin: %s” % a.tintin)</p>
-<p>as</p>
-<p>&gt;&gt; a = {}
-&gt;&gt; a[“tintin”] = “reporter”
-&gt;&gt; a[“milou”] = “dog”
-&gt;&gt; print(“tintin: %s” % a[“tintin”]</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import catchAll as CAA</div>
+<div class="line">&gt;&gt; a = CAA.CatchAll()</div>
+<div class="line">&gt;&gt; a.tintin = “reporter”</div>
+<div class="line">&gt;&gt; a.milou = “dog”</div>
+<div class="line">&gt;&gt; print(“a=%s” % a)</div>
+<div class="line">&gt;&gt; print(“tintin: %s” % a.tintin)</div>
+<div class="line"><br /></div>
+<div class="line">as</div>
+</div>
+<div class="line-block">
+<div class="line">&gt;&gt; a = {}</div>
+<div class="line">&gt;&gt; a[“tintin”] = “reporter”</div>
+<div class="line">&gt;&gt; a[“milou”] = “dog”</div>
+<div class="line">&gt;&gt; print(“tintin: %s” % a[“tintin”]</div>
+</div>
 <dl class="method">
 <dt id="src.catchAll.CatchAll.jsonDumps">
 <code class="descname">jsonDumps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/catchAll.html#CatchAll.jsonDumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.catchAll.CatchAll.jsonDumps" title="Permalink to this definition">¶</a></dt>
@@ -391,15 +396,18 @@ but ignore all attributes begining with ‘_’</p>
 <div class="section" id="module-src.coloringSat">
 <span id="src-coloringsat-module"></span><h2>src.coloringSat module<a class="headerlink" href="#module-src.coloringSat" title="Permalink to this headline">¶</a></h2>
 <p>simple tagging as ‘&lt;color&gt;’ for simple coloring log messages on terminal(s)
-window or unix or ios using backend colorama</p>
-<p>using ‘&lt;color&gt;’ because EZ human readable
-so ‘&lt;color&gt;’ are not supposed existing in log message
+window or unix or ios using backend colorama.
+Using ‘&lt;color&gt;’ because EZ human readable,
+So ‘&lt;color&gt;’ are not supposed existing in log message.
 “{}”.format() is not choosen because “{}” are present
 in log messages of contents of python dict (as JSON) etc.</p>
-<p>usage:
-&gt;&gt; import src.coloringSat as COLS</p>
-<p>example:
-&gt;&gt; log(“this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?”)</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.coloringSat as COLS</div>
+<div class="line"><br /></div>
+<div class="line">Example:</div>
+<div class="line">&gt;&gt; log(“this is in &lt;green&gt;color green&lt;reset&gt;, OK is in blue: &lt;blue&gt;OK?”)</div>
+</div>
 <dl class="class">
 <dt id="src.coloringSat.ColoringStream">
 <em class="property">class </em><code class="descclassname">src.coloringSat.</code><code class="descname">ColoringStream</code><a class="reference internal" href="../_modules/src/coloringSat.html#ColoringStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.coloringSat.ColoringStream" title="Permalink to this definition">¶</a></dt>
@@ -462,6 +470,11 @@ if not, replace tags with ansi color codes</p>
 </div>
 <div class="section" id="module-src.compilation">
 <span id="src-compilation-module"></span><h2>src.compilation module<a class="headerlink" href="#module-src.compilation" title="Permalink to this headline">¶</a></h2>
+<p>Utilities to build and compile</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.compilation as COMP</div>
+</div>
 <dl class="class">
 <dt id="src.compilation.Builder">
 <em class="property">class </em><code class="descclassname">src.compilation.</code><code class="descname">Builder</code><span class="sig-paren">(</span><em>config</em>, <em>logger</em>, <em>product_info</em>, <em>options=OptResult(   )</em>, <em>check_src=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/compilation.html#Builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.compilation.Builder" title="Permalink to this definition">¶</a></dt>
@@ -698,15 +711,16 @@ in all the possible directories (pathList)</p>
 <dl class="function">
 <dt id="src.configManager.check_path">
 <code class="descclassname">src.configManager.</code><code class="descname">check_path</code><span class="sig-paren">(</span><em>path</em>, <em>ext=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/configManager.html#check_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.configManager.check_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a text with the input path and “not found” if it does not exist.</p>
+<dd><p>Construct a text with the input path and colorized critical
+‘** not found’ if it does not exist.
+‘** bad extension’ if extension problem.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>path</strong> – (str) The path to check.</li>
-<li><strong>ext</strong> – (list) 
-An extension. Verify that the path extension is in the list</li>
+<li><strong>ext</strong> – (list) Verify that the path extension is in the list</li>
 </ul>
 </td>
 </tr>
@@ -791,8 +805,10 @@ The logger instance to use for the display and logging</li>
 <code class="descclassname">src.configManager.</code><code class="descname">print_debug</code><span class="sig-paren">(</span><em>config</em>, <em>aPath</em>, <em>logger</em>, <em>show_label=False</em>, <em>level=0</em>, <em>show_full_path=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/configManager.html#print_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.configManager.print_debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>logger output for debugging a config/pyconf
 lines contains: path : expression –&gt; ‘evaluation’</p>
-<p>example:
-PROJECTS.projects.salome.project_path : $PWD –&gt; ‘/tmp/SALOME’</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line">PROJECTS.projects.salome.project_path : $PWD –&gt; ‘/tmp/SALOME’</div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -851,15 +867,18 @@ The logger instance to use for the display</li>
 </div>
 <div class="section" id="module-src.debug">
 <span id="src-debug-module"></span><h2>src.debug module<a class="headerlink" href="#module-src.debug" title="Permalink to this headline">¶</a></h2>
-<p>This file assume DEBUG functionalities use
+<p>This file assume DEBUG functionalities use.
 Print salomeTools debug messages in sys.stderr.
 Show pretty print debug representation from instances of SAT classes 
 (pretty print src.pyconf.Config)</p>
-<p>WARNING: supposedly show messages in SAT development phase, not production</p>
-<p>usage:
-&gt;&gt; import debug as DBG
-&gt;&gt; DBG.write(“aTitle”, aVariable)        # not shown in production 
-&gt;&gt; DBG.write(“aTitle”, aVariable, True)  # unconditionaly shown</p>
+<div class="line-block">
+<div class="line">Warning: supposedly show messages in SAT development phase, not production</div>
+<div class="line"><br /></div>
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import debug as DBG</div>
+<div class="line">&gt;&gt; DBG.write(“aTitle”, aVariable)        # not shown in production </div>
+<div class="line">&gt;&gt; DBG.write(“aTitle”, aVariable, True)  # unconditionaly shown </div>
+</div>
 <dl class="class">
 <dt id="src.debug.InStream">
 <em class="property">class </em><code class="descclassname">src.debug.</code><code class="descname">InStream</code><span class="sig-paren">(</span><em>buf=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/debug.html#InStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.InStream" title="Permalink to this definition">¶</a></dt>
@@ -1541,25 +1560,30 @@ xxx_ROOT_DIR and xxx_SRC_DIR</p>
 <div class="section" id="module-src.environs">
 <span id="src-environs-module"></span><h2>src.environs module<a class="headerlink" href="#module-src.environs" title="Permalink to this headline">¶</a></h2>
 <p>Utility for print environment variables</p>
-<dl class="docutils">
-<dt>examples: </dt>
-<dd><ul class="first last simple">
-<li>split all or specific environment variables $XXX(s)…
-&gt;&gt; environs.py -&gt; all
-&gt;&gt; environs.py SHELL PATH -&gt; specific $SHELL $PATH</li>
-<li>split all or specific environment variables on pattern $*XXX*(s)…
-&gt;&gt; environs.py –pat ROOT -&gt; specific $*ROOT*</li>
-<li>split search specific substrings in contents of environment variables $XXX(s)…
-&gt;&gt; environs.py –grep usr  -&gt; all specific environment variables containing usr</li>
-</ul>
-</dd>
-<dt>tips:</dt>
-<dd><ul class="first last simple">
-<li>create unix alias as shortcut for bash console
-&gt;&gt; alias envs=”…/environs.py”</li>
-</ul>
-</dd>
-</dl>
+<div class="line-block">
+<div class="line">Examples: </div>
+<div class="line">- split all or specific environment variables $XXX(s)…</div>
+<div class="line-block">
+<div class="line">&gt;&gt; environs.py -&gt; all</div>
+<div class="line">&gt;&gt; environs.py SHELL PATH -&gt; specific $SHELL $PATH</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">- split all or specific environment variables on pattern $*XXX*(s)…</div>
+<div class="line-block">
+<div class="line">&gt;&gt; environs.py –pat ROOT -&gt; specific $*ROOT* </div>
+<div class="line"><br /></div>
+</div>
+<div class="line">- split search specific substrings in contents of environment variables $XXX(s)…</div>
+<div class="line-block">
+<div class="line">&gt;&gt; environs.py –grep usr  -&gt; all specific environment variables containing usr</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">Tips:</div>
+<div class="line">- create unix alias as shortcut for bash console</div>
+<div class="line-block">
+<div class="line">&gt;&gt; alias envs=”…/environs.py”</div>
+</div>
+</div>
 <dl class="function">
 <dt id="src.environs.print_grep_environs">
 <code class="descclassname">src.environs.</code><code class="descname">print_grep_environs</code><span class="sig-paren">(</span><em>args=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/environs.html#print_grep_environs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.environs.print_grep_environs" title="Permalink to this definition">¶</a></dt>
@@ -2646,9 +2670,11 @@ parameters in salomeTools command lines</p>
 <p>An instance of this class will be the object manipulated
 in code of all salomeTools commands
 The aim of this class is to have an elegant syntax to manipulate the options.</p>
-<p>example: 
-&gt;&gt; print(options.level)
-&gt;&gt; 5</p>
+<div class="line-block">
+<div class="line">Example: </div>
+<div class="line">&gt;&gt; print(options.level)</div>
+<div class="line">&gt;&gt; 5</div>
+</div>
 </dd></dl>
 
 <dl class="class">
@@ -2749,7 +2775,11 @@ args is the full raw list of passed options</td>
 <div class="section" id="module-src.product">
 <span id="src-product-module"></span><h2>src.product module<a class="headerlink" href="#module-src.product" title="Permalink to this headline">¶</a></h2>
 <p>Contains the methods 
-relative to the product notion of salomeTools</p>
+relative to the product notion of salomeTools.</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.product as PROD</div>
+</div>
 <dl class="function">
 <dt id="src.product.check_config_exists">
 <code class="descclassname">src.product.</code><code class="descname">check_config_exists</code><span class="sig-paren">(</span><em>config</em>, <em>prod_dir</em>, <em>prod_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/product.html#check_config_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.product.check_config_exists" title="Permalink to this definition">¶</a></dt>
@@ -3511,7 +3541,7 @@ the specified path.</p>
 
 <dl class="class">
 <dt id="src.pyconf.ConfigMerger">
-<em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigMerger</code><span class="sig-paren">(</span><em>resolver=&lt;function defaultMergeResolve at 0x3561c80&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigMerger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigMerger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.pyconf.</code><code class="descname">ConfigMerger</code><span class="sig-paren">(</span><em>resolver=&lt;function defaultMergeResolve at 0x3b22aa0&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pyconf.html#ConfigMerger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.pyconf.ConfigMerger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used for merging two configurations. If a key exists in the
 merge operand but not the merge target, then the entry is copied from the
@@ -4092,8 +4122,10 @@ but where a “mismatch” is detected, returns “overwrite” instead.</p>
 <div class="section" id="module-src.returnCode">
 <span id="src-returncode-module"></span><h2>src.returnCode module<a class="headerlink" href="#module-src.returnCode" title="Permalink to this headline">¶</a></h2>
 <p>This file contains ReturnCode class</p>
-<p>usage:
-&gt;&gt; import returnCode as RCO</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import returnCode as RCO</div>
+</div>
 <dl class="class">
 <dt id="src.returnCode.ReturnCode">
 <em class="property">class </em><code class="descclassname">src.returnCode.</code><code class="descname">ReturnCode</code><span class="sig-paren">(</span><em>status=None</em>, <em>why=None</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/returnCode.html#ReturnCode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.returnCode.ReturnCode" title="Permalink to this definition">¶</a></dt>
@@ -4102,7 +4134,7 @@ but where a “mismatch” is detected, returns “overwrite” instead.</p>
 obviously why is why it is not OK, 
 but also why is why it is OK (if you want). 
 and optionnaly contains a return value as self.getValue()</p>
-<p>usage:
+<p>Usage:
 &gt;&gt; import returnCode as RCO</p>
 <p>&gt;&gt; aValue = doSomethingToReturn()
 &gt;&gt; return RCO.ReturnCode(“KO”, “there is no problem here”, aValue)
@@ -4133,7 +4165,7 @@ and optionnaly contains a return value as self.getValue()</p>
 
 <dl class="attribute">
 <dt id="src.returnCode.ReturnCode.KO_STATUS">
-<code class="descname">KO_STATUS</code><em class="property"> = 'KO'</em><a class="headerlink" href="#src.returnCode.ReturnCode.KO_STATUS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">KO_STATUS</code><em class="property"> = 'OK'</em><a class="headerlink" href="#src.returnCode.ReturnCode.KO_STATUS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -4386,10 +4418,10 @@ used for unittest, or else…</p>
 <span id="src-system-module"></span><h2>src.system module<a class="headerlink" href="#module-src.system" title="Permalink to this headline">¶</a></h2>
 <p>All utilities method doing a system call, 
 like open a browser or an editor, or call a git command</p>
-<dl class="docutils">
-<dt>usage:</dt>
-<dd>&gt;&gt; import src.system as SYSS</dd>
-</dl>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.system as SYSS</div>
+</div>
 <dl class="function">
 <dt id="src.system.archive_extract">
 <code class="descclassname">src.system.</code><code class="descname">archive_extract</code><span class="sig-paren">(</span><em>from_what</em>, <em>where</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/system.html#archive_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.system.archive_extract" title="Permalink to this definition">¶</a></dt>
@@ -4515,6 +4547,11 @@ The environment to source when extracting.</li>
 </div>
 <div class="section" id="module-src.template">
 <span id="src-template-module"></span><h2>src.template module<a class="headerlink" href="#module-src.template" title="Permalink to this headline">¶</a></h2>
+<p>template for substitute strings in template files</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.template as TPLATE</div>
+</div>
 <dl class="class">
 <dt id="src.template.MyTemplate">
 <em class="property">class </em><code class="descclassname">src.template.</code><code class="descname">MyTemplate</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/template.html#MyTemplate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.template.MyTemplate" title="Permalink to this definition">¶</a></dt>
@@ -4526,7 +4563,7 @@ The environment to source when extracting.</li>
 
 <dl class="attribute">
 <dt id="src.template.MyTemplate.pattern">
-<code class="descname">pattern</code><em class="property"> = &lt;_sre.SRE_Pattern object at 0x412cde0&gt;</em><a class="headerlink" href="#src.template.MyTemplate.pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pattern</code><em class="property"> = &lt;_sre.SRE_Pattern object at 0x40e4170&gt;</em><a class="headerlink" href="#src.template.MyTemplate.pattern" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -4539,6 +4576,11 @@ The environment to source when extracting.</li>
 </div>
 <div class="section" id="module-src.test_module">
 <span id="src-test-module-module"></span><h2>src.test_module module<a class="headerlink" href="#module-src.test_module" title="Permalink to this headline">¶</a></h2>
+<p>test_module for test base dir/git/svn etc</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.test_module as TMOD</div>
+</div>
 <dl class="class">
 <dt id="src.test_module.Test">
 <em class="property">class </em><code class="descclassname">src.test_module.</code><code class="descname">Test</code><span class="sig-paren">(</span><em>config</em>, <em>logger</em>, <em>tmp_working_dir</em>, <em>testbase=''</em>, <em>grids=None</em>, <em>sessions=None</em>, <em>launcher=''</em>, <em>show_desktop=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test" title="Permalink to this definition">¶</a></dt>
@@ -4550,7 +4592,10 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.generate_script">
 <code class="descname">generate_script</code><span class="sig-paren">(</span><em>listTest</em>, <em>script_path</em>, <em>ignoreList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.generate_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.generate_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates the script to be run by Salome.
+This python script includes init and close statements and a loop
+calling all the scripts of a single directory.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.get_test_timeout">
@@ -4560,12 +4605,15 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.get_tmp_dir">
 <code class="descname">get_tmp_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.get_tmp_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.get_tmp_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Find the getTmpDir function that gives access to xxxpidict file directory.
+(the xxxpidict file exists when SALOME is launched)</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.prepare_testbase">
 <code class="descname">prepare_testbase</code><span class="sig-paren">(</span><em>test_base_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.prepare_testbase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.prepare_testbase" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Configure tests base.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.prepare_testbase_from_dir">
@@ -4585,7 +4633,8 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.read_results">
 <code class="descname">read_results</code><span class="sig-paren">(</span><em>listTest</em>, <em>has_timed_out</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.read_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.read_results" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Read the xxx.result.py files.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.run_all_tests">
@@ -4595,7 +4644,8 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.run_grid_tests">
 <code class="descname">run_grid_tests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.run_grid_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.run_grid_tests" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Runs all tests of a grid.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.run_script">
@@ -4605,7 +4655,8 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.run_session_tests">
 <code class="descname">run_session_tests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.run_session_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.run_session_tests" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Runs all tests of a session.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.run_testbase_tests">
@@ -4616,17 +4667,21 @@ The environment to source when extracting.</li>
 <dl class="method">
 <dt id="src.test_module.Test.run_tests">
 <code class="descname">run_tests</code><span class="sig-paren">(</span><em>listTest</em>, <em>ignoreList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.run_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.run_tests" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Runs tests of a session (using a single instance of Salome).</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.search_known_errors">
 <code class="descname">search_known_errors</code><span class="sig-paren">(</span><em>status</em>, <em>test_grid</em>, <em>test_session</em>, <em>test</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.search_known_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.search_known_errors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Searches if the script is declared in known errors pyconf.
+Update the status if needed.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.test_module.Test.write_test_margin">
 <code class="descname">write_test_margin</code><span class="sig-paren">(</span><em>tab</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#Test.write_test_margin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.Test.write_test_margin" title="Permalink to this definition">¶</a></dt>
-<dd><p>indent with ‘| … +’ to show test results.</p>
+<dd><p>Write margin to show test results.
+indent with ‘| … +’</p>
 </dd></dl>
 
 </dd></dl>
@@ -4634,7 +4689,8 @@ The environment to source when extracting.</li>
 <dl class="function">
 <dt id="src.test_module.getTmpDirDEFAULT">
 <code class="descclassname">src.test_module.</code><code class="descname">getTmpDirDEFAULT</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test_module.html#getTmpDirDEFAULT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test_module.getTmpDirDEFAULT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get directory to be used for the temporary files.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-src.utilsSat">
@@ -4642,9 +4698,11 @@ The environment to source when extracting.</li>
 <p>utilities for sat
 general useful simple methods
 all-in-one import srs.utilsSat as UTS</p>
-<p>usage:
-&gt;&gt; import srsc.utilsSat as UTS
-&gt;&gt; UTS.ensure_path_exists(path)</p>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import srsc.utilsSat as UTS</div>
+<div class="line">&gt;&gt; UTS.ensure_path_exists(path)</div>
+</div>
 <dl class="class">
 <dt id="src.utilsSat.Path">
 <em class="property">class </em><code class="descclassname">src.utilsSat.</code><code class="descname">Path</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#Path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.Path" title="Permalink to this definition">¶</a></dt>
@@ -4797,11 +4855,6 @@ Else, raise an exception.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.utilsSat.config_has_application">
-<code class="descclassname">src.utilsSat.</code><code class="descname">config_has_application</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#config_has_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.config_has_application" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="src.utilsSat.critical">
 <code class="descclassname">src.utilsSat.</code><code class="descname">critical</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.critical" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -4926,6 +4979,12 @@ to add to all paths in lpath.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="src.utilsSat.get_CONFIG_FILENAME">
+<code class="descclassname">src.utilsSat.</code><code class="descname">get_CONFIG_FILENAME</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#get_CONFIG_FILENAME"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.get_CONFIG_FILENAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>get initial config.pyconf</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="src.utilsSat.get_base_path">
 <code class="descclassname">src.utilsSat.</code><code class="descname">get_base_path</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#get_base_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.get_base_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path of the products base.</p>
@@ -4942,23 +5001,23 @@ to add to all paths in lpath.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.utilsSat.get_cfg_param">
-<code class="descclassname">src.utilsSat.</code><code class="descname">get_cfg_param</code><span class="sig-paren">(</span><em>config</em>, <em>param_name</em>, <em>default</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#get_cfg_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.get_cfg_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search for param_name value in config.
-If param_name is not in config, then return default,
+<dt id="src.utilsSat.get_config_key">
+<code class="descclassname">src.utilsSat.</code><code class="descname">get_config_key</code><span class="sig-paren">(</span><em>inConfig</em>, <em>key</em>, <em>default</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/utilsSat.html#get_config_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.utilsSat.get_config_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for key value in config node ‘inConfig[key]’ as ‘inConfig.key’
+If key is not in inCconfig, then return default,
 else, return the found value</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> – (Config) The config.</li>
-<li><strong>param_name</strong> – (str) the name of the parameter to get the value</li>
-<li><strong>default</strong> – (str) The value to return if param_name is not in config</li>
+<li><strong>inConfig</strong> – (Config or Mapping etc) The in-Config node.</li>
+<li><strong>key</strong> – (str) the name of the parameter to get the value</li>
+<li><strong>default</strong> – (str) The value to return if key is not in-Config</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(str) see initial description of the function</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(if supposedly leaf (str),else (in-Config Node)</p>
 </td>
 </tr>
 </tbody>
@@ -5255,10 +5314,10 @@ and have a name like YYYYMMDD_HHMMSS_namecmd.xml</p>
 <div class="section" id="module-src.xmlManager">
 <span id="src-xmlmanager-module"></span><h2>src.xmlManager module<a class="headerlink" href="#module-src.xmlManager" title="Permalink to this headline">¶</a></h2>
 <p>Utilities to read xml logging files</p>
-<dl class="docutils">
-<dt>usage:</dt>
-<dd>&gt;&gt; import src.xmlManager as XMLMGR</dd>
-</dl>
+<div class="line-block">
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import src.xmlManager as XMLMGR</div>
+</div>
 <dl class="class">
 <dt id="src.xmlManager.ReadXmlFile">
 <em class="property">class </em><code class="descclassname">src.xmlManager.</code><code class="descname">ReadXmlFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/xmlManager.html#ReadXmlFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.xmlManager.ReadXmlFile" title="Permalink to this definition">¶</a></dt>

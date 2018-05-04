@@ -54,13 +54,18 @@
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">StringIO</span> <span class="k">as</span> <span class="nn">SIO</span>
 
 <span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 <span class="kn">import</span> <span class="nn">src.loggingSat</span> <span class="k">as</span> <span class="nn">LOG</span>
 <span class="kn">import</span> <span class="nn">src.returnCode</span> <span class="k">as</span> <span class="nn">RCO</span>
-<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
 <span class="kn">import</span> <span class="nn">src.utilsSat</span> <span class="k">as</span> <span class="nn">UTS</span>
 <span class="kn">import</span> <span class="nn">src.pyconf</span> <span class="k">as</span> <span class="nn">PYCONF</span>
+<span class="kn">import</span> <span class="nn">src.product</span> <span class="k">as</span> <span class="nn">PROD</span>
+<span class="kn">import</span> <span class="nn">src.environment</span> <span class="k">as</span> <span class="nn">ENVI</span>
+<span class="kn">import</span> <span class="nn">src.fileEnviron</span> <span class="k">as</span> <span class="nn">FENV</span>
+<span class="kn">import</span> <span class="nn">src.architecture</span> <span class="k">as</span> <span class="nn">ARCH</span>
+
 
 <div class="viewcode-block" id="ConfigOpener"><a class="viewcode-back" href="../../apidoc_src/src.html#src.configManager.ConfigOpener">[docs]</a><span class="k">class</span> <span class="nc">ConfigOpener</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -509,22 +514,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_config_file_path</span>     </div></div>
 
 <div class="viewcode-block" id="check_path"><a class="viewcode-back" href="../../apidoc_src/src.html#src.configManager.check_path">[docs]</a><span class="k">def</span> <span class="nf">check_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="p">[]):</span>
-    <span class="sd">&quot;&quot;&quot;Construct a text with the input path and &quot;not found&quot; if it does not exist.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a text with the input path and colorized critical</span>
+<span class="sd">    &#39;** not found&#39; if it does not exist.</span>
+<span class="sd">    &#39;** bad extension&#39; if extension problem.</span>
 <span class="sd">    </span>
 <span class="sd">    :param path: (str) The path to check.</span>
-<span class="sd">    :param ext: (list) </span>
-<span class="sd">      An extension. Verify that the path extension is in the list</span>
+<span class="sd">    :param ext: (list) Verify that the path extension is in the list</span>
 <span class="sd">    :return: (str) The string of the path with information</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># check if file exists</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;path &#39;</span><span class="si">%s</span><span class="s2">&#39; ** not found&quot;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt;critical&gt;** not found&quot;</span> <span class="o">%</span> <span class="n">path</span>
 
     <span class="c1"># check extension</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">fe</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">fe</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ext</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;path &#39;</span><span class="si">%s</span><span class="s2">&#39; ** bad extension&quot;</span> <span class="o">%</span> <span class="n">path</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt;critical&gt;** bad extension&quot;</span> <span class="o">%</span> <span class="n">path</span>
 
     <span class="k">return</span> <span class="n">path</span></div>
 
@@ -534,100 +541,97 @@
 <span class="sd">    :param config: (Config) the global configuration.</span>
 <span class="sd">    :param name: (str) The name of the product</span>
 <span class="sd">    :param logger: (Logger) The logger instance to use for the display</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="nf">msgAdd</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="nf">msgFmt</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        local short named macro for convenience</span>
-<span class="sd">        appending show_product_info.msg variable</span>
+<span class="sd">        appending show_product_info msg variable</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span>
-    
+        <span class="k">return</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">UTS</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># used msgAdd()</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is a product</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">blue</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">pinfo</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> is a product</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">pinfo</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="c1"># DBG.write(&quot;pinffo&quot;, pinfo, True)</span>
 
     <span class="k">if</span> <span class="s2">&quot;depend&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;depends on&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">depend</span><span class="p">))</span>
-
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;depends on&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">depend</span><span class="p">)))</span>
+    
     <span class="k">if</span> <span class="s2">&quot;opt_depend&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">opt_depend</span><span class="p">))</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">opt_depend</span><span class="p">)))</span>
 
     <span class="c1"># information on pyconf</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;configuration:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">configuration:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;from_file&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;pyconf file path&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">from_file</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;pyconf file path&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">from_file</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;section&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;section&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">section</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;section&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">section</span><span class="p">)</span>
 
     <span class="c1"># information on prepare</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;prepare:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">prepare:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">is_dev</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">pinfo</span><span class="p">)</span>
+    <span class="n">is_dev</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_dev</span><span class="p">(</span><span class="n">pinfo</span><span class="p">)</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">get_source</span>
     <span class="k">if</span> <span class="n">is_dev</span><span class="p">:</span>
         <span class="n">method</span> <span class="o">+=</span> <span class="s2">&quot; (dev)&quot;</span>
-    <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;get method&quot;</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;get method&quot;</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;cvs&#39;</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;server&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;base module&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">module_base</span><span class="p">)</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;server&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;base module&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">module_base</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">cvs_info</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;svn&#39;</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">svn_info</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">svn_info</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;git&#39;</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">git_info</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;archive&#39;</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;get from&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">))</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;get from&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="s1">&#39;patches&#39;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">patches</span><span class="p">:</span>
-            <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">patch</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">patch</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;install_dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;install_dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="c1"># return possible</span>
-    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">pinfo</span><span class="p">)</span> <span class="ow">or</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_native</span><span class="p">(</span><span class="n">pinfo</span><span class="p">)</span> <span class="ow">or</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_is_fixed</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="c1"># return possible</span>
         <span class="k">return</span>
     
     <span class="c1"># information on compilation</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_compiles</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;compile:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;compilation method&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">build_source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_compiles</span><span class="p">(</span><span class="n">pinfo</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">compile:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;compilation method&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">build_source</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">build_source</span> <span class="o">==</span> <span class="s2">&quot;script&quot;</span> <span class="ow">and</span> <span class="s2">&quot;compil_script&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-            <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;Compilation script&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">compil_script</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;Compilation script&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">compil_script</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;nb_proc&#39;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-            <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;make -j&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">nb_proc</span><span class="p">)</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;source dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;make -j&quot;</span><span class="p">,</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">nb_proc</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;source dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">source_dir</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;install_dir&#39;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
-            <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;build dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">build_dir</span><span class="p">))</span>
-            <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;install dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;build dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">build_dir</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;install dir&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">install_dir</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;no install dir&quot;</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">UTS</span><span class="o">.</span><span class="n">red</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;This product does not compile&quot;</span><span class="p">))</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     
     <span class="c1"># information on environment</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">environ:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">UTS</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">environ:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;environ&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span> <span class="ow">and</span> <span class="s2">&quot;env_script&quot;</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">msgAdd</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">env_script</span><span class="p">))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">msgFmt</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">,</span> <span class="n">check_path</span><span class="p">(</span><span class="n">pinfo</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">env_script</span><span class="p">))</span>
+       
+    <span class="n">outStream</span> <span class="o">=</span> <span class="n">SIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">screenEnv</span> <span class="o">=</span> <span class="n">FENV</span><span class="o">.</span><span class="n">ScreenEnviron</span><span class="p">(</span><span class="n">outStream</span><span class="p">)</span>
+    <span class="n">salEnv</span> <span class="o">=</span> <span class="n">ENVI</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">screenEnv</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     
-    <span class="n">zz</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">SalomeEnviron</span><span class="p">(</span>
-           <span class="n">config</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">fileEnviron</span><span class="o">.</span><span class="n">ScreenEnviron</span><span class="p">(</span><span class="n">logger</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">zz</span><span class="o">.</span><span class="n">set_python_libdirs</span><span class="p">()</span>
-    
-    <span class="n">zz</span><span class="o">.</span><span class="n">set_a_product</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">salEnv</span><span class="o">.</span><span class="n">set_python_libdirs</span><span class="p">()</span>
+    <span class="n">salEnv</span><span class="o">.</span><span class="n">set_a_product</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="n">outStream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
     <span class="k">return</span></div>
         
 <div class="viewcode-block" id="show_patchs"><a class="viewcode-back" href="../../apidoc_src/src.html#src.configManager.show_patchs">[docs]</a><span class="k">def</span> <span class="nf">show_patchs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
@@ -641,8 +645,8 @@
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
         <span class="n">nb</span> <span class="o">=</span> <span class="n">len_max</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span>
-        <span class="n">product_info</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">product_has_patches</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+        <span class="n">product_info</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_product_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">PROD</span><span class="o">.</span><span class="n">product_has_patches</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;header&gt;</span><span class="si">%s</span><span class="s2">: &lt;reset&gt;&quot;</span> <span class="o">%</span> <span class="n">product</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span><span class="o">*</span><span class="n">nb</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">product_info</span><span class="o">.</span><span class="n">patches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">patches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -727,8 +731,8 @@
 <span class="sd">    logger output for debugging a config/pyconf</span>
 <span class="sd">    lines contains: path : expression --&gt; &#39;evaluation&#39;</span>
 <span class="sd">    </span>
-<span class="sd">    example:</span>
-<span class="sd">    PROJECTS.projects.salome.project_path : $PWD --&gt; &#39;/tmp/SALOME&#39;</span>
+<span class="sd">    | Example:</span>
+<span class="sd">    | PROJECTS.projects.salome.project_path : $PWD --&gt; &#39;/tmp/SALOME&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aPath</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span> <span class="p">:</span>
@@ -883,7 +887,7 @@
         
         <span class="c1"># Construct the list of tuple containing </span>
         <span class="c1"># the products name and their definition</span>
-        <span class="n">products_infos</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">product</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+        <span class="n">products_infos</span> <span class="o">=</span> <span class="n">PROD</span><span class="o">.</span><span class="n">get_products_infos</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">products_infos</span></div>
 </pre></div>

@@ -39,7 +39,7 @@ class Command(_BaseCommand):
   |   cmake:     >> cmake
   |   script:    (do nothing)
   | 
-  | examples:
+  | Examples:
   | >> sat configure SALOME --products KERNEL,GUI,PARAVIS
   """
   

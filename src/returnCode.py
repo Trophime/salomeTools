@@ -20,8 +20,8 @@
 """
 This file contains ReturnCode class
 
-usage:
->> import returnCode as RCO
+| Usage:
+| >> import returnCode as RCO
 """
 
 import pprint as PP
@@ -41,7 +41,7 @@ class ReturnCode(object):
   but also why is why it is OK (if you want). 
   and optionnaly contains a return value as self.getValue()
   
-  usage:
+  Usage:
   >> import returnCode as RCO
   
   >> aValue = doSomethingToReturn()

@@ -698,8 +698,8 @@ def print_debug(config, aPath, logger, show_label=False, level=0, show_full_path
     logger output for debugging a config/pyconf
     lines contains: path : expression --> 'evaluation'
     
-    example:
-    PROJECTS.projects.salome.project_path : $PWD --> '/tmp/SALOME'
+    | Example:
+    | PROJECTS.projects.salome.project_path : $PWD --> '/tmp/SALOME'
     """
     path = str(aPath)
     if path == "." :

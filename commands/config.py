@@ -35,7 +35,7 @@ class Command(_BaseCommand):
   """
   The config command allows manipulation and operation on config '.pyconf' files.
 
-  | examples:
+  | Examples:
   | >> sat config --list
   | >> sat config SALOME --edit
   | >> sat config SALOME --copy SALOME-new

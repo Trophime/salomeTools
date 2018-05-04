@@ -20,8 +20,8 @@
 All utilities method doing a system call, 
 like open a browser or an editor, or call a git command
 
-usage:
-  >> import src.system as SYSS
+| Usage:
+| >> import src.system as SYSS
 """
 
 import subprocess

@@ -16,14 +16,21 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+"""
+template for substitute strings in template files
+
+| Usage:
+| >> import src.template as TPLATE
+"""
+
 import string
 
 class MyTemplate(string.Template):
     delimiter = '¤'
 
 def substitute(template_file, subst_dic):
-    template = open(template_file, 'r')
-    template = MyTemplate(template.read())
+    with open(template_file, 'r') as f:
+      template = MyTemplate(f.read())
 
     return template.safe_substitute(subst_dic)
 

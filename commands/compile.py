@@ -40,7 +40,7 @@ class Command(_BaseCommand):
   """
   The compile command constructs the products of the application
   
-  | examples:
+  | Examples:
   | >> sat compile SALOME --products KERNEL,GUI,MEDCOUPLING --clean_all
   """
   

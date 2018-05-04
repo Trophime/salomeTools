@@ -3,18 +3,17 @@
 
 """
 simple tagging as '<color>' for simple coloring log messages on terminal(s)
-window or unix or ios using backend colorama
-
-using '<color>' because EZ human readable
-so '<color>' are not supposed existing in log message
+window or unix or ios using backend colorama.
+Using '<color>' because EZ human readable,
+So '<color>' are not supposed existing in log message.
 "{}".format() is not choosen because "{}" are present
 in log messages of contents of python dict (as JSON) etc.
 
-usage:
->> import src.coloringSat as COLS
-
-example:
->> log("this is in <green>color green<reset>, OK is in blue: <blue>OK?")
+| Usage:
+| >> import src.coloringSat as COLS
+| 
+| Example:
+| >> log("this is in <green>color green<reset>, OK is in blue: <blue>OK?")
 """
 
 import os
@@ -39,15 +38,15 @@ will continue to work as normal.
 To do cross-platform colored output, 
 you can use Colorama's AnsiToWin32 proxy directly:
 
-example:
-  import sys
-  from colorama import init, AnsiToWin32, Fore
-  init(wrap=False)
-  stream = AnsiToWin32(sys.stderr).stream
-  # Python 2
-  print >>stream, Fore.BLUE + 'blue text on stderr'
-  # Python 3
-  print(Fore.BLUE + 'blue text on stderr', file=stream)
+| Example:
+| >>  import sys
+| >>  from colorama import init, AnsiToWin32, Fore
+| >>  init(wrap=False)
+| >>  stream = AnsiToWin32(sys.stderr).stream
+| >>  # Python 2
+| >>  print >>stream, Fore.BLUE + 'blue text on stderr'
+| >>  # Python 3
+| >>  print(Fore.BLUE + 'blue text on stderr', file=stream)
 """
 
 import colorama as CLRM
