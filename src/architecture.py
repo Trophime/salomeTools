@@ -59,17 +59,17 @@ def _lsb_release(args):
             path = lsb_path + ":" + path
         
         from subprocess import Popen, PIPE
-        res = Popen(['lsb_release', args], env={'PATH': path},
-                     stdout=PIPE).communicate()[0][:-1]
+        p = Popen(['lsb_release', args], env={'PATH': path}, stdout=PIPE)
+        res = p.communicate()[0][:-1]
         # in case of python3, convert byte to str
         if isinstance(res, bytes):
             res = res.decode()
         return res
     except OSError:
-        sys.stderr.write(_(u"lsb_release not installed\n"))
-        sys.stderr.write(_(u"You can define $LSB_PATH to give"
-                           " the path to lsb_release\n"))
-        sys.exit(-1)
+        msg = _("""\
+lsb_release not installed.
+You can define $LSB_PATH to give the path to lsb_release""")
+        raise Exception(msg)
 
 def get_distribution(codes):
     """Gets the code for the distribution
@@ -88,10 +88,10 @@ def get_distribution(codes):
     if codes is not None and distrib in codes:
         distrib = codes[distrib]
     else:
-        sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
-        sys.stderr.write(_(u"Please add your distribution to"
-                           " src/internal_config/distrib.pyconf\n"))
-        sys.exit(-1)
+        msg = _("""\
+Unknown distribution: '%s'
+Please add your distribution to src/internal_config/distrib.pyconf.""") % distrib
+        raise Exception(msg)
 
     return distrib
 

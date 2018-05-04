@@ -57,7 +57,9 @@ def ensure_path_exists(path):
         os.makedirs(path)
         
 def replace_in_file(file_in, str_in, str_out):
-    """Replace <str_in> by <str_out> in file <file_in>
+    """
+    Replace <str_in> by <str_out> in file <file_in>.
+    save a file old version as file_in + '_old'
 
     :param file_in: (str) The file name
     :param str_in: (str) The string to search
@@ -185,8 +187,8 @@ class Path:
 
 def find_file_in_lpath(file_name, lpath, additional_dir = ""):
     """
-    Find in all the directories in lpath list the file 
-    that has the same name as file_name. 
+    Find the file that has the same name as file_name ,
+    searching in directories listed in lpath. 
     If it is found, return the full path of the file, else, return False. 
     The additional_dir (optional) is the name of the directory 
     to add to all paths in lpath.
@@ -194,17 +196,21 @@ def find_file_in_lpath(file_name, lpath, additional_dir = ""):
     :param file_name: (str) The file name to search
     :param lpath: (list) The list of directories where to search
     :param additional_dir: (str) The name of the additional directory
-    :return: (str) The full path of the file or False if not found
+    :return: (ReturnCode) The full path of the file or False if not found
     """
+    if len(lpath) < 1:
+      raise Exception("find file with no directories to search into")
     for directory in lpath:
-        dir_complete = os.path.join(directory, additional_dir)
-        if not os.path.isdir(directory) or not os.path.isdir(dir_complete):
-            continue
-        l_files = os.listdir(dir_complete)
-        for file_n in l_files:
-            if file_n == file_name:
-                return os.path.join(dir_complete, file_name)
-    return False
+      dir_complete = os.path.join(directory, additional_dir)
+      if not os.path.isdir(directory) or not os.path.isdir(dir_complete):
+        continue
+      l_files = os.listdir(dir_complete)
+      for file_n in l_files:
+        if file_n == file_name:
+          found = os.path.join(dir_complete, file_name)
+          return RCO.ReturnCode("OK", "file %s found" % file_name, found)
+     
+    return RCO.ReturnCode("KO", "file %s not found" % file_name)
 
 def handleRemoveReadonly(func, path, exc):
     excvalue = exc[1]
@@ -329,10 +335,13 @@ def get_log_path(config):
     return log_dir_path
 
 def get_salome_version(config):
+  
+    import src.product as PROD # avoid cross import
+    
     if hasattr(config.APPLICATION, 'version_salome'):
         Version = config.APPLICATION.version_salome
     else:
-        KERNEL_info = product.get_product_config(config, "KERNEL")
+        KERNEL_info = PROD.get_product_config(config, "KERNEL")
         VERSION = os.path.join(
           KERNEL_info.install_dir, "bin", "salome", "VERSION" )
         if not os.path.isfile(VERSION):

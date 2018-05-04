@@ -36,28 +36,35 @@ _TIMEOUT_STATUS = "TIMEOUT"
 #####################################################
 class ReturnCode(object):
   """
-  assume simple return code for methods, with explanation as 'why'
-  obviously why is why it is not OK, 
-  but also why is why it is OK (if you want). 
-  and optionnaly contains a return value as self.getValue()
+  assume simple return code for methods, with explanation as 'why'.
+  Obviously why is 'why it is not OK', 
+  but also why is 'why it is OK' (if you want). 
+  Optionaly contains a return value as self.getValue()
   
-  Usage:
-  >> import returnCode as RCO
-  
-  >> aValue = doSomethingToReturn()
-  >> return RCO.ReturnCode("KO", "there is no problem here", aValue)
-  >> return RCO.ReturnCode("KO", "there is a problem here because etc", None)
-  >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
-  >> return RCO.ReturnCode("NA", "not applicable here because etc")
-  
-  >> rc = doSomething()
-  >> print("short returnCode string", str(rc))
-  >> print("long returnCode string with value", repr(rc))
-  
-  >> rc1 = RCO.ReturnCode("OK", ...)
-  >> rc2 = RCO.ReturnCode("KO", ...)
-  >> rcFinal = rc1 + rc2
-  >> print("long returnCode string with value", repr(rcFinal)) # KO!
+  | Usage:
+  | >> import returnCode as RCO
+  | 
+  | >> aValue = doSomethingToReturn()
+  | >> return RCO.ReturnCode("KO", "there is no problem here", aValue)
+  | >> return RCO.ReturnCode("KO", "there is a problem here because etc", None)
+  | >> return RCO.ReturnCode("TIMEOUT_STATUS", "too long here because etc")
+  | >> return RCO.ReturnCode("NA", "not applicable here because etc")
+  | 
+  | >> rc = doSomething()
+  | >> print("short returnCode string", str(rc))
+  | >> print("long returnCode string with value", repr(rc))
+  | 
+  | >> rc1 = RCO.ReturnCode("OK", ...)
+  | >> rc2 = RCO.ReturnCode("KO", ...)
+  | >> rcFinal = rc1 + rc2
+  | >> print("long returnCode string with value", repr(rcFinal)) # KO!
+  | 
+  | >> rc = doSomething()
+  | >> if rc.isOk(): doSomethingAsOK()
+  | >> if not rc.isOk(): doSomethingAsKO()
+  | 
+  | >> rc = doSomething().raiseIfKo() # raise Exception if KO
+  | >> doSomethingWithValue(rc.getValue()) # here i am sure that is OK
   """
 
   OK_STATUS = _OK_STATUS
@@ -67,7 +74,7 @@ class ReturnCode(object):
   KNOWNFAILURE_STATUS = _KNOWNFAILURE_STATUS
   TIMEOUT_STATUS = _TIMEOUT_STATUS
 
-  # integer for sys.exit(anInt)
+  # an integer for sys.exit(anInteger)
   # OKSYS and KOSYS seems equal on linux or windows
   OKSYS = 0  # OK 
   KOSYS = 1  # KO
@@ -171,6 +178,14 @@ class ReturnCode(object):
     return (self._status == self.OK_STATUS)
   
   def raiseIfKo(self):
-    """raise an exception with message why if not ok"""
-    if self.isOk(): return
-    raise Exception(self.getWhy())
+    """
+    raise an exception with message why if not ok, else return self.
+    This trick is to write usage
+    
+    | >> rc = doSomething().raiseIfKo() # raise Exception if KO
+    | >> doSomethingWithValue(rc.getValue()) # here i am sure that is OK
+    """
+    if self.isOk(): 
+      return self
+    else:
+      raise Exception(self.getWhy())

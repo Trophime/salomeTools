@@ -40,6 +40,7 @@ class TestCase(unittest.TestCase):
   
   def test_010(self):
     rc = RC()
+    self.assertFalse(rc.isOk())
     rrc = str(rc)
     DBG.write("test_010 str", rrc)
     self.assertIn("ND:", rrc)
@@ -53,6 +54,7 @@ class TestCase(unittest.TestCase):
        
   def test_015(self):
     rc = RC("OK", "all is good")
+    self.assertTrue(rc.isOk())
     rrc = str(rc)
     DBG.write("test_015 str", rrc)
     self.assertIn("OK:", rrc)
@@ -65,6 +67,7 @@ class TestCase(unittest.TestCase):
     self.assertIn("Not set", rrc)
     aVal = "I am a value result"
     rc.setValue(aVal)
+    self.assertTrue(rc.isOk())
     self.assertEqual(rc.getValue(), aVal)
     rrc = repr(rc)
     DBG.write("repr", rrc)
@@ -94,12 +97,16 @@ class TestCase(unittest.TestCase):
     rc0 = RC("KO")
     aVal = "I am a value result"
     rc1 = RC("OK", "all is good1", aVal + "1")
+    self.assertTrue(rc1.isOk())
     rc1.setStatus("KO") # change status raz why and value
+    self.assertFalse(rc1.isOk())
+    print rc0
+    print rc1
     self.assertEqual(repr(rc0), repr(rc1))
     
     rc1 = RC("OK", "all is good1", aVal + "1")
     rc2 = rc0 + rc1 + rc1 + rc0 + rc1
-    DBG.write("test_020 repr", rc2, True)
+    DBG.write("test_025 repr", rc2, True)
     rrc = repr(rc2)
     self.assertIn("KO:", rrc)
           

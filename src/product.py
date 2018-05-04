@@ -149,20 +149,19 @@ def get_product_config(config, product_name, with_install_dir=True):
     # If prod_info is still None, it means that there is no product definition
     # in the config. The user has to provide it.
     if prod_info is None:
-        prod_pyconf_path = UTS.find_file_in_lpath(product_name + ".pyconf",
-                                                  config.PATHS.PRODUCTPATH)
-        if not prod_pyconf_path:
+        rc = UTS.find_file_in_lpath(product_name + ".pyconf", config.PATHS.PRODUCTPATH)
+        if not rc.isOk():
             msg = _("""\
 No definition found for the product %(1)s.
-Please create a %(2)s.pyconf file somewhere in:\n%(3)s""") % {
-  "1": product_name, 
-  "2": product_name,
-  "3": config.PATHS.PRODUCTPATH }
+Please create a %(2)s.pyconf file somewhere in:\n%(3)s""") % \
+  {"1": product_name, "2": product_name, "3": config.PATHS.PRODUCTPATH }
         else:
+            prod_pyconf_path = rc.getValue()
             msg = _("""\
 No definition corresponding to the version %(1)s was found in the file:
-  %(2)s.
-Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
+%(2)s.
+Please add a section in it.""") % \
+  {"1" : vv, "2" : prod_pyconf_path}
         raise Exception(msg)
     
     # Set the debug, dev and version keys
@@ -178,25 +177,22 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                                  "")
         if "archive_name" not in prod_info.archive_info: 
             arch_name = product_name + "-" + version + ".tar.gz"
-            arch_path = UTS.find_file_in_lpath(arch_name,
-                                               config.PATHS.ARCHIVEPATH)
-            if not arch_path:
+            rc = UTS.find_file_in_lpath(arch_name, config.PATHS.ARCHIVEPATH)
+            if not rc.isOk():
                 msg = _("Archive %(1)s for %(2)s not found.\n") % \
                        {"1" : arch_name, "2" : prod_info.name}
                 raise Exception(msg)
-            prod_info.archive_info.archive_name = arch_path
+            prod_info.archive_info.archive_name = rc.getValue()
         else:
-            if (os.path.basename(prod_info.archive_info.archive_name) == 
-                                        prod_info.archive_info.archive_name):
+            basename = os.path.basename(prod_info.archive_info.archive_name)
+            if (basename == prod_info.archive_info.archive_name):
                 arch_name = prod_info.archive_info.archive_name
-                arch_path = UTS.find_file_in_lpath(
-                                            arch_name,
-                                            config.PATHS.ARCHIVEPATH)
-                if not arch_path:
+                rc = UTS.find_file_in_lpath(arch_name, config.PATHS.ARCHIVEPATH)
+                if not rc.isOk():
                     msg = _("Archive %(1)s for %(2)s not found:\n") % \
                            {"1" : arch_name, "2" : prod_info.name}
                     raise Exception(msg)
-                prod_info.archive_info.archive_name = arch_path
+                prod_info.archive_info.archive_name = rc.getValue()
         
     # If the product compiles with a script, check the script existence
     # and if it is executable
@@ -213,58 +209,53 @@ Please provide a 'compil_script' key in its definition.""") % product_name
         script_name = os.path.basename(script)
         if script == script_name:
             # Only a name is given. Search in the default directory
-            script_path = UTS.find_file_in_lpath(script_name,
-                                                 config.PATHS.PRODUCTPATH,
-                                                 "compil_scripts")
-            if not script_path:
-                raise Exception(
-                    _("Compilation script not found: %s") % script_name)
-            prod_info.compil_script = script_path
+            rc = UTS.find_file_in_lpath(script_name, config.PATHS.PRODUCTPATH, "compil_scripts")
+            if not rc.isOk():
+                raise Exception(_("Compilation script not found: %s") % script_name)
             if ARCH.is_windows():
-                prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
+                prod_info.compil_script = rc.getValue()[:-len(".sh")] + ".bat"
+            else:
+                prod_info.compil_script = rc.getValue()
        
+        '''# TODO cvw no logger, no message, no raise, later...
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
-            #raise Exception(
-            #        _("Compilation script cannot be executed: %s") % 
-            #        prod_info.compil_script)
+            #raise Exception(_("Compilation script cannot be executed: %s") % prod_info.compil_script)
             print("Compilation script cannot be executed: %s" % prod_info.compil_script)
+        '''
     
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
         patches = []
         for patch in prod_info.patches:
-            patch_path = patch
-            # If only a filename, then search for the patch in the PRODUCTPATH
-            if os.path.basename(patch_path) == patch_path:
-                # Search in the PRODUCTPATH/patches
-                patch_path = UTS.find_file_in_lpath(patch,
-                                                    config.PATHS.PRODUCTPATH,
-                                                    "patches")
-                if not patch_path:
-                    msg = _("Patch %(1)s for %(2)s not found:\n") % \
-                           {"1" : patch, "2" : prod_info.name} 
-                    raise Exception(msg)
-            patches.append(patch_path)
+          patch_path = patch
+          # If only a filename, then search for the patch in the PRODUCTPATH
+          if os.path.basename(patch_path) == patch_path:
+            # Search in the PRODUCTPATH/patches
+            rc = UTS.find_file_in_lpath(patch, config.PATHS.PRODUCTPATH, "patches")
+            if not rc.isOk():
+              msg = _("Patch %s for %s not found.") % (patch, prod_info.name) 
+              raise Exception(msg)
+          patches.append(rc.getValue())
         prod_info.patches = patches
+
 
     # Get the full paths of the environment scripts
     if product_has_env_script(prod_info):
-        env_script_path = prod_info.environ.env_script
+        env_script = str(prod_info.environ.env_script)
         # If only a filename, then search for the environment script 
         # in the PRODUCTPATH/env_scripts
-        if os.path.basename(env_script_path) == env_script_path:
-            # Search in the PRODUCTPATH/env_scripts
-            env_script_path = UTS.find_file_in_lpath(
-                                            prod_info.environ.env_script,
-                                            config.PATHS.PRODUCTPATH,
-                                            "env_scripts")
-            if not env_script_path:
-                msg = _("Environment script %(1)s for %(2)s not found.\n") % \
-                       {"1" : env_script_path, "2" : prod_info.name} 
-                raise Exception(msg)
+        if os.path.basename(env_script) == env_script:
+          # Search in the PRODUCTPATH/env_scripts
+          rc = UTS.find_file_in_lpath(env_script, config.PATHS.PRODUCTPATH, "env_scripts")
+          if not rc.isOk():
+            msg = _("Environment script %s for %s not found.\n") % \
+                   (env_script, prod_info.name) 
+            raise Exception(msg)
+          else:
+            env_script = rc.getValue()
 
-        prod_info.environ.env_script = env_script_path
+        prod_info.environ.env_script = env_script
     
     if with_install_dir: 
         # The variable with_install_dir is at false only for internal use 

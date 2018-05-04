@@ -1114,22 +1114,21 @@ def find_product_scripts_and_pyconf(p_name,
     """
     
     # read the pyconf of the product
-    product_pyconf_path = UTS.find_file_in_lpath(p_name + ".pyconf",
-                                           config.PATHS.PRODUCTPATH)
-    product_pyconf_cfg = PYCONF.Config(product_pyconf_path)
+    namePyconf = p_name + ".pyconf"
+    rc = UTS.find_file_in_lpath(namePyconf, config.PATHS.PRODUCTPATH).raiseIfKo()                                        
+    cfg = PYCONF.Config(rc.getValue())
 
     # find the compilation script if any
     if PROD.product_has_script(p_info):
         compil_script_path = UTS.Path(p_info.compil_script)
         compil_script_path.copy(compil_scripts_tmp_dir)
-        product_pyconf_cfg[p_info.section].compil_script = os.path.basename(
-                                                    p_info.compil_script)
+        cfg[p_info.section].compil_script = os.path.basename(p_info.compil_script)
     # find the environment script if any
     if PROD.product_has_env_script(p_info):
         env_script_path = UTS.Path(p_info.environ.env_script)
         env_script_path.copy(env_scripts_tmp_dir)
-        product_pyconf_cfg[p_info.section].environ.env_script = os.path.basename(
-                                                p_info.environ.env_script)
+        cfg[p_info.section].environ.env_script = os.path.basename(p_info.environ.env_script)
+    
     # find the patches if any
     if PROD.product_has_patches(p_info):
         patches = PYCONF.Sequence()
@@ -1138,33 +1137,28 @@ def find_product_scripts_and_pyconf(p_name,
             p_path.copy(patches_tmp_dir)
             patches.append(os.path.basename(patch_path), "")
 
-        product_pyconf_cfg[p_info.section].patches = patches
+        cfg[p_info.section].patches = patches
     
     if with_vcs:
         # put in the pyconf file the resolved values
         for info in ["git_info", "cvs_info", "svn_info"]:
             if info in p_info:
                 for key in p_info[info]:
-                    product_pyconf_cfg[p_info.section][info][key] = p_info[
-                                                                      info][key]
+                    cfg[p_info.section][info][key] = p_info[info][key]
     else:
         # if the product is not archive, then make it become archive.
         if PROD.product_is_vcs(p_info):
-            product_pyconf_cfg[p_info.section].get_source = "archive"
-            if not "archive_info" in product_pyconf_cfg[p_info.section]:
-                product_pyconf_cfg[p_info.section].addMapping("archive_info",
-                                        PYCONF.Mapping(product_pyconf_cfg),
-                                        "")
-            product_pyconf_cfg[p_info.section
-                              ].archive_info.archive_name = p_info.name + ".tgz"
+            cfg[p_info.section].get_source = "archive"
+            if not "archive_info" in cfg[p_info.section]:
+                cfg[p_info.section].addMapping("archive_info", PYCONF.Mapping(cfg), "")
+            cfg[p_info.section].archive_info.archive_name = p_info.name + ".tgz"
     
     # write the pyconf file to the temporary project location
-    product_tmp_pyconf_path = os.path.join(products_pyconf_tmp_dir,
-                                           p_name + ".pyconf")
-    ff = open(product_tmp_pyconf_path, 'w')
-    ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
-    product_pyconf_cfg.__save__(ff, 1)
-    ff.close()
+    pyconf_path = os.path.join(products_pyconf_tmp_dir, namePyconf)
+    with open(pyconf_path, 'w') as f:
+      f.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
+      cfg.__save__(f, 1)
+    return
 
 def find_application_pyconf(config, application_tmp_dir):
     """
@@ -1176,28 +1170,24 @@ def find_application_pyconf(config, application_tmp_dir):
       The path to the temporary application scripts directory of the project.
     """
     # read the pyconf of the application
-    application_name = config.VARS.application
-    application_pyconf_path = UTS.find_file_in_lpath(
-                                            application_name + ".pyconf",
-                                            config.PATHS.APPLICATIONPATH)
-    application_pyconf_cfg = PYCONF.Config(application_pyconf_path)
+    name = config.VARS.application
+    namePyconf = name + ".pyconf"
+    rc = UTS.find_file_in_lpath(namePyconf, config.PATHS.APPLICATIONPATH).raiseIfKo()                                        
+    cfg = PYCONF.Config(rc.getValue())
     
     # Change the workdir
-    application_pyconf_cfg.APPLICATION.workdir = PYCONF.Reference(
-                                    application_pyconf_cfg,
-                                    PYCONF.DOLLAR,
-                                    'VARS.salometoolsway + $VARS.sep + ".."')
+    cfg.APPLICATION.workdir = PYCONF.Reference(
+      cfg, PYCONF.DOLLAR, 'VARS.salometoolsway + $VARS.sep + ".."')
 
     # Prevent from compilation in base
-    application_pyconf_cfg.APPLICATION.no_base = "yes"
+    cfg.APPLICATION.no_base = "yes"
     
     # write the pyconf file to the temporary application location
-    application_tmp_pyconf_path = os.path.join(application_tmp_dir,
-                                               application_name + ".pyconf")
-    ff = open(application_tmp_pyconf_path, 'w')
-    ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
-    application_pyconf_cfg.__save__(ff, 1)
-    ff.close()
+    pyconf_path = os.path.join(application_tmp_dir, namePyconf)
+    with open(pyconf_path, 'w') as f:
+      f.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
+      cfg.__save__(f, 1)
+    return
 
 def project_package(project_file_path, tmp_working_dir):
     """

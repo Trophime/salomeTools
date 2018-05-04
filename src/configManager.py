@@ -373,11 +373,11 @@ class ConfigManager:
         if application is not None:
             PYCONF.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
             for product_name in application_cfg.APPLICATION.products.keys():
-                # Loop on all files that are in softsDir directory
-                # and read their config
+                # Loop on all files that are in softsDir directory and read their config
                 product_file_name = product_name + ".pyconf"
-                product_file_path = UTS.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
-                if product_file_path:
+                rc = UTS.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
+                if rc.isOk():
+                    product_file_path = rc.getValue()
                     products_dir = os.path.dirname(product_file_path)
                     try:
                         prod_cfg = PYCONF.Config(open(product_file_path), PWD=("", products_dir))
@@ -449,7 +449,7 @@ class ConfigManager:
         
         cfg_name = self.get_user_config_file()
         cfg = PYCONF.Config()
-        cfg.addMapping('USER', PYCONF.Mapping(user_cfg), "")
+        cfg.addMapping('USER', PYCONF.Mapping(cfg), "")
         USER = cfg.USER
 
         USER.addMapping('cvs_user', config.VARS.user, 

@@ -112,18 +112,14 @@ class Test:
     def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
         self.logger.info(_("get test base from dir: %s\n") % UTS.label(testbase_dir))
         if not os.access(testbase_dir, os.X_OK):
-            raise Exception(
-              _("testbase %(name)s (%(dir)s) does not exist ...\n") % \
-              { 'name': testbase_name, 'dir': testbase_dir } )
+            msg = _("testbase %s (%s) does not exist ...\n") % (testbase_name, testbase_dir )
+            raise Exception(msg)
 
         self._copy_dir(testbase_dir,
                        os.path.join(self.tmp_working_dir, 'BASES', testbase_name))
 
-    def prepare_testbase_from_git(self,
-                                  testbase_name,
-                                  testbase_base,
-                                  testbase_tag):
-        self.logger.info( _("get test base '%s' with '%s' tag from git\n") % \
+    def prepare_testbase_from_git(self, testbase_name, testbase_base, testbase_tag):
+        self.logger.info( _("get test base %s with %s tag from git\n") % \
                            (UTS.label(testbase_name), UTS.label(testbase_tag)) )
         try:
             def set_signal(): # pragma: no cover
@@ -158,14 +154,14 @@ class Test:
                                 stdout=self.logger.logTxtFile,
                                 stderr=subprocess.PIPE)
             if res != 0:
-                raise Exception(_("Error: unable to get test base "
-                                         "'%(name)s' from git '%(repo)s'.") % \
-                                       { 'name': testbase_name,
-                                        'repo': testbase_base })
+                msg = _("Unable to get test base '%s' from git '%s'.") % \
+                        (testbase_name, testbase_base)
+                raise Exception(msg)
 
         except OSError:
-            self.logger.error(_("git is not installed. exiting...\n"))
-            sys.exit(0)
+            msg = _("git is not installed. Have to exit")
+            self.logger.critical(msg)
+            raise Exception(msg)
 
     def prepare_testbase_from_svn(self, user, testbase_name, testbase_base):
         self.logger.info(_("get test base '%s' from svn\n") % UTS.label(testbase_name))
@@ -203,13 +199,14 @@ class Test:
                                 env=env_appli.environ.environ,)
 
             if res != 0:
-                raise Exception(
-                  _("ERROR: unable to get test base '%(name)s' from svn '%(repo)s'.") % \
-                  { 'name': testbase_name, 'repo': testbase_base } )
+                msg = _("ERROR: unable to get test base '%s' from svn '%s'.") % \
+                       (testbase_name, testbase_base)
+                raise Exception(msg)
 
         except OSError:
-            self.logger.error(_("svn is not installed. exiting...\n"))
-            sys.exit(0)
+            msg = _("svn is not installed. Have to exit.")
+            self.logger.critical(msg)
+            raise Exception(msg)
 
     def prepare_testbase(self, test_base_name):
         """Configure tests base."""

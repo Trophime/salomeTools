@@ -18,17 +18,25 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """
-This file is the main entry file to salomeTools
-NO __main__ entry allowed, use 'sat' (in parent directory)
+This file is the main API file for salomeTools
+
+| Warning: NO '__main__ ' call allowed, 
+|          Use 'sat' (in parent directory)
+| 
+| Usage: see file ../sat 
 """
+
+_KOSYS = 1 # avoid import src
 
 ########################################################################
 # NO __main__ entry allowed, use sat
 ########################################################################
 if __name__ == "__main__":
-    sys.stderr.write("\nERROR: 'salomeTools.py' is not main command entry for sat: use 'sat' instead.\n\n")
-    KOSYS = 1 # avoid import src
-    sys.exit(KOSYS)
+    msg = """
+ERROR: 'salomeTools.py' is not main command entry (CLI) for salomeTools.
+       Use 'sat' instead.\n\n"""
+    sys.stderr.write(msg)
+    sys.exit(_KOSYS)
 
 import os
 import sys
