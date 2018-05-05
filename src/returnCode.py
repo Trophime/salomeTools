@@ -26,6 +26,7 @@ This file contains ReturnCode class
 
 import pprint as PP
 
+# global module variable
 _OK_STATUS = "OK"
 _KO_STATUS = "KO"
 _NA_STATUS = "NA" # not applicable
@@ -67,8 +68,9 @@ class ReturnCode(object):
   | >> doSomethingWithValue(rc.getValue()) # here i am sure that is OK
   """
 
+  # redunctant but useful class variables
   OK_STATUS = _OK_STATUS
-  KO_STATUS = _OK_STATUS
+  KO_STATUS = _KO_STATUS
   NA_STATUS = _NA_STATUS # not applicable
   UNKNOWN_STATUS = _UNKNOWN_STATUS # not defined
   KNOWNFAILURE_STATUS = _KNOWNFAILURE_STATUS
@@ -92,7 +94,7 @@ class ReturnCode(object):
     TIMEOUT_STATUS: TOSYS, 
   }
   _DEFAULT_WHY = "No given explanation"
-  _DEFAULT_VALUE = "Not set"
+  _DEFAULT_VALUE = None
 
   def __init__(self, status=None, why=None, value=None):
     self._why = self._DEFAULT_WHY 
@@ -104,12 +106,12 @@ class ReturnCode(object):
     
   def __repr__(self):
     """complete with value, 'ok, why, value' message"""
-    res = '%s: "%s" for value: %s' % (self._status, self._why, PP.pformat(self._value))
+    res = '%s: %s --value: %s' % (self._status, self._why, PP.pformat(self._value))
     return res
   
   def __str__(self):
     """without value, only simple 'ok, why' message"""
-    res = '%s: "%s"' % (self._status, self._why)
+    res = '%s: %s' % (self._status, self._why)
     return res
 
   def indent(self, text, amount=5, ch=' '):
@@ -124,9 +126,16 @@ class ReturnCode(object):
     newWhy = self._toList(self.getWhy()) + self._toList(rc2.getWhy())
     newValue = self._toList(self.getValue()) + self._toList(rc2.getValue())    
     if isOk: 
-      return ReturnCode("OK", newWhy, newValue )
+      return ReturnCode("OK", newWhy, newValue)
     else:
-      return ReturnCode("KO", newWhy, newValue ) 
+      return ReturnCode("KO", newWhy, newValue)
+    
+  def __radd__(self, other):
+    # see http://www.marinamele.com/2014/04/modifying-add-method-of-python-class.html
+    if other == 0:
+      return self
+    else:
+      return self.__add__(other) 
     
   def _toList(self, strOrList):
     """internal use"""
@@ -153,6 +162,8 @@ class ReturnCode(object):
     return self._value
     
   def setValue(self, value):
+    """choice as not deep copying if mutables value"""
+    # TODO deepcopy maybe for value, not yet
     self._value = value
     
   def setStatus(self, status, why=None, value=None):
@@ -169,6 +180,7 @@ class ReturnCode(object):
       self._why = "Error status '%s' for '%s'" % (status, aWhy)
       
     if value is not None:
+      # TODO deepcopy maybe for value, not yet
       self._value = value
     else:
       self._value = self._DEFAULT_VALUE

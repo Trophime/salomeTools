@@ -58,7 +58,7 @@ class TestCase(unittest.TestCase):
     DBG.write("s.getConfig()", s.getConfig()) #none
     DBG.write("s.__dict__", s.__dict__) # have 
     returnCode = s.execute_cli(cmd)
-    DBG.write("test_010 returnCode", returnCode, True)
+    DBG.write("test_010 returnCode", returnCode)
     logs = self.logger.getLogs()
     DBG.write("test_010 logger", logs, True)
     self.assertTrue(returnCode.isOk())

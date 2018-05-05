@@ -179,11 +179,23 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       indentp = indentp + 2
     indstr = indent * ' ' # '':no indent, ' ':indent
     strType = str(type(config))
+    print "zzzstrType", path, strType
+    
     if "Sequence" in strType:
       for i in range(len(config)):
         _saveConfigRecursiveDbg(config[i], aStream, indentp, path+"[%i]" % i)
       return
-    try: 
+    '''
+    if "Reference" in strType:
+      try:
+        #evaluate = value.resolve(config)
+        aStream.write("<blue>%s%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, config, str(config)))
+      except Exception as e:  
+        aStream.write("<blue>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, e.message))     
+      return
+    '''
+    
+    try: #type config, mapping
       order = object.__getattribute__(config, 'order')
       data = object.__getattribute__(config, 'data')
     except:
@@ -192,7 +204,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
     for key in sorted(data): #order): # data as sort alphabetical, order as initial order
       value = data[key]
       strType = str(type(value))
-      if debug: print indstr + 'strType = %s' % strType, key
+      if debug: print 'strType', path, key, strType
       if "Config" in strType:
         _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key)
         continue
@@ -201,7 +213,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
         continue
       if "Sequence" in strType:
         for i in range(len(value)):
-          _saveConfigRecursiveDbg(value[i], aStream, indentp, path+"."+key+"[%i]" % i)
+          _saveConfigRecursiveDbg(value.data[i], aStream, indentp, path+"."+key+"[%i]" % i)
         continue
       if "Expression" in strType:
         try:

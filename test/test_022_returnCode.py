@@ -45,12 +45,12 @@ class TestCase(unittest.TestCase):
     DBG.write("test_010 str", rrc)
     self.assertIn("ND:", rrc)
     self.assertIn("No given explanation", rrc)
-    self.assertNotIn("for value", rrc)
+    self.assertNotIn("--value", rrc)
     rrc = repr(rc)
     DBG.write("test_010 repr", rrc)
     self.assertIn("ND:", rrc)
     self.assertIn("No given explanation", rrc)
-    self.assertIn("for value", rrc)
+    self.assertIn("--value", rrc)
        
   def test_015(self):
     rc = RC("OK", "all is good")
@@ -59,12 +59,12 @@ class TestCase(unittest.TestCase):
     DBG.write("test_015 str", rrc)
     self.assertIn("OK:", rrc)
     self.assertIn("all is good", rrc)
-    self.assertNotIn("for value", rrc)
+    self.assertNotIn("--value", rrc)
     rrc = repr(rc)
     DBG.write("test_015 repr", rrc)
     self.assertIn("OK:", rrc)
     self.assertIn("all is good", rrc)
-    self.assertIn("Not set", rrc)
+    self.assertIn("None", rrc)
     aVal = "I am a value result"
     rc.setValue(aVal)
     self.assertTrue(rc.isOk())
@@ -98,17 +98,54 @@ class TestCase(unittest.TestCase):
     aVal = "I am a value result"
     rc1 = RC("OK", "all is good1", aVal + "1")
     self.assertTrue(rc1.isOk())
-    rc1.setStatus("KO") # change status raz why and value
+    rc1.setStatus("KO") # raz status and why and value
     self.assertFalse(rc1.isOk())
-    print rc0
-    print rc1
     self.assertEqual(repr(rc0), repr(rc1))
     
-    rc1 = RC("OK", "all is good1", aVal + "1")
-    rc2 = rc0 + rc1 + rc1 + rc0 + rc1
-    DBG.write("test_025 repr", rc2, True)
-    rrc = repr(rc2)
-    self.assertIn("KO:", rrc)
+  def test_026(self):
+    rc0 = RC("KO")
+    aVal = "I am a value result"
+    rc1 = RC("OK", "all is good1", aVal)
+    rc2 = rc0 + rc1 # make list with two why and two value
+    DBG.write("test_026 str", str(rc2))
+    DBG.write("test_026 repr", repr(rc2))
+    self.assertFalse(rc2.isOk())
+    self.assertIn("KO:", repr(rc2))
+    self.assertIn("KO:", str(rc2))    
+    self.assertEqual(len(rc2.getWhy()), 2)
+    self.assertEqual(len(rc2.getValue()), 2)
+
+  def test_027(self):
+    rc0 = RC("KO")
+    aVal = "I am a value result"
+    rc1 = RC("OK", "all is good1", aVal)
+    rc2 = sum([rc0, rc1]) # make list with two why and two value
+    self.assertFalse(rc2.isOk())
+    self.assertIn("KO:", repr(rc2))
+    self.assertIn("KO:", str(rc2))    
+    self.assertEqual(len(rc2.getWhy()), 2)
+    self.assertEqual(len(rc2.getValue()), 2)
+    
+  def test_028(self):
+    rc0 = RC("OK")
+    aVal = ["I am a mutable list value result"]
+    rc1 = RC("OK", "all is good1", aVal)
+    rc2 = rc0 + rc1 + rc1 + rc0 # make list with why and value
+    DBG.write("test_028 repr", str(rc2))
+    DBG.write("test_028 repr", repr(rc2))
+    self.assertTrue(rc2.isOk())
+    self.assertIn("OK:", repr(rc2))
+    self.assertIn("OK:", str(rc2))    
+    self.assertEqual(len(rc2.getWhy()), 4)
+    self.assertEqual(len(rc2.getValue()), 4)
+    
+    aVal[0] = "modified mutable list value result"
+    DBG.write("test_028 repr", repr(rc1))
+    DBG.write("test_028 repr", repr(rc2))
+    # deepcopy value no clearly assumed, could be tricky
+    self.assertIn("modified mutable", repr(rc1))
+    self.assertNotIn("modified mutable", repr(rc2))
+
           
   def test_999(self):
     # one shot tearDown() for this TestCase

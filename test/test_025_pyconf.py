@@ -64,6 +64,23 @@ _EXAMPLES = {
   bb: "Hervé" # avoid Hervé -> 'utf8' codec can't decode byte
 """,
 
+5 : """\
+  aa: Yves
+  bb: "Herve"
+  cc: [ 
+    cc1
+    cc2
+    cc3
+    $bb + " hello"
+    ]
+  dd: { 
+   d1 : dd11 
+   d2 : dd22
+   d3 : dd33 
+   d4 : $bb + " bye"
+   }   
+""",
+
 
 }
 
@@ -133,14 +150,50 @@ Bienvenue, Yves
   def test_045(self):
     """TODO: make Hervé valid with pyconf.py as 0.3.9"""
     inStream = DBG.InStream(_EXAMPLES[4])
-    cfg = PYF9.Config(inStream)
     outStream = DBG.OutStream()
-    cfg.save(outStream) # sat renamed save() in __save__()
+    cfg = PYF9.Config(inStream)
+    cfg.save(outStream) # OK
+    # TODO: cfg = PYF.Config(inStream)
+    # cfg.__save__(outStream)  # KO and sat renamed save() in __save__()
     res = outStream.value
     DBG.write("test_045 cfg", res)
     self.assertTrue("aa : 'Yves'" in res)
     self.assertTrue(r"bb : 'Herv\xc3\xa9'" in res)
     self.assertEqual(cfg.bb, "Hervé")
+    
+  def test_100(self):
+    inStream = DBG.InStream(_EXAMPLES[5])
+    outStream = DBG.OutStream()
+    cfg = PYF.Config(inStream) # KO
+    cfg.__save__(outStream) # sat renamed save() in __save__()
+    res = outStream.value
+    DBG.write("test_100 cfg save", res, True)
+    DBG.write("test_100 cfg debug", cfg, True)
+    DBG.write("test_100 cfg debug", cfg.cc, True)
+    
+    cc = cfg.cc
+    # DBG.write("test_100 type cc[3]", dir(cc), True)
+    # self.ssave(cc)
+    DBG.write("test_100 cc", [cc.data[i] for i in range(len(cc))], True)
+    
+  def ssave(self,  obj): #, stream):
+      """
+      Save this instance to the specified stream.
+      @param stream: A stream to which the configuration is written.
+      @type stream: A write-only stream (file-like object).
+      @param indent: The indentation level for the output, > 0
+      @type indent: int
+      """
+      data = object.__getattribute__(obj, 'data')
+      for i in range(0, len(data)):
+          value = data[i]
+          print "[%i]" % i, type(value)
+          """if isinstance(value, PYF.Container):
+              print "Container [%i]" % i
+              #value.writeToStream(stream, indent, self)
+          else:
+              print "Other [%i]" % i
+              #self.writeValue(value, stream, indent)"""
       
   def test_999(self):
     # one shot tearDown() for this TestCase
