@@ -206,7 +206,7 @@ class Options(object):
         try:
           optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
         except Exception as e:
-          msg = str(e) + "\n\n" + self.get_help()
+          msg = str(e) + " on %s\n\n" % argList + self.get_help()
           raise Exception(msg)
 
         # instantiate and completing the optResult that will be returned

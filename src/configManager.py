@@ -18,7 +18,6 @@
 
 import os
 import platform
-import datetime
 import shutil
 import sys
 import StringIO as SIO
@@ -32,6 +31,7 @@ import src.product as PROD
 import src.environment as ENVI
 import src.fileEnviron as FENV
 import src.architecture as ARCH
+import src.dateTime as DATT
 
 
 class ConfigOpener:
@@ -145,10 +145,10 @@ class ConfigManager:
         var['hostname'] = node_name
 
         # set date parameters
-        dt = datetime.datetime.now()
-        var['date'] = dt.strftime('%Y%m%d')
-        var['datehour'] = dt.strftime('%Y%m%d_%H%M%S')
-        var['hour'] = dt.strftime('%H%M%S')
+        dt = DATT.DateTime("now")
+        var['date'] = dt.toStrDateConfig()
+        var['datehour'] = dt.toStrDateHourConfig()
+        var['hour'] = dt.toStrHourConfig()
 
         var['command'] = str(command)
         var['application'] = str(application)
@@ -608,18 +608,21 @@ def show_patchs(config, logger):
     :param logger: (Logger) 
       The logger instance to use for the display
     """
-    len_max = max([len(p) for p in config.APPLICATION.products]) + 2
+    res =[]
+    len_max = -1
+    for product in sorted(config.APPLICATION.products):
+      product_info = PROD.get_product_config(config, product)
+      if PROD.product_has_patches(product_info):
+        res.append((product, product_info.patches))      
+        len_max = max(len_max, len(product))
+    
     msg = ""
-    for product in config.APPLICATION.products:
-        nb = len_max-len(product)-2
-        product_info = PROD.get_product_config(config, product)
-        if PROD.product_has_patches(product_info):
-            msg += "<header>%s: <reset>" % product
-            msg += " "*nb + "%s\n" % product_info.patches[0]
-            if len(product_info.patches) > 1:
-                for patch in product_info.patches[1:]:
-                    msg += " "*nb + "%s\n" % patch
-            msg += "\n"
+    for product, patches in res:
+      nb = len_max - len(product)
+      ind1 = " "*nb # indent first line
+      ind2 = " "*(len_max+2) # indent other lines
+      msg += "<header>%s: %s<reset>" % (product, ind1)
+      msg += ind2.join([p+"\n" for p in patches])
     logger.info(msg)
     return
 

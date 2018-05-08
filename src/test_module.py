@@ -619,7 +619,8 @@ class Test:
             script_info.time = script_results[sr][1]
             if script_info.res == RCO._TIMEOUT_STATUS:
                 script_info.time = time_out
-            if script_info.time < 1e-3: script_info.time = 0
+            if script_info.time < 1e-3: 
+                script_info.time = 0
 
             callback = script_results[sr][2]
             if script_info.res != RCO._OK_STATUS and len(callback) > 0:

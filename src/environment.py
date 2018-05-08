@@ -27,6 +27,7 @@ import sys
 import src.utilsSat as UTS
 import src.pyconf as PYCONF
 import src.product as PROD
+import src.fileEnviron as FENV
 import src.architecture as ARCH
 
 class Environ:
@@ -595,7 +596,7 @@ class SalomeEnviron:
             raise Exception(_("Environment script not found: %s") % env_script)
 
         if not self.silent and logger is not None:
-            logger.info("  ** load %s\n" % env_script)
+            logger.info("  load %s" % env_script)
 
         # import the script and run the set_env function
         try:
@@ -629,7 +630,7 @@ class SalomeEnviron:
             raise Exception(_("Environment script not found: %s") % script_path)
 
         if not self.silent and logger is not None:
-            logger.info("  ** load %s\n" % script_path)
+            logger.info("  load %s" % script_path)
 
         script_basename = os.path.basename(script_path)
         if script_basename.endswith(".py"):
@@ -715,7 +716,7 @@ class FileEnvWriter:
         :return: (str) The path to the generated file
         """
         if not self.silent:
-            self.logger.info(_("Create environment file %s\n") % UTS.label(filename))
+            self.logger.info(_("\nCreate environment file %s\n") % UTS.label(filename))
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")

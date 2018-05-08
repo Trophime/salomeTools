@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -102,10 +103,11 @@ class Command(_BaseCommand):
     if out_dir:
         out_dir = os.path.abspath(out_dir)
     
-    write_all_source_files(config, logger, out_dir=out_dir, shells=shell,
+    files = write_all_source_files(config, logger, 
+                           out_dir=out_dir, shells=shell,
                            prefix=options.prefix, env_info=environ_info)
-    logger.info("\n")
-    #TODO return code
+
+    return RCO.ReturnCode("OK", "environ command done", files)
 
 def write_all_source_files(config,
                            logger,
@@ -131,17 +133,19 @@ def write_all_source_files(config,
     :param env_info: (str) The list of products to add in the files.
     :return: (list) The list of the generated files.
     """
-        
+    appName = config.APPLICATION.name
+    
     if not out_dir:
         out_dir = config.APPLICATION.workdir
 
     if not os.path.exists(out_dir):
-        raise Exception(_("Target directory not found: %s") % out_dir)
+        msg = _("Target directory not found: %s") % UTS.error(out_dir)
+        raise Exception(msg)
 
     if not silent:
-        logger.info(_("Creating environment files for %s\n") % \
-                     UTS.header(config.APPLICATION.name))
-        logger.info("  %s = %s\n\n" % (_("Target"), out_dir))
+        msg = _("Creating environment files for %s\n") % UTS.header(appName)
+        msg += "\n  %s = %s" % (_("Target"), UTS.header(out_dir))
+        logger.info(msg)
     
     shells_list = []
     all_shells = C_ALL_SHELL

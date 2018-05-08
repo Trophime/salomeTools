@@ -12,7 +12,7 @@
 
 import os, sys, traceback
 import os.path
-import time as THEBIGTIME
+import time as TIME
 
 # set path
 toolsWay = r'${toolsWay}'
@@ -51,14 +51,14 @@ for test in listTest:
     exec_result.flush()
 
     try:
-        timeStart = THEBIGTIME.time()
+        timeStart = TIME.time()
         execfile(os.path.join(outWay, test), globals(), locals())
-        timeTest = THEBIGTIME.time() - timeStart
+        timeTest = TIME.time() - timeStart
     except SatNotApplicableError, ex:
         status = "NA"
         reason = str(ex)
         exec_result.write("NA\n")
-        timeTest = THEBIGTIME.time() - timeStart
+        timeTest = TIME.time() - timeStart
         pylog.write('status = "NA"\n')
         pylog.write('time = "' + timeTest.__str__() + '"\n')
         pylog.write('callback = "%s"\n' % reason)
@@ -69,7 +69,7 @@ for test in listTest:
             status = "KF"
             reason = "Known Failure = %s\n\n" % ignore[test]
         exec_result.write("%s\n" % status)
-        timeTest = THEBIGTIME.time() - timeStart
+        timeTest = TIME.time() - timeStart
         pylog.write('status = "%s" \n' % status)
         pylog.write('time = "' + timeTest.__str__() + '"\n')
         pylog.write('callback="""' + reason)

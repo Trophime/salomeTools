@@ -32,7 +32,6 @@ import shutil
 import errno
 import stat
 
-import datetime
 import re
 import tempfile
 
@@ -523,58 +522,8 @@ def merge_dicts(*dict_args):
     
     
 ##############################################################################
-# date utilities
-##############################################################################
-def parse_date(date):
-    """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
-    
-    :param date: (str) The date to transform
-    :return: (str) The date in the new format
-    """
-    if len(date) != 15:
-        return date
-    res = "%s-%s-%s %s:%s:%s" % (date[0:4],
-                                 date[4:6],
-                                 date[6:8],
-                                 date[9:11],
-                                 date[11:13],
-                                 date[13:])
-    return res
-
-
-##############################################################################
 # log utilities (TODO: set in loggingSat class, later, changing tricky xml?
 ##############################################################################    
-def date_to_datetime(date):
-    """
-    From a string date in format YYYYMMDD_HHMMSS
-    returns list year, mon, day, hour, minutes, seconds 
-    
-    :param date: (str) The date in format YYYYMMDD_HHMMSS
-    :return: (tuple) as (str,str,str,str,str,str)
-      The same date and time in separate variables.
-    """
-    Y = date[:4]
-    m = date[4:6]
-    dd = date[6:8]
-    H = date[9:11]
-    M = date[11:13]
-    S = date[13:15]
-    return Y, m, dd, H, M, S
-
-def timedelta_total_seconds(timedelta):
-    """
-    Replace total_seconds from datetime module 
-    in order to be compatible with old python versions
-    
-    :param timedelta: (datetime.timedelta) 
-      The delta between two dates
-    :return: (float) 
-      The number of seconds corresponding to timedelta.
-    """
-    return (
-        timedelta.microseconds + 0.0 +
-        (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
         
 _log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 _log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"

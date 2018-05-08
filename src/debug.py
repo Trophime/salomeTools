@@ -63,14 +63,15 @@ def isTypeConfig(var):
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-      typ = str(type(var))
+      tvar = type(var)
+      typ = str(tvar)
       if isTypeConfig(var):
         sys.stderr.write(fmt % (title, indent(COLS.toColor(getStrConfigDbg(var)))))
         return
       if 'loggingSat.UnittestStream' in typ: 
         sys.stderr.write(fmt % (title, indent(var.getLogs())))
-        return
-      if type(var) is not str:
+        return  
+      if tvar is not str and tvar is not unicode:
         sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
         return
       sys.stderr.write(fmt % (title, indent(var)))
@@ -179,7 +180,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       indentp = indentp + 2
     indstr = indent * ' ' # '':no indent, ' ':indent
     strType = str(type(config))
-    print "zzzstrType", path, strType
+    if debug: print "saveDbg Type", path, strType
     
     if "Sequence" in strType:
       for i in range(len(config)):

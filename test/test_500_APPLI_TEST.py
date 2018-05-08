@@ -33,13 +33,34 @@ class TestCase(unittest.TestCase):
   logger = LOG.getUnittestLogger()
   debug = False
   
+  #see test_100, # commands are expected OK
+  TRG = "SALOME-8.4.0"
+  satCommandsToTestOk = [
+    "config -l",
+    "config -v .",
+    "config -d .",
+    "config %s --value ." %  TRG,
+    "config %s --debug ." %  TRG,
+    "config %s --info KERNEL" %  TRG,
+    "config %s --show_patchs" %  TRG,
+  ]
+  #see test_110, # commands are expected KO
+  satCommandsToTestKo = [
+    "config %s --info oops" %  TRG,
+  ]
+  #see test_120, # commands are expected KO
+  satCommandsToTestRaise = [
+    "oopsconfig --oops .",
+    "config --oops",
+  ]
+  
   def tearDown(self):
     # print "tearDown", __file__
     # assure self.logger clear for next test
     logs = self.logger.getLogsAndClear()
     # using assertNotIn() is too much verbose
-    self.assertFalse("ERROR" in logs)
-    self.assertFalse("CRITICAL" in logs)
+    self.assertFalse("ERROR    ::" in logs)
+    self.assertFalse("CRITICAL ::" in logs)
 
   def test_000(self):
     # one shot setUp() for this TestCase
@@ -53,16 +74,51 @@ class TestCase(unittest.TestCase):
     if self.debug: DBG.pop_debug()
 
   def test_010(self):
-    cmd = "-v 5 config -l"
+    cmd = "config -l"
     s = SAT.Sat(self.logger)
     DBG.write("s.getConfig()", s.getConfig()) #none
     DBG.write("s.__dict__", s.__dict__) # have 
     returnCode = s.execute_cli(cmd)
     DBG.write("test_010 returnCode", returnCode)
     logs = self.logger.getLogs()
-    DBG.write("test_010 logger", logs, True)
+    DBG.write("test_010 logger", logs)
     self.assertTrue(returnCode.isOk())
-
+    
+  def test_100(self):
+    # test all satCommands expected OK
+    dbg = self.debug # True # 
+    for cmd in self.satCommandsToTestOk:
+      s = SAT.Sat(self.logger)
+      returnCode = s.execute_cli(cmd)
+      DBG.write("test_800 'sat %s' returnCode" % cmd, str(returnCode), True)
+      logs = self.logger.getLogsAndClear()
+      DBG.write("logs", logs, dbg)    
+      # using assertNotIn() is too much verbose
+      self.assertFalse("ERROR    ::" in logs)
+      self.assertFalse("CRITICAL ::" in logs)
+      
+  def test_110(self):
+    # test all satCommands expected KO
+    dbg = self.debug
+    for cmd in self.satCommandsToTestKo:
+      s = SAT.Sat(self.logger)
+      returnCode = s.execute_cli(cmd)
+      DBG.write("test_810 'sat %s' returnCode" % cmd, returnCode, dbg)
+      logs = self.logger.getLogsAndClear()
+      DBG.write("logs", logs, dbg)    
+      
+  def test_120(self):
+    # test all satCommands expected raise
+    dbg = self.debug
+    for cmd in self.satCommandsToTestRaise:
+      s = SAT.Sat(self.logger)
+      DBG.write("test_820 'sat %s'" % cmd, "expected raise", dbg)
+      with self.assertRaises(Exception):
+        returnCode = s.execute_cli(cmd)
+      logs = self.logger.getLogsAndClear()
+      DBG.write("logs", logs, dbg)    
+      
+      
 if __name__ == '__main__':
     unittest.main(exit=False)
     pass

@@ -22,7 +22,6 @@ import os
 import shutil
 import re
 import glob
-import datetime
 import stat
 
 import src.debug as DBG
@@ -31,6 +30,7 @@ import src.utilsSat as UTS
 import src.xmlManager as XMLMGR
 import src.system as SYSS
 from src.salomeTools import _BaseCommand
+import src.dateTime as DATT
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -345,15 +345,14 @@ def show_product_last_logs(logger, config, product_log_dir):
     l_time_file = []
     for file_n in os.listdir(product_log_dir):
         my_stat = os.stat(os.path.join(product_log_dir, file_n))
-        l_time_file.append(
-              (datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME]), file_n))
+        l_time_file.append( (DATT.fromTimeStamp(my_stat[stat.ST_MTIME]), file_n) )
     
     # display the available logs
     for i, (__, file_name) in enumerate(sorted(l_time_file)):
         str_indice = UTS.label("%2d" % (i+1))
         opt = []
         my_stat = os.stat(os.path.join(product_log_dir, file_name))
-        opt.append(str(datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME])))
+        opt.append(str(DATT.fromTimeStamp(my_stat[stat.ST_MTIME])))
         
         opt.append("(%8.2f)" % (my_stat[stat.ST_SIZE] / 1024.0))
         logger.info(" %-35s" % " ".join(opt))

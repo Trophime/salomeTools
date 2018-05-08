@@ -236,7 +236,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             if not rc.isOk():
               msg = _("Patch %s for %s not found.") % (patch, prod_info.name) 
               raise Exception(msg)
-          patches.append(rc.getValue())
+            patches.append(rc.getValue())
         prod_info.patches = patches
 
 
@@ -254,22 +254,18 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             raise Exception(msg)
           else:
             env_script = rc.getValue()
-
         prod_info.environ.env_script = env_script
     
     if with_install_dir: 
         # The variable with_install_dir is at false only for internal use 
         # of the function get_install_dir
-        
         # Save the install_dir key if there is any
         if "install_dir" in prod_info and not "install_dir_save" in prod_info:
-            prod_info.install_dir_save = prod_info.install_dir
-        
+            prod_info.install_dir_save = prod_info.install_dir    
         # if it is not the first time the install_dir is computed, it means
         # that install_dir_save exists and it has to be taken into account.
         if "install_dir_save" in prod_info:
-            prod_info.install_dir = prod_info.install_dir_save
-        
+            prod_info.install_dir = prod_info.install_dir_save    
         # Set the install_dir key
         prod_info.install_dir = get_install_dir(config, base, version, prod_info)
                 

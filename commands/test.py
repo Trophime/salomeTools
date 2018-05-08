@@ -21,7 +21,6 @@ import os
 import sys
 import shutil
 import subprocess
-import datetime
 import gzip
 
 import src.debug as DBG
@@ -32,6 +31,7 @@ import src.ElementTree as etree
 import src.xmlManager as XMLMGR
 import src.architecture as ARCH
 import src.test_module as TMOD
+import src.dateTime as DATT
 
 try:
     from hashlib import sha1
@@ -649,8 +649,7 @@ def create_test_report(config,
                         amend_test.attrib['name'] = os.path.join(test.grid,
                                                                  test.session,
                                                                  script.name)
-                        amend_test.attrib['reason'] = script.amend.decode(
-                                                                        "UTF-8")
+                        amend_test.attrib['reason'] = script.amend.decode("UTF-8")
 
                     # calculate status
                     nb += 1
@@ -665,25 +664,19 @@ def create_test_report(config,
                                                                 test.session,
                                                                 script.name)
                         kf_script.attrib['date'] = script.known_error.date
-                        kf_script.attrib[
-                                    'expected'] = script.known_error.expected
-                        kf_script.attrib[
-                         'comment'] = script.known_error.comment.decode("UTF-8")
-                        kf_script.attrib['fixed'] = str(
-                                                       script.known_error.fixed)
-                        overdue = datetime.datetime.today().strftime("%Y-%m-"
-                                            "%d") > script.known_error.expected
+                        kf_script.attrib['expected'] = script.known_error.expected
+                        kf_script.attrib['comment'] = script.known_error.comment.decode("UTF-8")
+                        kf_script.attrib['fixed'] = str(script.known_error.fixed)
+                        overdue = DATT.DateTime("now").toStrPackage() > script.known_error.expected
                         if overdue:
                             kf_script.attrib['overdue'] = str(overdue)
                         
                     elif script.res == RCO._KO_STATUS:
                         new_err = ASNODE(new_errors, "new_error")
-                        script_path = os.path.join(test.grid,
-                                                   test.session, script.name)
+                        script_path = os.path.join(test.grid, test.session, script.name)
                         new_err.attrib['name'] = script_path
-                        new_err.attrib['cmd'] = ("sat testerror %s -s %s -c 'my"
-                                                 " comment' -p %s" % \
-                            (application_name, script_path, config.VARS.dist))
+                        new_err.attrib['cmd'] = "sat testerror %s -s %s -c 'my comment' -p %s" % \
+                            (application_name, script_path, config.VARS.dist)
 
 
             gn.attrib['total'] = str(nb)

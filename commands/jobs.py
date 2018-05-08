@@ -21,8 +21,6 @@ import os
 import sys
 import tempfile
 import traceback
-import datetime
-import time
 import csv
 import shutil
 import itertools
@@ -37,6 +35,7 @@ import src.utilsSat as UTS
 import src.pyconf as PYCONF
 import src.xmlManager as XMLMGR
 from src.salomeTools import _BaseCommand
+import src.dateTime as DATT
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -500,8 +499,8 @@ class Job(object):
         self.res_job = "-1"
         self.cancelled = False
         
-        self._T0 = -1
-        self._Tf = -1
+        self._T0 = DATT.DateTime()
+        self._Tf = DATT.DateTime()
         self._has_begun = False
         self._has_finished = False
         self._has_timouted = False
@@ -553,7 +552,7 @@ class Job(object):
         cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])
         (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
                                                             self.logger)
-        time.sleep(wait)
+        DATT.sleep(wait)
         return (out_kill.read().decode(), err_kill.read().decode())
             
     def has_begun(self):
@@ -586,7 +585,7 @@ class Job(object):
             self.out += self._stdout.read().decode()
             self.err += self._stderr.read().decode()
             # Put end time
-            self._Tf = time.time()
+            self._Tf = DATT.DateTime("now")
             # And get the remote command status and log files
             try:
                 self.get_log_files()
@@ -723,8 +722,8 @@ class Job(object):
         """
         if not self.has_begun():
             return -1
-        T_now = time.time()
-        return T_now - self._T0
+        delta = self._T0.getSecondsToNow()
+        return delta
     
     def check_time(self):
         """
@@ -736,7 +735,7 @@ class Job(object):
         if self.time_elapsed() > self.timeout:
             self._has_finished = True
             self._has_timouted = True
-            self._Tf = time.time()
+            self._Tf = DATT.DateTime("now")
             (out_kill, __) = self.kill_remote_process()
             self.out += "TIMEOUT \n" + out_kill
             self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
@@ -744,15 +743,7 @@ class Job(object):
                 self.get_log_files()
             except Exception as e:
                 self.err += _("Unable to get remote log files!\n%s\n" % str(e))
-            
-    def total_duration(self):
-        """
-        Gives the total duration of the job
-        
-        :return: (int) the total duration of the job in seconds
-        """
-        return self._Tf - self._T0
-        
+                    
     def run(self):
         """
         Launch the job by executing the remote command.
@@ -778,14 +769,14 @@ class Job(object):
                            self.machine.user))
         else:
             # Usual case : Launch the command on remote machine
-            self._T0 = time.time()
+            self._T0 = DATT.DateTime("now")
             self._stdin, self._stdout, self._stderr = self.machine.exec_command(
                                                                   self.command,
                                                                   self.logger)
             # If the results are not initialized, finish the job
             if (self._stdin, self._stdout, self._stderr) == (None, None, None):
                 self._has_finished = True
-                self._Tf = time.time()
+                self._Tf = DATT.DateTime("now")
                 self.out += "N\A"
                 self.err += "The server failed to execute the command"
         
@@ -799,13 +790,10 @@ class Job(object):
         msg = "name : %s\n" % self.name
         if self.after: 
           msg += "after : %s\n" % self.after
-        msg += "Time elapsed : %4imin %2is \n" % (self.total_duration()//60 , self.total_duration()%60)
-        if self._T0 != -1:
-            msg += "Begin time : %s\n" % \
-                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))
-        if self._Tf != -1:
-            msg += "End time   : %s\n\n" % \
-                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+        delta = DATT.DeltaTime(self._T0, self._Tf)
+        msg += "Time elapsed : %s\n" % delta.toStrHuman()
+        msg += "Begin time   : %s\n" % self._T0.toStrHuman()
+        msg += "End time     : %s\n\n" % self._Tf.toStrHuman()
         
         self.logger.info(msg)
         
@@ -834,11 +822,11 @@ class Job(object):
         if self.cancelled:
             return "Cancelled"
         if self.is_running():
-            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))        
+            return "running since " + self._T0.toStrHuman()       
         if self.has_finished():
             if self.is_timeout():
-                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
-            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+                return "Timeout since " + self._Tf.toStrHuman() 
+            return "Finished since " + self._Tf.toStrHuman() 
     
 class Jobs(object):
     """
@@ -923,7 +911,7 @@ class Jobs(object):
 
         :return: None
         """
-        today = datetime.date.weekday(datetime.date.today())
+        today = DATT.getWeekDayNow()
         host_list = []
                
         for job_def in self.cfg_jobs.jobs :
@@ -1248,7 +1236,7 @@ The job will not be launched.
                 self.display_status(self.len_columns)
             
             # Make sure that the proc is not entirely busy
-            time.sleep(0.001)
+            DATT.sleep(0.001)
         
         self.logger.info("\n" + tiret_line + "\n\n")
         
@@ -1298,7 +1286,7 @@ class Gui(object):
         self.file_boards = file_boards
         
         if file_boards != "":
-            today = datetime.date.weekday(datetime.date.today())
+            today = DATT.getWeekDayNow()
             self.parse_csv_boards(today)
         else:
             self.d_input_boards = {}
@@ -1633,14 +1621,8 @@ class Gui(object):
                 if xmljob.attrib['name'] == job.name:
                     xml_node_jobs.remove(xmljob)
             
-            T0 = str(job._T0)
-            if T0 != "-1":
-                T0 = time.strftime('%Y-%m-%d %H:%M:%S', 
-                                       time.localtime(job._T0))
-            Tf = str(job._Tf)
-            if Tf != "-1":
-                Tf = time.strftime('%Y-%m-%d %H:%M:%S', 
-                                       time.localtime(job._Tf))
+            T0 = job._T0.toStrHuman()
+            Tf = job._Tf.toStrHuman()
             
             # recreate the job node
             xmlj = ASNODE(xml_node_jobs, "job", attrib={"name" : job.name})
@@ -1709,7 +1691,7 @@ class Gui(object):
         # Update the date
         xml_node_infos = xml_file.xmlroot.find('infos')
         XMLMGR.append_node_attrib( xml_node_infos,
-           attrib={"value" : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} )
+           attrib={"value" : DATT.DateTime("now").toStrHuman()} )
                
 
     def find_test_log(self, l_remote_log_files):

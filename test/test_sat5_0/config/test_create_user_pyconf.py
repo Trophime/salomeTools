@@ -29,6 +29,9 @@ class TestCase(unittest.TestCase):
     
     def test_010(self):
         # Test creation of ~/.salomeTools/salomeTools.pyconf
+        print "stupidity HAVE TO NOT touch user ~/.salomeTools"
+        return
+        
         res = "KO"
         user_dir = os.path.expanduser(os.path.join('~','.salomeTools'))
         user_dir_save = os.path.expanduser(os.path.join('~','.salomeTools_save'))

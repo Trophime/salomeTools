@@ -194,6 +194,7 @@ class ReturnCode(object):
     raise an exception with message why if not ok, else return self.
     This trick is to write usage
     
+    | Usage:
     | >> rc = doSomething().raiseIfKo() # raise Exception if KO
     | >> doSomethingWithValue(rc.getValue()) # here i am sure that is OK
     """

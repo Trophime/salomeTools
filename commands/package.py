@@ -20,7 +20,6 @@
 import os
 import stat
 import shutil
-import datetime
 import tarfile
 import codecs
 import string
@@ -38,6 +37,7 @@ import src.utilsSat as UTS
 import src.environment as ENVI
 import src.architecture as ARCH
 import src.template as TPLATE
+import src.dateTime as DATT
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -1292,7 +1292,7 @@ The procedure to do it is:
         # prepare substitution dictionary
         d = dict()
         d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d['date'] = DAT.dateTime("now").toStrPackage()
         d['version'] = config.INTERNAL.sat_version
         d['dist'] = config.VARS.dist
         f.write(readme_header_tpl.substitute(d)) # write the general header (common)

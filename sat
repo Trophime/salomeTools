@@ -39,27 +39,12 @@ import src.loggingSat as LOG
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 logger = LOG.getDefaultLogger()
-
-import traceback
-
-def format_color_exception(msg, etype, value, tb, limit = None):
-    """Format a stack trace and the exception information.
-    as traceback.format_exception(), with color
-    """
-    res = "<red>" + msg + "<yellow>"
-    if tb:
-        res += "Traceback (most recent call last):\n"
-        # print "tb"
-        res += "".join(traceback.format_tb(tb, limit)) #[:-1])
-    res += "\n<red>"
-    res += "\n".join(traceback.format_exception_only(etype, value))
-    return res+ "<reset>"
-  
+ 
 #################################
 # MAIN
 #################################
 if __name__ == "__main__":
-    from src.salomeTools import Sat # it is time...
+    from src.salomeTools import Sat # it is time to do import
     
     _debug = False # Have to be False in production (for programmers DEBUG only)
     DBG.push_debug(_debug) # as __main__ with sys.exit so no need pop_debug
@@ -69,13 +54,16 @@ if __name__ == "__main__":
    
     try:
       returnCode = sat.execute_cli(args)
+      DBG.write("execute_cli return code", returnCode)
       if returnCode.isOk():
         logger.debug("sat exit code: %s" % returnCode) # OK no trace
       else:
-        logger.error("sat exit code: %s" % returnCode) # KO say why
+        # warning as known problem
+        logger.warning("<red>sat exit code: %s<reset>" % returnCode) # KO have to say why
       sys.exit(returnCode.toSys())
       
     except Exception as e:
+      # error as may be unknown problem
       # verbose debug message with traceback if developers
       msg = "Exception raised for execute_cli(%s):\n" % args
       logger.critical(DBG.format_color_exception(msg))  
