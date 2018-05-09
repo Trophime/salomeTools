@@ -223,18 +223,18 @@ class TestConfig(unittest.TestCase):
     def tearDown(self):
         del self.cfg
 
-    def testCreation(self):
+    def test_010(self): # Creation(self):
         self.assertEqual(0, len(self.cfg))  # should be empty
 
-    def testSimple(self):
+    def test_020(self): # Simple(self):
         self.cfg.load(makeStream("simple_1"))
         self.failUnless('message' in self.cfg)
         self.failIf('root' in self.cfg)
         self.failIf('stream' in self.cfg)
         self.failIf('load' in self.cfg)
-        self.failIf('save' in self.cfg)
+        self.failIf('__save__' in self.cfg)
 
-    def testValueOnly(self):
+    def test_030(self): # ValueOnly(self):
         self.assertRaises(ConfigError, self.cfg.load,
            makeStream("malformed_1"))
         self.assertRaises(ConfigError, self.cfg.load,
@@ -242,36 +242,36 @@ class TestConfig(unittest.TestCase):
         self.assertRaises(ConfigError, self.cfg.load,
            makeStream("malformed_3"))
 
-    def testBadBracket(self):
+    def test_040(self): # BadBracket(self):
         self.assertRaises(ConfigError, self.cfg.load,
            makeStream("malformed_4"))
 
-    def testDuplicate(self):
+    def test_050(self): # Duplicate(self):
         self.assertRaises(ConfigError, self.cfg.load,
            makeStream("malformed_5"))
 
-    def testGoodBracket(self):
+    def test_060(self): # GoodBracket(self):
         self.cfg.load(makeStream("wellformed_1"))
 
-    def testBoolean(self):
+    def test_070(self): # Boolean(self):
         self.cfg.load(makeStream("boolean_1"))
         self.assertEqual(True, self.cfg.another_test)
         self.assertEqual(False, self.cfg.test)
 
-    def testNotBoolean(self):
+    def test_080(self): # NotBoolean(self):
         self.cfg.load(makeStream("boolean_2"))
         self.assertEqual('true', self.cfg.another_test)
         self.assertEqual('false', self.cfg.test)
 
-    def testNone(self):
+    def test_090(self): # None(self):
         self.cfg.load(makeStream("none_1"))
         self.assertEqual(None, self.cfg.test)
 
-    def testNotNone(self):
+    def test_100(self): # NotNone(self):
         self.cfg.load(makeStream("none_2"))
         self.assertEqual('none', self.cfg.test)
 
-    def testNumber(self):
+    def test_110(self): # Number(self):
         self.cfg.load(makeStream("number_1"))
         self.assertEqual(1, self.cfg.root)
         self.assertEqual(1.7, self.cfg.stream)
@@ -281,30 +281,30 @@ class TestConfig(unittest.TestCase):
         self.assertAlmostEqual(2.0999999e-08, self.cfg.posexponent)
         self.assertAlmostEqual(2.0999999e08, self.cfg.exponent)
 
-    def testChange(self):
+    def test_120(self): # Change(self):
         self.cfg.load(makeStream("simple_1"))
         self.cfg.message = 'Goodbye, cruel world!'
         self.assertEqual('Goodbye, cruel world!', self.cfg.message)
 
-    def testSave(self):
+    def test_130(self): # Save(self):
         self.cfg.load(makeStream("simple_1"))
         self.cfg.message = 'Goodbye, cruel world!'
         out = OutStream()
-        self.cfg.save(out)
+        self.cfg.__save__(out)
         self.assertEqual("message : 'Goodbye, cruel world!'" + config.NEWLINE,
            out.value)
 
-    def testInclude(self):
+    def test_140(self): # Include(self):
         config.streamOpener = makeStream
         self.cfg = Config("include_1")
         config.streamOpener = config.defaultStreamOpener
         out = OutStream()
-        self.cfg.save(out)
+        self.cfg.__save__(out)
         s = "included :%s{%s  test : 123%s  another_test : 'abc'%s}%s" % (5 *
            (config.NEWLINE,))
         self.assertEqual(s, out.value)
 
-    def testExpression(self):
+    def test_150(self): # Expression(self):
         self.cfg.load(makeStream("expr_1"))
         self.assertEqual(15, self.cfg.derived1)
         self.assertEqual(5, self.cfg.derived2)
@@ -320,7 +320,7 @@ class TestConfig(unittest.TestCase):
            lambda x: x.derived11, self.cfg)
         self.assertEqual(15, self.cfg.derived12)
 
-    def testEval(self):
+    def test_160(self): # Eval(self):
         import sys, logging
         self.cfg.load(makeStream("eval_1"))
         self.assertEqual(sys.stderr, self.cfg.stderr)
@@ -336,7 +336,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(logging.debug, self.cfg.debug)
         self.assertEqual(logging.DEBUG * 10, self.cfg.derived)
 
-    def testFunctions(self):
+    def test_170(self): # Functions(self):
         makePath = config.makePath
         isWord = config.isWord
         self.assertEqual('suffix', makePath('', 'suffix'))
@@ -350,7 +350,7 @@ class TestConfig(unittest.TestCase):
         self.failIf(isWord(self))
         self.failIf(isWord(''))
 
-    def testMerge(self):
+    def test_180(self): # Merge(self):
         cfg1 = Config()
         cfg1.load(makeStream("merge_1"))
         cfg2 = Config(makeStream("merge_2"))
@@ -390,7 +390,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual("[2, 4, 6]", str(cfg3.value3))
         self.assertEqual("[1, 3, 5, 2, 4, 6]", str(cfg3.value4))
 
-    def testList(self):
+    def test_190(self): # List(self):
         list = ConfigList()
         list.append(Config(makeStream("list_1")))
         list.append(Config(makeStream("list_2")))
@@ -400,7 +400,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(5, list.getByPath('suite_value'))
         self.assertRaises(ConfigError, list.getByPath, 'nonexistent_value')
 
-    def testGet(self):
+    def test_200(self): # Get(self):
         cfg = self.cfg
         cfg.load(makeStream("get_1"))
         self.assertEqual(123, cfg.get('value1'))
@@ -416,13 +416,13 @@ class TestConfig(unittest.TestCase):
         self.failUnless(cfg.value5.get('value3'))
         self.failIf(cfg.value5.get('value4') is not None)
 
-    def testMultiline(self):
+    def test_210(self): # Multiline(self):
         cfg = self.cfg
         cfg.load(makeStream("multiline_1"))
         self.assertEqual("Value One\nValue Two\n", cfg.get('value1'))
         self.assertEqual("Value Three\nValue Four", cfg.get('value2'))
 
-    def testSequence(self):
+    def test_220(self): # Sequence(self):
         cfg = self.cfg
         strm = makeStream("sequence_1")
         cfg.load(strm)
@@ -430,8 +430,11 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(str(cfg.nested), "[1, [2, 3], [4, [5, 6]]]")
         self.assertEqual(str(cfg.mixed), "['VALIGN', [0, 0], [-1, -1], 'TOP']")
 
-    def testJSON(self):
-        data = StringIO('dummy: ' + open('styles.json', 'r').read())
+    def test_230(self): # JSON(self):
+        import os
+        curDir, tmp = os.path.split(__file__)
+        fileJson = os.path.join(curDir, 'config_0_3_9', 'styles.json')
+        data = StringIO('dummy: ' + open(fileJson, 'r').read())
         self.cfg.load(data)
 
 def init_logging():
@@ -450,7 +453,7 @@ if __name__ == "__main__":
     sys.stderr.write("""
                      
 ###########################################################
-WARNING: this test obviously have 'FAILED  (errors=6)', 
+WARNING: this test obviously have 'FAILED  (errors=6)', with config 0.3.7
 TODO:    fix upgrading 0.3.9, (or not).
 ###########################################################
 """)

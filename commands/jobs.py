@@ -28,7 +28,7 @@ import re
 
 # import paramiko later
   
-import src.ElementTree as etree
+import src.ElementTree as ETREE
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
@@ -1510,7 +1510,7 @@ class Gui(object):
         Get all the first information needed for each file and write the 
         first version of the files   
 
-        :param xml_node_jobs: (etree.Element) 
+        :param xml_node_jobs: (ETREE.Element) 
           the node corresponding to a job
         :param l_jobs_not_today: (list) 
           the list of jobs that do not run today
@@ -1712,7 +1712,7 @@ class Gui(object):
             oExpr = re.compile(regex)
             if dirname == "TEST" and oExpr.search(file_name):
                 # find the res of the command
-                prod_node = etree.parse(file_path).getroot().find("product")
+                prod_node = ETREE.parse(file_path).getroot().find("product")
                 res_test = prod_node.attrib["global_res"]
                 # find the number of fails
                 testbase_node = prod_node.find("tests").find("testbase")

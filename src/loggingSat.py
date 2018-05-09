@@ -68,7 +68,7 @@ class DefaultFormatter(logging.Formatter):
   
   # to set color prefix, problem with indent format
   _ColorLevelname = {
-    "DEBUG": "<blue>",
+    "DEBUG": "<green>",
     "INFO": "<green>",
     "WARNING": "<red>",
     "ERROR": "<yellow>",
@@ -76,10 +76,13 @@ class DefaultFormatter(logging.Formatter):
   }
   
   def format(self, record):
-    if record.levelname == "INFO":
+    if _verbose:
+      import src.debug as DBG # avoid cross import
+      DBG.write("DefaultFormatter.format", "%s: %s..." % (record.levelname, record.msg[0:20]), True)
+    record.levelname = self.setColorLevelname(record.levelname)
+    if "INFO" in record.levelname:
       res = str(record.msg)
     else:
-      #record.levelname = self.setColorLevelname(record.levelname)
       res = indent(super(DefaultFormatter, self).format(record), 12)
     return COLS.toColor(res)
   

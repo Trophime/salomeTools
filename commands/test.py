@@ -27,7 +27,7 @@ import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
 from src.salomeTools import _BaseCommand
-import src.ElementTree as etree
+import src.ElementTree as ETREE
 import src.xmlManager as XMLMGR
 import src.architecture as ARCH
 import src.test_module as TMOD
@@ -437,7 +437,7 @@ def create_test_report(config,
     Creates the XML report for a product.
     """
     ASNODE = XMLMGR.add_simple_node # shortcut
-    ETELEM = etree.Element # shortcut
+    ETELEM = ETREE.Element # shortcut
 
     # get the date and hour of the launching of the command, in order to keep
     # history
@@ -454,7 +454,7 @@ def create_test_report(config,
         prod_node = ETELEM("product", name=application_name, build=xmlname)
         root.append(prod_node)
     else:
-        root = etree.parse(xml_history_path).getroot()
+        root = ETREE.parse(xml_history_path).getroot()
         prod_node = root.find("product")
     
     prod_node.attrib["history_file"] = os.path.basename(xml_history_path)

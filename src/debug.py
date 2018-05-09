@@ -190,9 +190,9 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
     if "Reference" in strType:
       try:
         #evaluate = value.resolve(config)
-        aStream.write("<blue>%s%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, config, str(config)))
+        aStream.write("<header>%s%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, config, str(config)))
       except Exception as e:  
-        aStream.write("<blue>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, e.message))     
+        aStream.write("<header>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, e.message))     
       return
     '''
     
@@ -200,7 +200,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       order = object.__getattribute__(config, 'order')
       data = object.__getattribute__(config, 'data')
     except:
-      aStream.write("<blue>%s%s<reset> : '%s'\n" % (indstr, path, str(config)))
+      aStream.write("<header>%s%s<reset> : '%s'\n" % (indstr, path, str(config)))
       return     
     for key in sorted(data): #order): # data as sort alphabetical, order as initial order
       value = data[key]
@@ -219,21 +219,21 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       if "Expression" in strType:
         try:
           evaluate = value.evaluate(config)
-          aStream.write("<blue>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
+          aStream.write("<header>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:      
-          aStream.write("<blue>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
+          aStream.write("<header>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
         continue
       if "Reference" in strType:
         try:
           evaluate = value.resolve(config)
-          aStream.write("<blue>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
+          aStream.write("<header>%s%s.%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:  
-          aStream.write("<blue>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
+          aStream.write("<header>%s%s.%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, key, e.message))     
         continue
       if type(value) in [str, bool, int, type(None), unicode]:
-        aStream.write("<blue>%s%s.%s<reset> : '%s'\n" % (indstr, path, key, str(value)))
+        aStream.write("<header>%s%s.%s<reset> : '%s'\n" % (indstr, path, key, str(value)))
         continue
       try:
         aStream.write("<red>!!! TODO fix that<reset> %s %s%s.%s : %s\n" % (type(value), indstr, path, key, str(value)))
       except Exception as e:      
-        aStream.write("<blue>%s%s.%s<reset> : <red>!!! %s<reset>\n" % (indstr, path, key, e.message))
+        aStream.write("<header>%s%s.%s<reset> : <red>!!! %s<reset>\n" % (indstr, path, key, e.message))

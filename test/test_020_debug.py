@@ -99,7 +99,7 @@ class TestCase(unittest.TestCase):
     inStream = DBG.InStream(_EXAMPLES[2])
     cfg = PYF.Config(inStream)
     res = DBG.getStrConfigDbg(cfg)
-    DBG.write("test_020 cfg dbg", res, True)
+    DBG.write("test_020 cfg dbg", res)
     ress = res.split("\n")
     self.assertTrue(".aa" in ress[0])
     self.assertTrue(": '111'" in ress[0])

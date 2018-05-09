@@ -148,7 +148,7 @@ Bienvenue, Yves
     self.assertEqual(cfg.bb, "Hervé")
     
   def test_045(self):
-    """TODO: make Hervé valid with pyconf.py as 0.3.9"""
+    # make Hervé valid with pyconf.py as 0.3.9
     inStream = DBG.InStream(_EXAMPLES[4])
     outStream = DBG.OutStream()
     cfg = PYF9.Config(inStream)
@@ -167,33 +167,13 @@ Bienvenue, Yves
     cfg = PYF.Config(inStream) # KO
     cfg.__save__(outStream) # sat renamed save() in __save__()
     res = outStream.value
-    DBG.write("test_100 cfg save", res, True)
-    DBG.write("test_100 cfg debug", cfg, True)
-    DBG.write("test_100 cfg debug", cfg.cc, True)
+    DBG.write("test_100 cfg save", res)
+    DBG.write("test_100 cfg debug", cfg)
+    DBG.write("test_100 cfg debug", cfg.cc)
     
     cc = cfg.cc
     # DBG.write("test_100 type cc[3]", dir(cc), True)
-    # self.ssave(cc)
-    DBG.write("test_100 cc", [cc.data[i] for i in range(len(cc))], True)
-    
-  def ssave(self,  obj): #, stream):
-      """
-      Save this instance to the specified stream.
-      @param stream: A stream to which the configuration is written.
-      @type stream: A write-only stream (file-like object).
-      @param indent: The indentation level for the output, > 0
-      @type indent: int
-      """
-      data = object.__getattribute__(obj, 'data')
-      for i in range(0, len(data)):
-          value = data[i]
-          print "[%i]" % i, type(value)
-          """if isinstance(value, PYF.Container):
-              print "Container [%i]" % i
-              #value.writeToStream(stream, indent, self)
-          else:
-              print "Other [%i]" % i
-              #self.writeValue(value, stream, indent)"""
+    DBG.write("test_100 cc", [cc.data[i] for i in range(len(cc))])
       
   def test_999(self):
     # one shot tearDown() for this TestCase

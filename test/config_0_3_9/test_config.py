@@ -421,7 +421,10 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(str(cfg.mixed), "['VALIGN', [0, 0], [-1, -1], 'TOP']")
 
     def testJSON(self):
-        data = StringIO('dummy: ' + open('styles.json', 'r').read())
+        import os
+        curDir, tmp = os.path.split(__file__)
+        fileJson = os.path.join(curDir, 'styles.json')
+        data = StringIO('dummy: ' + open(fileJson, 'r').read())
         self.cfg.load(data)
 
 def init_logging():

@@ -55,6 +55,8 @@ from colorama import Style as ST
 #from colorama import AnsiToWin32
 from colorama import AnsiToWin32 # debug is os.name == 'nt' ?
 
+verbose = False
+
 CLRM.init(wrap=False) # choose NO wrapping
 
 """
@@ -93,30 +95,10 @@ _tags = (
   ("<KO>", FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL),
 )
 
-# _tagsNone = ((i, "") for i,j in _tags) # to clean tags when log not tty
+# _tagsNone = ( (i, "") for i,j in _tags ) # to clean tags when log not tty
 # reversed order matters for item replaces backward to no color
-_tagsNone = reversed( (
-  ("<black>", ""),
-  ("<red>", ""),
-  ("<green>", ""),
-  ("<yellow>", ""),
-  ("<blue>", ""),
-  ("<magenta>", ""),
-  ("<cyan>", ""),
-  ("<white>", ""),
-  ("<bright>", ""),
-  ("<normal>", ""),
-  ("<reset>", ""),
-  ("<info>", ""),
-  ("<header>", ""),
-  ("<label>", ""),
-  ("<success>", ""),
-  ("<warning>", ""),
-  ("<error>", ""),
-  ("<critical>", ""),
-  ("<OK>", "OK"),
-  ("<KO>", "KO"),
-) )
+_tagsNone = tuple( reversed( [(i, "") for i, j in _tags] ) )
+
 
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
@@ -164,6 +146,9 @@ def toColor(msg):
   example:
   >> sat compile SALOME > log.txt
   """
+  if verbose:
+    import src.debug as DBG # avoid cross import
+    DBG.write("toColor isatty %s %s" % ('isatty' in dir(sys.stdout), sys.stdout.isatty()), msg[0:40])
   if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
     # clean the message color (if the terminal is redirected by user)
     return replace(msg, _tagsNone)

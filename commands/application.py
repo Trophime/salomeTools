@@ -26,7 +26,7 @@ import os
 import getpass
 import subprocess
 
-import src.ElementTree as ET
+import src.ElementTree as ETREE
 import src.debug as DBG
 import src.returnCode as RCO
 import src.utilsSat as UTS
@@ -276,7 +276,7 @@ def customize_app(config, appli_dir, logger):
 
     def add_simple_node(parent, node_name, text=None):
         """shortcut method to create a node"""
-        n = etree.Element(node_name)
+        n = ETREE.Element(node_name)
         if text is not None:
             try:
                 n.text = text.strip("\n\t").decode("UTF-8")
@@ -289,7 +289,7 @@ def customize_app(config, appli_dir, logger):
 
     # read the app file
     app_file = os.path.join(appli_dir, "SalomeApp.xml")
-    tree = etree.parse(app_file)
+    tree = ETREE.parse(app_file)
     document = tree.getroot()
     assert document is not None, "document tag not found"
 
@@ -307,7 +307,7 @@ def customize_app(config, appli_dir, logger):
     # write the file
     f = open(app_file, "w")
     f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-    f.write(etree.tostring(document, encoding='utf-8'))
+    f.write(ETREE.tostring(document, encoding='utf-8'))
     f.close()
 
 def generate_application(config, appli_dir, config_file, logger):

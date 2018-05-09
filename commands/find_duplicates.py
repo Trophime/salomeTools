@@ -282,7 +282,7 @@ class Progress_bar:
         self.length = length
         self.logger = logger
         if (self.valMax - self.valMin) <= 0 or length <= 0:
-            out_err = _('ERROR: Wrong init values for the progress bar\n')
+            out_err = _('Wrong init values for the progress bar\n')
             raise Exception(out_err)
         
     def display_value_progression(self,val):

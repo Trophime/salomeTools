@@ -270,7 +270,7 @@ class ConfigManager:
         
         for project_pyconf_path in cfg.PROJECTS.project_file_paths:
             if not os.path.exists(project_pyconf_path):
-                msg = _("Cannot find project file %s, Ignored.") % UTS.red(project_pyconf_path)
+                msg = _("Cannot find project file %s, Ignored.") % UTS.header(project_pyconf_path)
                 self.logger.warning(msg)
                 continue
             project_name = os.path.basename(project_pyconf_path)[:-len(".pyconf")]
@@ -655,10 +655,13 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
     tab_level = "  " * level
     
     # call to the function that gets the value of the path.
-    try:
+    if level == 0:
+      val = config.getByPath(path) # could raise error first level
+    else: # better stream trace error and continue
+      try:
         val = config.getByPath(path)
-    except Exception as e:
-        stream.write(tab_level + "<header>%s: <red>ERROR %s<reset>\n" % (vname, str(e)))
+      except Exception as e:
+        stream.write(tab_level + "<header>%s: <red>!!! ERROR: %s !!!<reset>\n" % (vname, str(e)))
         return
 
     # in this case, display only the value
@@ -682,7 +685,7 @@ def getConfigColored(config, path, stream, show_label=False, level=0, show_full_
     else: # case where val is just a str
         stream.write("%s\n" % val)
         
-def print_value(config, path, logger, show_label=False, level=0, show_full_path=False):
+def getStrConfigValue(config, path, show_label=False, level=0, show_full_path=False):
     """
     print a colored representation value from a config pyconf instance.
     used recursively from the initial path.
@@ -692,11 +695,10 @@ def print_value(config, path, logger, show_label=False, level=0, show_full_path=
     outStream = DBG.OutStream()
     getConfigColored(config, path, outStream, show_label, level, show_full_path)
     res = outStream.getvalue() # stream not closed
-    logger.info(res)
-    return
+    return res
 
      
-def print_debug(config, aPath, logger, show_label=False, level=0, show_full_path=False):
+def getStrConfigDebug(config, aPath, show_label=False, level=0, show_full_path=False):
     """
     logger output for debugging a config/pyconf
     lines contains: path : expression --> 'evaluation'
@@ -716,8 +718,7 @@ def print_debug(config, aPath, logger, show_label=False, level=0, show_full_path
     outStream = DBG.OutStream()
     DBG.saveConfigDbg(val, outStream, path=path)
     res = outStream.value
-    logger.info(res)
-    return
+    return res
 
 
 def get_config_children(config, args):

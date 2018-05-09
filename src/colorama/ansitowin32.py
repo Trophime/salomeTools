@@ -12,13 +12,15 @@ winterm = None
 if windll is not None:
     winterm = WinTerm()
 
-
 def is_stream_closed(stream):
     return not hasattr(stream, 'closed') or stream.closed
 
 
 def is_a_tty(stream):
-    return hasattr(stream, 'isatty') and stream.isatty()
+    res = hasattr(stream, 'isatty') and stream.isatty()
+    # import src.debug as DBG # avoid cross import
+    # DBG.write("is_a_tty %s" % type(stream), res, True)
+    return res
 
 
 class StreamWrapper(object):

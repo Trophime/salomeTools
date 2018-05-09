@@ -31,7 +31,7 @@ try: # For python2
 except:
     pass
 
-import src.ElementTree as etree
+import src.ElementTree as ETREE
 import src.utilsSat as UTS
 
 class XmlLogFile(object):
@@ -51,7 +51,7 @@ class XmlLogFile(object):
         self.logFile = filePath
         UTS.ensure_path_exists(os.path.dirname(filePath))
         # Initialize the field that contain the xml in memory
-        self.xmlroot = etree.Element(rootname, attrib = attrib)
+        self.xmlroot = ETREE.Element(rootname, attrib = attrib)
     
     def write_tree(self, stylesheet=None, file_path = None):
         """Write the xml tree in the log file path. Add the stylesheet if asked.
@@ -67,7 +67,7 @@ class XmlLogFile(object):
             if stylesheet:
                 f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
                         stylesheet)    
-            f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
+            f.write(ETREE.tostring(self.xmlroot, encoding='utf-8'))
             f.close()
         except IOError:
             pass  
@@ -80,7 +80,7 @@ class XmlLogFile(object):
         :param attrib: (dict)
           The dictionary containing the attribute of the new node
         """
-        n = etree.Element(node_name, attrib=attrib)
+        n = ETREE.Element(node_name, attrib=attrib)
         n.text = text
         self.xmlroot.append(n)
         return n
@@ -115,7 +115,7 @@ class ReadXmlFile(object):
         :param filePath: (str) The xml file to be read
         """
         self.filePath = filePath
-        etree_inst = etree.parse(filePath)
+        etree_inst = ETREE.parse(filePath)
         self.xmlroot = etree_inst.parse(filePath)
 
     def getRootAttrib(self):
@@ -161,14 +161,14 @@ class ReadXmlFile(object):
 def add_simple_node(root_node, node_name, text=None, attrib={}):
     """Add a node with some attibutes and text to the root node.
 
-    :param root_node: (etree.Element) 
+    :param root_node: (ETREE.Element) 
       the Etree element where to add the new node    
     :param node_name: (str) the name of the node to add
     :param text: (str) the text of the node
     :param attrib: (dict) 
       the dictionary containing the attribute(s) of the new node
     """
-    n = etree.Element(node_name, attrib=attrib)
+    n = ETREE.Element(node_name, attrib=attrib)
     n.text = text
     root_node.append(n)
     return n
@@ -176,7 +176,7 @@ def add_simple_node(root_node, node_name, text=None, attrib={}):
 def append_node_attrib(root_node, attrib):
     """Append a new attributes to the node that has node_name as name
     
-    :param root_node: (etree.Element)
+    :param root_node: (ETREE.Element)
       the Etree element where to append the new attibutes
     :param attrib: (dict) The attrib to append
     """
@@ -188,12 +188,12 @@ def find_node_by_attrib(xmlroot, name_node, key, value):
     and that has in its attributes {key : value}. 
     Return the node
     
-    :param xmlroot: (etree.Element) 
+    :param xmlroot: (ETREE.Element) 
       the Etree element where to search
     :param name_node: (str) the name of node to search
     :param key: (str) the key to search
     :param value: (str) the value to search
-    :return: (etree.Element) the found node
+    :return: (ETREE.Element) the found node
     """
     l_nodes =  xmlroot.findall(name_node)
     for node in l_nodes:
@@ -208,7 +208,7 @@ def write_report(filename, xmlroot, stylesheet):
     """Writes a report file from a XML tree.
     
     :param filename: (str) The path to the file to create
-    :param xmlroot: (etree.Element) the Etree element to write to the file
+    :param xmlroot: (ETREE.Element) the Etree element to write to the file
     :param stylesheet: (str) The stylesheet to add to the begin of the file
     """
     if not os.path.exists(os.path.dirname(filename)):
@@ -218,6 +218,6 @@ def write_report(filename, xmlroot, stylesheet):
     f.write("<?xml version='1.0' encoding='utf-8'?>\n")
     if len(stylesheet) > 0:
         f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
-    f.write(etree.tostring(xmlroot, encoding='utf-8'))
+    f.write(ETREE.tostring(xmlroot, encoding='utf-8'))
     f.close()   
     

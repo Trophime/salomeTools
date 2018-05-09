@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
-
-# Copyright 2004-2007 by Vinay Sajip. All Rights Reserved.
+# Copyright 2004-2010 by Vinay Sajip. All Rights Reserved.
 #
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for any purpose and without fee is hereby granted,
@@ -17,7 +14,7 @@
 # IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#  Copyright (C) 2010-2013  CEA/DEN
+#  Copyright (C) 2010-2018  CEA/DEN
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -92,12 +89,11 @@ which, when run, would yield the console output::
 See U{this tutorial<http://www.red-dove.com/python_config.html|_blank>} for more
 information.
 
-#modified for salomeTools
-@version: 0.3.7.1
+@version: 0.3.9.1
 
 @author: Vinay Sajip
 
-@copyright: Copyright (C) 2004-2007 Vinay Sajip. All Rights Reserved.
+@copyright: Copyright (C) 2004-2010 Vinay Sajip. All Rights Reserved.
 
 
 @var streamOpener: The default stream opener. This is a factory function which
@@ -110,10 +106,13 @@ of how it's used, see test_config.py (search for streamOpener).
 
 __author__  = "Vinay Sajip <vinay_sajip@red-dove.com>"
 __status__  = "alpha"
-__version__ = "0.3.7.1" #modified for salomeTools
-__date__    = "05 October 2007"
+__version__ = "0.3.9.1" # cvw modified for salomeTools
+__date__    = "11 May 2018"
+
+from types import StringType, UnicodeType
 
 import codecs
+import logging
 import os
 import sys
 
@@ -154,9 +153,21 @@ else:
     NEWLINE = '\n'
 
 try:
+    import encodings.utf_32
     has_utf32 = True
 except:
     has_utf32 = False
+
+try:
+    from logging.handlers import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logger.addHandler(NullHandler())
 
 class ConfigInputStream(object):
     """
@@ -221,8 +232,6 @@ class ConfigInputStream(object):
             line = u''
         while True:
             c = self.stream.read(1)
-            if isinstance(c, bytes):
-                c = c.decode()
             if c:
                 line += c
             if c == '\n':
@@ -290,7 +299,7 @@ def defaultStreamOpener(name):
     @return: A stream with the specified name.
     @rtype: A read-only stream (file-like object)
     """
-    return ConfigInputStream(open(name, 'rb'))
+    return ConfigInputStream(file(name, 'rb'))
 
 streamOpener = None
 
@@ -347,16 +356,21 @@ def makePath(prefix, suffix):
     Make a path from a prefix and suffix.
 
     Examples::
-    makePath('', 'suffix') -> 'suffix'
-    makePath('prefix', 'suffix') -> 'prefix.suffix'
-    makePath('prefix', '[1]') -> 'prefix[1]'
 
-    @param prefix:  The prefix to use. If it evaluates as false, the suffix is returned.
+        makePath('', 'suffix') -> 'suffix'
+        makePath('prefix', 'suffix') -> 'prefix.suffix'
+        makePath('prefix', '[1]') -> 'prefix[1]'
+
+    @param prefix:  The prefix to use. If it evaluates as false, the suffix
+                    is returned.
     @type prefix:   str
-    @param suffix:  The suffix to use. It is either an identifier or an index in brackets.
+    @param suffix:  The suffix to use. It is either an identifier or an
+                    index in brackets.
     @type suffix:   str
-    @return:        The path concatenation of prefix and suffix, with a dot if the suffix is not a bracketed index.
+    @return:        The path concatenation of prefix and suffix, with a
+                    dot if the suffix is not a bracketed index.
     @rtype:         str
+
     """
     if not prefix:
         rv = suffix
@@ -440,7 +454,7 @@ class Container(object):
         if isinstance(value, Reference) or isinstance(value, Expression):
             stream.write('%s%r%s' % (indstr, value, NEWLINE))
         else:
-            if isinstance(value, str): # and not isWord(value):
+            if (type(value) is StringType): # and not isWord(value):
                 value = repr(value)
             stream.write('%s%s%s' % (indstr, value, NEWLINE))
 
@@ -641,6 +655,9 @@ class Config(Mapping):
             self.sys = sys
             self.os = os
 
+        def __repr__(self):
+            return "<Namespace('%s')>" % ','.join(self.__dict__.keys())
+
     def __init__(self, streamOrFile=None, parent=None, PWD = None):
         """
         Initializes an instance.
@@ -662,8 +679,9 @@ class Config(Mapping):
         Mapping.__init__(self, parent)
         object.__setattr__(self, 'reader', ConfigReader(self))
         object.__setattr__(self, 'namespaces', [Config.Namespace()])
+        object.__setattr__(self, 'resolving', set())
         if streamOrFile is not None:
-            if isinstance(streamOrFile, str) or isinstance(streamOrFile, bytes):
+            if isinstance(streamOrFile, StringType) or isinstance(streamOrFile, UnicodeType):
                 global streamOpener
                 if streamOpener is None:
                     streamOpener = defaultStreamOpener
@@ -690,6 +708,7 @@ class Config(Mapping):
         @raise ConfigFormatError: if there is a syntax error in the stream.
         """
         reader = object.__getattribute__(self, 'reader')
+        #object.__setattr__(self, 'root', reader.load(stream))
         reader.load(stream)
         stream.close()
 
@@ -748,12 +767,10 @@ class Config(Mapping):
         @raise ConfigError: If the path is invalid
         """
         s = 'self.' + path
-        return eval(s)
-        '''try:
+        try:
             return eval(s)
-        except Exception as e:
-            # raise ConfigError("Config path not found: '%s'" % path)
-            raise ConfigError(e)'''
+        except Exception, e:
+            raise ConfigError(str(e))
 
 class Sequence(Container):
     """
@@ -940,32 +957,47 @@ class Reference(object):
         """
         rv = None
         path = object.__getattribute__(container, 'path')
-        current = container
+        current = self.findConfig(container)
         while current is not None:
             if self.type == BACKTICK:
                 namespaces = object.__getattribute__(current, 'namespaces')
                 found = False
+                s = str(self)[1:-1]
                 for ns in namespaces:
                     try:
-                        rv = eval(str(self)[1:-1], vars(ns))
+                        try:
+                            rv = eval(s, vars(ns))
+                        except TypeError: #Python 2.7 - vars is a dictproxy
+                            rv = eval(s, {}, vars(ns))
                         found = True
                         break
                     except:
+                        logger.debug("unable to resolve %r in %r", s, ns)
                         pass
                 if found:
                     break
             else:
-                key = self.elements[0]
+                firstkey = self.elements[0]
+                if firstkey in current.resolving:
+                    current.resolving.remove(firstkey)
+                    raise ConfigResolutionError("Circular reference: %r" % firstkey)
+                current.resolving.add(firstkey)
+                key = firstkey
                 try:
                     rv = current[key]
                     for item in self.elements[1:]:
                         key = item[1]
                         rv = rv[key]
+                    current.resolving.remove(firstkey)
                     break
+                except ConfigResolutionError:
+                    raise
                 except:
+                    logger.debug("Unable to resolve %r: %s", key, sys.exc_info()[1])
                     rv = None
                     pass
-            current = object.__getattribute__(current, 'parent')
+                current.resolving.discard(firstkey)
+            current = self.findConfig(object.__getattribute__(current, 'parent'))
         if current is None:
             raise ConfigResolutionError("unable to evaluate %r in the configuration %s" % (self, path))
         return rv
@@ -1184,14 +1216,21 @@ class ConfigReader(object):
             elif c in self.digits:
                 token = c
                 tt = NUMBER
+                in_exponent=False
                 while True:
                     c = self.getChar()
                     if not c:
                         break
                     if c in self.digits:
                         token += c
-                    elif (c == '.') and token.find('.') < 0:
+                    elif (c == '.') and token.find('.') < 0 and not in_exponent:
                         token += c
+                    elif (c == '-') and token.find('-') < 0 and in_exponent:
+                        token += c
+                    elif (c in 'eE') and token.find('e') < 0 and\
+                         token.find('E') < 0:
+                        token += c
+                        in_exponent = True
                     else:
                         if c and (c not in self.whitespace):
                             self.pbchars.append(c)
@@ -1324,7 +1363,7 @@ class ConfigReader(object):
             value = True
         try:
             parent.addMapping(key, value, comment)
-        except Exception as e:
+        except Exception, e:
             raise ConfigFormatError("%s: %s, %r" % (self.location(), e,
                                     self.token[1]))
         tt = self.token[0]
@@ -1378,7 +1417,7 @@ RCURLY, COMMA, found %r"
         comment = self.comment
         tt = self.token[0]
         while tt in [STRING, WORD, NUMBER, LCURLY, LBRACK, LPAREN, DOLLAR,
-                     TRUE, FALSE, NONE, BACKTICK]:
+                     TRUE, FALSE, NONE, BACKTICK, MINUS]:
             suffix = '[%d]' % len(rv)
             value = self.parseValue(parent, suffix)
             rv.append(value, comment)
@@ -1413,7 +1452,7 @@ RCURLY, COMMA, found %r"
             self.match(RCURLY)
         else:
             self.match(AT)
-            _, fn = self.match(STRING)
+            tt, fn = self.match(STRING)
             rv = Config(eval(fn), parent)
         return rv
 
@@ -1533,11 +1572,11 @@ def defaultMergeResolve(map1, map2, key):
     @type map2: L{Mapping}.
     @param key: The key in map2 (which also exists in map1).
     @type key: str
-    @return: One of "merge", "append", "mismatch" or "overwrite" 
-    indicating what action should be taken. This should
-    be appropriate to the objects being merged - e.g.
-    there is no point returning "merge" if the two objects
-    are instances of L{Sequence}.
+    @return: One of "merge", "append", "mismatch" or "overwrite"
+             indicating what action should be taken. This should
+             be appropriate to the objects being merged - e.g.
+             there is no point returning "merge" if the two objects
+             are instances of L{Sequence}.
     @rtype: str
     """
     obj1 = map1[key]
@@ -1737,5 +1776,5 @@ class ConfigList(list):
             except ConfigError:
                 pass
         if not found:
-            raise ConfigError("ConfigList path not found '%r'" % path)
+            raise ConfigError("unable to resolve %r" % path)
         return rv

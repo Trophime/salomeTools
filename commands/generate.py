@@ -125,7 +125,6 @@ class Command(_BaseCommand):
             result = str(exc)
 
         if result != RCO._OK_STATUS:
-            result = _("ERROR: %s") % result
             details.append([product, result])
 
     if len(details) != 0:

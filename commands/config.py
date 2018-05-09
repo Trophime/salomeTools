@@ -108,15 +108,18 @@ If a name is given the new config file takes the given name."""))
     if options.value:
         if options.value == ".":
             # if argument is ".", print all the config
+            msg = ""
             for val in sorted(config.keys()):
-                CFGMGR.print_value(config, val, logger, not options.no_label)
+                msg += CFGMGR.getStrConfigValue(config, val, not options.no_label)
         else:
-            CFGMGR.print_value(config, options.value, logger, not options.no_label, 
-                        level=0, show_full_path=False)
+            msg = CFGMGR.getStrConfigValue(config, options.value, not options.no_label, 
+                                           level=0, show_full_path=False)
+        logger.info(msg)
 
     if options.debug:
-        CFGMGR.print_debug(config, str(options.debug), logger, not options.no_label, 
-                    level=0, show_full_path=False)
+        msg = CFGMGR.getStrConfigDebug(config, str(options.debug), not options.no_label, 
+                                       level=0, show_full_path=False)
+        logger.info(msg)
     
     # case : edit user pyconf file or application file
     elif options.edit:
