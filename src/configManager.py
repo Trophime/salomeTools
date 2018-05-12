@@ -760,104 +760,107 @@ def get_config_children(config, args):
 
 
 def _getConfig(self, appliToLoad):
-        """
-        Load the configuration (all pyconf)
-        and returns the config from some files .pyconf
-        """
-        if self.runner.config is not None:
-          raise Exception("config existing yet in '%s' instance" % self.runner.getClassName())
-          
+    """
+    Load the configuration (all pyconf)
+    and returns the config from some files .pyconf
+    """
+    if self.runner.config is not None:
+      raise Exception("config existing yet in '%s' instance" % self.runner.getClassName())
+      
 
-        # read the configuration from all the pyconf files    
-        cfgManager = getConfigManager() # commands.config.ConfigManager()
-        DBG.write("appli to load", appliToLoad, True)
-        config = cfgManager.get_config(datadir=self.runner.datadir, 
-                                       application=appliToLoad, 
-                                       options=self.runner.options, 
-                                       command=self.name)
-        self.runner.nameAppliLoaded = appliToLoad
-        # DBG.write("appli loaded", config, True)
-                       
-        # Set the verbose mode if called
-        DBG.tofix("verbose/batch/logger_add_link -1/False/None", True)
-        verbose = -1
-        batch = False
-        logger_add_link = None
-        if verbose > -1:
-            verbose_save = self.options.output_verbose_level
-            self.options.__setattr__("output_verbose_level", verbose)    
+    # read the configuration from all the pyconf files    
+    cfgManager = getConfigManager() # commands.config.ConfigManager()
+    DBG.write("appli to load", appliToLoad, True)
+    config = cfgManager.get_config(datadir=self.runner.datadir, 
+                                   application=appliToLoad, 
+                                   options=self.runner.options, 
+                                   command=self.name)
+    self.runner.nameAppliLoaded = appliToLoad
+    # DBG.write("appli loaded", config, True)
+                   
+    # Set the verbose mode if called
+    DBG.tofix("verbose/batch/logger_add_link -1/False/None", True)
+    verbose = -1
+    batch = False
+    logger_add_link = None
+    if verbose > -1:
+        verbose_save = self.options.output_verbose_level
+        self.options.__setattr__("output_verbose_level", verbose)    
 
-        # Set batch mode if called
-        if batch:
-            batch_save = self.options.batch
-            self.options.__setattr__("batch", True)
+    # Set batch mode if called
+    if batch:
+        batch_save = self.options.batch
+        self.options.__setattr__("batch", True)
 
-        # set output level
-        if self.runner.options.output_verbose_level is not None:
-            config.USER.output_verbose_level = self.runner.options.output_verbose_level
-        if config.USER.output_verbose_level < 1:
-            config.USER.output_verbose_level = 0
-        silent = (config.USER.output_verbose_level == 0)
+    # set output level
+    if self.runner.options.output_verbose_level is not None:
+        config.USER.output_verbose_level = self.runner.options.output_verbose_level
+    if config.USER.output_verbose_level < 1:
+        config.USER.output_verbose_level = 0
+    silent = (config.USER.output_verbose_level == 0)
 
-        # create log file
-        micro_command = False
-        if logger_add_link:
-            micro_command = True
-        logger_command = UTS.getNewLogger(config, 
-                           silent_sysstd=silent,
-                           all_in_terminal=self.runner.options.all_in_terminal,
-                           micro_command=micro_command)
-        
-        # Check that the path given by the logs_paths_in_file option
-        # is a file path that can be written
-        if self.runner.options.logs_paths_in_file and not micro_command:
-            try:
-                self.options.logs_paths_in_file = os.path.abspath(
-                                        self.options.logs_paths_in_file)
-                dir_file = os.path.dirname(self.options.logs_paths_in_file)
-                if not os.path.exists(dir_file):
-                    os.makedirs(dir_file)
-                if os.path.exists(self.options.logs_paths_in_file):
-                    os.remove(self.options.logs_paths_in_file)
-                file_test = open(self.options.logs_paths_in_file, "w")
-                file_test.close()
-            except Exception as e:
-                msg = _("""\
+    # create log file
+    micro_command = False
+    if logger_add_link:
+        micro_command = True
+    logger_command = UTS.getNewLogger(config, 
+                       silent_sysstd=silent,
+                       all_in_terminal=self.runner.options.all_in_terminal,
+                       micro_command=micro_command)
+    
+    # Check that the path given by the logs_paths_in_file option
+    # is a file path that can be written
+    if self.runner.options.logs_paths_in_file and not micro_command:
+        try:
+            self.options.logs_paths_in_file = os.path.abspath(
+                                    self.options.logs_paths_in_file)
+            dir_file = os.path.dirname(self.options.logs_paths_in_file)
+            if not os.path.exists(dir_file):
+                os.makedirs(dir_file)
+            if os.path.exists(self.options.logs_paths_in_file):
+                os.remove(self.options.logs_paths_in_file)
+            file_test = open(self.options.logs_paths_in_file, "w")
+            file_test.close()
+        except Exception as e:
+            msg = _("""\
 The logs_paths_in_file option will not be taken into account.
 Here is the error:""")
-                logger_command.warning("%s\n%s" % (msg, str(e)))
-                self.options.logs_paths_in_file = None
-                
-        return config
-
-def get_products_list(self, options, cfg, logger):
-        """
-        Gives the product list with their informations from 
-        configuration regarding the passed options.
-        
-        :param options: (Options) 
-          The Options instance that stores the commands arguments
-        :param config: (Config) The global configuration
-        :param logger: (Logger) 
-          The logger instance to use for the display and logging
-        :return: (list) The list of (product name, product_informations).
-        """
-        # Get the products to be prepared, regarding the options
-        if options.products is None:
-            # No options, get all products sources
-            products = cfg.APPLICATION.products
-        else:
-            # if option --products, check that all products of the command line
-            # are present in the application.
-            products = options.products
-            for p in products:
-                if p not in cfg.APPLICATION.products:
-                    raise Exception(_("Product %(product)s "
-                                "not defined in application %(application)s") %
-                            { 'product': p, 'application': cfg.VARS.application} )
-        
-        # Construct the list of tuple containing 
-        # the products name and their definition
-        products_infos = PROD.get_products_infos(products, cfg)
-        
-        return products_infos
+            logger_command.warning("%s\n%s" % (msg, str(e)))
+            self.options.logs_paths_in_file = None
+            
+    return config
+      
+def get_products_list(options, cfg):
+    """
+    Gives the product list with their informations from 
+    configuration regarding the passed options.
+    
+    :param options: (Options) 
+      The Options instance that stores the commands arguments
+    :param cfg: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (list) The list of (product name, product_informations).
+    """
+    # Get the products to be prepared, regarding the options
+    if options.products is None:
+        # No options, get all products sources
+        products = cfg.APPLICATION.products
+    else:
+        # if option --products, check that all products of the command line
+        # are present in the application.
+        products = options.products
+        for p in products:
+            if p not in cfg.APPLICATION.products:
+                raise Exception(_("Product %(product)s "
+                            "not defined in application %(application)s") % \
+                        { 'product': p, 'application': cfg.VARS.application} )
+    
+    # Construct the list of tuple containing 
+    # the products name and their definition
+    products_infos = PROD.get_products_infos(products, cfg)
+    
+    products_infos = [pi for pi in products_infos \
+      if not(PROD.product_is_native(pi[1]) or PROD.product_is_fixed(pi[1]))]
+    
+    return products_infos

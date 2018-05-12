@@ -128,7 +128,7 @@ def setNotLocale():
     DBG.write("setNotLocale", os.environ["LANG"])
     
 def setLocale():
-    """\
+    """
     reset initial locale at any moment 
     'fr' or else (TODO) from initial environment var '$LANG'
     'i18n' as 'internationalization'
@@ -230,6 +230,9 @@ class _BaseCommand(object):
         if self._runner.config is None:
           self._logger.error("%s instance have runner.config None, fix it." % self.getClassName())
         return self._runner.config
+      
+    def get_products_list(self, options, config):
+        return CFGMGR.get_products_list(options, config)
 
     def assumeAsList(self, strOrList):
         return assumeAsList(strOrList)
@@ -411,7 +414,7 @@ class Sat(object):
         else:
           return self._getModule(name)
         
-    def getCommandInstance(self, name):
+    def getCommand(self, name):
         """
         returns inherited instance of Command(_BaseCmd) for command 'name'
         if module not loaded yet, load it.
@@ -454,7 +457,9 @@ class Sat(object):
                         datadir=None)
         
         # create/get dynamically the command instance to call its 'run' method
-        cmdInstance = self.getCommandInstance(self.nameCommandToLoad)
+        cmdInstance = self.getCommand(self.nameCommandToLoad)
+        import src.loggingSat as LOG # avoid cross import
+        LOG.setFileHandler(self.getLogger(), self.getConfig())
         
         # Run the command using the arguments
         returnCode = cmdInstance.run(self.commandArguments)

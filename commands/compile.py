@@ -135,7 +135,7 @@ class Command(_BaseCommand):
     UTS.logger_info_tuples(logger, info)
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
 
     if options.fathers:
         # Extend the list with all recursive dependencies of the given products
@@ -169,41 +169,6 @@ class Command(_BaseCommand):
     if code != 0:
         code = 1
     return code
-      
-      
-def get_products_list(options, cfg, logger):
-    """
-    method that gives the product list with their informations from 
-    configuration regarding the passed options.
-    
-    :param options: (Options) 
-      The Options instance that stores the commands arguments
-    :param cfg: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (list) The list of (product name, product_informations).
-    """
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise Exception(
-                    _("Product %(product)s not defined in application %(application)s") %
-                    { 'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = PROD.get_products_infos(products, cfg)
-    
-    products_infos = [pi for pi in products_infos if not(PROD.product_is_fixed(pi[1]))]
-    
-    return products_infos
 
 def get_children(config, p_name_p_info):
     l_res = []

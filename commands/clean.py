@@ -108,7 +108,7 @@ The '--properties' options must have the following syntax:
             
 
     # Get the list of products to threat
-    products_infos = self.get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
 
     # Construct the list of directories to suppress
     l_dir_to_suppress = []

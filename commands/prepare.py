@@ -79,7 +79,7 @@ class Command(_BaseCommand):
     # check that the command has been called with an application
     UTS.check_config_has_application(config).raiseIfKo()
 
-    products_infos = self.get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
 
     # Construct the arguments to pass to the clean, source and patch commands
     args_appli = config.VARS.application + ' '

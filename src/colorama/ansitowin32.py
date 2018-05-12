@@ -12,6 +12,7 @@ winterm = None
 if windll is not None:
     winterm = WinTerm()
 
+
 def is_stream_closed(stream):
     return not hasattr(stream, 'closed') or stream.closed
 

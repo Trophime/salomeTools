@@ -81,7 +81,7 @@ class Command(_BaseCommand):
     logger.info("  workdir = %s\n" % config.APPLICATION.workdir)
        
     # Get the products list with products informations regarding the options
-    products_infos = self.get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
     
     # Call to the function that gets all the sources
     good_result, results = get_all_product_sources(config, 

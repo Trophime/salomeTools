@@ -17,7 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """
-Utilities to read xml logging files
+Utilities to manage write/read xml logging files
 
 | Usage:
 | >> import src.xmlManager as XMLMGR
@@ -34,8 +34,9 @@ except:
 import src.ElementTree as ETREE
 import src.utilsSat as UTS
 
+
 class XmlLogFile(object):
-    """\
+    """
     Class to manage writing in salomeTools xml log file
     """
     def __init__(self, filePath, rootname, attrib = {}):
@@ -62,15 +63,14 @@ class XmlLogFile(object):
         if file_path:
             log_file_path = file_path
         try:
-            f = open(log_file_path, 'w')
-            f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-            if stylesheet:
-                f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
-                        stylesheet)    
-            f.write(ETREE.tostring(self.xmlroot, encoding='utf-8'))
-            f.close()
-        except IOError:
-            pass  
+            with open(log_file_path, 'w') as f:
+              f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+              if stylesheet:
+                  f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
+                          stylesheet)    
+              f.write(ETREE.tostring(self.xmlroot, encoding='utf-8'))
+        except Exception:
+            raise Exception("problem writing Xml log file: %s" % log_file_path)
         
     def add_simple_node(self, node_name, text=None, attrib={}):
         """Add a node with some attibutes and text to the root node.
@@ -214,10 +214,10 @@ def write_report(filename, xmlroot, stylesheet):
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
 
-    f = open(filename, "w")
-    f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-    if len(stylesheet) > 0:
-        f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
-    f.write(ETREE.tostring(xmlroot, encoding='utf-8'))
-    f.close()   
+    with open(filename, "w") as f:
+      f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+      if len(stylesheet) > 0:
+          f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
+      f.write(ETREE.tostring(xmlroot, encoding='utf-8'))
+  
     

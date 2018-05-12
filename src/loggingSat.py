@@ -87,7 +87,9 @@ class DefaultFormatter(logging.Formatter):
     return COLS.toColor(res)
   
   def setColorLevelname(self, levelname):
-    return self._ColorLevelname[levelname] + levelname + "<reset>"
+    return levelname
+    # set color implies problem tabulation variable for color special characters
+    # return self._ColorLevelname[levelname] + levelname + "<reset>"
 
 
 class UnittestFormatter(logging.Formatter):
@@ -117,7 +119,8 @@ class UnittestStream(object):
     return res
 
   def write(self, astr):
-    # log("UnittestStream.write('%s')" % astr)
+    """final method called when message is logged"""
+    # log("UnittestStream.write('%s')" % astr) # for debug ... 
     self._logs += astr
 
   def flush(self):
@@ -167,6 +170,24 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
   else:
     logger.setLevel(logger.DEBUG)
 
+def setFileHandler(logger, config):
+  """
+  add file handler to logger to set log files
+  for salometools command. 
+  when command is known from pyconf/config instance
+  
+  | Example: 
+  | log files names for command prepare 
+  | with micro commands clean/source/patch
+  |   ~/LOGS/20180510_140606_prepare_lenovo.xml
+  |   ~/LOGS/OUT/20180510_140606_prepare_lenovo.txt
+  |   ~/LOGS/micro_20180510_140607_clean_lenovo.xml
+  |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
+  |   etc.
+  """
+  import src.debug as DBG # avoid cross import
+  DBG.write("setFileHandler", logger.handlers, True)
+  DBG.write("setFileHandler", config.VARS, True)
   
 def testLogger_1(logger):
   """small test"""

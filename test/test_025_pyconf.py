@@ -81,6 +81,30 @@ _EXAMPLES = {
    }   
 """,
 
+# error circular
+6 : """\
+  aa: Yves
+  bb: $cc
+  cc: $bb
+""",
+
+7 : """\
+  aa: Yves
+  bb: $cc
+  cc: [ 
+    cc1
+    $bb
+    ]
+""",
+
+8 : """\
+  aa: Yves
+  bb: $cc
+  cc: { 
+    cc1: cc11
+    cc2: $bb
+    }
+""",
 
 }
 
@@ -169,12 +193,65 @@ Bienvenue, Yves
     res = outStream.value
     DBG.write("test_100 cfg save", res)
     DBG.write("test_100 cfg debug", cfg)
-    DBG.write("test_100 cfg debug", cfg.cc)
+    DBG.write("test_100 cfg.cc debug", cfg.cc)
     
     cc = cfg.cc
     # DBG.write("test_100 type cc[3]", dir(cc), True)
     DBG.write("test_100 cc", [cc.data[i] for i in range(len(cc))])
       
+  def test_100(self):
+    inStream = DBG.InStream(_EXAMPLES[5])
+    outStream = DBG.OutStream()
+    cfg = PYF.Config(inStream) # KO
+    cfg.__save__(outStream) # sat renamed save() in __save__()
+    res = outStream.value
+    DBG.write("test_100 cfg save", res)
+    DBG.write("test_100 cfg debug", cfg)
+    DBG.write("test_100 cfg.cc debug", cfg.cc)
+    
+    cc = cfg.cc
+    # DBG.write("test_100 type cc[3]", dir(cc), True)
+    DBG.write("test_100 cc", [cc.data[i] for i in range(len(cc))])
+      
+  def test_110(self):
+    inStream = DBG.InStream(_EXAMPLES[6])
+    outStream = DBG.OutStream()
+    cfg = PYF.Config(inStream)
+    cfg.__save__(outStream)
+    
+    res = outStream.value
+    DBG.write("test_110 cfg save", res)
+    self.assertNotIn("ERROR", res)
+    
+    res = DBG.getStrConfigDbg(cfg)
+    DBG.write("test_110 cfg debug", res)
+    self.assertIn("ERROR", res)
+    self.assertIn("unable to evaluate $cc", res)
+    self.assertIn("unable to evaluate $bb", res)
+    
+  def test_120(self):
+   for ii in [7, 8]:
+    inStream = DBG.InStream(_EXAMPLES[ii])
+    outStream = DBG.OutStream()
+    cfg = PYF.Config(inStream)
+    cfg.__save__(outStream)
+    
+    res = outStream.value
+    DBG.write("test_120 cfg save", res, True)
+    self.assertNotIn("ERROR", res)
+    
+    res = DBG.getStrConfigDbg(cfg)
+    DBG.write("test_120 cfg debug", res, True)
+    # no error circular !!!
+    # self.assertIn("ERROR", res) # no error circular !!!
+    # self.assertIn("unable to evaluate $cc", res)
+    # self.assertIn("unable to evaluate $bb", res)
+    res = cfg.bb
+    DBG.write("test_120 cfg.bb debug", res, True)
+
+    res = cfg.cc
+    DBG.write("test_120 cfg.cc debug", res, True)
+    
   def test_999(self):
     # one shot tearDown() for this TestCase
     # SAT.setLocale() # end test english

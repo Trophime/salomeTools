@@ -168,23 +168,31 @@ def getStrConfigDbg(config):
 
 def saveConfigDbg(config, aStream, indent=0, path=""):
     """pyconf returns multilines (path expression evaluation) for debug"""
-    _saveConfigRecursiveDbg(config, aStream, indent, path)
+    _saveConfigRecursiveDbg(config, aStream, indent, path, 0)
     aStream.close() # as config.__save__()
 
-def _saveConfigRecursiveDbg(config, aStream, indent, path):
+def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
     """pyconf inspired from Mapping.__save__"""
     debug = False
+    nbp = nb + 1 # depth recursive
     if indent <= 0: 
       indentp = 0
     else:
-      indentp = indentp + 2
+      indentp = indent + 2
+      
+    if nbp > 10: # protection
+      # raise Exception("!!! ERROR: Circular reference after %s" % aStream.getvalue())
+      # raise Exception("!!! ERROR: Circular reference %s" % path)
+      aStream.write("<red>!!! ERROR: Circular reference after %s<reset>\n" % path)
+      return
+    
     indstr = indent * ' ' # '':no indent, ' ':indent
     strType = str(type(config))
     if debug: print "saveDbg Type", path, strType
     
     if "Sequence" in strType:
       for i in range(len(config)):
-        _saveConfigRecursiveDbg(config[i], aStream, indentp, path+"[%i]" % i)
+        _saveConfigRecursiveDbg(config[i], aStream, indentp, path+"[%i]" % i, nbp)
       return
     '''
     if "Reference" in strType:
@@ -207,14 +215,14 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path):
       strType = str(type(value))
       if debug: print 'strType', path, key, strType
       if "Config" in strType:
-        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key)
+        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key, nbp)
         continue
       if "Mapping" in strType:
-        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key)
+        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key, nbp)
         continue
       if "Sequence" in strType:
         for i in range(len(value)):
-          _saveConfigRecursiveDbg(value.data[i], aStream, indentp, path+"."+key+"[%i]" % i)
+          _saveConfigRecursiveDbg(value.data[i], aStream, indentp, path+"."+key+"[%i]" % i, nbp)
         continue
       if "Expression" in strType:
         try:

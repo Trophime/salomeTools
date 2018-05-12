@@ -81,7 +81,7 @@ class Command(_BaseCommand):
     UTS.check_config_has_application(config).raiseIfKo()
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
     
     # Print some informations
     logger.info(_('Configuring the sources of the application %s\n') % 
@@ -110,42 +110,6 @@ class Command(_BaseCommand):
           '2': nb_products }, 1)    
     
     return res 
-
-
-def get_products_list(options, cfg, logger):
-    """
-    method that gives the product list with their informations from 
-    configuration regarding the passed options.
-    
-    :param options: (Options) 
-      The Options instance that stores the commands arguments
-    :param cfg: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (list) The list of (product name, product_informations).
-    """
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise Exception(
-                    _("Product %(product)s not defined in application %(application)s") %
-                    {'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = PROD.get_products_infos(products, cfg)
-    
-    products_infos = [pi for pi in products_infos \
-      if not(PROD.product_is_native(pi[1]) or PROD.product_is_fixed(pi[1]))]
-    
-    return products_infos
 
 def configure_all_products(config, products_infos, conf_option, logger):
     """

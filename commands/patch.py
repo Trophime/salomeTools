@@ -80,7 +80,7 @@ class Command(_BaseCommand):
     logger.info('  workdir = %s\n\n"', UTS.blue(config.APPLICATION.workdir))
 
     # Get the products list with products informations regarding the options
-    products_infos = commands.prepare.get_products_list(options, config, logger)
+    products_infos = self.get_products_list(options, config)
     
     # Get the maximum name length in order to format the terminal display
     max_product_name_len = 1
