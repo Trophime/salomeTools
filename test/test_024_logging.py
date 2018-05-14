@@ -65,7 +65,7 @@ class LoggerSat(LOGI.Logger):
   above log.debug(msg)
   to assume store long log asci in files txt under/outside files xml
   
-  see: /usr/lib/python2.7/logging/*.py &
+  see: /usr/lib64/python2.7/logging/*.py
   """
   
   _TRACE = LOGI.INFO - 2 # just below
@@ -150,89 +150,6 @@ class TestCase(unittest.TestCase):
     rec = stream_handler.buffer[-1]
     self.assertEqual(rec.levelname, "DEBUG")
     self.assertEqual(rec.msg, "!!! test debug")
-    
-
-  """     
-  def test_015(self):
-    t = DATT.DateTime("now")
-    self.assertTrue(t.isOk())
-    rrt = str(t)
-    DBG.write("test_015 str", rrt)
-    self.assertIn("20", rrt) # 2018 to 2099 ok
-    self.assertIn("-", rrt)
-    self.assertIn(":", rrt)
-    rrt = repr(t)
-    DBG.write("test_015 repr", rrt)
-    self.assertIn("DateTime", rrt)
-    self.assertIn("20", rrt) # 2018 to 2099 ok
-    self.assertIn("-", rrt)
-    self.assertIn(":", rrt)
-
-    
-  def test_020(self):
-    t1 = DATT.DateTime("now")
-    t2 = DATT.DateTime(t1)
-    self.assertTrue(t2.isOk())
-    self.assertEqual(t1, t2)
-    t2 = DATT.DateTime("now")
-    self.assertNotEqual(t1, t2) # microseconds differs
-    
-    DATT.sleep(3) # 3 second more
-    t2 = DATT.DateTime("now")
-    self.assertGreater(2, 1) # to be sure
-    self.assertGreater(str(t2), str(t1)) # seconds differs
-    self.assertGreater(repr(t2), repr(t1)) # seconds differs
-    self.assertGreater(t2, t1)
-    self.assertTrue(t2 > t1)
-    self.assertFalse(t2 == t1)
-    self.assertFalse(t2 < t1)
-    self.assertFalse(t2 <= t1)
-    
-  def test_040(self):
-    t1 = DATT.DateTime("now")
-    delta = DATT.DeltaTime(t1)
-    self.assertFalse(delta.isOk())
-    self.assertIn("Undefined", delta.toSeconds()) 
-    DBG.write("test_040 str", str(delta))
-    DBG.write("test_040 repr", repr(delta))   
-    with self.assertRaises(Exception):
-      delta.raiseIfKo()
-      DATT.DateTime().raiseIfKo()
-       
-  def test_042(self):
-    t1 = DATT.DateTime("now")
-    DATT.sleep(3.1) # 3.1 second more
-    t2 = DATT.DateTime("now")
-    self.assertTrue(t2 > t1)
-    delta = DATT.DeltaTime(t1, t2)
-    self.assertGreater(delta.toSeconds(), 3)
-    self.assertEqual(int(delta.toSeconds()), 3)
-    DBG.write("test_042 str", str(delta))
-    DBG.write("test_042 repr", repr(delta))
-    delta2 = delta.raiseIfKo()
-    self.assertEqual(delta2.toSeconds(), delta.toSeconds())
-    
-  def test_044(self):
-    for more in [0, 0.56789, 5.6789, 56.789, 61, 3661, 36061]:
-      t1 = DATT.DateTime("now")
-      t2 = DATT.DateTime(t1)
-      t2.addSeconds(more)
-      delta = DATT.DeltaTime(t1, t2)
-      r = delta.toStrHuman()
-      DBG.write("test_044 str", r)
-      if more < 60: 
-        self.assertIn("s", r)
-        self.assertNotIn("m", r)
-        self.assertNotIn("h", r)
-        continue
-      if more < 3600: 
-        self.assertIn("s", r)
-        self.assertIn("m", r)
-        self.assertNotIn("h", r)
-      else:
-        self.assertIn("s", r)
-        self.assertIn("m", r)
-        self.assertIn("h", r)"""
 
       
           
