@@ -65,7 +65,7 @@ class LoggerSat(LOGI.Logger):
   above log.debug(msg)
   to assume store long log asci in files txt under/outside files xml
   
-  see: /usr/lib64/python2.7/logging/*.py
+  see: /usr/lib64/python2.7/logging/xxx__init__.py etc.
   """
   
   _TRACE = LOGI.INFO - 2 # just below

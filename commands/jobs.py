@@ -837,7 +837,7 @@ class Jobs(object):
                  logger,
                  job_file_path,
                  config_jobs,
-                 lenght_columns = 20):
+                 length_columns = 20):
         # The jobs configuration
         self.cfg_jobs = config_jobs
         self.job_file_path = job_file_path
@@ -853,7 +853,7 @@ class Jobs(object):
         self.ljobs_not_today = []
         self.runner = runner
         self.logger = logger
-        self.len_columns = lenght_columns
+        self.len_columns = length_columns
         
         # the list of jobs that have not been run yet
         self._l_jobs_not_started = []
@@ -1150,7 +1150,7 @@ The job will not be launched.
     
     def display_status(self, len_col):
         """
-        Takes a lenght and construct the display of the current status 
+        Takes a length and construct the display of the current status 
         of the jobs in an array that has a column for each host.
         It displays the job that is currently running on the host of the column.
         

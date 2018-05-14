@@ -212,9 +212,9 @@ class Command(_BaseCommand):
 
     # Display the results
     logger.info(_('\nResults:\n\n'))
-    max_file_name_lenght = max(map(lambda l: len(l), dic_fic_paths.keys()))
+    max_file_name_length = max(map(lambda l: len(l), dic_fic_paths.keys()))
     for fich in dic_fic_paths:
-        sp = " " * (max_file_name_lenght - len(fich))
+        sp = " " * (max_file_name_length - len(fich))
         msg = UTS.label(fich) + sp
         for rep in dic_fic_paths[fich]:
             msg += rep + " "
@@ -274,7 +274,7 @@ class Progress_bar:
         :param valMin: (float) the minimum value of the variable
         :param valMax: (float) the maximum value of the variable
         :param logger: (Logger) the logger instance
-        :param length: (int) the lenght of the progress bar
+        :param length: (int) the length of the progress bar
         """
         self.name = name
         self.valMin = valMin

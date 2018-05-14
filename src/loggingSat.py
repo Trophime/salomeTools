@@ -2,24 +2,38 @@
 # -*- coding: utf-8 -*-
 
 """
-http://sametmax.com/ecrire-des-logs-en-python/
-https://docs.python.org/3/library/time.html#time.strftime
-
-use logging package for salometools
-
-handler:
-  on info() no format
-  on other formatted indented on multi lines messages
+salomeTools logger. using logging package
+ 
+| http://sametmax.com/ecrire-des-logs-en-python/
+| 
+| Define two LoggerSat instances in salomeTools, no more need.
+|   - _loggerDefault as production/development logger
+|   - _loggerUnittest as unittest logger
+|
+| see use of handlers of _loggerDefault for
+| log console and log files xml, txt
+|
+| console handler:
+|   - info() : no format
+|   - error() warning() trace() debug() etc. :
+|      formatted indented on multi lines messages using handlers
+|
+| file handlers:
+|   - info() error() warning() trace() debug() etc. :
+|      formatted indented on multi lines messages using handlers
 """
 
 import os
 import sys
-import logging
+import logging as LOGI
 import pprint as PP
 import src.coloringSat as COLS
 
 _verbose = False
 _name = "loggingSat"
+_loggerDefaultName = 'SatDefaultLogger'
+_loggerUnittestName = 'SatUnittestLogger'
+
 
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
@@ -29,47 +43,79 @@ def indent(msg, nb, car=" "):
 
 def indentUnittest(msg, prefix=" | "):
   """
-  indent car multi lines message except first one
-  car default is less spaces for size logs files
-  keep human readable
+  indent multi lines message except first one with prefix.
+  prefix default is designed for less spaces for size logs files
+  and keep logs human eye readable
   """
   s = msg.split("\n")
   res = ("\n" + prefix).join(s)
   return res
 
 def log(msg):
-  """elementary log when no logger yet"""
+  """elementary log when no logging.Logger yet"""
   prefix = "%s.log: " % _name
   nb = len(prefix)
   if _verbose: print(prefix + indent(msg, nb))
 
-log("import logging on %s" % logging.__file__)
 
-_loggerDefaultName = 'SatDefaultLogger'
-_loggerUnittestName = 'SatUnittestLogger'
+log("import logging on %s" % LOGI.__file__)
 
-
-def getDefaultLogger():
-  log("getDefaultLogger %s" % _loggerDefaultName)
-  return logging.getLogger(_loggerDefaultName)
-
-def getUnittestLogger():
-  log("getUnittestLogger %s" % _loggerUnittestName)
-  return logging.getLogger(_loggerUnittestName)
 
 def dirLogger(logger):
-  logger.info('dir(logger name=%s):\n' % logger.name + PP.pformat(dir(logger)))
-
-_loggerDefault = getDefaultLogger()
-_loggerUnittest = getUnittestLogger()
+  logger.info('dir(logger name=%s):\n' % logger.name, PP.pformat(dir(logger)))
 
 
-class DefaultFormatter(logging.Formatter):
+class LoggerSat(LOGI.Logger):
+  """
+  inherited class logging.Logger for logger salomeTools
   
-  # to set color prefix, problem with indent format
+  | add a level TRACE as log.trace(msg) 
+  | below log.info(msg)
+  | above log.debug(msg)
+  | to assume store long log asci in files txt under/outside files xml
+  | 
+  | see: /usr/lib64/python2.7/logging/__init__.py etc.
+  """
+  
+  _TRACE = LOGI.INFO - 2 # just below
+  
+  def __init__(self, name, level=LOGI.INFO):
+    """
+    Initialize the logger with a name and an optional level.
+    """
+    super(LoggerSat, self).__init__(name, level)
+    LOGI.addLevelName(self._TRACE, "TRACE")
+    # LOGI.TRACE = self._TRACE # only for coherency,
+    
+  def trace(self, msg, *args, **kwargs):
+    """
+    Log 'msg % args' with severity '_TRACE'.
+
+    To pass exception information, use the keyword argument exc_info with
+    a true value, e.g.
+
+    logger.trace("Houston, we have a %s", "long trace to follow")
+    """
+    if self.isEnabledFor(self._TRACE):
+        self._log(self._TRACE, msg, args, **kwargs)
+
+  def isEnabledFor(self, level):
+    """
+    Is this logger enabled for level 'level'?
+    currently not modified from logging.Logger class
+    """
+    log("logger %s isEnabledFor %i>=%i" % (self.name, level, self.getEffectiveLevel()))
+    if self.manager.disable >= level:
+        return 0
+    return level >= self.getEffectiveLevel()
+
+class DefaultFormatter(LOGI.Formatter):
+  
+  # to set color prefix, problem with indent format as 
   _ColorLevelname = {
     "DEBUG": "<green>",
-    "INFO": "<green>",
+    "TRACE": "<green>",
+    "INFO":  "<green>",
     "WARNING": "<red>",
     "ERROR": "<yellow>",
     "CRITICAL": "<yellow>",
@@ -87,16 +133,24 @@ class DefaultFormatter(logging.Formatter):
     return COLS.toColor(res)
   
   def setColorLevelname(self, levelname):
-    return levelname
-    # set color implies problem tabulation variable for color special characters
-    # return self._ColorLevelname[levelname] + levelname + "<reset>"
+    """
+    set color implies color special characters and
+    tabulate levelname length of string
+    """
+    color = self._ColorLevelname[levelname]
+    res = color + levelname + "<reset>"
+    nb = len(levelname)
+    res = res + " "*(8-nb) # 8 as len("CRITICAL")
+    # print "'%s'" % res
+    return res
 
 
-class UnittestFormatter(logging.Formatter):
+class UnittestFormatter(LOGI.Formatter):
   def format(self, record):
     # print "", record.levelname #type(record), dir(record)
     # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
-    res = indentUnittest(super(UnittestFormatter, self).format(record), " | ")
+    res = super(UnittestFormatter, self).format(record)
+    res = indentUnittest(res)
     return COLS.toColor(res)
 
 
@@ -104,8 +158,9 @@ class UnittestStream(object):
   """
   write my stream class
   only write and flush are used for the streaming
-  https://docs.python.org/2/library/logging.handlers.html
-  https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
+  
+  | https://docs.python.org/2/library/logging.handlers.html
+  | https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
   """
   def __init__(self):
     self._logs = ''
@@ -136,9 +191,9 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   exept info() outed 'as it' without any format
   """
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
-  handler = logging.StreamHandler(sys.stdout) # Logging vers console
+  handler = LOGI.StreamHandler(sys.stdout) # Logging vers console
   if fmt is not None:
-    # formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
+    # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = DefaultFormatter(fmt, "%y-%m-%d %H:%M:%S")
     handler.setFormatter(formatter)
   logger.addHandler(handler)
@@ -156,9 +211,9 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
   """
   log("initLoggerAsUnittest name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   stream = UnittestStream()
-  handler = logging.StreamHandler(stream) # Logging vers stream
+  handler = LOGI.StreamHandler(stream) # Logging vers stream
   if fmt is not None:
-    # formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
+    # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
     handler.setFormatter(formatter)
   logger.addHandler(handler)
@@ -189,10 +244,29 @@ def setFileHandler(logger, config):
   DBG.write("setFileHandler", logger.handlers, True)
   DBG.write("setFileHandler", config.VARS, True)
   
+def getDefaultLogger():
+  log("getDefaultLogger %s" % _loggerDefaultName)
+  # case multithread may be problem as not LOGI._acquireLock()
+  previousClass = LOGI._loggerClass
+  LOGI.setLoggerClass(LoggerSat) # to get LoggerSat instance with trace etc.
+  res = LOGI.getLogger(_loggerDefaultName)
+  LOGI.setLoggerClass(previousClass)
+  return res
+
+def getUnittestLogger():
+  log("getUnittestLogger %s" % _loggerUnittestName)
+  # case multithread may be problem as not LOGI._acquireLock()
+  previousClass = LOGI._loggerClass
+  LOGI.setLoggerClass(LoggerSat) # to get LoggerSat instance with trace etc.
+  res = LOGI.getLogger(_loggerUnittestName)
+  LOGI.setLoggerClass(previousClass)
+  return res
+  
 def testLogger_1(logger):
   """small test"""
   # dirLogger(logger)
   logger.debug('test logger debug')
+  logger.trace('test logger trace')
   logger.info('test logger info')
   logger.warning('test logger warning')
   logger.error('test logger error')
@@ -200,26 +274,32 @@ def testLogger_1(logger):
   logger.info('\ntest logger info: no indent\n- second line\n- third line\n')
   logger.warning('test logger warning:\n- second line\n- third line')
 
-  
-if __name__ == "__main__":
+def testMain():
   print("\n**** DEFAULT logger")
   logdef = getDefaultLogger()
-  # problem if add +2? if append 2 setColorLevelname <color><reset>, not fixed
-  initLoggerAsDefault(logdef, '%(levelname)-8s :: %(message)s', level=logging.INFO)
+  # use of setColorLevelname <color>...<reset>, so do not use %(levelname)-8s
+  initLoggerAsDefault(logdef, '%(levelname)s :: %(message)s', level=LOGI.DEBUG)
   testLogger_1(logdef)
   print("\n**** UNITTEST logger")
   loguni = getUnittestLogger()
-  initLoggerAsUnittest(loguni, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=logging.DEBUG)
+  initLoggerAsUnittest(loguni, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=LOGI.DEBUG)
   testLogger_1(loguni) # is silent
-  # log("loguni.streamUnittest:\n%s" % loguni.streamUnittest)
-  print("loguni.streamUnittest:\n%s" % loguni.streamUnittest)
+  # log("loguni.getLogs():\n%s" % loguni.getLogs())
+  print("loguni.streamUnittest:\n%s" % loguni.getLogs())
   
   from colorama import Fore as FG
   from colorama import Style as ST
-  print("this is %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))
-  
-else:  
+  print("this is unconditionally %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))   
+
+if __name__ == "__main__":
+  # get path to salomeTools sources
+  satdir = os.path.dirname(os.path.dirname(__file__))
+  # Make the src & commands package accessible from all code
+  sys.path.insert(0, satdir)
+  testMain()  
+else:
+  # get two LoggerSat instance used in salomeTools, no more needed.
   _loggerDefault = getDefaultLogger()
   _loggerUnittest = getUnittestLogger()
-  initLoggerAsDefault(_loggerDefault, '%(levelname)-8s :: %(message)s', level=logging.INFO)
-  initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=logging.DEBUG)
+  initLoggerAsDefault(_loggerDefault, '%(levelname)s :: %(message)s', level=LOGI.INFO)
+  initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)s :: %(message)s', level=LOGI.DEBUG)

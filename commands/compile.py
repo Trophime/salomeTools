@@ -481,7 +481,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     :param logger: (Logger) 
       The logger instance to use for the display and logging
     :param header: (str) the header to display when logging
-    :param len_end: (int) the lenght of the the end of line (used in display)
+    :param len_end: (int) the length of the the end of line (used in display)
     :return: (int) 1 if it fails, else 0.
     """
     
@@ -632,7 +632,7 @@ def compile_product_script(sat,
     :param logger: (Logger) 
       The logger instance to use for the display and logging
     :param header: (str) the header to display when logging
-    :param len_end: (int) the lenght of the the end of line (used in display)
+    :param len_end: (int) the length of the the end of line (used in display)
     :return: (int) 1 if it fails, else 0.
     """
     p_name, p_info = p_name_info
