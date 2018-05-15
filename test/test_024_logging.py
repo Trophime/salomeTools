@@ -127,7 +127,7 @@ class TestCase(unittest.TestCase):
     # creation d'un handler pour chaque log sur la console
     formatter = LOGI.Formatter('%(levelname)-8s :: %(message)s')
     # stream_handler = LOGI.handlers.StreamHandler() # log outputs in console
-    stream_handler = LOGI.handlers.BufferingHandler(1000) # logoutputs in memory
+    stream_handler = LOGI.handlers.BufferingHandler(1000) # log outputs in memory
     stream_handler.setLevel(LOGI.DEBUG)
     stream_handler.setFormatter(formatter)
     lgr.addHandler(stream_handler)

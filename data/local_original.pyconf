@@ -12,7 +12,5 @@
   {
     project_file_paths :
     [
-    "/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT_SALOME/salome.pyconf",
-    "/volatile/wambeke/SAT5/SAT_MATIX/matix.pyconf"
     ]
   }

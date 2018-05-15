@@ -17,7 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """
-Utilities to manage write/read xml logging files
+Utilities to manage write/read xml salometools logging files
 
 | Usage:
 | >> import src.xmlManager as XMLMGR
@@ -35,6 +35,9 @@ import src.ElementTree as ETREE
 import src.utilsSat as UTS
 
 
+##############################################################################
+# classes to write and read xml salometools logging files
+##############################################################################
 class XmlLogFile(object):
     """
     Class to manage writing in salomeTools xml log file
@@ -104,7 +107,163 @@ class XmlLogFile(object):
         :param attrib: (dict) The attrib to append
         """
         self.xmlroot.find(node_name).attrib.update(attrib)
+        
+        
+    def put_initial_xml_fields(self):
+        """
+        Called at class initialization: Put all fields 
+        corresponding to the command context (user, time, ...)
+        """
+        # command name
+        self.xmlFile.add_simple_node("Site", attrib={"command" : 
+                                                     self.config.VARS.command})
+        # version of salomeTools
+        self.xmlFile.append_node_attrib("Site", attrib={"satversion" : 
+                                            self.config.INTERNAL.sat_version})
+        # machine name on which the command has been launched
+        self.xmlFile.append_node_attrib("Site", attrib={"hostname" : 
+                                                    self.config.VARS.hostname})
+        # Distribution of the machine
+        self.xmlFile.append_node_attrib("Site", attrib={"OS" : 
+                                                        self.config.VARS.dist})
+        # The user that have launched the command
+        self.xmlFile.append_node_attrib("Site", attrib={"user" : 
+                                                        self.config.VARS.user})
+        # The time when command was launched
+        Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
+        date_hour = "%2s/%2s/%4s %2sh%2sm%2ss" % (dd, m, Y, H, M, S)
+        self.xmlFile.append_node_attrib("Site", attrib={"beginTime" : 
+                                                        date_hour})
+        # The application if any
+        if "APPLICATION" in self.config:
+            self.xmlFile.append_node_attrib("Site", 
+                        attrib={"application" : self.config.VARS.application})
+        # The initialization of the trace node
+        self.xmlFile.add_simple_node("Log",text="")
+        # The system commands logs
+        self.xmlFile.add_simple_node("OutLog",
+                                    text=os.path.join("OUT", self.txtFileName))
+        # The initialization of the node where 
+        # to put the links to the other sat commands that can be called by any
+        # command 
+        self.xmlFile.add_simple_node("Links")
 
+    def add_link(self,
+                 log_file_name,
+                 command_name,
+                 command_res,
+                 full_launched_command):
+        """Add a link to another log file.
+        
+        :param log_file_name str: The file name of the link.
+        :param command_name str: The name of the command linked.
+        :param command_res str: The result of the command linked. "0" or "1"
+        :parma full_launched_command str: The full lanch command 
+                                          ("sat command ...")
+        """
+        xmlLinks = self.xmlFile.xmlroot.find("Links")
+        src.xmlManager.add_simple_node(xmlLinks,
+                                       "link", 
+                                       text = log_file_name,
+                                       attrib = {"command" : command_name,
+                                                 "passed" : command_res,
+                                           "launchedCommand" : full_launched_command})
+
+    def write(self, message, level=None, screenOnly=False):
+        """
+        function used in the commands 
+        to print in the terminal and the log file.
+        
+        :param message str: The message to print.
+        :param level int: The output level corresponding 
+                          to the message 0 < level < 6.
+        :param screenOnly boolean: if True, do not write in log file.
+        """
+        # do not write message starting with \r to log file
+        if not message.startswith("\r") and not screenOnly:
+            self.xmlFile.append_node_text("Log", 
+                                          printcolors.cleancolor(message))
+
+        # get user or option output level
+        current_output_verbose_level = self.config.USER.output_verbose_level
+        if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
+            # clean the message color if the terminal is redirected by user
+            # ex: sat compile appli > log.txt
+            message = printcolors.cleancolor(message)
+        
+        # Print message regarding the output level value
+        if level:
+            if level <= current_output_verbose_level and not self.silentSysStd:
+                sys.stdout.write(message)
+        else:
+            if self.default_level <= current_output_verbose_level and not self.silentSysStd:
+                sys.stdout.write(message)
+        self.flush()
+
+    def error(self, message):
+        """Print an error.
+        
+        :param message str: The message to print.
+        """
+        # Print in the log file
+        self.xmlFile.append_node_text("traces", _('ERROR:') + message)
+
+        # Print in the terminal and clean colors if the terminal 
+        # is redirected by user
+        if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
+            sys.stderr.write(printcolors.printcError(_('ERROR:') + message))
+        else:
+            sys.stderr.write(_('ERROR:') + message)
+
+        
+    def end_write(self, attribute):
+        """
+        Called just after command end: Put all fields 
+        corresponding to the command end context (time).
+        Write the log xml file on the hard drive.
+        And display the command to launch to get the log
+        
+        :param attribute dict: the attribute to add to the node "Site".
+        """       
+        # Get current time (end of command) and format it
+        dt = datetime.datetime.now()
+        Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
+        t0 = datetime.datetime(int(Y), int(m), int(dd), int(H), int(M), int(S))
+        tf = dt
+        delta = tf - t0
+        total_time = timedelta_total_seconds(delta)
+        hours = int(total_time / 3600)
+        minutes = int((total_time - hours*3600) / 60)
+        seconds = total_time - hours*3600 - minutes*60
+        # Add the fields corresponding to the end time
+        # and the total time of command
+        endtime = dt.strftime('%Y/%m/%d %Hh%Mm%Ss')
+        self.xmlFile.append_node_attrib("Site", attrib={"endTime" : endtime})
+        self.xmlFile.append_node_attrib("Site", 
+                attrib={"TotalTime" : "%ih%im%is" % (hours, minutes, seconds)})
+        
+        # Add the attribute passed to the method
+        self.xmlFile.append_node_attrib("Site", attrib=attribute)
+        
+        # Call the method to write the xml file on the hard drive
+        self.xmlFile.write_tree(stylesheet = "command.xsl")
+        
+        # Dump the config in a pyconf file in the log directory
+        logDir = src.get_log_path(self.config)
+        dumpedPyconfFileName = (self.config.VARS.datehour 
+                                + "_" 
+                                + self.config.VARS.command 
+                                + ".pyconf")
+        dumpedPyconfFilePath = os.path.join(logDir, 'OUT', dumpedPyconfFileName)
+        try:
+            f = open(dumpedPyconfFilePath, 'w')
+            self.config.__save__(f)
+            f.close()
+        except IOError:
+            pass
+
+          
+##############################################################################
 class ReadXmlFile(object):
     """
     Class to manage reading of an xml log file
@@ -158,6 +317,9 @@ class ReadXmlFile(object):
         """
         return self.xmlroot.find(node).text
     
+##############################################################################
+# utilities method
+##############################################################################
 def add_simple_node(root_node, node_name, text=None, attrib={}):
     """Add a node with some attibutes and text to the root node.
 
@@ -203,7 +365,6 @@ def find_node_by_attrib(xmlroot, name_node, key, value):
             return node
     return None
     
-
 def write_report(filename, xmlroot, stylesheet):
     """Writes a report file from a XML tree.
     

@@ -684,7 +684,7 @@ def product_has_script(product_info):
     :param product_info: (Config)
       The configuration specific to the product
     :return: (bool) 
-      True if the product it has a compilation script, else False
+      True if the product has a compilation script, else False
     """
     if "build_source" not in product_info:
         # Native case
@@ -698,7 +698,7 @@ def product_has_env_script(product_info):
     :param product_info: (Config)
       The configuration specific to the product
     :return: (bool) 
-      True if the product it has an environment script, else False
+      True if the product has an environment script, else False
     """
     return "environ" in product_info and "env_script" in product_info.environ
 

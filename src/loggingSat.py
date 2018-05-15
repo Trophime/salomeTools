@@ -23,10 +23,27 @@ salomeTools logger. using logging package
 |      formatted indented on multi lines messages using handlers
 """
 
+"""
+to launch example:
+
+>> export TRG=SALOME-8.4.0
+>> cd .../sat5.1
+>> src/loggingSat.py
+>> AllTestLauncherSat.py -p 'test_???_logging*.py'
+>> export TRG=SALOME-8.4.0
+>> sat config $TRG -i KERNEL
+>> sat config -v LOCAL.log_dir
+>> rm -rf /volatile/wambeke/SAT5/SAT5_S840_MATIX24/LOGS
+>> sat prepare $TRG -p KERNEL
+>> sat log
+"""
+
 import os
 import sys
 import logging as LOGI
+from logging.handlers import BufferingHandler
 import pprint as PP
+import src.utilsSat as UTS
 import src.coloringSat as COLS
 
 _verbose = False
@@ -34,7 +51,12 @@ _name = "loggingSat"
 _loggerDefaultName = 'SatDefaultLogger'
 _loggerUnittestName = 'SatUnittestLogger'
 
+_TRACE = LOGI.INFO - 2 # trace level is just below INFO
+LOGI.TRACE = _TRACE # only for coherency,
 
+#################################################################
+# utilities methods
+#################################################################
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
   s = msg.split("\n")
@@ -51,23 +73,68 @@ def indentUnittest(msg, prefix=" | "):
   res = ("\n" + prefix).join(s)
   return res
 
-def log(msg):
+def log(msg, force=False):
   """elementary log when no logging.Logger yet"""
   prefix = "%s.log: " % _name
   nb = len(prefix)
-  if _verbose: print(prefix + indent(msg, nb))
+  if _verbose or force: 
+    print(prefix + indent(msg, nb))
 
 
 log("import logging on %s" % LOGI.__file__)
 
 
-def dirLogger(logger):
-  logger.info('dir(logger name=%s):\n' % logger.name, PP.pformat(dir(logger)))
+def getStrDirLogger(logger):
+  """
+  Returns multi line string for logger description, with dir(logger).
+  Used for debug
+  """
+  lgr = logger # shortcut
+  msg = "%s(name=%s, dateLogger=%s):\n%s\n"
+  cName = lgr.__class__.__name__
+  res = msg % (cName, lgr.name, lgr.dateLogger, PP.pformat(dir(lgr)))
+  return res
 
+def getStrHandler(handler):
+  """
+  Returns one line string for handler description 
+  (as inexisting __repr__)
+  to avoid create inherited classe(s) handler
+  """ 
+  h = handler # shortcut
+  msg = "%s(name=%s)"
+  cName = h.__class__.__name__
+  res = msg % (cName, h.get_name())
+  return res
+  
+def getStrShort(msg):
+  """Returns short string for msg (as first caracters without line feed"""
+  res = msg.replace("\n", "//")[0:30]
+  return res
+  
+def getStrLogRecord(logRecord):
+  """
+  Returns one line string for simple logging LogRecord description 
+  """ 
+  msg = "LogRecord(level='%s', msg='%s...')"
+  shortMsg = getStrShort(logRecord.msg)
+  levelName = COLS.cleanColors(logRecord.levelname).replace(" ", "")
+  res = msg % (levelName, shortMsg)
+  return res
 
+def getListOfStrLogRecord(listOfLogRecord):
+  """
+  Returns one line string for logging LogRecord description 
+  """ 
+  res = [getStrLogRecord(l) for l in listOfLogRecord]
+  return res
+
+#################################################################
+# salometools logger classes
+#################################################################
 class LoggerSat(LOGI.Logger):
   """
-  inherited class logging.Logger for logger salomeTools
+  Inherited class logging.Logger for logger salomeTools
   
   | add a level TRACE as log.trace(msg) 
   | below log.info(msg)
@@ -77,38 +144,64 @@ class LoggerSat(LOGI.Logger):
   | see: /usr/lib64/python2.7/logging/__init__.py etc.
   """
   
-  _TRACE = LOGI.INFO - 2 # just below
-  
   def __init__(self, name, level=LOGI.INFO):
     """
     Initialize the logger with a name and an optional level.
     """
     super(LoggerSat, self).__init__(name, level)
-    LOGI.addLevelName(self._TRACE, "TRACE")
-    # LOGI.TRACE = self._TRACE # only for coherency,
+    LOGI.addLevelName(_TRACE, "TRACE")
+    self.dateLogger = "NoDateLogger"
+    self.closed = False
+    
+  def close(self):
+    """
+    final stuff for logger, done at end salomeTools
+    flushed and closed xml files have to be not overriden/appended
+    """
+    if self.closed: 
+      raise Exception("logger closed yet: %s" % self)
+    log("close stuff logger %s" % self, True) # getStrDirLogger(self)
+    for handl in self.handlers: 
+      log("close stuff handler %s" % getStrHandler(handl), True)
+      handl.close() # Tidy up any resources used by the handler.
+    # todo etc
+    self.closed = True # done at end sat, flushed closed xml files.
+    return
+    
+  def __repr__(self):
+    """one line string representation"""
+    msg = "%s(name=%s, dateLogger=%s, handlers=%s)"
+    cName = self.__class__.__name__
+    h = [getStrHandler(h) for h in self.handlers]
+    h = "[" + ", ".join(h) + "]"
+    res = msg % (cName, self.name, self.dateLogger, h)
+    return res
     
   def trace(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity '_TRACE'.
 
-    To pass exception information, use the keyword argument exc_info with
-    a true value, e.g.
-
-    logger.trace("Houston, we have a %s", "long trace to follow")
+    | To pass exception information, 
+    | use the keyword argument exc_info with a true value
+    | >> logger.trace("Houston, we have a %s", "long trace to follow")
     """
+    log("trace stuff logger %s dateLogger %s", True)
     if self.isEnabledFor(self._TRACE):
         self._log(self._TRACE, msg, args, **kwargs)
 
-  def isEnabledFor(self, level):
+  def xx_isEnabledFor(self, level):
     """
     Is this logger enabled for level 'level'?
-    currently not modified from logging.Logger class
+    currently not modified from logging.Logger class,
+    here only for call log debug.
     """
     log("logger %s isEnabledFor %i>=%i" % (self.name, level, self.getEffectiveLevel()))
     if self.manager.disable >= level:
         return 0
     return level >= self.getEffectiveLevel()
 
+
+#################################################################
 class DefaultFormatter(LOGI.Formatter):
   
   # to set color prefix, problem with indent format as 
@@ -141,10 +234,11 @@ class DefaultFormatter(LOGI.Formatter):
     res = color + levelname + "<reset>"
     nb = len(levelname)
     res = res + " "*(8-nb) # 8 as len("CRITICAL")
-    # print "'%s'" % res
+    # log("setColorLevelname'%s'" % res)
     return res
 
 
+#################################################################
 class UnittestFormatter(LOGI.Formatter):
   def format(self, record):
     # print "", record.levelname #type(record), dir(record)
@@ -154,6 +248,7 @@ class UnittestFormatter(LOGI.Formatter):
     return COLS.toColor(res)
 
 
+#################################################################
 class UnittestStream(object):
   """
   write my stream class
@@ -184,7 +279,60 @@ class UnittestStream(object):
   def __str__(self):
     return self._logs
 
+#################################################################
+class XmlHandler(BufferingHandler):
+  """
+  log outputs in memory as BufferingHandler.
+  Write ElementTree in file and flush are done once 
+  when method close is called, to generate xml file.
+  
+  see: https://docs.python.org/2/library/logging.handlers.html
+  """
+  def __init__(self, capacity):
+    super(XmlHandler, self).__init__(capacity)
+    self._target_file = None
+    self._config = None
+    
+  def set_target_file(self, filename):
+    """
+    filename is file name xml with path
+    supposedly non existing, no overwrite accepted
+    """
+    if os.path.exists(filename):
+      msg = "XmlHandler target file %s existing yet" % filename
+      raise Exception(msg)
+    self._target_file = filename
 
+  def set_config(self, config):
+    """
+    config is supposedly non existing, no overwrite accepted
+    """
+    if self._config is not None:
+      msg = "XmlHandler target config existing yet"
+      raise Exception(msg)
+    self._config = config
+    
+  def close(self):
+    """prepare ElementTree from existing logs and write xml file"""
+    import src.xmlManager as XMLMGR # avoid import cross utilsSat
+    targetFile = self._target_file
+    config = self._config
+    
+    # TODO for degug
+    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)), True)
+    
+    if os.path.exists(targetFile):
+      msg = "XmlHandler target file %s existing yet" % targetFile
+      
+    xmlFile = XMLMGR.XmlLogFile(targetFile, "SATcommand", attrib = {"application" : config.VARS.application})
+    xmlFile.write_tree()
+    
+    super(XmlHandler, self).close() # zaps the buffer to empty
+    
+#################################################################
+# methods to define two LoggerSat instances in salomeTools, 
+# no more need
+#################################################################
 def initLoggerAsDefault(logger, fmt=None, level=None):
   """
   init logger as prefixed message and indented message if multi line
@@ -192,6 +340,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   """
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   handler = LOGI.StreamHandler(sys.stdout) # Logging vers console
+  handler.set_name(logger.name + "_console")
   if fmt is not None:
     # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = DefaultFormatter(fmt, "%y-%m-%d %H:%M:%S")
@@ -212,6 +361,7 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
   log("initLoggerAsUnittest name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   stream = UnittestStream()
   handler = LOGI.StreamHandler(stream) # Logging vers stream
+  handler.set_name(logger.name + "_unittest")
   if fmt is not None:
     # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
@@ -224,6 +374,7 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
     logger.setLevel(level)
   else:
     logger.setLevel(logger.DEBUG)
+
 
 def setFileHandler(logger, config):
   """
@@ -240,10 +391,56 @@ def setFileHandler(logger, config):
   |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
   |   etc.
   """
-  import src.debug as DBG # avoid cross import
-  DBG.write("setFileHandler", logger.handlers, True)
-  DBG.write("setFileHandler", config.VARS, True)
+  #import src.debug as DBG # avoid cross import
+  log("setFileHandler %s" % logger, True)
+  log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)), True)
+  log("setFileHandler TODO set log_dir config.LOCAL.log_dir", True)
   
+  log_dir = "TMP" # TODO for debug config.LOCAL.log_dir # files xml
+  log_dir_out = os.path.join(log_dir, "OUT") # files txt
+  UTS.ensure_path_exists(log_dir)
+  UTS.ensure_path_exists(log_dir_out)
+  datehour = config.VARS.datehour
+  cmd = config.VARS.command
+  hostname = config.VARS.hostname
+  nameFileXml = "%s_%s_%s.xml" % (datehour, cmd, hostname)
+  nameFileTxt = "%s_%s_%s.txt" % (datehour, cmd, hostname)
+  fileXml = os.path.join(log_dir, nameFileXml)
+  fileTxt = os.path.join(log_dir_out, nameFileTxt)
+  
+  nbhandl = len(logger.handlers) # number of current handlers
+  if nbhandl == 1: # first main command
+    # Logging vers file xml
+    
+    handler = XmlHandler(1000) # log outputs in memory
+    handler.setLevel(LOGI.INFO)
+    handler.set_name(nameFileXml)
+    handler.set_target_file(fileXml)
+    handler.set_config(config)
+    
+    fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+    formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
+    
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
+    # Logging vers file txt
+    handler = LOGI.FileHandler(fileTxt)
+    handler.setLevel(LOGI.TRACE)
+    handler.set_name(nameFileTxt)
+    
+    fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+    formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
+    
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+  if nbhandl > 1: # secondary micro command
+    log("setFileHandler micro command %s" % config.VARS.command, True)
+   
+  log("setFileHandler %s" % logger, True)
+
+
 def getDefaultLogger():
   log("getDefaultLogger %s" % _loggerDefaultName)
   # case multithread may be problem as not LOGI._acquireLock()
@@ -253,6 +450,7 @@ def getDefaultLogger():
   LOGI.setLoggerClass(previousClass)
   return res
 
+
 def getUnittestLogger():
   log("getUnittestLogger %s" % _loggerUnittestName)
   # case multithread may be problem as not LOGI._acquireLock()
@@ -261,10 +459,14 @@ def getUnittestLogger():
   res = LOGI.getLogger(_loggerUnittestName)
   LOGI.setLoggerClass(previousClass)
   return res
+
   
+#################################################################
+# small tests as demonstration, see unittest also
+#################################################################
 def testLogger_1(logger):
   """small test"""
-  # dirLogger(logger)
+  # print getStrDirLogger(logger)
   logger.debug('test logger debug')
   logger.trace('test logger trace')
   logger.info('test logger info')
@@ -273,6 +475,7 @@ def testLogger_1(logger):
   logger.critical('test logger critical')
   logger.info('\ntest logger info: no indent\n- second line\n- third line\n')
   logger.warning('test logger warning:\n- second line\n- third line')
+
 
 def testMain():
   print("\n**** DEFAULT logger")
@@ -291,13 +494,21 @@ def testMain():
   from colorama import Style as ST
   print("this is unconditionally %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))   
 
+
+
+#################################################################
+# in production, or not (if __main__)
+#################################################################
 if __name__ == "__main__":
+  # for example, not in production
   # get path to salomeTools sources
   satdir = os.path.dirname(os.path.dirname(__file__))
   # Make the src & commands package accessible from all code
   sys.path.insert(0, satdir)
-  testMain()  
+  testMain() 
+  # here we have sys.exit()
 else:
+  # in production
   # get two LoggerSat instance used in salomeTools, no more needed.
   _loggerDefault = getDefaultLogger()
   _loggerUnittest = getUnittestLogger()

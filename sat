@@ -60,17 +60,20 @@ if __name__ == "__main__":
       else:
         # warning as known problem
         logger.warning("<red>sat exit code: %s<reset>" % returnCode) # KO have to say why
+      logger.close()
       sys.exit(returnCode.toSys())
       
     except Exception as e:
       # error as may be unknown problem
       # verbose debug message with traceback if developers
       msg = "Exception raised for execute_cli(%s):\n" % args
-      logger.critical(DBG.format_color_exception(msg))  
+      logger.critical(DBG.format_color_exception(msg)) 
+      logger.close()
       sys.exit(KOSYS)
 
 else:
     logger.critical("forbidden/unexpected mode for __name__ '%s'" % __name__)
+    logger.close()
     sys.exit(KOSYS)
             
 
