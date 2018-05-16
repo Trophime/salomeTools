@@ -24,18 +24,23 @@ salomeTools logger. using logging package
 """
 
 """
-to launch example:
+# to launch examples:
 
->> export TRG=SALOME-8.4.0
->> cd .../sat5.1
->> src/loggingSat.py
->> AllTestLauncherSat.py -p 'test_???_logging*.py'
->> export TRG=SALOME-8.4.0
->> sat config $TRG -i KERNEL
->> sat config -v LOCAL.log_dir
->> rm -rf /volatile/wambeke/SAT5/SAT5_S840_MATIX24/LOGS
->> sat prepare $TRG -p KERNEL
->> sat log
+export TRG=SALOME-8.4.0
+cd .../sat5.1
+src/loggingSat.py
+AllTestLauncherSat.py -p 'test_???_logging*.py'
+export TRG=SALOME-8.4.0
+sat config $TRG -i KERNEL
+sat config -v LOCAL.log_dir
+sat config $TRG -n -v LOCAL.log_dir
+rm -rf /volatile/wambeke/SAT5/SAT5_S840_MATIX24/LOGS
+sat prepare $TRG -p KERNEL
+sat log
+
+rm -rf TMP
+sat prepare $TRG -p KERNEL
+more TMP/*xml TMP/OUT/*.txt
 """
 
 import os
@@ -249,6 +254,16 @@ class UnittestFormatter(LOGI.Formatter):
 
 
 #################################################################
+class FileTxtFormatter(LOGI.Formatter):
+  def format(self, record):
+    # print "", record.levelname #type(record), dir(record)
+    # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
+    res = super(FileTxtFormatter, self).format(record)
+    res = indentUnittest(res)
+    return COLS.cleanColors(res)
+
+
+#################################################################
 class UnittestStream(object):
   """
   write my stream class
@@ -292,6 +307,8 @@ class XmlHandler(BufferingHandler):
     super(XmlHandler, self).__init__(capacity)
     self._target_file = None
     self._config = None
+    self._links_fields = [] # list of (log_file_name, cmd_name, cmd_res, full_launched_cmd)
+    self._final_fields = {} # node attributes
     
   def set_target_file(self, filename):
     """
@@ -313,7 +330,11 @@ class XmlHandler(BufferingHandler):
     self._config = config
     
   def close(self):
-    """prepare ElementTree from existing logs and write xml file"""
+    """
+    prepare ElementTree from existing logs and write xml file
+    
+    warning: avoid sat logging message in logger close phase
+    """
     import src.xmlManager as XMLMGR # avoid import cross utilsSat
     targetFile = self._target_file
     config = self._config
@@ -323,11 +344,17 @@ class XmlHandler(BufferingHandler):
     
     if os.path.exists(targetFile):
       msg = "XmlHandler target file %s existing yet" % targetFile
+      log(msg, True) #avoid sat logging message in logger close phase
       
-    xmlFile = XMLMGR.XmlLogFile(targetFile, "SATcommand", attrib = {"application" : config.VARS.application})
-    xmlFile.write_tree()
+    xmlFile = XMLMGR.XmlLogFile(targetFile, "SATcommand")
+    xmlFile.put_initial_fields(config)    
+    xmlFile.put_links_fields(self._links_fields)
+    xmlFile.put_final_fields(self._final_fields) 
+    xmlFile.write_tree(stylesheet = "command.xsl")
+    xmlFile.dump_config(config) # create pyconf file in the log directory
     
-    super(XmlHandler, self).close() # zaps the buffer to empty
+    # zaps the buffer to empty as parent class
+    super(XmlHandler, self).close()
     
 #################################################################
 # methods to define two LoggerSat instances in salomeTools, 
@@ -430,7 +457,7 @@ def setFileHandler(logger, config):
     handler.set_name(nameFileTxt)
     
     fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
-    formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
+    formatter = FileTxtFormatter(fmt, "%Y-%m-%d %H:%M:%S")
     
     handler.setFormatter(formatter)
     logger.addHandler(handler)

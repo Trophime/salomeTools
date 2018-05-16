@@ -32,7 +32,7 @@ import datetime as DT
 import time as TI
 
 # global module variable
-verbose = True
+verbose = False
 
 #####################################################
 class DateTime(object):
@@ -52,11 +52,14 @@ class DateTime(object):
   FORMAT_DATE_CONFIG = '%Y%m%d' # for config pyconf
   FORMAT_DATEHOUR_CONFIG = '%Y%m%d_%H%M%S' # for config pyconf as FORMAT_FILE
   
-  FORMAT_PACKAGE = '%Y-%m-%d %H:%M' # for sat package
+  FORMAT_PACKAGE = '%Y-%m-%d %H:%M' # for sat package'
+  FORMAT_XML = '%Y/%m/%d %Hh%Mm%Ss' # for sat log file xml
   
   MSG_UNDEFINED = "UndefinedTime"
 
   def __init__(self, when=None):
+    self._time = None # set "UndefinedTime", else is a float
+    if verbose: print "when", when
     if type(when) == str:
       if when == "now":
         self._time = TI.time() # is a float
@@ -64,8 +67,22 @@ class DateTime(object):
         raise Exception("DateTime: unknown when '%s'" % when)
     elif type(when) == self.__class__:
       self._time = when.getValue()
+    elif type(when) == DT.datetime:
+      # convert from datetime to time
+      self._time = TI.mktime(when.timetuple())
+    elif (type(when) == float) and (when > 1e9): # 1526469510 is may 2018
+      self._time = when
     else:
-      self._time = None
+      # UndefinedTime
+      if verbose:# for debug 
+        msg = "DateTime: unknown when %s '%s' implies 'UndefinedTime'" % (type(when), when)
+        #raise Exception(msg)
+        print msg
+      pass
+    
+  def __add__(self, seconds):
+    """add seconds"""
+    return DateTime(self._time + seconds)
     
   def __repr__(self):
     """complete with type class as 'DateTime(2018-05-07 12:30:55)'"""
@@ -140,6 +157,13 @@ class DateTime(object):
   def toStrPackage(self):
     if self.isOk():
       res = TI.strftime(self.FORMAT_PACKAGE, self.localTime())
+    else:
+      res = self.MSG_UNDEFINED
+    return res
+    
+  def toStrXml(self):
+    if self.isOk():
+      res = TI.strftime(self.FORMAT_XML, self.localTime())
     else:
       res = self.MSG_UNDEFINED
     return res
@@ -245,10 +269,15 @@ class DeltaTime(object):
     """automatic best unity, hours or minutes or seconds"""
     if self.isOk():
       res = self._t2.toSeconds() - self._t1.toSeconds()
-      if res < 0: return "%.3fs" % res
-      if res < 10: return "%.3fs" % res
-      if res < 60: return "%is" % int(res)
-      if res < 3600: return "%im%is" % (int(res/60), int(res%60))
+      if res < 0: 
+        sign = "-"
+        res = abs(res)
+      else:
+        sign = ""
+      if res < 0: return sign + "%.3fs" % res
+      if res < 10: return sign + "%.3fs" % res
+      if res < 60: return sign + "%is" % int(res)
+      if res < 3600: return sign + "%im%is" % (int(res/60), int(res%60))
       return self.toStrHms()
     else:
       res = self.MSG_UNDEFINED
@@ -258,10 +287,15 @@ class DeltaTime(object):
     """all unities, hours and minutes and seconds as '2h34m56s'"""
     if self.isOk():
       res = self._t2.toSeconds() - self._t1.toSeconds()
+      if res < 0: 
+        sign = "-"
+        res = abs(res)
+      else:
+        sign = ""
       hh = int(res/3600)
       mm = int(res%3600)/60
       ss = int(res%60)
-      return "%ih%im%is" % (hh, mm, ss)
+      return sign + "%ih%im%is" % (hh, mm, ss)
     else:
       res = self.MSG_UNDEFINED
     return res
@@ -312,15 +346,26 @@ def sleep(seconds):
     TI.sleep(seconds)
   
 def getWeekDayNow():
-    """monday is 0, tuesday is 1 etc."""
+    """Returns monday as 0, tuesday as 1 etc."""
     return DT.date.weekday(DT.date.today())
 
 def fromTimeStamp(val):
+    """Returns datetime.datetime"""
     return DT.datetime.fromtimestamp(val)
+    
+def fromDateHourConfig(datehour):
+    """
+    datehour as pyconf config.VARS.datehour 'YYYYMMDD_HHMMSS'.
+    Returns datetime.datetime
+    """
+    Y, m, dd, H, M, S = date_to_datetime(datehour)
+    t0 = DT.datetime(int(Y), int(m), int(dd), int(H), int(M), int(S))
+    return t0
     
 def parse_date(date):
     """
-    Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
+    Transform as pyconf config.VARS.datehour 'YYYYMMDD_HHMMSS'
+    to 'YYYY-MM-DD hh:mm:ss'.
     
     :param date: (str) The date to transform
     :return: (str) The date in the new format
@@ -337,8 +382,8 @@ def parse_date(date):
 
 def date_to_datetime(date):
     """
-    From a string date in format YYYYMMDD_HHMMSS
-    returns list year, mon, day, hour, minutes, seconds 
+    From a string date as pyconf config.VARS.datehour 'YYYYMMDD_HHMMSS'
+    returns [year, month, day, hour, minutes, seconds]
     
     :param date: (str) The date in format YYYYMMDD_HHMMSS
     :return: (tuple) as (str,str,str,str,str,str)
@@ -350,6 +395,7 @@ def date_to_datetime(date):
     H = date[9:11]
     M = date[11:13]
     S = date[13:15]
+    # print "date_to_datetime", date, [Y, m, dd, H, M, S]
     return Y, m, dd, H, M, S
 
 def timedelta_total_seconds(timedelta):

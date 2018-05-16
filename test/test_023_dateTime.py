@@ -25,6 +25,7 @@ import pprint as PP
 
 import src.debug as DBG
 import src.dateTime as DATT
+import time as TI
 
 verbose = False #True
 
@@ -110,15 +111,37 @@ class TestCase(unittest.TestCase):
     DBG.write("test_042 repr", repr(delta))
     delta2 = delta.raiseIfKo()
     self.assertEqual(delta2.toSeconds(), delta.toSeconds())
-    
+
   def test_044(self):
+    t1 = DATT.DateTime("now")
+    t2 = DATT.DateTime(t1) + 3.1 # add 3 seconds
+    delta = DATT.DeltaTime(t1, t2)
+    self.assertGreater(delta.toSeconds(), 3)
+  
+    ti = TI.time()
+    t4 = DATT.DateTime(ti)
+    t5 = t4 + 10.1
+    DBG.write("test_044 ti", [type(ti), ti, t4, t5])
+    delta = DATT.DeltaTime(t4, t5)
+    self.assertGreater(delta.toSeconds(), 10)
+    DBG.write("test_044 delta", [delta.toStrHuman(), delta.toStrHms()])
+    self.assertNotIn("-", delta.toStrHuman())
+    self.assertNotIn("-", delta.toStrHms())
+    
+    delta = DATT.DeltaTime(t5, t4) # negative delta
+    self.assertLess(delta.toSeconds(), -10)
+    DBG.write("test_044 delta", [delta.toStrHuman(), delta.toStrHms()])
+    self.assertIn("-10s", delta.toStrHuman())
+    self.assertIn("-0h0m10s", delta.toStrHms())
+    
+  def test_046(self):
     for more in [0, 0.56789, 5.6789, 56.789, 61, 3661, 36061]:
       t1 = DATT.DateTime("now")
       t2 = DATT.DateTime(t1)
       t2.addSeconds(more)
       delta = DATT.DeltaTime(t1, t2)
       r = delta.toStrHuman()
-      DBG.write("test_044 str", r)
+      DBG.write("test_046 str", r)
       if more < 60: 
         self.assertIn("s", r)
         self.assertNotIn("m", r)

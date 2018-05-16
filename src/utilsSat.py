@@ -55,6 +55,24 @@ def ensure_path_exists(path):
     if not os.path.exists(path):
         os.makedirs(path)
         
+def ensure_file_exists(aFile, aDefaultFile):
+    """
+    Create a file if not existing,
+    copying from default file
+    
+    :param aFilepath: (str) The file to ensure existence
+    :param aDefaultFile: (str) The default file to copy if not existing
+    """
+    isfile = os.path.isfile(aFile)
+    if isfile: return True
+    try:
+      DBG.write("ensure_file_exists %s" % isfile, aDefaultFile + " -->\n" + aFile)
+      shutil.copy2(aDefaultFile, aFile)
+      return True
+    except:
+      return False
+
+        
 def replace_in_file(file_in, str_in, str_out):
     """
     Replace <str_in> by <str_out> in file <file_in>.

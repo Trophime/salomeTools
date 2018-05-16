@@ -108,11 +108,11 @@ def format_color_exception(msg, limit=None, trace=None):
     if (_debug[-1]) or (_user in _developpers):
       res = "<red>" + msg
       if tb:
-          res += "\n<yellow>Traceback (most recent call last):\n"
+          res += "<yellow>\nTraceback (most recent call last):\n"
           res += "".join(traceback.format_tb(tb, limit)) #[:-1])
       res += "\n<red>"
       res += "\n".join(traceback.format_exception_only(etype, value))
-      return res+ "<reset>"
+      return res + "<reset>"
     else:
       res = "<red>" + msg # + "<bright>"
       res += "".join(traceback.format_exception_only(etype, value))
