@@ -80,7 +80,7 @@ def indentUnittest(msg, prefix=" | "):
 
 def log(msg, force=False):
   """elementary log when no logging.Logger yet"""
-  prefix = "%s.log: " % _name
+  prefix = "---- %s.log: " % _name
   nb = len(prefix)
   if _verbose or force: 
     print(prefix + indent(msg, nb))
@@ -114,6 +114,7 @@ def getStrHandler(handler):
   
 def getStrShort(msg):
   """Returns short string for msg (as first caracters without line feed"""
+  # log("getStrShort " + str(msg), True)
   res = msg.replace("\n", "//")[0:30]
   return res
   
@@ -165,9 +166,9 @@ class LoggerSat(LOGI.Logger):
     """
     if self.closed: 
       raise Exception("logger closed yet: %s" % self)
-    log("close stuff logger %s" % self, True) # getStrDirLogger(self)
+    log("close stuff logger %s" % self) # getStrDirLogger(self)
     for handl in self.handlers: 
-      log("close stuff handler %s" % getStrHandler(handl), True)
+      log("close stuff handler %s" % getStrHandler(handl))
       handl.close() # Tidy up any resources used by the handler.
     # todo etc
     self.closed = True # done at end sat, flushed closed xml files.
@@ -190,9 +191,9 @@ class LoggerSat(LOGI.Logger):
     | use the keyword argument exc_info with a true value
     | >> logger.trace("Houston, we have a %s", "long trace to follow")
     """
-    log("trace stuff logger %s dateLogger %s", True)
-    if self.isEnabledFor(self._TRACE):
-        self._log(self._TRACE, msg, args, **kwargs)
+    log("trace stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)), True)
+    if self.isEnabledFor(_TRACE):
+        self._log(_TRACE, msg, args, **kwargs)
 
   def xx_isEnabledFor(self, level):
     """
@@ -340,7 +341,7 @@ class XmlHandler(BufferingHandler):
     config = self._config
     
     # TODO for degug
-    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)), True)
+    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)))
     
     if os.path.exists(targetFile):
       msg = "XmlHandler target file %s existing yet" % targetFile
@@ -403,7 +404,7 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
     logger.setLevel(logger.DEBUG)
 
 
-def setFileHandler(logger, config):
+def setFileHandler(cmdInstance):
   """
   add file handler to logger to set log files
   for salometools command. 
@@ -418,10 +419,13 @@ def setFileHandler(logger, config):
   |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
   |   etc.
   """
+  logger = cmdInstance.getLogger()
+  config = cmdInstance.getConfig()
+  
   #import src.debug as DBG # avoid cross import
-  log("setFileHandler %s" % logger, True)
-  log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)), True)
-  log("setFileHandler TODO set log_dir config.LOCAL.log_dir", True)
+  log("setFileHandler %s" % logger)
+  log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)))
+  log("setFileHandler TODO set log_dir config.LOCAL.log_dir")
   
   log_dir = "TMP" # TODO for debug config.LOCAL.log_dir # files xml
   log_dir_out = os.path.join(log_dir, "OUT") # files txt
@@ -429,14 +433,22 @@ def setFileHandler(logger, config):
   UTS.ensure_path_exists(log_dir_out)
   datehour = config.VARS.datehour
   cmd = config.VARS.command
+  fullNameCmd = cmdInstance.getFullNameStr()
   hostname = config.VARS.hostname
   nameFileXml = "%s_%s_%s.xml" % (datehour, cmd, hostname)
   nameFileTxt = "%s_%s_%s.txt" % (datehour, cmd, hostname)
   fileXml = os.path.join(log_dir, nameFileXml)
   fileTxt = os.path.join(log_dir_out, nameFileTxt)
   
+  # precaution
+  lastCmd = cmdInstance.getFullNameList()[-1]
+  if cmd != lastCmd:
+    msg = "setFileHandler '%s' command name incoherency in config '%s'" % (fullNameCmd, cmd)
+    logger.critical(msg)
+
   nbhandl = len(logger.handlers) # number of current handlers
   if nbhandl == 1: # first main command
+    log("setFileHandler '%s' main command" % fullNameCmd, True)
     # Logging vers file xml
     
     handler = XmlHandler(1000) # log outputs in memory
@@ -462,10 +474,10 @@ def setFileHandler(logger, config):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-  if nbhandl > 1: # secondary micro command
-    log("setFileHandler micro command %s" % config.VARS.command, True)
+  elif nbhandl > 1: # secondary micro command
+    log("TODO setFileHandler '%s' micro command" % fullNameCmd, True)
    
-  log("setFileHandler %s" % logger, True)
+  log("setFileHandler %s" % logger)
 
 
 def getDefaultLogger():

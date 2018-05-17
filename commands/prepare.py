@@ -82,7 +82,7 @@ class Command(_BaseCommand):
     products_infos = self.get_products_list(options, config)
 
     # Construct the arguments to pass to the clean, source and patch commands
-    args_appli = config.VARS.application + ' '
+    args_appli = config.VARS.application
     args_product_opt = '--products '
     if options.products:
         for p_name in options.products:
@@ -120,9 +120,9 @@ Use the --force_patch option to overwrite it.
                                                      logger)
 
     # Construct the final commands arguments
-    args_clean = args_appli + args_product_opt_clean + " --sources"
-    args_source = args_appli + args_product_opt  
-    args_patch = args_appli + args_product_opt_patch
+    args_clean = "%s --sources" % (args_product_opt_clean)
+    args_source = "%s" % (args_product_opt) 
+    args_patch = "%s" % (args_product_opt_patch)
 
     # If there is no more any product in the command arguments,
     # do not call the concerned command 
@@ -130,30 +130,34 @@ Use the --force_patch option to overwrite it.
     do_clean = not(oExpr.search(args_product_opt_clean))
     do_source = not(oExpr.search(args_product_opt))
     do_patch = not(oExpr.search(args_product_opt_patch))
-    
-    
+       
     # Initialize the results to Ok but nothing done status
     res_clean = RCO.ReturnCode("OK", "nothing done")
     res_source = RCO.ReturnCode("OK", "nothing done")
     res_patch = RCO.ReturnCode("OK", "nothing done")
 
-    # return res_clean + res_source + res_patch
-
     # Call the commands using the API
     if do_clean:
         msg = _("Clean the source directories ...")
-        logger.info(msg)
-        DBG.tofix("args_clean and TODO remove returns", args_clean, True)
-        res_clean = runner.getCommand("clean").run(args_clean)
-        return res_clean + res_source + res_patch
+        logger.info(msg + "(%s)" % args_clean)
+        mCmd = self.getMicroCommand("clean", args_appli)
+        res_clean = mCmd.run(args_clean)
+        logger.warning(str(res_clean))
+        return res_clean # TODO debug remove that
+        
     if do_source:
         msg = _("Get the sources of the products ...")
-        logger.debug(msg)
-        res_source = runner.getCommand("source").run(args_source)
+        logger.info(msg + "(%s)" % args_source)
+        mCmd = self.getMicroCommand("source", args_appli)
+        res_source = mCmd.run(args_source)
+        logger.warning(str(res_source))
+        
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
-        logger.debug(msg)
-        res_patch = runner.getCommand("patch").run(args_patch)
+        logger.info(msg + "(%s)" % args_patch)
+        mCmd = self.getMicroCommand("patch", args_appli)
+        res_patch = mCmd.run(args_patch)
+        logger.warning(str(res_patch))
     
     return res_clean + res_source + res_patch
 

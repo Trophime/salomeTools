@@ -129,24 +129,19 @@ The '--properties' options must have the following syntax:
                                                 options.sources_without_dev)
     
     if len(l_dir_to_suppress) == 0:
-        sat_command = ("sat -h clean")
-        msg = _("Nothing to suppress, Please specify what you want to suppress.")
-        logger.error(msg + "\nsee: '%s'\n" % sat_command)
-        return RCO.ReturnCode("KO", "specify what you want to suppress")
+        msg = _("Specify what you want to suppress in clean command.")
+        logger.error(msg + "\n(see: 'sat -h clean')")
+        return RCO.ReturnCode("KO", "to suppress in clean command")
     
     # Check with the user if he really wants to suppress the directories
-    if not runner.options.batch:
-        msg = _("Remove the following directories ?\n")
-        for directory in l_dir_to_suppress:
-            msg += "  %s\n" % directory
-        logger.info(msg)
-        rep = input(_("Are you sure you want to continue? [Yes/No] "))
-        if rep.upper() != _("YES"):
-            return RCO.ReturnCode("OK", "user do not want to continue")
-    
+    msg = UTS.red(_("Remove the following directories:\n"))
+    for directory in l_dir_to_suppress:
+        msg += "  %s\n" % directory 
+    if runner.getAnswer(msg[:-1]) == "No":
+        return RCO.ReturnCode("OK", "user do not want to continue")
+
     # Suppress the list of paths
-    suppress_directories(l_dir_to_suppress, logger)
-    
+    suppress_directories(l_dir_to_suppress, logger) 
     return RCO.ReturnCode("OK", "clean done")
     
 

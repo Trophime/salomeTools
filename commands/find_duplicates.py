@@ -26,10 +26,10 @@ from src.salomeTools import _BaseCommand
 
 
 default_extension_ignored = \
-    'html png txt js xml cmake gif m4 in pyo pyc doctree css'.split()
+  'html png txt js xml cmake gif m4 in pyo pyc doctree css'.split()
 
 default_files_ignored = \
-    '__init__.py Makefile.am VERSION build_configure README AUTHORS NEWS COPYING ChangeLog'.split()
+  '__init__.py Makefile.am VERSION build_configure README AUTHORS NEWS COPYING ChangeLog'.split()
 
 default_directories_ignored = []
 

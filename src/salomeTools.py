@@ -159,7 +159,7 @@ class _BaseCommand(object):
     """
   
     # supposed never seen, set "config", "prepare"... in inherited commands
-    name = "salomeTools"
+    name = "NoName"
     
     def __init__(self, runner):
         # runner (as caller) usually as Sat instance
@@ -169,6 +169,38 @@ class _BaseCommand(object):
         # logger (from caller) usually as Sat instance logger, but sometimes local value
         self._logger = runner.logger
         self._options = None
+        self._fullName = [] # example '[prepare','clean'] when micro command 'clean' of 'prepare'
+        
+    def initFullName(self, parentFullName=[]):
+        """
+        initialize full name of command instance, one call only.
+        parentFullName supposedly as list (as parent full name)
+
+        | example values of self._full name:
+        | ['prepare'] if main command 'prepare'. 
+        | ['prepare', 'clean'] if micro command 'clean' from command 'prepare'. 
+        """
+        # DBG.write("initFullName", (self._fullName, parentFullName))
+        if len(self._fullName) != 0: # ne call only
+          raise Exception("full name initialized yet '%s'" % self.getFullNameStr())
+        if len(self._fullName) > 10: # Houston problem
+          raise Exception("full name too long '%s'" % self.getFullNameStr())
+        if type(parentFullName) == str:
+          pfn = parentFullName.split("_") # if from  string 'prepare_clean'
+        elif type(parentFullName) == list:
+          pfn = list(parentFullName) # make copy precaution
+        else:
+          raise Exception("type parent full name unexpected '%s'" % parentFullName)
+        self._fullName = pfn + [self.name] # make copy precaution
+        DBG.write("initFullName", self._fullName)
+          
+    def getFullNameStr(self):
+        """returns 'prepare_clean' when micro command 'clean' of 'prepare'"""
+        return "_".join(self._fullName)
+  
+    def getFullNameList(self):
+        """returns precaution copy as list of self._fullName"""
+        return list(self._fullName)
         
     def getClassName(self):
         """
@@ -182,6 +214,33 @@ class _BaseCommand(object):
         tmp = PP.pformat(self.__dict__)
         res = "%s(\n %s)\n" % (self.getClassName(), tmp[1:-1])
         return res
+        
+    def getMicroCommand(self, nameCommandToLoad, nameAppliToLoad):
+        """
+        get micro command instance from current command instance
+        returns inherited instance of Command(_BaseCmd) for command 'name'
+        if module not loaded yet, load it.
+        """
+        # create/get dynamically the command instance to call its 'run' method
+        runner = self.getRunner()
+        options = runner.getOptions() # generic main options
+             
+        # load micro command config
+        cfgMgr = CFGMGR.ConfigManager(self)
+        DBG.write("getMicroCommand nameCommandToLoad '%s'" % nameCommandToLoad, nameAppliToLoad)
+        config = cfgMgr.get_config(nameAppliToLoad, options, nameCommandToLoad, datadir=None)
+        
+        cmdInstance = runner.getCommand(nameCommandToLoad)
+        
+        # some initialisation stuff
+        cmdInstance.initFullName(self.getFullNameList()) # as micro command
+        cmdInstance.setConfig(config) # micro command config
+        cmdInstance.setOptions(options)
+        
+        import src.loggingSat as LOG # avoid cross import
+        LOG.setFileHandler(cmdInstance)
+        
+        return cmdInstance
 
     def run(self, cmd_arguments):
         """
@@ -194,18 +253,24 @@ class _BaseCommand(object):
         """set logger for run command"""
         if self._logger is not None:
           # supposed logger.debug for future
-          self._logger.warning("change logger for %s, are you sure" % self.getClassName())
+          self._logger.warning("change logger for %s, are you sure" % self.getFullNameStr())
         self._logger = logger
             
     def getLogger(self):
         if self._logger is None:
-          raise Exception("%s instance needs self._logger not None, fix it." % self.getClassName())
+          raise Exception("%s instance needs self._logger not None, fix it." % self.getFullNameStr())
         else:
           return self._logger
 
+    def setOptions(self, options):
+        if self._options is None:
+          self._options = options
+        else:
+          raise Exception("%s command instance have options yet, Fix it." % self.getFullName())
+
     def getOptions(self):
         if self._options is None:
-          raise Exception("%s instance needs self._option not None, fix it." % self.getClassName())
+          raise Exception("%s instance needs self._option not None, fix it." % self.getFullNameStr())
         else:
           return self._options
     
@@ -217,19 +282,34 @@ class _BaseCommand(object):
 
     def getRunner(self):
         if self._runner is None:
-          raise Exception("%s instance needs self.runner not None, fix it." % self.getClassName())
+          raise Exception("%s instance needs self.runner not None, fix it." % self.getFullNameStr())
         else:
           return self._runner
 
-    def getConfig(self):
+    def getConfigObsolete(self):
         """
         supposedly (for now) no multiply local config(s)
         only one config in runner.config
         may be some for future...
         """
         if self._runner.config is None:
-          self._logger.error("%s instance have runner.config None, fix it." % self.getClassName())
+          self._logger.error("%s command instance have runner.config None, Fix it." % self.getFullNameStr())
         return self._runner.config
+
+    def getConfig(self):
+        """
+        supposedly  multiply local config(s)
+        only one config for each command instance
+        """
+        if self._config is None:
+          raise Exception("%s command instance have config None, Fix it." % self.getFullNameStr())
+        return self._config
+        
+    def setConfig(self, config):
+        if self._config is None:
+          self._config = config
+        else:
+          raise Exception("%s command instance have config yet, Fix it." % self.getFullName())
       
     def get_products_list(self, options, config):
         return CFGMGR.get_products_list(options, config)
@@ -245,14 +325,16 @@ class _BaseCommand(object):
         smart parse command arguments skip
         first argument name appli to load, if present
         """
+        verb = False
         argList = self.assumeAsList(cmd_arguments)
-        DBG.write("%s.Command arguments" % self.name, argList)
+        fullName = self.getFullNameStr()
+        DBG.write("%s.Command arguments" % fullName, argList, verb)
         commandOptions, remaindersArgs = self.getParser().parse_args(argList)
-        DBG.write("%s.Command options" % self.name, commandOptions)
-        DBG.write("%s.Command remainders arguments" % self.name, remaindersArgs)
+        DBG.write("%s.Command options" % fullName, commandOptions, verb)
+        DBG.write("%s.Command remainders arguments" % fullName, remaindersArgs, verb)
         if remaindersArgs != []:
-          self.getLogger().error("%s.Command have unknown remainders arguments:\n%s\n" % \
-                                 (self.name, remaindersArgs))
+          msg = "%s.Command have unknown remainders arguments:\n(%s)" % (fullName, " ".join(remaindersArgs))
+          self.getLogger().error(msg)
         return commandOptions, remaindersArgs
     
     def description(self):
@@ -292,6 +374,7 @@ class _BaseCommand(object):
         # description of the command options
         msg += self.getParser().get_help() + "\n"
         return msg
+        
 
 ########################################################################
 # Sat class
@@ -315,7 +398,7 @@ class Sat(object):
         self.config = None # the config that will be read using pyconf module
         self.logger = logger # the logger that will be use
         self.arguments = None # args are postfixes options: args[0] is the 'commands' command
-        self.options = None # the options passed to salomeTools
+        self.options = None # the main generic options passed to salomeTools
         
         # the directory that contain all the external 
         # data (like software pyconf and software scripts)
@@ -353,6 +436,9 @@ class Sat(object):
         
     def getConfig(self):
         return self.config
+        
+    def getOptions(self):
+        return self.options
         
     def assumeAsList(self, strOrList):
         return assumeAsList(strOrList)
@@ -444,28 +530,35 @@ class Sat(object):
         # if the help option has been called, print command help and returns
         if self.options.help:
             self.print_help()
-            return RCO.ReturnCode("OK", "Option --help")
+            return RCO.ReturnCode("OK", "Option --help") # and returns
        
         self.nameCommandToLoad, self.nameAppliToLoad, self.commandArguments = \
              self.getCommandAndAppli(remainderArgs)
              
-        cfgManager = CFGMGR.ConfigManager(self)
-        self.config = cfgManager.get_config(
-                        application=self.nameAppliToLoad,
-                        options=self.options,
-                        command=self.nameCommandToLoad,
-                        datadir=None)
+        cfgMgr = CFGMGR.ConfigManager(self)
+        # as main config
+        config = cfgMgr.get_config(self.nameAppliToLoad, self.options, self.nameCommandToLoad, datadir=None)
+        self.config = config # runner.config main config 
         
         # create/get dynamically the command instance to call its 'run' method
         cmdInstance = self.getCommand(self.nameCommandToLoad)
-        import src.loggingSat as LOG # avoid cross import
-        LOG.setFileHandler(self.getLogger(), self.getConfig())
         
-        # Run the command using the arguments
+        # some initialisation stuff
+        cmdInstance.initFullName() # as main command
+        cmdInstance.setConfig(config) 
+        import src.loggingSat as LOG # avoid cross import
+        LOG.setFileHandler(cmdInstance)
+        
+        # Run the main command using the remainders command arguments
         returnCode = cmdInstance.run(self.commandArguments)
+        
         return returnCode
         
     def getCommandAndAppli(self, arguments):
+        """
+        returns name command to load and name appli to load
+        and command to load remainders arguments
+        """
         args = self.assumeAsList(arguments)
         namecmd, nameAppli, remainderArgs = None, None, []
         iremain = 0
@@ -480,8 +573,7 @@ class Sat(object):
         remainderArgs = args[iremain:]
         res = (namecmd, nameAppli, remainderArgs)
         DBG.write("getCommandAndAppli", res)
-        return res
-        
+        return res      
       
     def get_help(self):
         """get general help colored string"""
@@ -515,6 +607,29 @@ class Sat(object):
         msg = "<header>Version:<reset> " + version
         return msg
    
+    def getConfirmMode(self):
+        return False
+    
+    def getBatchMode(self):
+        return True
+        
+    def getAnswer(self, msg):
+        """
+        question and user answer (in console) if confirm mode and not batch mode
+        returns 'YES' or 'NO' if confirm mode and not batch mode
+        returns 'YES' if batch mode
+        """
+        if self.getConfirmMode() and not self.getBatchMode():       
+          self.getLogger().info(msg)
+          rep = input(_("Are you sure you want to continue? [yes/no]"))
+          if rep.upper() == _("YES"):
+            return "YES"
+          else:
+            return "NO"
+        else:
+          self.getLogger().info(msg)
+          self.getLogger().info("<green>YES<reset> (as automatic answer)")
+          return "YES"
        
 
 

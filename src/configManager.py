@@ -162,7 +162,9 @@ class ConfigManager:
         return var
 
     def get_command_line_overrides(self, options, sections):
-        """get all the overwrites that are in the command line
+        """get all the overwrites that are in the command line.
+        When there are no options or not the overwrite option, 
+        return an empty list
         
         :param options:
           The options from salomeTools class initialization 
@@ -170,8 +172,7 @@ class ConfigManager:
         :param sections: (str) The config section to overwrite.
         :return: (list) The list of all the overwrites to apply.
         """
-        # when there are no options or not the overwrite option, 
-        # return an empty list
+        # DBG.write("get_command_line_overrides options", options)
         if options is None or options.overwrite is None:
             return []
         
@@ -336,7 +337,7 @@ class ConfigManager:
             cp = cfg.PATHS.APPLICATIONPATH
             PYCONF.streamOpener = ConfigOpener(cp)
             do_merge = True
-            aFile = application + '.pyconf'
+            aFile = application.replace(" ", "") + '.pyconf'
             try:
               application_cfg = PYCONF.Config(aFile)
             except IOError as e:

@@ -66,7 +66,7 @@ if __name__ == "__main__":
     except Exception as e:
       # error as may be unknown problem
       # verbose debug message with traceback if developers
-      msg = "Exception raised for execute_cli(%s):\n" % args
+      msg = "Exception raised for execute_cli (%s):\n" % " ".join(args)
       logger.critical(DBG.format_color_exception(msg)) 
       logger.close()
       sys.exit(KOSYS)

@@ -57,6 +57,8 @@ import src.debug as DBG
 
 verbose = False #True
 
+_TRACE = LOGI.INFO - 2 # just below info
+
 class LoggerSat(LOGI.Logger):
   """
   Elementary prototype for logger sat
@@ -68,15 +70,13 @@ class LoggerSat(LOGI.Logger):
   see: /usr/lib64/python2.7/logging/xxx__init__.py etc.
   """
   
-  _TRACE = LOGI.INFO - 2 # just below
-  
   def __init__(self, name, level=LOGI.INFO):
     """
     Initialize the logger with a name and an optional level.
     """
     super(LoggerSat, self).__init__(name, level)
-    LOGI.addLevelName(self._TRACE, "TRACE")
-    # LOGI.TRACE = self._TRACE # only for coherency,
+    LOGI.addLevelName(_TRACE, "TRACE")
+    # LOGI.TRACE = _TRACE # only for coherency,
     
   def trace(self, msg, *args, **kwargs):
     """
@@ -87,8 +87,8 @@ class LoggerSat(LOGI.Logger):
 
     logger.trace("Houston, we have a %s", "long trace to follow")
     """
-    if self.isEnabledFor(self._TRACE):
-        self._log(self._TRACE, msg, args, **kwargs)
+    if self.isEnabledFor(_TRACE):
+        self._log(_TRACE, msg, args, **kwargs)
 
 class TestCase(unittest.TestCase):
   "Test the debug.py"""
