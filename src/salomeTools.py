@@ -63,12 +63,6 @@ cmdsdir = os.path.join(rootdir, "commands")
 # load resources for internationalization
 gettext.install("salomeTools", os.path.join(srcdir, "i18n"))
 
-# The possible hooks : 
-# pre is for hooks to be executed before commands
-# post is for hooks to be executed after commands
-C_PRE_HOOK = "pre"
-C_POST_HOOK = "post"
-
 _LANG = os.environ["LANG"] # original locale
 
 ########################################################################
@@ -223,6 +217,7 @@ class _BaseCommand(object):
         """
         # create/get dynamically the command instance to call its 'run' method
         runner = self.getRunner()
+        logger = self.getLogger()
         options = runner.getOptions() # generic main options
              
         # load micro command config
@@ -237,8 +232,7 @@ class _BaseCommand(object):
         cmdInstance.setConfig(config) # micro command config
         cmdInstance.setOptions(options)
         
-        import src.loggingSat as LOG # avoid cross import
-        LOG.setFileHandler(cmdInstance)
+        logger.setFileHandler(cmdInstance)
         
         return cmdInstance
 
@@ -532,25 +526,34 @@ class Sat(object):
             self.print_help()
             return RCO.ReturnCode("OK", "Option --help") # and returns
        
-        self.nameCommandToLoad, self.nameAppliToLoad, self.commandArguments = \
-             self.getCommandAndAppli(remainderArgs)
+        nameCommand, nameAppli, commandArguments = self.getCommandAndAppli(remainderArgs)
+        # for permanence
+        self.nameCommandToLoad = nameCommand
+        self.nameAppliToLoad = nameAppli
+        self.commandArguments = commandArguments
              
         cfgMgr = CFGMGR.ConfigManager(self)
         # as main config
-        config = cfgMgr.get_config(self.nameAppliToLoad, self.options, self.nameCommandToLoad, datadir=None)
+        config = cfgMgr.get_config(nameAppli, self.options, nameCommand, datadir=None)
         self.config = config # runner.config main config 
         
         # create/get dynamically the command instance to call its 'run' method
-        cmdInstance = self.getCommand(self.nameCommandToLoad)
+        cmdInstance = self.getCommand(nameCommand)
         
         # some initialisation stuff
         cmdInstance.initFullName() # as main command
-        cmdInstance.setConfig(config) 
-        import src.loggingSat as LOG # avoid cross import
-        LOG.setFileHandler(cmdInstance)
+        cmdInstance.setConfig(config)
+        
+        logger = self.getLogger()
+        logger.setFileHandler(cmdInstance)
         
         # Run the main command using the remainders command arguments
-        returnCode = cmdInstance.run(self.commandArguments)
+        strArgs = " ".join(commandArguments)
+        msg = "BEGIN main launch command %s on (%s)" % (self.nameCommandToLoad, strArgs)
+        logger.step(msg)
+        returnCode = cmdInstance.run(commandArguments)
+        msg = "END main launch command %s on (%s)\n%s" % (self.nameCommandToLoad, strArgs, str(returnCode))
+        logger.step(msg)
         
         return returnCode
         

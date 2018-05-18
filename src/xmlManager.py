@@ -130,6 +130,18 @@ class XmlLogFile(object):
                 # append the text
                 field.text += text
 
+    def set_node_text(self, node_name, text):
+        """Set/overwrite a new text to the node that has node_name as name
+        
+        :param node_name: (str) The name of the node on which append text
+        :param text: (str) The text to append
+        """
+        # find the corresponding node
+        for field in self.xmlroot:
+            if field.tag == node_name:
+                # append the text
+                field.text = text
+
     def append_node_attrib(self, node_name, attrib):
         """Append a new attributes to the node that has node_name as name
         
@@ -174,7 +186,7 @@ class XmlLogFile(object):
         self.add_simple_node("Site", attrib=atts)
         
         # The initialization of the node Log
-        self.add_simple_node("Log", text="")
+        self.add_simple_node("Log", text="Empty trace")
         
         # The system commands logs
         self.add_simple_node("OutLog", text=self.relPath(self.txtFile))
@@ -183,6 +195,13 @@ class XmlLogFile(object):
         # where to put the links to the other sat commands (micro commands)
         # called by any first main command
         self.add_simple_node("Links")
+        
+    def put_log_field(self, text):
+        """
+        fill log field for resume command log
+        with level step to critical, but without info? (could be verbose)
+        """
+        self.set_node_text("Log", text)
         
     def put_links_fields(self, links):
         """

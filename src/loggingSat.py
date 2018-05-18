@@ -21,6 +21,10 @@ salomeTools logger. using logging package
 | file handlers:
 |   - info() error() warning() trace() debug() etc. :
 |      formatted indented on multi lines messages using handlers
+|
+| WARNING:
+|  log step are present in xml 'command's internal traces' (which exclude info for resume concision)
+|  log trace are present in xml 'output log' (as result of verbose subprocess make etc)
 """
 
 """
@@ -56,7 +60,10 @@ _name = "loggingSat"
 _loggerDefaultName = 'SatDefaultLogger'
 _loggerUnittestName = 'SatUnittestLogger'
 
-_TRACE = LOGI.INFO - 2 # trace level is just below INFO
+_STEP = LOGI.INFO - 1 # step level is just below INFO
+_TRACE = LOGI.INFO - 2 # trace level is just below STEP
+
+LOGI.STEP = _STEP # only for coherency,
 LOGI.TRACE = _TRACE # only for coherency,
 
 #################################################################
@@ -142,10 +149,12 @@ class LoggerSat(LOGI.Logger):
   """
   Inherited class logging.Logger for logger salomeTools
   
+  | add a level STEP as log.step(msg) 
   | add a level TRACE as log.trace(msg) 
   | below log.info(msg)
   | above log.debug(msg)
-  | to assume store long log asci in files txt under/outside files xml
+  | to assume message step inside files xml 'command's internal traces'
+  | to assume store long log asci in files txt outside files xml
   | 
   | see: /usr/lib64/python2.7/logging/__init__.py etc.
   """
@@ -155,9 +164,12 @@ class LoggerSat(LOGI.Logger):
     Initialize the logger with a name and an optional level.
     """
     super(LoggerSat, self).__init__(name, level)
+    LOGI.addLevelName(_STEP, "STEP")
     LOGI.addLevelName(_TRACE, "TRACE")
     self.dateLogger = "NoDateLogger"
     self.closed = False
+    self.STEP = _STEP
+    self.TRACE = _TRACE
     
   def close(self):
     """
@@ -186,14 +198,18 @@ class LoggerSat(LOGI.Logger):
   def trace(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity '_TRACE'.
-
-    | To pass exception information, 
-    | use the keyword argument exc_info with a true value
-    | >> logger.trace("Houston, we have a %s", "long trace to follow")
     """
     log("trace stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)), True)
     if self.isEnabledFor(_TRACE):
         self._log(_TRACE, msg, args, **kwargs)
+
+  def step(self, msg, *args, **kwargs):
+    """
+    Log 'msg % args' with severity '_STEP'.
+    """
+    log("step stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)), True)
+    if self.isEnabledFor(_STEP):
+        self._log(_STEP, msg, args, **kwargs)
 
   def xx_isEnabledFor(self, level):
     """
@@ -206,7 +222,82 @@ class LoggerSat(LOGI.Logger):
         return 0
     return level >= self.getEffectiveLevel()
 
-
+  def setFileHandler(self, cmdInstance):
+    """
+    add file handler to logger to set log files
+    for salometools command. 
+    when command is known from pyconf/config instance
+    
+    | Example: 
+    | log files names for command prepare 
+    | with micro commands clean/source/patch
+    |   ~/LOGS/20180510_140606_prepare_lenovo.xml
+    |   ~/LOGS/OUT/20180510_140606_prepare_lenovo.txt
+    |   ~/LOGS/micro_20180510_140607_clean_lenovo.xml
+    |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
+    |   etc.
+    """
+    logger = self
+    config = cmdInstance.getConfig()
+    
+    #import src.debug as DBG # avoid cross import
+    log("setFileHandler %s" % logger)
+    log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)))
+    log("setFileHandler TODO set log_dir config.LOCAL.log_dir")
+    
+    log_dir = "TMP" # TODO for debug config.LOCAL.log_dir # files xml
+    log_dir_out = os.path.join(log_dir, "OUT") # files txt
+    UTS.ensure_path_exists(log_dir)
+    UTS.ensure_path_exists(log_dir_out)
+    datehour = config.VARS.datehour
+    cmd = config.VARS.command
+    fullNameCmd = cmdInstance.getFullNameStr()
+    hostname = config.VARS.hostname
+    nameFileXml = "%s_%s_%s.xml" % (datehour, cmd, hostname)
+    nameFileTxt = "%s_%s_%s.txt" % (datehour, cmd, hostname)
+    fileXml = os.path.join(log_dir, nameFileXml)
+    fileTxt = os.path.join(log_dir_out, nameFileTxt)
+    
+    # precaution
+    lastCmd = cmdInstance.getFullNameList()[-1]
+    if cmd != lastCmd:
+      msg = "setFileHandler '%s' command name incoherency in config '%s'" % (fullNameCmd, cmd)
+      logger.critical(msg)
+  
+    nbhandl = len(logger.handlers) # number of current handlers
+    if nbhandl == 1: # first main command
+      log("setFileHandler '%s' main command" % fullNameCmd, True)
+      # Logging vers file xml
+      
+      handler = XmlHandler(3000) # no many log outputs in memory
+      handler.setLevel(LOGI.STEP)
+      handler.set_name(nameFileXml)
+      handler.set_target_file(fileXml)
+      handler.set_config(config)
+      
+      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      formatter = FileXmlFormatter(fmt, "%y-%m-%d %H:%M:%S")
+      
+      handler.setFormatter(formatter)
+      logger.addHandler(handler)
+      
+      # Logging vers file txt
+      handler = LOGI.FileHandler(fileTxt)
+      handler.setLevel(LOGI.TRACE)
+      handler.set_name(nameFileTxt)
+      
+      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      formatter = FileTxtFormatter(fmt, "%y-%m-%d %H:%M:%S")
+      
+      handler.setFormatter(formatter)
+      logger.addHandler(handler)
+  
+    elif nbhandl > 1: # secondary micro command
+      log("TODO setFileHandler '%s' micro command" % fullNameCmd, True)
+     
+    log("setFileHandler %s" % logger)
+  
+  
 #################################################################
 class DefaultFormatter(LOGI.Formatter):
   
@@ -214,6 +305,7 @@ class DefaultFormatter(LOGI.Formatter):
   _ColorLevelname = {
     "DEBUG": "<green>",
     "TRACE": "<green>",
+    "STEP": "<green>",
     "INFO":  "<green>",
     "WARNING": "<red>",
     "ERROR": "<yellow>",
@@ -265,6 +357,16 @@ class FileTxtFormatter(LOGI.Formatter):
 
 
 #################################################################
+class FileXmlFormatter(LOGI.Formatter):
+  def format(self, record):
+    # print "", record.levelname #type(record), dir(record)
+    # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
+    res = super(FileXmlFormatter, self).format(record)
+    res = indentUnittest(res)
+    return COLS.cleanColors(res)
+
+
+#################################################################
 class UnittestStream(object):
   """
   write my stream class
@@ -308,6 +410,7 @@ class XmlHandler(BufferingHandler):
     super(XmlHandler, self).__init__(capacity)
     self._target_file = None
     self._config = None
+    self._log_field = "Uninitiate log"
     self._links_fields = [] # list of (log_file_name, cmd_name, cmd_res, full_launched_cmd)
     self._final_fields = {} # node attributes
     
@@ -340,15 +443,22 @@ class XmlHandler(BufferingHandler):
     targetFile = self._target_file
     config = self._config
     
-    # TODO for degug
-    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)))
+    # TODO for debug
+    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)), True)
+    self._log_field = self.createLogField()
     
     if os.path.exists(targetFile):
       msg = "XmlHandler target file %s existing yet" % targetFile
       log(msg, True) #avoid sat logging message in logger close phase
-      
+      return # avoid overwrite
+    
+    else: # TOFIX for debug
+      msg = "XmlHandler target file NOT %s existing yet" % targetFile
+      log(msg, True) #avoid sat logging message in logger close phase
+       
     xmlFile = XMLMGR.XmlLogFile(targetFile, "SATcommand")
     xmlFile.put_initial_fields(config)    
+    xmlFile.put_log_field(self._log_field)
     xmlFile.put_links_fields(self._links_fields)
     xmlFile.put_final_fields(self._final_fields) 
     xmlFile.write_tree(stylesheet = "command.xsl")
@@ -356,6 +466,40 @@ class XmlHandler(BufferingHandler):
     
     # zaps the buffer to empty as parent class
     super(XmlHandler, self).close()
+    
+  def createLogFieldFromScrath(self):
+    """
+    prepare formatted string from self.buffer LogRecord for xml 'Log' node
+    local format
+    """
+    res = ""
+    for lr in self.buffer:
+       fmt = "%s :: %s\n"
+       levelName = COLS.cleanColors(lr.levelname).replace(" ", "")
+       if levelName != "INFO":
+         msg = COLS.cleanColors(lr.msg)
+         res += fmt % (levelName, msg)
+    if res == "":
+      res = "Empty log"
+    return res
+
+  def createLogField(self):
+    """
+    prepare formatted string from self.buffer LogRecord for xml 'Log' node
+    using handler formatter
+    """
+    fmtr = self.formatter
+    res = ""
+    for lr in self.buffer:
+       if not "INFO" in lr.levelname: #skip info level
+         res += fmtr.format(lr) + "\n"
+    if res == "":
+      res = "Empty log"
+    print res
+    return COLS.cleanColors(res)
+
+    
+    
     
 #################################################################
 # methods to define two LoggerSat instances in salomeTools, 
@@ -375,7 +519,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
     handler.setFormatter(formatter)
   logger.addHandler(handler)
   if level is not None:
-    logger.setLevel(level)
+    logger.setLevel(logger.STEP)
   else:
     logger.setLevel(logger.INFO)
 
@@ -402,82 +546,6 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
     logger.setLevel(level)
   else:
     logger.setLevel(logger.DEBUG)
-
-
-def setFileHandler(cmdInstance):
-  """
-  add file handler to logger to set log files
-  for salometools command. 
-  when command is known from pyconf/config instance
-  
-  | Example: 
-  | log files names for command prepare 
-  | with micro commands clean/source/patch
-  |   ~/LOGS/20180510_140606_prepare_lenovo.xml
-  |   ~/LOGS/OUT/20180510_140606_prepare_lenovo.txt
-  |   ~/LOGS/micro_20180510_140607_clean_lenovo.xml
-  |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
-  |   etc.
-  """
-  logger = cmdInstance.getLogger()
-  config = cmdInstance.getConfig()
-  
-  #import src.debug as DBG # avoid cross import
-  log("setFileHandler %s" % logger)
-  log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)))
-  log("setFileHandler TODO set log_dir config.LOCAL.log_dir")
-  
-  log_dir = "TMP" # TODO for debug config.LOCAL.log_dir # files xml
-  log_dir_out = os.path.join(log_dir, "OUT") # files txt
-  UTS.ensure_path_exists(log_dir)
-  UTS.ensure_path_exists(log_dir_out)
-  datehour = config.VARS.datehour
-  cmd = config.VARS.command
-  fullNameCmd = cmdInstance.getFullNameStr()
-  hostname = config.VARS.hostname
-  nameFileXml = "%s_%s_%s.xml" % (datehour, cmd, hostname)
-  nameFileTxt = "%s_%s_%s.txt" % (datehour, cmd, hostname)
-  fileXml = os.path.join(log_dir, nameFileXml)
-  fileTxt = os.path.join(log_dir_out, nameFileTxt)
-  
-  # precaution
-  lastCmd = cmdInstance.getFullNameList()[-1]
-  if cmd != lastCmd:
-    msg = "setFileHandler '%s' command name incoherency in config '%s'" % (fullNameCmd, cmd)
-    logger.critical(msg)
-
-  nbhandl = len(logger.handlers) # number of current handlers
-  if nbhandl == 1: # first main command
-    log("setFileHandler '%s' main command" % fullNameCmd, True)
-    # Logging vers file xml
-    
-    handler = XmlHandler(1000) # log outputs in memory
-    handler.setLevel(LOGI.INFO)
-    handler.set_name(nameFileXml)
-    handler.set_target_file(fileXml)
-    handler.set_config(config)
-    
-    fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
-    formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
-    
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    
-    # Logging vers file txt
-    handler = LOGI.FileHandler(fileTxt)
-    handler.setLevel(LOGI.TRACE)
-    handler.set_name(nameFileTxt)
-    
-    fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
-    formatter = FileTxtFormatter(fmt, "%Y-%m-%d %H:%M:%S")
-    
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-  elif nbhandl > 1: # secondary micro command
-    log("TODO setFileHandler '%s' micro command" % fullNameCmd, True)
-   
-  log("setFileHandler %s" % logger)
 
 
 def getDefaultLogger():
