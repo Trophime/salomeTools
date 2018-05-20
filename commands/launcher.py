@@ -20,7 +20,6 @@
 import platform
 import shutil
 import getpass
-import subprocess
 import stat
 
 import src.debug as DBG
@@ -89,7 +88,7 @@ class Command(_BaseCommand):
 
     # Generate a catalog of resources if the corresponding option was called
     if options.gencat:
-        catalog_path = generate_catalog(options.gencat.split(","), config, logger)
+        catalog_path = UTS.generate_catalog(options.gencat.split(","), config, logger)
         additional_environ = copy_catalog(config, catalog_path)
 
     # Generate the launcher
@@ -182,76 +181,6 @@ def generate_launch_file(config,
              stat.S_IXGRP |
              stat.S_IXOTH)
     return filepath
-
-
-def generate_catalog(machines, config, logger):
-    """Generates an xml catalog file from a list of machines.
-    
-    :param machines: (list) The list of machines to add in the catalog   
-    :param config: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (str) The catalog file path.
-    """
-    # remove empty machines
-    machines = map(lambda l: l.strip(), machines)
-    machines = filter(lambda l: len(l) > 0, machines)
-    
-    # log something
-    logger.debug("  %s = %s\n" % \
-                 (_("Generate Resources Catalog"), ", ".join(machines)) )
-    
-    # The command to execute on each machine in order to get some information
-    cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
-    user = getpass.getuser()
-
-    # Create the catalog path
-    catfile = UTS.get_tmp_filename(config, "CatalogResources.xml")
-    catalog = file(catfile, "w")
-    
-    # Write into it
-    catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
-    for k in machines:
-        logger.debug("    ssh %s " % (k + " ").ljust(20, '.'))
-
-        # Verify that the machine is accessible
-        ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
-        p = subprocess.Popen(ssh_cmd, shell=True,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        p.wait()
-
-        if p.returncode != 0: # The machine is not accessible
-            logger.error("<KO>: The machine %s is not accessible:\n%s\n" % k + 
-                         UTS.red(p.stderr.read()))
-        else:
-            # The machine is accessible, write the corresponding section on
-            # the xml file
-            logger.debug("<OK>: The machine %s is accessible:\n" % k)
-            lines = p.stdout.readlines()
-            freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
-            nb_proc = len(lines) -1
-            memory = lines[-1].split(':')[-1].split()[0].strip()
-            memory = int(memory) / 1000
-
-            catalog.write("    <machine\n")
-            catalog.write("        protocol=\"ssh\"\n")
-            catalog.write("        nbOfNodes=\"1\"\n")
-            catalog.write("        mode=\"interactif\"\n")
-            catalog.write("        OS=\"LINUX\"\n")
-            catalog.write("        CPUFreqMHz=\"%s\"\n" % freq)
-            catalog.write("        nbOfProcPerNode=\"%s\"\n" % nb_proc)
-            catalog.write("        memInMB=\"%s\"\n" % memory)
-            catalog.write("        userName=\"%s\"\n" % user)
-            catalog.write("        name=\"%s\"\n" % k)
-            catalog.write("        hostname=\"%s\"\n" % k)
-            catalog.write("    >\n")
-            catalog.write("    </machine>\n")
-
-    catalog.write("</resources>\n")
-    catalog.close()
-    return catfile
 
 def copy_catalog(config, catalog_path):
     """Copy the xml catalog file into the right location

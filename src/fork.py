@@ -20,7 +20,7 @@ import os
 import sys
 import time
 import pickle
-import subprocess
+import subprocess as SP
 
 
 def show_progress(logger, top, delai, ss=""):
@@ -45,18 +45,13 @@ def write_back(logger, message):
 
 
 def launch_command(cmd, logger, cwd, args=[], log=None):
-    """Launch command"""
+    """Launch command with subprocess.Popen"""
     if log:
         log = file(log, "a")
     logger.info("launch: %s\n" % cmd)
     for arg in args:
         cmd += " " + arg
-    prs = subprocess.Popen(cmd,
-                           shell=True,
-                           stdout=log,
-                           stderr=subprocess.STDOUT,
-                           cwd=cwd,
-                           executable='/bin/bash')
+    prs = SP.Popen(cmd, shell=True, stdout=log, stderr=SP.STDOUT, cwd=cwd, executable='/bin/bash')
     return prs
 
 

@@ -24,9 +24,11 @@ like open a browser or an editor, or call a git command
 | >> import src.system as SYSS
 """
 
-import subprocess
 import os
 import tarfile
+import subprocess as SP
+
+import utilsSat as UTS
 import src.returnCode as RCO
 
 def show_in_editor(editor, filePath, logger):
@@ -47,7 +49,7 @@ def show_in_editor(editor, filePath, logger):
         cmd = editor % filePath
         msg = "show_in_editor command: '%s'" % cmd
         logger.debug(msg)
-        p = subprocess.Popen(cmd, shell=True)
+        p = SP.Popen(cmd, shell=True)
         p.communicate()
         return RCO.ReturnCode("OK", msg)
     except:
@@ -65,35 +67,26 @@ def git_extract(from_what, tag, where, logger, environment=None):
     :param logger: (Logger) The logger instance to use.
     :param environment: (Environ) 
       The environment to source when extracting.
-    :return: (bool) True if the extraction is successful
+    :return: RCO.ReturnCode OK if the extraction is successful
     """
     if not where.exists():
         where.make()
+    whe = str(where)
     if tag == "master" or tag == "HEAD":
-        command = "git clone %(remote)s %(where)s" % \
-                    { 'remote': from_what, 'tag': tag, 'where': str(where) }
+        command = "git clone %(rem)s %(whe)s" %  {'rem': from_what, 'whe': whe}
     else:
         # NOTICE: this command only works with recent version of git
         #         because --work-tree does not work with an absolute path
-        where_git = os.path.join( str(where), ".git" )
-        command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
-                  "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
-        command = command % {'remote': from_what, 
-                             'tag': tag, 
-                             'where': str(where), 
-                             'where_git': where_git }
+        where_git = os.path.join(whe, ".git" )
+        command = r"""\
+rmdir %(whe)s && \
+git clone %(rem)s %(whe)s && \
+git --git-dir=%(whe_git)s --work-tree=%(whe)s checkout %(tag)s"""
+        command = command % {'rem': from_what, 'tag': tag, 'whe': whe, 'whe_git': where_git }
 
-    logger.debug("git_extract \n" + command)
-
-    logger.logTxtFile.write("\n" + command + "\n")
-    logger.logTxtFile.flush()
-    res = subprocess.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
-    return (res == 0)
+    env = environment.environ.environ
+    res = UTS.Popen(command, cwd=str(where.dir()), env=env, shell=True, logger=logger)
+    return res
 
 def archive_extract(from_what, where, logger):
     """Extracts sources from an archive.
@@ -157,12 +150,12 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
 
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()        
-    res = subprocess.call(command,
+    res = SP.call(command,
                           cwd=str(where.dir()),
                           env=environment.environ.environ,
                           shell=True,
                           stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
+                          stderr=SP.STDOUT)
     return (res == 0)
 
 def svn_extract(user,
@@ -208,10 +201,10 @@ def svn_extract(user,
     logger.debug(command)
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
-    res = subprocess.call(command,
+    res = SP.call(command,
                           cwd=str(where.dir()),
                           env=environment.environ.environ,
                           shell=True,
                           stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
+                          stderr=SP.STDOUT)
     return (res == 0)

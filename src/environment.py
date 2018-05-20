@@ -20,7 +20,7 @@
 """
 
 import os
-import subprocess
+import subprocess as SP
 import string
 import sys
 
@@ -167,10 +167,8 @@ class Environ:
         :param key: (str) the environment variable
         :param command: (str) the command to execute
         """
-        value = subprocess.Popen(command,
-                                 shell=True,
-                                 stdout=subprocess.PIPE,
-                                 env=self.environ).communicate()[0]
+        p = SP.Popen(command, shell=True, stdout=SP.PIPE, env=self.environ)
+        value = p.communicate()[0]
         self.environ[key] = value
 
 
@@ -249,10 +247,9 @@ class SalomeEnviron:
         """
         # check if value needs to be evaluated
         if value is not None and value.startswith("`") and value.endswith("`"):
-            res = subprocess.Popen("echo %s" % value,
-                                   shell=True,
-                                   stdout=subprocess.PIPE).communicate()
-            value = res[0].strip()
+            p = SP.Popen("echo %s" % value, shell=True, stdout=SP.PIPE)
+            res = p.communicate()[0]
+            value = res.strip()
 
         return self.environ.set(key, value)
 

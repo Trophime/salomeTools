@@ -406,21 +406,7 @@ def move_test_results(in_dir, what, out_dir, logger):
 def check_remote_machine(machine_name, logger):
     logger.debug(_("Check the display on %s\n") % machine_name)
     ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s "ls"' % machine_name
-    logger.debug(_("Executing the command : %s\n") % ssh_cmd)
-    p = subprocess.Popen(ssh_cmd, 
-                         shell=True,
-                         stdin =subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-    p.wait()
-    if p.returncode != 0:
-        msg = "<KO> on '%s'" % ssh_cmd
-        logger.critical(msg)
-        logger.error(UTS.red(p.stderr.read()))
-        logger.error(UTS.red(_("No ssh access to the display machine %s.") % machine_name))
-    else:
-        logger.debug("<OK>\n")
-
+    res = UTS.Popen(ssh_cmd, shell=True, logger=logger)
 
 def create_test_report(config,
                        xml_history_path,

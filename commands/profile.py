@@ -18,7 +18,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import shutil
-import subprocess
+import subprocess as SP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -195,11 +195,8 @@ def generate_profile_sources( config, options, logger ):
     #Run command
     os.environ["KERNEL_ROOT_DIR"] = kernel_root_dir
     os.environ["GUI_ROOT_DIR"] = gui_root_dir
-    res = subprocess.call(command,
-                    shell=True,
-                    env=os.environ,
-                    stdout=logger.logTxtFile,
-                    stderr=subprocess.STDOUT)
+    res = SP.call(command, shell=True, env=os.environ,
+                  stdout=logger.logTxtFile, stderr=SP.STDOUT)
     #Check result of command
     if res != 0:
         raise Exception(_("Cannot create application, code = %d\n") % res)

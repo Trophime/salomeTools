@@ -336,8 +336,9 @@ def prepare_from_template(config,
                           conf_values,
                           logger):
     """Prepares a module from a template."""
+    res = RCO.ReturnCode("OK", "prepare_from_template has no raise")
+    
     template_src_dir = search_template(config, template)
-    res = 0
 
     # copy the template
     if os.path.isfile(template_src_dir):
@@ -421,20 +422,16 @@ def prepare_from_template(config,
     else:
         definition = tsettings.pyconf % dico
         pyconf_file = os.path.join(target_dir, name + '.pyconf')
-        f = open(pyconf_file, 'w')
-        f.write(definition)
-        f.close
+        with open(pyconf_file, 'w') as f:
+          f.write(definition)
         logger.info(_("Create configuration file: ") + pyconf_file)
 
     if len(tsettings.post_command) > 0:
         cmd = tsettings.post_command % dico
-        logger.info(_("Run post command: ") + cmd)
+        res = UTS.Popen(cmd, shell=True, cwd=target_dir, logger=logger)
         
-        p = subprocess.Popen(cmd, shell=True, cwd=target_dir)
-        p.wait()
-        res = p.returncode
-
     return res
+
 
 def get_template_info(config, template_name, logger):
     sources = search_template(config, template_name)

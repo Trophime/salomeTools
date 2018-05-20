@@ -18,7 +18,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import subprocess
+import subprocess as SP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -93,10 +93,7 @@ Did you run the command 'sat launcher' ?\n""") % launcher_path
     logger.info(_("Executed command <blue>%s<reset> Launching ...\n") % command)
     
     # Run the launcher
-    subprocess.call(command,
-                    shell=True,
-                    stdout=logger.logTxtFile,
-                    stderr=subprocess.STDOUT)
+    SP.call(command, shell=True, stdout=logger.logTxtFile, stderr=SP.STDOUT)
     
     # Display information: how to get the logs
     msg1 = _("End of 'sat run'. To see traces, type:")

@@ -142,22 +142,24 @@ Use the --force_patch option to overwrite it.
         logger.info(msg + "(%s)" % args_clean)
         mCmd = self.getMicroCommand("clean", args_appli)
         res_clean = mCmd.run(args_clean)
-        logger.warning(str(res_clean))
-        return res_clean # TODO debug remove that
+        logger.step(str(res_clean))
+        logger.closeFileHandlerForCommand(mCmd)
         
     if do_source:
         msg = _("Get the sources of the products ...")
         logger.info(msg + "(%s)" % args_source)
         mCmd = self.getMicroCommand("source", args_appli)
         res_source = mCmd.run(args_source)
-        logger.warning(str(res_source))
+        logger.step(str(res_source))
+        logger.closeFileHandlerForCommand(mCmd)
         
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
         logger.info(msg + "(%s)" % args_patch)
         mCmd = self.getMicroCommand("patch", args_appli)
         res_patch = mCmd.run(args_patch)
-        logger.warning(str(res_patch))
+        logger.step(str(res_patch))
+        logger.closeFileHandlerForCommand(mCmd)
     
     return res_clean + res_source + res_patch
 

@@ -142,7 +142,7 @@ The '--properties' options must have the following syntax:
 
     # Suppress the list of paths
     suppress_directories(l_dir_to_suppress, logger) 
-    return RCO.ReturnCode("OK", "clean done")
+    return RCO.ReturnCode("OK", "Command clean done")
     
 
 def get_source_directories(products_infos, without_dev):
@@ -227,5 +227,5 @@ def suppress_directories(l_paths, logger):
         else:
             logger.info(_("Removing %s ...") % strpath )
             path.rm()
-            logger.info('<OK>\n')
+            logger.info('<OK>')
 

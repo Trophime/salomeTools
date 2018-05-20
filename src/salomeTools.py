@@ -51,6 +51,7 @@ import pprint as PP
 import src # for __version__
 import src.debug as DBG # Easy print stderr (for DEBUG only)
 import src.returnCode as RCO # Easy (ok/ko, why) return methods code
+import src.utilsSat as UTS
 from src.options import Options
 import configManager as CFGMGR
 
@@ -112,7 +113,8 @@ def launchSat(command):
       env["PATH"] = rootdir + ":" + env["PATH"]
     # TODO setLocale not 'fr' on subprocesses, why not?
     # env["LANG"] == ''
-    res = SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE).communicate()
+    p = SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE)
+    res = P.communicate()
     return res
 
 def setNotLocale():
@@ -164,6 +166,7 @@ class _BaseCommand(object):
         self._logger = runner.logger
         self._options = None
         self._fullName = [] # example '[prepare','clean'] when micro command 'clean' of 'prepare'
+        self._idCommandHandlers = None # as logger.idCommandHandlers for logger handlers of current command
         
     def initFullName(self, parentFullName=[]):
         """
@@ -232,8 +235,7 @@ class _BaseCommand(object):
         cmdInstance.setConfig(config) # micro command config
         cmdInstance.setOptions(options)
         
-        logger.setFileHandler(cmdInstance)
-        
+        logger.setFileHandlerForCommand(cmdInstance)      
         return cmdInstance
 
     def run(self, cmd_arguments):
@@ -243,6 +245,12 @@ class _BaseCommand(object):
         """
         return RCO.ReturnCode("KO", "_BaseCommand.run() have not to be instancied and called")
            
+    def setIdCommandHandlers(self, idCommandHandlers):
+        """set logger handlers id (as an int >0)  for current insance command"""
+        if self._idCommandHandlers is not None:
+          self._logger.error("change idCommandHandlers for %s set yet" % self.getFullNameStr())
+        self._idCommandHandlers = idCommandHandlers
+         
     def setLogger(self, logger):
         """set logger for run command"""
         if self._logger is not None:
@@ -545,7 +553,7 @@ class Sat(object):
         cmdInstance.setConfig(config)
         
         logger = self.getLogger()
-        logger.setFileHandler(cmdInstance)
+        logger.setFileHandlerForCommand(cmdInstance)
         
         # Run the main command using the remainders command arguments
         strArgs = " ".join(commandArguments)
@@ -554,6 +562,8 @@ class Sat(object):
         returnCode = cmdInstance.run(commandArguments)
         msg = "END main launch command %s on (%s)\n%s" % (self.nameCommandToLoad, strArgs, str(returnCode))
         logger.step(msg)
+        
+        logger.closeFileHandlerForCommand(cmdInstance)
         
         return returnCode
         

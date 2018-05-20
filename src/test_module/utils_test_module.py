@@ -8,7 +8,7 @@ Exception class for test errors.
 
 import os
 import string
-import subprocess
+import subprocess as SP
 
 
 class SatTestError(Exception):
@@ -61,13 +61,10 @@ def mdump_med(med_file, dump_file, options):
     assert isinstance(options, list), "Bad options for mdump: %s" % options
     assert len(options) == 3, "Bad options for mdump: %s" % options
     cmd = "mdump %s %s" % (med_file, " ".join(options))
-    #print cmd
 
-    df = open(dump_file, "w")
-    pdump = subprocess.Popen(cmd, shell=True, stdout=df)
-    st = pdump.wait()
-    df.close()
-
+    with open(dump_file, "w") as df:
+      pdump = SP.Popen(cmd, shell=True, stdout=df)
+      st = pdump.wait()
     return st
 
 def compMED(file1, file2, tol=0, diff_flags=""):
@@ -102,7 +99,7 @@ def compMED(file1, file2, tol=0, diff_flags=""):
 
     diff_cmd = "diff %s %s %s" % (diff_flags, dump1, dump2)
     print " >" + diff_cmd
-    pdiff = subprocess.Popen(diff_cmd, shell=True, stdout=subprocess.PIPE)
+    pdiff = SP.Popen(diff_cmd, shell=True, stdout=SP.PIPE)
     status = pdiff.wait()
     print " Diff =", status
     if status != 0:

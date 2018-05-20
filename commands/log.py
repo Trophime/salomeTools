@@ -272,7 +272,7 @@ def remove_log_file(filePath, logger):
     :param logger: (Logger) the logger instance to use for the print 
     """
     if os.path.exists(filePath):
-        logger.debug(UTS.red("Removing %s\n" % filePath))
+        logger.debug(UTS.red("Removing %s" % filePath))
         os.remove(filePath)
 
 def print_log_command_in_terminal(filePath, logger):

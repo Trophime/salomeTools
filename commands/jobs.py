@@ -1320,10 +1320,11 @@ class Gui(object):
         :param name: (str) the board name
         """
         xml_board_path = os.path.join(self.xml_dir_path, name + ".xml")
-        self.d_xml_board_files[name] =  XMLMGR.XmlLogFile(xml_board_path,"JobsReport")
-        self.d_xml_board_files[name].add_simple_node("distributions")
-        self.d_xml_board_files[name].add_simple_node("applications")
-        self.d_xml_board_files[name].add_simple_node("board", text=name)
+        aXml = XMLMGR.XmlLogFile(xml_board_path,"JobsReport")
+        aXml.add_simple_node_root("distributions")
+        aXml.add_simple_node_root("applications")
+        aXml.add_simple_node_root("board", text=name)
+        self.d_xml_board_files[name] = aXml
            
     def initialize_boards(self, l_jobs, l_jobs_not_today):
         """
@@ -1358,7 +1359,7 @@ class Gui(object):
             
         l_hosts_ports = []
         
-        ASNODE = XMLMGR.add_simple_node # shortcut
+        ASNODE = XMLMGR.add_simple_node # shortcut to add a child node to another node
             
         for job in l_jobs + l_jobs_not_today:
             
@@ -1403,24 +1404,24 @@ class Gui(object):
                             "application", attrib={"name" : appli} )
                 
         # Initialize the hosts_ports node for the global file
-        self.xmlhosts_ports = self.xml_global_file.add_simple_node( "hosts_ports")
+        self.xmlhosts_ports = self.xml_global_file.add_simple_node_root("hosts_ports")
         for host, port in l_hosts_ports:
             host_port = "%s:%i" % (host, port)
             ASNODE(self.xmlhosts_ports, "host_port", attrib={"name" : host_port})
         
         # Initialize the jobs node in all files
         for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
-            xml_jobs = xml_file.add_simple_node("jobs")      
+            xml_jobs = xml_file.add_simple_node_root("jobs")      
             # Get the jobs present in the config file but 
             # that will not be launched today
             self.put_jobs_not_today(l_jobs_not_today, xml_jobs)
             
             # add also the infos node
-            xml_file.add_simple_node( 
+            xml_file.add_simple_node_root( 
                 "infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"} )
             
             # and put the history node
-            history_node = xml_file.add_simple_node("history")
+            history_node = xml_file.add_simple_node_root("history")
             name_board = os.path.basename(xml_file.logFile)[:-len(".xml")]
             # serach for board files
             expression = "^[0-9]{8}_+[0-9]{6}_" + name_board + ".xml$"

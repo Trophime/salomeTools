@@ -186,7 +186,10 @@ class ReturnCode(object):
       self._value = self._DEFAULT_VALUE
 
   def isOk(self):
-    """return True if ok"""
+    """
+    return True if ok.
+    inexisting method isKo(), use more explicit/readability 'if not res.isOk()'
+    """
     return (self._status == self.OK_STATUS)
   
   def raiseIfKo(self):

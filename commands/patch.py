@@ -18,7 +18,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import subprocess
+import subprocess as sP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -74,10 +74,10 @@ class Command(_BaseCommand):
     UTS.check_config_has_application(config).raiseIfKo()
 
     # Print some informations
-    logger.info("Patching sources of the application %s\n" % \
+    logger.info("Patching sources of the application %s" % \
                 UTS.blue(config.VARS.application))
 
-    logger.info('  workdir = %s\n\n"', UTS.blue(config.APPLICATION.workdir))
+    logger.info("  workdir = %s" % UTS.blue(config.APPLICATION.workdir))
 
     # Get the products list with products informations regarding the options
     products_infos = self.get_products_list(options, config)
@@ -89,26 +89,22 @@ class Command(_BaseCommand):
     
     # The loop on all the products on which to apply the patches
     good_result = 0
-    for __, product_info in products_infos:
+    for tmp, product_info in products_infos:
         # Apply the patch
-        return_code, patch_res = apply_patch(config,
-                                             product_info,
-                                             max_product_name_len,
-                                             logger)
-        logger.info(patch_res)
-        if return_code:
+        rc = apply_patch(config, product_info, max_product_name_len, logger)
+        logger.info(str(rc))
+        if rc.isOk():
             good_result += 1
     
     # Display the results (how much passed, how much failed, etc...)
 
-    logger.info("\n")
     if good_result == len(products_infos):
         status = "OK"
     else:
         status = "KO"
     
     # write results
-    msg = ("\nPatching sources of the application: <%s> (%d/%d)\n") % \
+    msg = ("Patching sources of the application: <%s> (%d/%d)") % \
                   (status, good_result, len(products_infos))
     logger.info(msg)    
 
@@ -174,12 +170,8 @@ def apply_patch(config, product_info, max_product_name_len, logger):
             logger.logTxtFile.flush()
             
             # Call the command
-            res_cmd = subprocess.call(
-                         patch_cmd, 
-                         shell=True, 
-                         cwd=product_info.source_dir,
-                         stdout=logger.logTxtFile, 
-                         stderr=subprocess.STDOUT )
+            res_cmd = SP.call(patch_cmd, shell=True, cwd=product_info.source_dir, 
+                              stdout=logger.logTxtFile, stderr=SP.STDOUT )
                          
             res_cmd = (res_cmd == 0)       
         else:

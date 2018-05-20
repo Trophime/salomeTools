@@ -105,8 +105,8 @@ class XmlLogFile(object):
         except Exception:
           raise Exception("problem writing Xml log file: %s" % log_file_path)
         
-    def add_simple_node(self, node_name, text=None, attrib={}):
-        """Add a node with some attibutes and text to the root node.
+    def add_simple_node_root(self, node_name, text=None, attrib={}):
+        """Add a node with some attributes and text to the main root node.
         
         :param node_name: (str) the name of the node to add
         :param text: (str) the text of the node
@@ -183,18 +183,18 @@ class XmlLogFile(object):
           "beginTime" : self.datehourToXml(cfg.VARS.datehour), #when command was launched
           "application" : cfg.VARS.application, # The application if any
           }
-        self.add_simple_node("Site", attrib=atts)
+        self.add_simple_node_root("Site", attrib=atts)
         
         # The initialization of the node Log
-        self.add_simple_node("Log", text="Empty trace")
+        self.add_simple_node_root("Log", text="Empty trace")
         
         # The system commands logs
-        self.add_simple_node("OutLog", text=self.relPath(self.txtFile))
+        self.add_simple_node_root("OutLog", text=self.relPath(self.txtFile))
         
         # The initialization of the node Links
         # where to put the links to the other sat commands (micro commands)
         # called by any first main command
-        self.add_simple_node("Links")
+        self.add_simple_node_root("Links", text="No links")
         
     def put_log_field(self, text):
         """
@@ -207,20 +207,19 @@ class XmlLogFile(object):
         """
         Put all fields corresponding to the links context (micro commands)
         
-        :param log_file_name: (str) The file name of the link.
-        :param command_name: (str) The name of the command linked.
-        :param command_res: (str) The result of the command linked. "0" or "1"
-        :param full_launched_command: (str) The full lanch command ("sat command ...")
+        :param links: (list) The links as list of dict
+           {fileName, command, passed, launchedCommand}
+        :param fileName: (str) The file name of the link.
+        :param command: (str) The name of the command linked.
+        :param passed: (str) The result of the command linked. "0" or "1"
+        :param launchedCommand: (str) The full launch command ("sat command ...")
         """
         xmlLinks = self.xmlroot.find("Links")
-        for li in links:
-          log_file_name, cmd_name, cmd_res, full_launched_cmd = li
-          atts = {
-            "command": cmd_name,
-            "passed": cmd_res,
-            "launchedCommand" : full_launched_cmd,
-            }
-          self.add_simple_node(xmlLinks, "link", text=log_file_name, attrib=atts)
+        if len(links) != 0:
+          xmlLinks.text = "" # erase No links
+          for atts in links: # order matters as time
+            # DBG.write("put_links_fields", atts)
+            add_simple_node(xmlLinks, "link", text=atts["fileName"], attrib=atts)
 
     def put_final_fields(self, attribute):
         """
@@ -362,7 +361,7 @@ class ReadXmlFile(object):
 # utilities method
 ##############################################################################
 def add_simple_node(root_node, node_name, text=None, attrib={}):
-    """Add a node with some attibutes and text to the root node.
+    """Add a node with some attributes and text to the root node.
 
     :param root_node: (ETREE.Element) 
       the Etree element where to add the new node    

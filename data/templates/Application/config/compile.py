@@ -5,9 +5,7 @@
 # First, it copies the content of the sources directory to the install directory.
 # Then it runs 'lrelease' to build the resources.
 
-import subprocess
-
-import src
+import src.utilsSat as UTS
 
 def compil(config, builder, logger):
     builder.prepare()
@@ -15,22 +13,14 @@ def compil(config, builder, logger):
         raise Exception(_("Error when copying %s sources to install dir") % builder.product_info.name)
     
     # test lrelease #.pyconf needs in ..._APPLI pre_depend : ['qt']
+    env = builder.build_environ.environ.environ
     command = "which lrelease" 
-    res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,env=builder.build_environ.environ.environ).communicate()
-    if res[1] != "": #an error occured
-        logger.error(res[1])
-        builder.log(res[1]+"\n")
-        return 1
+    res = UTS.Popen(command, shell=True ,env=env)
+    if not res.isOk():
+        return res
     
     # run lrelease
     command = "lrelease *.ts"
-    res = subprocess.call(command,
-                          shell=True,
-                          cwd=str(builder.install_dir + "resources"),
-                          env=builder.build_environ.environ.environ,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
-    if res != 0:
-        res = 1
-    
+    cwd = str(builder.install_dir + "resources")
+    res = UTS.Popen(command, shell=True, cwd=cwd, env=env)
     return res

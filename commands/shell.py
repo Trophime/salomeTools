@@ -18,7 +18,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 
-import subprocess
+import subprocess as SP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -77,10 +77,7 @@ class Command(_BaseCommand):
     logger.info(msg)
     
     # Call the input command
-    res = subprocess.call(options.command,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
+    res = SP.call(options.command, shell=True, stdout=logger.logTxtFile, stderr=SP.STDOUT)
    
     # Format the result to be 0 (success) or 1 (fail)
     if res != 0:

@@ -24,9 +24,9 @@ Utilities to build and compile
 """
 
 import os
-import subprocess
 import sys
 import shutil
+import subprocess as SP
 
 from src.options import OptResult
 import src.utilsSat as UTS
@@ -133,12 +133,10 @@ class Builder:
         self.log_command(command)
         # for key in sorted(self.build_environ.environ.environ.keys()):
             # print key, "  ", self.build_environ.environ.environ[key]
-        res = subprocess.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
+        res = SP.call(command, shell=True, cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
 
         self.put_txt_log_in_appli_log_dir("cmake")
         if res == 0:
@@ -157,12 +155,12 @@ class Builder:
         command = command + " " + options
         self.log_command(command)
 
-        res = subprocess.call(command,
+        res = SP.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
         self.put_txt_log_in_appli_log_dir("build_configure")
         if res == 0:
             return res
@@ -182,12 +180,12 @@ class Builder:
         command = command + " " + options
         self.log_command(command)
 
-        res = subprocess.call(command,
+        res = SP.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
         
         self.put_txt_log_in_appli_log_dir("configure")
         if res == 0:
@@ -217,12 +215,12 @@ if test \\"\$(echo \$@ | grep -E '\\\\\\-L/usr/lib(/../lib)?(64)? ')\\" == \\\"\
 CC=\\"hack_libtool\\"%g" libtool'''
 
         self.log_command(hack_command)
-        subprocess.call(hack_command,
+        SP.call(hack_command,
                         shell=True,
                         cwd=str(self.build_dir),
                         env=self.build_environ.environ.environ,
                         stdout=self.logger.logTxtFile,
-                        stderr=subprocess.STDOUT)
+                        stderr=SP.STDOUT)
 
 
     ##
@@ -234,12 +232,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
         command = command + " -j" + str(nb_proc)
         command = command + " " + make_opt
         self.log_command(command)
-        res = subprocess.call(command,
+        res = SP.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
         self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
             return res
@@ -263,12 +261,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
         command = command + " ALL_BUILD.vcxproj"
 
         self.log_command(command)
-        res = subprocess.call(command,
+        res = SP.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
         
         self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
@@ -290,12 +288,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         self.log_command(command)
 
-        res = subprocess.call(command,
+        res = SP.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
         
         self.put_txt_log_in_appli_log_dir("makeinstall")
         if res == 0:
@@ -319,12 +317,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
         
         self.log_command(cmd)
 
-        res = subprocess.call(cmd,
+        res = SP.call(cmd,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.launch_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT)
+                              stderr=SP.STDOUT)
 
         if res == 0:
             return res
@@ -439,10 +437,10 @@ CC=\\"hack_libtool\\"%g" libtool'''
         self.log_command("  " + _("Run build script %s\n") % script)
         self.complete_environment(make_options)
         
-        res = subprocess.call(script, 
+        res = SP.call(script, 
                               shell=True,
                               stdout=self.logger.logTxtFile,
-                              stderr=subprocess.STDOUT,
+                              stderr=SP.STDOUT,
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ)
 

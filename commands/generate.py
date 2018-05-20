@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import subprocess as SP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -154,7 +155,7 @@ def generate_component_list(config, product_info, context, logger):
     return res
 
 def generate_component(config, compo, product_info, context, header, logger):
-#   get from config include file name and librairy name, or take default value
+    """get from config include file name and librairy name, or take default value"""
     if "hxxfile" in product_info:
         hxxfile = product_info.hxxfile
     else:
@@ -208,13 +209,13 @@ def generate_component(config, compo, product_info, context, header, logger):
 
     # inline class to override bootstrap method
     import module_generator
+    
     class sat_generator(module_generator.Generator):
         # old bootstrap for automake (used if salome version <= 7.4)
         def bootstrap(self, source_dir, log_file):
             # replace call to default bootstrap() by using subprocess call (cleaner)
             command = "sh autogen.sh"
-            ier = subprocess.call(command, shell=True, cwd=source_dir,
-                                  stdout=log_file, stderr=subprocess.STDOUT)
+            ier = SP.call(command, shell=True, cwd=source_dir, stdout=log_file, stderr=SP.STDOUT)
             if ier != 0:
                 raise Exception("bootstrap has ended in error")
 

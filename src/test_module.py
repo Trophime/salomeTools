@@ -40,7 +40,7 @@ import datetime
 import shutil
 import string
 import imp
-import subprocess
+import subprocess as SP
 
 import src.pyconf as PYCONF
 import src.returnCode as RCO
@@ -141,18 +141,18 @@ class Test:
             self.logger.debug("> %s" % cmd)
             if ARCH.is_windows():
                 # preexec_fn not supported on windows platform
-                res = subprocess.call(cmd,
+                res = SP.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 stdout=self.logger.logTxtFile,
-                                stderr=subprocess.PIPE)
+                                stderr=SP.PIPE)
             else:
-                res = subprocess.call(cmd,
+                res = SP.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 preexec_fn=set_signal,
                                 stdout=self.logger.logTxtFile,
-                                stderr=subprocess.PIPE)
+                                stderr=SP.PIPE)
             if res != 0:
                 msg = _("Unable to get test base '%s' from git '%s'.") % \
                         (testbase_name, testbase_base)
@@ -184,18 +184,18 @@ class Test:
             self.logger.debug("> %s" % cmd)
             if ARCH.is_windows():
                 # preexec_fn not supported on windows platform
-                res = subprocess.call(cmd,
+                res = SP.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 stdout=self.logger.logTxtFile,
-                                stderr=subprocess.PIPE)
+                                stderr=SP.PIPE)
             else:
-                res = subprocess.call(cmd,
+                res = SP.call(cmd,
                                 cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 preexec_fn=set_signal,
                                 stdout=self.logger.logTxtFile,
-                                stderr=subprocess.PIPE,
+                                stderr=SP.PIPE,
                                 env=env_appli.environ.environ,)
 
             if res != 0:
@@ -425,18 +425,15 @@ class Test:
             launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
-                cmd = ("for i in " + launcherDir + "/env.d/*.sh; do source ${i};"
-                       " done ; echo $KERNEL_ROOT_DIR")
+                cmd = "for i in %s/env.d/*.sh; do source ${i}; done ; echo $KERNEL_ROOT_DIR"
+                cmd = cmd % launcherDir
             else:
-                # New application
-                cmd = ("echo -e 'import os\nprint os.environ[\"KERNEL_" + 
-                       "ROOT_DIR\"]' > tmpscript.py; %s shell" + 
-                       " tmpscript.py") % self.launcher
+                # New application TODO fix that horreur
+                cmd = "echo -e 'import os\nprint os.environ[\"KERNEL_ROOT_DIR\"]' > tmpscript.py; %s shell tmpscript.py"
+                cmd = cmd % self.launcher
 
-            subproc_res = subprocess.Popen(cmd,
-                            stdout=subprocess.PIPE,
-                            shell=True,
-                            executable='/bin/bash').communicate()
+            p = SP.Popen(cmd, stdout=SP.PIPE, shell=True, executable='/bin/bash')
+            subproc_res = p.communicate()
             
             for resLine in subproc_res:
                 print "- '#%s#'" % resLine
@@ -446,21 +443,13 @@ class Test:
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
-        (file_, pathname, description) = imp.find_module("salome_utils",
-                                                         [os.path.join(root_dir,
-                                                                    'bin',
-                                                                    'salome')])
+        aDir = os.path.join(root_dir, 'bin', 'salome')
+        (file_, pathname, description) = imp.find_module("salome_utils", [aDir])
         try:
-            grid = imp.load_module("salome_utils",
-                                     file_,
-                                     pathname,
-                                     description)
+            grid = imp.load_module("salome_utils", file_, pathname, description)
             return grid.getLogDir
         except:
-            grid = imp.load_module("salome_utils",
-                                     file_,
-                                     pathname,
-                                     description)
+            grid = imp.load_module("salome_utils", file_, pathname, description)
             return grid.getTmpDir
         finally:
             if file_:
@@ -776,8 +765,7 @@ class Test:
                 self.run_grid_tests()
 
     def run_script(self, script_name):
-        if ('APPLICATION' in self.config and 
-                script_name in self.config.APPLICATION):
+        if ('APPLICATION' in self.config and script_name in self.config.APPLICATION):
             script = self.config.APPLICATION[script_name]
             if len(script) == 0:
                 return
@@ -787,7 +775,7 @@ class Test:
             else:
                 self.logger.info("----------- start %s\n" % script_name)
                 self.logger.info("Run script: %s\n" % script)
-                subprocess.Popen(script, shell=True).wait()
+                SP.Popen(script, shell=True).wait()
                 self.logger.info("----------- end %s\n" % script_name)
 
     def run_all_tests(self):

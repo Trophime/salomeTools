@@ -24,7 +24,7 @@ see Command class docstring, also used for help
 
 import os
 import getpass
-import subprocess
+import subprocess as SP
 
 import src.ElementTree as ETREE
 import src.debug as DBG
@@ -141,7 +141,7 @@ Note:     this command will ssh to retrieve information to each machine in the l
     elif options.gencat:
         # generate catalog for given list of computers
         catalog_src = options.gencat
-        catalog = generate_catalog(options.gencat.split(","), config,logger)
+        catalog = UTS.generate_catalog(options.gencat.split(","), config,logger)
     elif 'catalog' in virtual_app:
         # use catalog specified in the product
         if virtual_app.catalog.endswith(".xml"):
@@ -152,7 +152,7 @@ Note:     this command will ssh to retrieve information to each machine in the l
             catalog_src = virtual_app.catalog
             mlist = filter(lambda l: len(l.strip()) > 0, virtual_app.catalog.split(","))
             if len(mlist) > 0:
-                catalog = generate_catalog(virtual_app.catalog.split(","), config, logger)
+                catalog = UTS.generate_catalog(virtual_app.catalog.split(","), config, logger)
 
     # display which catalog is used
     if len(catalog) > 0:
@@ -172,7 +172,7 @@ Note:     this command will ssh to retrieve information to each machine in the l
             shutil.rmtree(appli_dir)
             rres = "<OK>"
         finally:
-            logger.info(rres + "\n")
+            logger.info(rres)
 
     # generate the application
     try:
@@ -314,8 +314,7 @@ def generate_application(config, appli_dir, config_file, logger):
     """Generates the application with the config_file."""
     target_dir = os.path.dirname(appli_dir)
 
-    install_KERNEL_dir = PROD.get_product_config(config,
-                                                        'KERNEL').install_dir
+    install_KERNEL_dir = PROD.get_product_config(config, 'KERNEL').install_dir
     script = os.path.join(install_KERNEL_dir, "bin", "salome", "appli_gen.py")
     if not os.path.exists(script):
         raise Exception(_("KERNEL is not installed"))
@@ -326,20 +325,9 @@ def generate_application(config, appli_dir, config_file, logger):
         envi = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), True)
         envi.set_a_product('Python', logger)
     
-    command = "python %s --prefix=%s --config=%s" % (script,
-                                                     appli_dir,
-                                                     config_file)
-    logger.debug("\n>" + command + "\n")
-    res = subprocess.call(command,
-                    shell=True,
-                    cwd=target_dir,
-                    env=envi.environ.environ,
-                    stdout=logger.logTxtFile,
-                    stderr=subprocess.STDOUT)
-    
-    if res != 0:
-        raise Exception(_("Cannot create application, code = %d\n") % res)
-
+    command = "python %s --prefix=%s --config=%s" % (script, appli_dir, config_file)
+    res = UTS.Popen(command, shell=True, cwd=target_dir, env=envi.environ.environ, logger=logger)  
+    res.raiseIfKo()
     return res
 
 def get_step(logger, message, pad=50):
@@ -347,7 +335,7 @@ def get_step(logger, message, pad=50):
     returns 'message ........ ' with pad 50 by default
     avoid colors '<color>' for now in message
     """
-    return "%s %s " % (message, '.' * (pad - len(message.decode("UTF-8"))))
+    return "%s %s " % (message, '.'*(pad - len(message.decode("UTF-8"))))
 
 def create_application(config, appli_dir, catalog, logger, display=True):
     """reates a SALOME application."""  
@@ -439,63 +427,5 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
 
     return retcode
 
-def generate_catalog(machines, config, logger):
-    """Generates the catalog from a list of machines."""
-    # remove empty machines
-    machines = map(lambda l: l.strip(), machines)
-    machines = filter(lambda l: len(l) > 0, machines)
 
-    logger.debug("  %s = %s" % _("Generate Resources Catalog"), ", ".join(machines))
-    
-    cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
-    user = getpass.getuser()
-
-    catfile = UTS.get_tmp_filename(config, "CatalogResources.xml")
-    catalog = file(catfile, "w")
-    catalog.write("""\
-<!DOCTYPE ResourcesCatalog>
-<resources>
-""")
-
-    for k in machines:
-        logger.info("    ssh %s " % (k + " ").ljust(20, '.'), 4)
-
-        ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
-        p = subprocess.Popen(ssh_cmd, shell=True,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        p.wait()
-
-        if p.returncode != 0:
-            logger.error("<KO>\n%s\n" % UTS.red(p.stderr.read()))
-        else:
-            logger.info("<OK>\n")
-            lines = p.stdout.readlines()
-            freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
-            nb_proc = len(lines) -1
-            memory = lines[-1].split(':')[-1].split()[0].strip()
-            memory = int(memory) / 1000
-            
-            msg = """\
-    <machine
-        protocol="ssh"
-        nbOfNodes="1"
-        mode="interactif"
-        OS="LINUX"
-        CPUFreqMHz="%s"
-        nbOfProcPerNode="%s"
-        memInMB="%s"
-        userName="%s"
-        name="%s"
-        hostname="%s"
-    >
-    </machine>
-"""
-            msg = msg % (freq, nb_proc, memory, user, k, k)
-            catalog.write(msg)
-            
-    catalog.write("</resources>\n")
-    catalog.close()
-    return catfile
 

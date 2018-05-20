@@ -34,6 +34,7 @@ import stat
 
 import re
 import tempfile
+import subprocess as SP
 
 import src.returnCode as RCO
 import src.debug as DBG # Easy print stderr (for DEBUG only)
@@ -658,13 +659,86 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
         #if cmd not in notShownCommands:
         if showLog:
             # add a node to the hat.xml file
-            xmlHat.add_simple_node("LogCommand", 
-                                   text=os.path.basename(filePath), 
-                                   attrib = {"date" : date, 
-                                             "hour" : hour, 
-                                             "cmd" : cmd, 
-                                             "application" : cmdAppli,
-                                             "full_command" : full_cmd})
+            atts = {"date" : date, "hour" : hour, "cmd" : cmd, "application" : cmdAppli, "full_command" : full_cmd}
+            txt = os.path.basename(filePath)
+            xmlHat.add_simple_node_root("LogCommand", text=txt, attrib=atts)
     
     # Write the file on the hard drive
     xmlHat.write_tree('hat.xsl')
+    
+
+##############################################################################
+# subprocess utilities, with logger functionnalities (trace etc.)
+##############################################################################    
+
+def Popen(command, shell=True, cwd=None, env=None, stdout=SP.PIPE, stderr=SP.PIPE, logger=None):
+  """make subprocess.Popen(cmd), with call logger.trace and logger.error if problem"""
+  if logger is not None:
+    logger.trace("launch command cwd=%s:\n%s" % (cwd, command))
+  
+  try:  
+    proc =  SP.Popen(command, shell=shell, cwd=cwd, env=env, stdout=stdout, stderr=stderr)
+    res_out, res_err = proc.communicate()
+    
+    if logger is not None:
+      logger.trace("result command stdout:\n%s" % res_out)
+    
+    if res_err == "":
+      return RCO.ReturnCode("OK", "command done", value=res_out)
+    else:
+      if logger is not None:
+        logger.warning("result command stderr:\n%s" % res_err)
+      return RCO.ReturnCode("KO", "command problem", value=stderr)
+  except Exception as e:
+    logger.error("launch command:\n%s" % str(e))
+    return RCO.ReturnCode("KO", "command problem")
+
+  
+def generate_catalog(machines, config, logger):
+    """Generates the catalog from a list of machines."""
+    # remove empty machines
+    machines = map(lambda l: l.strip(), machines)
+    machines = filter(lambda l: len(l) > 0, machines)
+
+    logger.debug("  %s = %s" % _("Generate Resources Catalog"), ", ".join(machines))
+    
+    cmd = '"cat /proc/cpuinfo | grep MHz ; cat /proc/meminfo | grep MemTotal"'
+    user = getpass.getuser()
+
+    msg = ""
+    machine = """\
+  <machine
+    protocol="ssh"
+    nbOfNodes="1"
+    mode="interactif"
+    OS="LINUX"
+    CPUFreqMHz="%s"
+    nbOfProcPerNode="%s"
+    memInMB="%s"
+    userName="%s"
+    name="%s"
+    hostname="%s"/>
+"""
+    for k in machines:
+      logger.info("    ssh %s " % (k + " ").ljust(20, '.'), 4)
+
+      ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
+      res = UTS.Popen(ssh_cmd, shell=True)
+      if res.isOk():
+        lines = p.stdout.readlines()
+        freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
+        nb_proc = len(lines) -1
+        memory = lines[-1].split(':')[-1].split()[0].strip()
+        memory = int(memory) / 1000
+        msg += machine % (freq, nb_proc, memory, user, k, k)
+            
+    catfile = UTS.get_tmp_filename(config, "CatalogResources.xml")
+    with open(catfile, "w") as f:
+      f.write("""\
+<!DOCTYPE ResourcesCatalog>
+<resources>
+%s
+</resources>
+""" % msg)
+    return catfile
+

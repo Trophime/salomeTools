@@ -17,6 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import shlex
+import subprocess as SP   
 import src.utilsSat as UTS
 
 bat_header="""\
@@ -615,13 +617,11 @@ class LauncherFileEnviron:
         """
         self.output.write(self.indent+'#`%s`\n' % command)
 
-        import shlex, subprocess
         args = shlex.split(command)
-        res=subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, __ = res.communicate()
-        self.output.write(self.begin+
-                          self.setVarEnv+
-                          '(r"%s", r"%s", overwrite=True)\n' % (key, out))
+        p = SP.Popen(args, stdout=SP.PIPE, stderr=SP.PIPE)
+        res = p.communicate()[0]
+        msg = self.begin + self.setVarEnv + '(r"%s", r"%s", overwrite=True)\n' % (key, res)
+        self.output.write(msg)
 
     def add_comment(self, comment):
         # Special comment in case of the distène licence
