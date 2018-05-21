@@ -169,8 +169,8 @@ def get_source_from_git(product_info,
     msg = "%s:%s" % (coflag, repo_git)
     msg += " " * (pad + 50 - len(repo_git))
     msg += " tag:%s" % product_info.git_info.tag
-    msg += "%s. " % "." * (10 - len(product_info.git_info.tag))
-    logger.info("\n" + msg)
+    msg += "."*(10 - len(product_info.git_info.tag))
+    logger.info(msg)
     
     # Call the system function that do the extraction in git mode
     retcode = SYSS.git_extract(repo_git, product_info.git_info.tag, source_dir, logger, environ)

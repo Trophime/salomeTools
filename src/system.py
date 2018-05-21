@@ -73,19 +73,18 @@ def git_extract(from_what, tag, where, logger, environment=None):
         where.make()
     whe = str(where)
     if tag == "master" or tag == "HEAD":
-        command = "git clone %(rem)s %(whe)s" %  {'rem': from_what, 'whe': whe}
+        command = "git clone %(rem)s %(whe)s --quiet" %  {'rem': from_what, 'whe': whe}
     else:
         # NOTICE: this command only works with recent version of git
         #         because --work-tree does not work with an absolute path
         where_git = os.path.join(whe, ".git" )
-        command = r"""\
-rmdir %(whe)s && \
-git clone %(rem)s %(whe)s && \
-git --git-dir=%(whe_git)s --work-tree=%(whe)s checkout %(tag)s"""
+        command = r"""rmdir %(whe)s && \
+git clone %(rem)s %(whe)s --quiet && \
+git --git-dir=%(whe_git)s --work-tree=%(whe)s checkout %(tag)s --quiet"""
         command = command % {'rem': from_what, 'tag': tag, 'whe': whe, 'whe_git': where_git }
 
     env = environment.environ.environ
-    res = UTS.Popen(command, cwd=str(where.dir()), env=env, shell=True, logger=logger)
+    res = UTS.Popen(command, cwd=str(where.dir()), env=env, logger=logger)
     return res
 
 def archive_extract(from_what, where, logger):

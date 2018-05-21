@@ -669,29 +669,29 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
 
 ##############################################################################
 # subprocess utilities, with logger functionnalities (trace etc.)
-##############################################################################    
-
+##############################################################################
+    
 def Popen(command, shell=True, cwd=None, env=None, stdout=SP.PIPE, stderr=SP.PIPE, logger=None):
   """make subprocess.Popen(cmd), with call logger.trace and logger.error if problem"""
-  if logger is not None:
-    logger.trace("launch command cwd=%s:\n%s" % (cwd, command))
-  
   try:  
     proc =  SP.Popen(command, shell=shell, cwd=cwd, env=env, stdout=stdout, stderr=stderr)
     res_out, res_err = proc.communicate()
     
-    if logger is not None:
-      logger.trace("result command stdout:\n%s" % res_out)
-    
     if res_err == "":
+      if logger is not None:
+        logger.trace("OK launch command cwd=%s:\n%s" % (cwd, command))
+        logger.trace("OK result command stdout:\n%s" % res_out)
       return RCO.ReturnCode("OK", "command done", value=res_out)
     else:
       if logger is not None:
-        logger.warning("result command stderr:\n%s" % res_err)
+        logger.warning("KO launch command cwd=%s:\n%s" % (cwd, command))
+        logger.warning("KO result command stdout:\n%s" % res_out)
+        logger.warning("KO result command stderr:\n%s" % res_err)
       return RCO.ReturnCode("KO", "command problem", value=stderr)
   except Exception as e:
-    logger.error("launch command:\n%s" % str(e))
-    return RCO.ReturnCode("KO", "command problem")
+    logger.error("KO launch command cwd=%s:\n%s" % (cwd, command))
+    logger.error("launch command exception:\n%s" % str(e))
+    return RCO.ReturnCode("KO", "launch command problem")
 
   
 def generate_catalog(machines, config, logger):

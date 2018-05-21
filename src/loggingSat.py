@@ -53,8 +53,7 @@ import time
 import logging as LOGI
 from logging.handlers import BufferingHandler
 import pprint as PP
-import src.utilsSat as UTS
-import src.coloringSat as COLS
+
 
 _verbose = False
 _name = "loggingSat"
@@ -91,11 +90,11 @@ def log(msg, force=False):
   """elementary log when no logging.Logger yet"""
   prefix = "---- %s.log: " % _name
   nb = len(prefix)
-  if _verbose or force: 
+  if _verbose or force:
     print(prefix + indent(msg, nb))
 
-
-log("import logging on %s" % LOGI.__file__, True)
+# just for debug info where is import logging
+log("import logging on %s" % LOGI.__file__)
 
 
 def getStrDirLogger(logger):
@@ -130,7 +129,8 @@ def getStrShort(msg):
 def getStrLogRecord(logRecord):
   """
   Returns one line string for simple logging LogRecord description 
-  """ 
+  """
+  import src.coloringSat as COLS # needs sys.path.insert(0, satdir)
   msg = "LogRecord(level='%s', msg='%s...')"
   shortMsg = getStrShort(logRecord.msg)
   levelName = COLS.cleanColors(logRecord.levelname).replace(" ", "")
@@ -156,7 +156,8 @@ except NameError:
 
 def getMessage(self):
     """
-    modified from logging.__init__.LogRecord.getMessage
+    modified from logging.__init__.LogRecord.getMessage, 
+    better message on format error 
     Return the message for this LogRecord.
   
     Return the message for this LogRecord after merging any user-supplied
@@ -172,11 +173,11 @@ def getMessage(self):
             except UnicodeError:
                 msg = self.msg      #Defer encoding till later
     if self.args:
-        try:
+        try: # better message on format error 
           msg = msg % self.args
         except Exception as e:
           msg = "ERROR: %s with args %s" % (msg, PP.pformat(self.args))
-          print(msg)
+          log(msg, True)
     return msg
 
 LOGI.LogRecord.getMessage = getMessage # better message if error
@@ -217,9 +218,10 @@ class LoggerSat(LOGI.Logger):
     if self.isClosed: 
       raise Exception("logger closed yet: %s" % self)
     log("close stuff logger %s" % self) # getStrDirLogger(self)
-    for handl in self.handlers: 
+    for handl in list(self.handlers):  # get original list
       log("close stuff handler %s" % getStrHandler(handl))
       handl.close() # Tidy up any resources used by the handler.
+      self.removeHandler(handl)
     # todo etc
     self.isClosed = True # done at end sat, flushed closed xml files.
     return
@@ -237,7 +239,7 @@ class LoggerSat(LOGI.Logger):
     """
     Log 'msg % args' with severity '_TRACE'.
     """
-    log("trace stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)), True)
+    log("trace stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)))
     if self.isEnabledFor(_TRACE):
         self._log(_TRACE, msg, args, **kwargs)
 
@@ -245,7 +247,7 @@ class LoggerSat(LOGI.Logger):
     """
     Log 'msg % args' with severity '_STEP'.
     """
-    log("step stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)), True)
+    log("step stuff logger '%s' msg '%s...'" % (self.name, getStrShort(msg)))
     if self.isEnabledFor(_STEP):
         self._log(_STEP, msg, args, **kwargs)
 
@@ -275,6 +277,8 @@ class LoggerSat(LOGI.Logger):
     |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
     |   etc.
     """
+    import src.utilsSat as UTS # needs sys.path.insert(0, satdir)
+
     logger = self
     config = cmdInstance.getConfig()
     
@@ -305,7 +309,7 @@ class LoggerSat(LOGI.Logger):
     nbhandl = len(logger.handlers) # number of active current handlers
     
     if self.idCommandHandlers == 0: # first main command
-      log("setFileHandler '%s' main command (id=%i)" % (fullNameCmd, self.idCommandHandlers), True)
+      log("setFileHandler '%s' main command (id=%i)" % (fullNameCmd, self.idCommandHandlers))
       
       ################################
       # Logging vers file xml
@@ -337,7 +341,7 @@ class LoggerSat(LOGI.Logger):
       
   
     elif self.idCommandHandlers > 0: # secondary micro command
-      log("TODO setFileHandler '%s' micro command (id=%i)" % (fullNameCmd, self.idCommandHandlers), True)
+      log("TODO setFileHandler '%s' micro command (id=%i)" % (fullNameCmd, self.idCommandHandlers))
       
       ################################
       # Logging vers file xml
@@ -373,16 +377,22 @@ class LoggerSat(LOGI.Logger):
     return self.idCommandHandlers
   
   def closeFileHandlerForCommand(self, cmdInstance):
-    for handl in self.handlers:
+    for handl in list(self.handlers): # get original list
       try: # may be foreign handlers without idCommandHandlers attribute
         if handl.idCommandHandlers == cmdInstance._idCommandHandlers:
-          log("=== begin len(logger.handlers)=%i" %  len(self.handlers))
+          nbini = len(self.handlers)
           log("close stuff handler %s" % getStrHandler(handl))
           handl.close() # Tidy up any resources used by the handler.
-          log("=== end   len(logger.handlers)=%i" %  len(self.handlers))
+          self.removeHandler(handl)
+          if len(self.handlers) != nbini-1:
+            self.critical("Unexpected len(logger.handlers)=%i" %  len(self.handlers))
       except:
-        self.warning("existing logger handler without idCommandHandlers attribute %s" % str(handl))
-  
+        self.warning("Existing logger handler without idCommandHandlers attribute %s" % str(handl))
+        pass
+      
+  def testNoReturn(self):
+    """test when message ending '...' and level info then no return mode"""
+    testNoReturn(self) # module method
   
 #################################################################
 class DefaultFormatter(LOGI.Formatter):
@@ -399,6 +409,7 @@ class DefaultFormatter(LOGI.Formatter):
   }
   
   def format(self, record):
+    import src.coloringSat as COLS # needs sys.path.insert(0, satdir)
     if _verbose:
       import src.debug as DBG # avoid cross import
       DBG.write("DefaultFormatter.format", "%s: %s..." % (record.levelname, record.msg[0:20]), True)
@@ -407,7 +418,9 @@ class DefaultFormatter(LOGI.Formatter):
       res = str(record.msg)
     else:
       res = indent(super(DefaultFormatter, self).format(record), 12)
-    return COLS.toColor(res)
+    res = COLS.toColor(res)
+    # print "bbegin'%s'eend" % res
+    return res
   
   def setColorLevelname(self, levelname):
     """
@@ -425,6 +438,7 @@ class DefaultFormatter(LOGI.Formatter):
 #################################################################
 class UnittestFormatter(LOGI.Formatter):
   def format(self, record):
+    import src.coloringSat as COLS # needs sys.path.insert(0, satdir)
     # print "", record.levelname #type(record), dir(record)
     # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
     res = super(UnittestFormatter, self).format(record)
@@ -435,6 +449,7 @@ class UnittestFormatter(LOGI.Formatter):
 #################################################################
 class FileTxtFormatter(LOGI.Formatter):
   def format(self, record):
+    import src.coloringSat as COLS # needs sys.path.insert(0, satdir)
     # print "", record.levelname #type(record), dir(record)
     # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
     res = super(FileTxtFormatter, self).format(record)
@@ -445,6 +460,7 @@ class FileTxtFormatter(LOGI.Formatter):
 #################################################################
 class FileXmlFormatter(LOGI.Formatter):
   def format(self, record):
+    import src.coloringSat as COLS # needs sys.path.insert(0, satdir)
     # print "", record.levelname #type(record), dir(record)
     # nb = len("2018-03-17 12:15:41 :: INFO     :: ")
     res = super(FileXmlFormatter, self).format(record)
@@ -483,6 +499,90 @@ class UnittestStream(object):
   def __str__(self):
     return self._logs
 
+#################################################################
+class StreamHandlerSat(LOGI.StreamHandler):
+    """
+    A handler class which writes logging records, appropriately formatted,
+    to a stream. Note that this class does not close the stream, as
+    sys.stdout or sys.stderr may be used.
+    
+    from logging.StreamHandler class,
+    modified for 'no return' mode line if '...' at end of record message
+    """
+    def isLastRecordHaveNoReturn(self):
+        """
+        to memorize if last info record is 'no return' mode (as ending '...')
+        avoid define inherited __init__
+        """
+        if not hasattr(self, "lastRecordHaveNoReturn"):
+          self.lastRecordHaveNoReturn = False
+        return self.lastRecordHaveNoReturn
+      
+    def isNeedFirstReturn(self, record):
+        """
+        'no return' mode  valid only if 2 consecutives info messages
+        if not, needs insert return line BEFORE (warning, debug, or other) 
+        current record message
+        """
+        if not self.isLastRecordHaveNoReturn(): 
+          return False
+        if record.levelno == LOGI.INFO:
+          return False # case is 2 consecutives info messages (OK for continuity)
+        return True # case need insert return line BEFORE message (KO for continuity)
+          
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If a formatter is specified, it is used to format the record.
+        The record is then written to the stream with a trailing newline.  If
+        exception information is present, it is formatted using
+        traceback.print_exception and appended to the stream.  If the stream
+        has an 'encoding' attribute, it is used to determine how to do the
+        output to the stream.
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            if msg[-3:] == "..." and record.levelno == LOGI.INFO:
+              fs = '%s'
+              ufs = u'%s'
+              self.lastRecordHaveNoReturn = True
+            else:
+              if self.isNeedFirstReturn(record):
+                fs = '\n%s\n'
+                ufs = u'\n%s\n'
+                self.lastRecordHaveNoReturn = False
+              else:
+                fs = '%s\n'
+                ufs = u'%s\n'
+            if not _unicode: #if no unicode support...
+                stream.write(fs % msg)
+            else:
+                try:
+                    if (isinstance(msg, unicode) and
+                        getattr(stream, 'encoding', None)):
+                        # ufs = u'%s\n'
+                        try:
+                            stream.write(ufs % msg)
+                        except UnicodeEncodeError:
+                            #Printing to terminals sometimes fails. For example,
+                            #with an encoding of 'cp1251', the above write will
+                            #work if written to a stream opened or wrapped by
+                            #the codecs module, but fail when writing to a
+                            #terminal even when the codepage is set to cp1251.
+                            #An extra encoding step seems to be needed.
+                            stream.write((ufs % msg).encode(stream.encoding))
+                    else:
+                        stream.write(fs % msg)
+                except UnicodeError:
+                    stream.write(fs % msg.encode("UTF-8"))
+            self.flush()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+            
 #################################################################
 class XmlHandler(BufferingHandler):
   """
@@ -576,6 +676,7 @@ class XmlHandler(BufferingHandler):
     prepare formatted string from self.buffer LogRecord for xml 'Log' node
     local format
     """
+    import src.coloringSat as COLS
     res = ""
     for lr in self.buffer:
       fmt = "%s :: %s\n"
@@ -592,6 +693,7 @@ class XmlHandler(BufferingHandler):
     prepare formatted string from self.buffer LogRecord for xml 'Log' node
     using handler formatter
     """
+    import src.coloringSat as COLS
     fmtr = self.formatter
     res = ""
     for lr in self.buffer:
@@ -612,7 +714,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   exept info() outed 'as it' without any format
   """
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
-  handler = LOGI.StreamHandler(sys.stdout) # Logging vers console
+  handler = StreamHandlerSat(sys.stdout) # Logging vers console
   handler.set_name(logger.name + "_console")
   if fmt is not None:
     # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
@@ -621,7 +723,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   handler.idCommandHandlers = 0
   logger.addHandler(handler)
   if level is not None:
-    logger.setLevel(logger.STEP)
+    logger.setLevel(level)
   else:
     logger.setLevel(logger.INFO)
 
@@ -687,19 +789,40 @@ def testLogger_1(logger):
   logger.warning('test logger warning:\n- second line\n- third line')
 
 
+def testNoReturn(logger):
+  """test when message ending '...' and level info then no return mode"""
+  logger.warning('BEGIN test NoReturn 1')
+  logger.info('test no return here 0...')
+  logger.info('have to continue here 1...')
+  logger.info('have to continue here 2')
+  logger.info('END test NoReturn 1')
+  logger.warning('BEGIN test NoReturn 2')
+  logger.info('test no return here 0...')
+  logger.warning('have NOT to continue here 1...')
+  logger.info('have NOT to continue here 2')
+  logger.info('END test NoReturn 2')
+  
+
+
 def testMain():
   print("\n**** DEFAULT logger")
   logdef = getDefaultLogger()
   # use of setColorLevelname <color>...<reset>, so do not use %(levelname)-8s
   initLoggerAsDefault(logdef, '%(levelname)s :: %(message)s', level=LOGI.DEBUG)
   testLogger_1(logdef)
+  print("\n**** DEFAULT logger NoReturn")
+  logdef.testNoReturn()
+  
   print("\n**** UNITTEST logger")
   loguni = getUnittestLogger()
   initLoggerAsUnittest(loguni, '%(asctime)s :: %(levelname)-8s :: %(message)s', level=LOGI.DEBUG)
   testLogger_1(loguni) # is silent
   # log("loguni.getLogs():\n%s" % loguni.getLogs())
   print("loguni.streamUnittest:\n%s" % loguni.getLogs())
-  
+  print("\n**** UNITTEST logger NoReturn")
+  loguni.testNoReturn()
+  print("loguni.streamUnittest:\n%s" % loguni.getLogs())
+    
   from colorama import Fore as FG
   from colorama import Style as ST
   print("this is unconditionally %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))   
