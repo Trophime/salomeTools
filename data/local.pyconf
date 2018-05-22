@@ -12,7 +12,10 @@
   {
     project_file_paths :
     [
-    "/home/christian/SAT_SALOME/salome.pyconf"
-    "/home/christian/SAT_MATIX/matix.pyconf"
+    "/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT_SALOME/salome.pyconf",
+    # "/home/uranietm/proJET/saTJOBS/saT5/uranie.pyconf",
+    # cloned 2017/12 for matix 
+    # "/home/matix/GitRepo/uranie/saT5/uranie.pyconf",
+    # "/volatile/wambeke/SAT5/SAT_MATIX/matix.pyconf"
     ]
   }

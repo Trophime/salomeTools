@@ -696,7 +696,7 @@ def getStrConfigValue(config, path, show_label=False, level=0, show_full_path=Fa
     outStream = DBG.OutStream()
     getConfigColored(config, path, outStream, show_label, level, show_full_path)
     res = outStream.getvalue() # stream not closed
-    return res
+    return res[:-1]
 
      
 def getStrConfigDebug(config, aPath, show_label=False, level=0, show_full_path=False):
@@ -719,7 +719,7 @@ def getStrConfigDebug(config, aPath, show_label=False, level=0, show_full_path=F
     outStream = DBG.OutStream()
     DBG.saveConfigDbg(val, outStream, path=path)
     res = outStream.value
-    return res
+    return res[:-1]
 
 
 def get_config_children(config, args):

@@ -262,7 +262,7 @@ class LoggerSat(LOGI.Logger):
         return 0
     return level >= self.getEffectiveLevel()
 
-  def setFileHandlerForCommand(self, cmdInstance):
+  def setFileHandlerForCommand(self, cmdParent, cmdInstance):
     """
     add file handler to logger to set log files
     for a salometools command. 
@@ -372,6 +372,10 @@ class LoggerSat(LOGI.Logger):
       logger.addHandler(handler)
     
     cmdInstance.setIdCommandHandlers(self.idCommandHandlers)
+    newLink = self.initLinkForCommand(cmdParent, cmdInstance)
+    newLink.setAuthAttr("cmd_name", cmd)
+    newLink.setAuthAttr("log_file_name", nameFileXml)
+    
     self.idCommandHandlers += 1
     log("setFileHandler %s" % logger)
     return self.idCommandHandlers
@@ -389,6 +393,11 @@ class LoggerSat(LOGI.Logger):
       except:
         self.warning("Existing logger handler without idCommandHandlers attribute %s" % str(handl))
         pass
+      
+  def initLinkForCommand(self, cmdParent, cmdNew):
+    import src.linksXml as LIXML
+    newLink = LIXML.appendLinkForCommand(cmdParent, cmdNew)
+    return newLink
       
   def testNoReturn(self):
     """test when message ending '...' and level info then no return mode"""
@@ -711,7 +720,8 @@ class XmlHandler(BufferingHandler):
 def initLoggerAsDefault(logger, fmt=None, level=None):
   """
   init logger as prefixed message and indented message if multi line
-  exept info() outed 'as it' without any format
+  exept info() outed 'as it' without any format.
+  level could be modified during execution
   """
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   handler = StreamHandlerSat(sys.stdout) # Logging vers console
@@ -722,10 +732,12 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
     handler.setFormatter(formatter)
   handler.idCommandHandlers = 0
   logger.addHandler(handler)
-  if level is not None:
+  if level is not None: # level could be modified during execution....
     logger.setLevel(level)
+    handler.setLevel(level) # on screen log as user wants
   else:
-    logger.setLevel(logger.INFO)
+    logger.setLevel(LOGI.STEP) # in xml files log step
+    handler.setLevel(LOGI.INFO) # on screen no log step, which are in xml files
 
   
 def initLoggerAsUnittest(logger, fmt=None, level=None):
@@ -750,7 +762,7 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
   if level is not None:
     logger.setLevel(level)
   else:
-    logger.setLevel(logger.DEBUG)
+    logger.setLevel(LOGI.DEBUG)
 
 
 def getDefaultLogger():
@@ -845,5 +857,5 @@ else:
   # get two LoggerSat instance used in salomeTools, no more needed.
   _loggerDefault = getDefaultLogger()
   _loggerUnittest = getUnittestLogger()
-  initLoggerAsDefault(_loggerDefault, '%(levelname)s :: %(message)s', level=LOGI.INFO)
+  initLoggerAsDefault(_loggerDefault, '%(levelname)s :: %(message)s')
   initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)s :: %(message)s', level=LOGI.DEBUG)

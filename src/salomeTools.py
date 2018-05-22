@@ -190,6 +190,10 @@ class _BaseCommand(object):
           raise Exception("type parent full name unexpected '%s'" % parentFullName)
         self._fullName = pfn + [self.name] # make copy precaution
         DBG.write("initFullName", self._fullName)
+        
+    def getId(self):
+        """assimiled as integer incremented on _idCommandHandlers"""
+        return self._idCommandHandlers
           
     def getFullNameStr(self):
         """returns 'prepare_clean' when micro command 'clean' of 'prepare'"""
@@ -235,7 +239,7 @@ class _BaseCommand(object):
         cmdInstance.setConfig(config) # micro command config
         cmdInstance.setOptions(options)
         
-        logger.setFileHandlerForCommand(cmdInstance)      
+        logger.setFileHandlerForCommand(self, cmdInstance)
         return cmdInstance
 
     def run(self, cmd_arguments):
@@ -427,10 +431,14 @@ class Sat(object):
         res = "Sat(\n %s\n)\n" % tmp[1:-1]
         return res
     
+    def getId(self):
+        """assimiled as integer incremented on _idCommandHandlers"""
+        return -1 # assimiled as root of main first command
+
     def getLogger(self):
         if self.logger is None: # could use owner Sat instance logger
           import src.loggingSat as LOG
-          self.logger=LOG.getDefaultLogger()
+          self.logger = LOG.getDefaultLogger()
           self.logger.critical("Sat logger not set, unexpected situation, fixed as default")
           return self.logger
         else:                   # could use local logger
@@ -553,7 +561,7 @@ class Sat(object):
         cmdInstance.setConfig(config)
         
         logger = self.getLogger()
-        logger.setFileHandlerForCommand(cmdInstance)
+        logger.setFileHandlerForCommand(self, cmdInstance)
         
         # Run the main command using the remainders command arguments
         strArgs = " ".join(commandArguments)
@@ -562,6 +570,10 @@ class Sat(object):
         returnCode = cmdInstance.run(commandArguments)
         msg = "END main launch command %s on (%s)\n%s" % (self.nameCommandToLoad, strArgs, str(returnCode))
         logger.step(msg)
+        
+        import src.linksXml as LKXML
+        LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", cmdInstance.getLastRunArgs())
+        LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXml())
         
         logger.closeFileHandlerForCommand(cmdInstance)
         
@@ -643,7 +655,5 @@ class Sat(object):
           self.getLogger().info(msg)
           self.getLogger().info("<green>YES<reset> (as automatic answer)")
           return "YES"
-       
-
 
 
