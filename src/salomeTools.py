@@ -167,6 +167,7 @@ class _BaseCommand(object):
         self._options = None
         self._fullName = [] # example '[prepare','clean'] when micro command 'clean' of 'prepare'
         self._idCommandHandlers = None # as logger.idCommandHandlers for logger handlers of current command
+        # useless self._lastRunArgs = ["No run arguments yet"] # store last command argument of last run method calls
         
     def initFullName(self, parentFullName=[]):
         """
@@ -216,6 +217,12 @@ class _BaseCommand(object):
         res = "%s(\n %s)\n" % (self.getClassName(), tmp[1:-1])
         return res
         
+    '''useless
+    def getLastRunArgs(self):
+        """return last command arguments of last run method called"""
+        return _lastRunArgs[-1]
+    '''
+        
     def getMicroCommand(self, nameCommandToLoad, nameAppliToLoad):
         """
         get micro command instance from current command instance
@@ -241,6 +248,27 @@ class _BaseCommand(object):
         
         logger.setFileHandlerForCommand(self, cmdInstance)
         return cmdInstance
+        
+    def runMicroCommand(self, cmdInstance, cmd_arguments):
+        """create instance of a micro command and launch on arguments"""
+        logger = self.getLogger()
+        commandArguments = self.assumeAsList(cmd_arguments)
+        # Run the micro command using the remainders command arguments
+        strArgs = " ".join(commandArguments)
+        msg = "BEGIN launch micro command %s on (%s)" % (cmdInstance.name, strArgs)
+        logger.step(msg)
+        returnCode = cmdInstance.run(commandArguments)
+        msg = "END launch micro command %s on (%s)\n%s" % (cmdInstance.name, strArgs, str(returnCode))
+        logger.step(msg)
+        
+        import src.linksXml as LKXML
+        LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", strArgs)
+        LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXmlPassed())
+
+        logger.closeFileHandlerForCommand(cmdInstance)
+        
+        return returnCode
+        
 
     def run(self, cmd_arguments):
         """
@@ -572,8 +600,8 @@ class Sat(object):
         logger.step(msg)
         
         import src.linksXml as LKXML
-        LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", cmdInstance.getLastRunArgs())
-        LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXml())
+        LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", strArgs)
+        LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXmlPassed())
         
         logger.closeFileHandlerForCommand(cmdInstance)
         

@@ -22,6 +22,7 @@ import shutil
 import sys
 import StringIO as SIO
 
+import src # for __version__
 import src.debug as DBG
 import src.loggingSat as LOG
 import src.returnCode as RCO
@@ -229,6 +230,9 @@ class ConfigManager:
         except Exception as e:
           raise Exception(msgPb % (afile, str(e)))
         
+        if internal_cfg.INTERNAL.sat_version == "auto":
+          internal_cfg.INTERNAL.sat_version = src.__version__
+
         merger.merge(cfg, internal_cfg)
 
         # apply overwrite from command line if needed

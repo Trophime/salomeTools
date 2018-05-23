@@ -177,6 +177,7 @@ class XmlLogFile(object):
         atts = {
           "command": cfg.VARS.command, # command name
           "satversion": cfg.INTERNAL.sat_version, # version of salomeTools
+          "launchedCommand": "Unknown",
           "hostname": cfg.VARS.hostname, # machine name
           "OS": cfg.VARS.dist, # Distribution of the machine
           "user" : cfg.VARS.user, # The user that have launched the command
@@ -203,23 +204,29 @@ class XmlLogFile(object):
         """
         self.set_node_text("Log", text)
         
-    def put_links_fields(self, links):
+    def put_links_fields(self, idCommand):
         """
         Put all fields corresponding to the links context (micro commands)
         
-        :param links: (list) The links as list of dict
-           {fileName, command, passed, launchedCommand}
-        :param fileName: (str) The file name of the link.
-        :param command: (str) The name of the command linked.
-        :param passed: (str) The result of the command linked. "0" or "1"
-        :param launchedCommand: (str) The full launch command ("sat command ...")
+        :param idCommand): (int) The id to get command informations
+        
+        | as:
+        | fileName: (str) The file name of the link.
+        | command: (str) The name of the command linked.
+        | passed: (str) The result of the command linked. "0" or "1"
+        | launchedCommand: (str) The full launch command ("sat command ...")
         """
+        import src.linksXml as LIXML
+        links = LIXML.getLinksForXml(idCommand)
         xmlLinks = self.xmlroot.find("Links")
         if len(links) != 0:
           xmlLinks.text = "" # erase No links
-          for atts in links: # order matters as time
-            # DBG.write("put_links_fields", atts)
-            add_simple_node(xmlLinks, "link", text=atts["fileName"], attrib=atts)
+          for k in links: # order matters as time
+            filename, attrib = k.toLinkXml()
+            add_simple_node(xmlLinks, "link", text=filename, attrib=attrib)
+        
+        kCmd = LIXML.getLinksForCmd(idCommand)
+        self.append_node_attrib("Site", attrib={"launchedCommand": kCmd.full_launched_cmd})
 
     def put_final_fields(self, attribute):
         """

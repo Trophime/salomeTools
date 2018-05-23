@@ -72,7 +72,7 @@ note: DIM is not assumed in win32
 # dir(ST)
 
 # order matters for items replaces forward to color
-_tags = (
+_tags = [
   ("<black>", FG.BLACK),
   ("<red>", FG.RED),
   ("<green>", FG.GREEN),
@@ -91,13 +91,23 @@ _tags = (
   ("<warning>", FG.RED),
   ("<error>", FG.RED + ST.BRIGHT),
   ("<critical>", FG.RED + ST.BRIGHT),
-  ("<OK>", FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL),
-  ("<KO>", FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL),
-)
+]
 
 # _tagsNone = ( (i, "") for i,j in _tags ) # to clean tags when log not tty
 # reversed order matters for item replaces backward to no color
-_tagsNone = tuple( reversed( [(i, "") for i, j in _tags] ) )
+_tagsNone = list( reversed( [(i, "") for i, j in _tags] ) )
+
+# more non empty colored smart tags
+_tags = _tags + [
+  ("<OK>", FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL),
+  ("<KO>", FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL),
+]
+
+# more non empty colored smart tags reversed order
+_tagsNone = [
+  (FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL, "OK"),
+  (FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL, "KO"),
+] + _tagsNone
 
 
 def indent(msg, nb, car=" "):

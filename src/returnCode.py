@@ -150,6 +150,13 @@ class ReturnCode(object):
       return self._TOSYS[self._status]
     except:
       return self._TOSYS[self.NA_STATUS]
+
+  def toXmlPassed(self):
+    """return xml  return code as '0' (passed) or '1' (not passed)"""
+    if self.isOk(): 
+      return "0"
+    else:
+      return "1"
     
   def getWhy(self):
     """return why as str or list if sum or some ReturnCode"""

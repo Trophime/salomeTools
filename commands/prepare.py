@@ -58,7 +58,7 @@ class Command(_BaseCommand):
   def run(self, cmd_arguments):
     """method called for command 'sat prepare <options>'"""
     argList = self.assumeAsList(cmd_arguments)
-
+    
     # print general help and returns
     if len(argList) == 0:
       self.print_help()
@@ -69,7 +69,7 @@ class Command(_BaseCommand):
     if self._options.help:
       self.print_help()
       return RCO.ReturnCode("OK", "Done 'sat %s --help'" % self.name)
-   
+      
     # shortcuts
     runner = self.getRunner()
     config = self.getConfig()
@@ -83,105 +83,88 @@ class Command(_BaseCommand):
 
     # Construct the arguments to pass to the clean, source and patch commands
     args_appli = config.VARS.application
-    args_product_opt = '--products '
     if options.products:
-        for p_name in options.products:
-            args_product_opt += ',' + p_name
+        listProd = list(options.products)
     else:
-        for p_name, __ in products_infos:
-            args_product_opt += ',' + p_name
-
+        listProd = [name for name, tmp in products_infos]
+    args_product_opt = '--products ' + ",".join(listProd)
+    do_source = (len(listProd) > 0)
+    
     ldev_products = [p for p in products_infos if PROD.product_is_dev(p[1])]
-    args_product_opt_clean = args_product_opt
+    newList = listProd
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)
-        if len(l_products_not_getted) > 0:
+        listNot = [i for i, tmp in l_products_not_getted]
+        newList, removedList = removeInList(listProd, listNot)
+        if len(removedList) > 0:
             msg = _("""\
 Do not get the source of the following products in development mode.
 Use the --force option to overwrite it.
 """)
-            logger.error(UTS.red(msg))
-            args_product_opt_clean = remove_products(args_product_opt_clean,
-                                                     l_products_not_getted,
-                                                     logger)
-
+            logger.error(msg + "\n%s" % ",".join(removedList))
     
-    args_product_opt_patch = args_product_opt
+    args_product_opt_clean = '--products ' + ",".join(newList)
+    do_clean = (len(newList) > 0)
+    
+    newList = listProd
     if not options.force_patch and len(ldev_products) > 0:
         l_products_with_patchs = find_products_with_patchs(ldev_products)
-        if len(l_products_with_patchs) > 0:
+        listNot = [i for i, tmp in l_products_with_patchs]
+        newList, removedList = removeInList(listProd, listNot)
+        if len(removedList) > 0:
             msg = _("""
 Do not patch the following products in development mode.
 Use the --force_patch option to overwrite it.
 """)
-            logger.error(UTS.red(msg))
-            args_product_opt_patch = remove_products(args_product_opt_patch,
-                                                     l_products_with_patchs,
-                                                     logger)
-
+            logger.error(msg + "\n%s" % ",".join(removedList))
+                                                     
+    args_product_opt_patch = '--products ' + ",".join(newList)
+    do_patch = (len(newList) > 0)
+    
     # Construct the final commands arguments
-    args_clean = "%s --sources" % (args_product_opt_clean)
-    args_source = "%s" % (args_product_opt) 
-    args_patch = "%s" % (args_product_opt_patch)
-
-    # If there is no more any product in the command arguments,
-    # do not call the concerned command 
-    oExpr = re.compile("^--products *$")
-    do_clean = not(oExpr.search(args_product_opt_clean))
-    do_source = not(oExpr.search(args_product_opt))
-    do_patch = not(oExpr.search(args_product_opt_patch))
-       
+    args_clean = "%s --sources" % args_product_opt_clean
+    args_source = "%s" % args_product_opt 
+    args_patch = "%s" % args_product_opt_patch
+      
     # Initialize the results to Ok but nothing done status
     res_clean = RCO.ReturnCode("OK", "nothing done")
     res_source = RCO.ReturnCode("OK", "nothing done")
     res_patch = RCO.ReturnCode("OK", "nothing done")
 
     # Call the commands using the API
+    # If do_etc there is no more any product in the command arguments
     if do_clean:
         msg = _("Clean the source directories ...")
         logger.info(msg + "(%s)" % args_clean)
         mCmd = self.getMicroCommand("clean", args_appli)
-        res_clean = mCmd.run(args_clean)
-        logger.step(str(res_clean))
-        logger.closeFileHandlerForCommand(mCmd)
+        res_clean = self.runMicroCommand(mCmd, args_clean)
         
     if do_source:
         msg = _("Get the sources of the products ...")
         logger.info(msg + "(%s)" % args_source)
         mCmd = self.getMicroCommand("source", args_appli)
-        res_source = mCmd.run(args_source)
-        logger.step(str(res_source))
-        logger.closeFileHandlerForCommand(mCmd)
+        res_source = self.runMicroCommand(mCmd, args_source)
         
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
         logger.info(msg + "(%s)" % args_patch)
         mCmd = self.getMicroCommand("patch", args_appli)
-        res_patch = mCmd.run(args_patch)
-        logger.step(str(res_patch))
-        logger.closeFileHandlerForCommand(mCmd)
+        res_patch = self.runMicroCommand(mCmd, args_patch)
     
     return res_clean + res_source + res_patch
 
 
-def remove_products(arguments, l_products_info, logger):
-    """Removes the products in l_products_info from arguments list.
+def removeInList(aList, removeList):
+    """Removes elements of removeList list from aList
     
-    :param arguments: (str) The arguments from which to remove products
-    :param l_products_info: (list) 
-      List of (str, Config) => (product_name, product_info)
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (str) The updated arguments.
+    :param aList: (list) The list from which to remove elements
+    :param removeList: (list) The list which contains elements to remove
+    :return: (list, list) (list with elements removed, list of elements removed) 
     """
-    args = arguments
-    for i, (product_name, __) in enumerate(l_products_info):
-        args = args.replace(',' + product_name, '')
-        end_text = ', '
-        if i+1 == len(l_products_info):
-            end_text = '\n'            
-        logger.info(product_name + end_text)
-    return args
+    res1 = [i for i in aList if i not in removeList]
+    res2 = [i for i in aList if i in removeList]
+    return (res1, res2)
+
 
 def find_products_already_getted(l_products):
     """Returns the list of products that have an existing source directory.

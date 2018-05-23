@@ -227,5 +227,5 @@ def suppress_directories(l_paths, logger):
         else:
             logger.info(_("Removing %s ...") % strpath )
             path.rm()
-            logger.info('<OK>')
+            logger.info('OK')
 

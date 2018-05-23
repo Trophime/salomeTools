@@ -70,6 +70,7 @@ LOGI.TRACE = _TRACE # only for coherency,
 #################################################################
 # utilities methods
 #################################################################
+
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
   s = msg.split("\n")
@@ -320,7 +321,7 @@ class LoggerSat(LOGI.Logger):
       handler.set_config(config)
       handler.idCommandHandlers = self.idCommandHandlers
       
-      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      fmt = '%(asctime)s :: %(levelname)-8s :: %(message)s'
       formatter = FileXmlFormatter(fmt, "%y-%m-%d %H:%M:%S")
       
       handler.setFormatter(formatter)
@@ -333,7 +334,7 @@ class LoggerSat(LOGI.Logger):
       handler.set_name(nameFileTxt)
       handler.idCommandHandlers = self.idCommandHandlers
       
-      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      fmt = '%(asctime)s :: %(levelname)-8s :: %(message)s'
       formatter = FileTxtFormatter(fmt, "%y-%m-%d %H:%M:%S")
       
       handler.setFormatter(formatter)
@@ -352,7 +353,7 @@ class LoggerSat(LOGI.Logger):
       handler.set_config(config)
       handler.idCommandHandlers = self.idCommandHandlers
       
-      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      fmt = '%(asctime)s :: %(levelname)-8s :: %(message)s'
       formatter = FileXmlFormatter(fmt, "%y-%m-%d %H:%M:%S")
       
       handler.setFormatter(formatter)
@@ -365,7 +366,7 @@ class LoggerSat(LOGI.Logger):
       handler.set_name(nameFileTxt)
       handler.idCommandHandlers = self.idCommandHandlers
       
-      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      fmt = '%(asctime)s :: %(levelname)-8s :: %(message)s'
       formatter = FileTxtFormatter(fmt, "%y-%m-%d %H:%M:%S")
       
       handler.setFormatter(formatter)
@@ -613,9 +614,9 @@ class XmlHandler(BufferingHandler):
     self._target_file = None
     self._config = None
     self._log_field = "Uninitialized log"
-    self._links_fields = [] # list of (log_file_name, cmd_name, cmd_res, full_launched_cmd)
     self._final_fields = {} # node attributes
     self.isClosed = False # precaution as write file done yet
+    self.idCommandHandlers = None # have to be set later to know links
     
   def set_target_file(self, filename):
     """
@@ -664,14 +665,14 @@ class XmlHandler(BufferingHandler):
     """
            
     # TODO for debug
-    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)), True)
+    log("XmlHandler to xml file\n%s" % PP.pformat(getListOfStrLogRecord(self.buffer)))
     
     self._log_field = self.createLogField()
        
     xmlFile = XMLMGR.XmlLogFile(targetFile, "SATcommand")
     xmlFile.put_initial_fields(config)    
     xmlFile.put_log_field(self._log_field)
-    xmlFile.put_links_fields(self._links_fields)
+    xmlFile.put_links_fields(self.idCommandHandlers)
     xmlFile.put_final_fields(self._final_fields) 
     xmlFile.write_tree(stylesheet = "command.xsl") # xml complete closed file
     xmlFile.dump_config(config) # create pyconf file in the log directory

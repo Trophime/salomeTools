@@ -23,9 +23,13 @@ main command calls sequence of microcommand(s)
 which calls other sequence of microcommand(s) etc.
 command(s) are identified (and their logger handler(s)) 
 by '_idCommandHandlers' attribute
+
+Usage:
+>> import src.linksXml as LIXML
 """
 
 import pprint as PP
+import src.debug as DBG
       
 class LinkXml(object):
   """
@@ -60,8 +64,9 @@ class LinkXml(object):
     aDict = {
       "idName": self.idName,
       "log_file_name": self.log_file_name,
-      "full_launched_cmd": self.full_launched_cmd,
+      "cmd_name": self.cmd_name,
       "self.cmd_res": self.cmd_res,
+      "full_launched_cmd": self.full_launched_cmd,
       "links": self._linksXml,
     }
     tmp = PP.pformat(aDict)
@@ -89,7 +94,7 @@ class LinkXml(object):
     return app
     
   def getAllIdNames(self):
-    """recursive trip for sequence xml"""
+    """recursive trip in tree to get list sequence xml"""
     res = [self.idName]
     for i in self._linksXml:
       res.extend(i.getAllIdNames())
@@ -101,6 +106,24 @@ class LinkXml(object):
     else:
       msg = "setAuthAttr %s attribute not authorized" % nameAttrib
       raise Exception(msg)
+      
+  def toLinkXml(self):
+    """returns easy to use data for method put_links_fields"""
+    aDict = {
+      "command": self.cmd_name,
+      "launchedCommand": self.full_launched_cmd,
+      "passed": self.cmd_res,
+    }    
+    return (self.log_file_name, aDict)
+    
+  def toDict(self):
+    aDict = {
+      "log_file_name": self.log_file_name,
+      "cmd_name": self.cmd_name,
+      "self.cmd_res": self.cmd_res,
+      "full_launched_cmd": self.full_launched_cmd,
+    }
+    return aDict
     
 
 #####################################################
@@ -128,14 +151,26 @@ def appendLinkForCommand(cmdParent, cmdNew):
     raise Exception(msg)
   import src.debug as DBG
   kNew = kParent.appendLink(idNew)
-  DBG.write("appendLinkForCommand %i for parent %i" % (idNew, idParent), k0, True)  
+  DBG.write("appendLinkForCommand %i for parent" % idNew, idParent, True)  
   return kNew
   
 def setAttribLinkForCommand(cmd, nameAttrib, value):
   """init an attribute value in link of a command in singleton tree"""
   k0 = getLinksXml() # get singleton
-  idCmd = cmd.getId()
-  kCmd = k0.findLink(idCmd)
-  k0.setAuthAttr(nameAttrib, value)
+  kCmd = k0.findLink(cmd.getId())
+  kCmd.setAuthAttr(nameAttrib, value)
+  # DBG.write("setAttribLinkForCommand", (nameAttrib, value), True)
   
+def getLinksForXml(idCommand):
+  """return list of links of one command from its id"""
+  k0 = getLinksXml() # get singleton
+  kCommand = k0.findLink(idCommand)
+  kLinks = kCommand.getAllIdNames()[1:] #avoid first idCommand
+  res = [kCommand.findLink(k) for k in kLinks]
+  DBG.write("getLinksForXml", [k.toDict() for k in res], True)
+  return res
 
+def getLinksForCmd(idCommand):
+  k0 = getLinksXml() # get singleton
+  return k0.findLink(idCommand)
+  
