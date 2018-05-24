@@ -672,25 +672,30 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
 ##############################################################################
     
 def Popen(command, shell=True, cwd=None, env=None, stdout=SP.PIPE, stderr=SP.PIPE, logger=None):
-  """make subprocess.Popen(cmd), with call logger.trace and logger.error if problem"""
-  try:  
-    proc =  SP.Popen(command, shell=shell, cwd=cwd, env=env, stdout=stdout, stderr=stderr)
-    res_out, res_err = proc.communicate()
+  """
+  make subprocess.Popen(cmd), with 
+  call logger.trace and logger.error if problem as returncode != 0 
+  """
+  if True: #try:  
+    proc = SP.Popen(command, shell=shell, cwd=cwd, env=env, stdout=stdout, stderr=SP.STDOUT)
+    res_out, res_err = proc.communicate() # res_err = None as stderr=SP.STDOUT
+    rc = proc.returncode
     
-    if res_err == "":
+    DBG.write("Popen logger returncode", (rc, res_out))
+    
+    if rc == 0:
       if logger is not None:
-        logger.trace("OK launch command cwd=%s:\n%s" % (cwd, command))
-        logger.trace("OK result command stdout:\n%s" % res_out)
+        logger.trace("<OK> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
+        logger.trace("<OK> result command stdout&stderr:\n%s" % res_out)
       return RCO.ReturnCode("OK", "command done", value=res_out)
     else:
       if logger is not None:
-        logger.warning("KO launch command cwd=%s:\n%s" % (cwd, command))
-        logger.warning("KO result command stdout:\n%s" % res_out)
-        logger.warning("KO result command stderr:\n%s" % res_err)
-      return RCO.ReturnCode("KO", "command problem", value=stderr)
-  except Exception as e:
-    logger.error("KO launch command cwd=%s:\n%s" % (cwd, command))
-    logger.error("launch command exception:\n%s" % str(e))
+        logger.warning("<KO> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
+        logger.warning("<KO> result command stdout&stderr:\n%s" % res_out)
+      return RCO.ReturnCode("KO", "command problem", value=res_out)
+  else: #except Exception as e:
+    logger.error("<KO> launch command cwd=%s:\n%s" % (cwd, command))
+    logger.error("launch command exception:\n%s" % e)
     return RCO.ReturnCode("KO", "launch command problem")
 
   

@@ -151,7 +151,7 @@ def appendLinkForCommand(cmdParent, cmdNew):
     raise Exception(msg)
   import src.debug as DBG
   kNew = kParent.appendLink(idNew)
-  DBG.write("appendLinkForCommand %i for parent" % idNew, idParent, True)  
+  DBG.write("appendLinkForCommand %i for parent" % idNew, idParent)  
   return kNew
   
 def setAttribLinkForCommand(cmd, nameAttrib, value):
@@ -167,7 +167,7 @@ def getLinksForXml(idCommand):
   kCommand = k0.findLink(idCommand)
   kLinks = kCommand.getAllIdNames()[1:] #avoid first idCommand
   res = [kCommand.findLink(k) for k in kLinks]
-  DBG.write("getLinksForXml", [k.toDict() for k in res], True)
+  DBG.write("getLinksForXml", [k.toDict() for k in res])
   return res
 
 def getLinksForCmd(idCommand):

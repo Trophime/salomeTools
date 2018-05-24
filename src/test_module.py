@@ -425,12 +425,18 @@ class Test:
             launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
-                cmd = "for i in %s/env.d/*.sh; do source ${i}; done ; echo $KERNEL_ROOT_DIR"
-                cmd = cmd % launcherDir
+                cmd = r"""
+set -x 
+for i in %s/env.d/*.sh; do source ${i}; done
+echo $KERNEL_ROOT_DIR
+""" % launcherDir
             else:
-                # New application TODO fix that horreur
-                cmd = "echo -e 'import os\nprint os.environ[\"KERNEL_ROOT_DIR\"]' > tmpscript.py; %s shell tmpscript.py"
-                cmd = cmd % self.launcher
+                # New application TODO fix that horror
+                cmd = r"""
+set -x 
+echo -e 'import os\nprint os.environ["KERNEL_ROOT_DIR"]' > tmpscript.py
+%s shell tmpscript.py
+""" % self.launcher
 
             p = SP.Popen(cmd, stdout=SP.PIPE, shell=True, executable='/bin/bash')
             subproc_res = p.communicate()

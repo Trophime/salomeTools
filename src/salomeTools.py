@@ -113,8 +113,7 @@ def launchSat(command):
       env["PATH"] = rootdir + ":" + env["PATH"]
     # TODO setLocale not 'fr' on subprocesses, why not?
     # env["LANG"] == ''
-    p = SP.Popen(command, shell=True, env=env, stdout=SP.PIPE, stderr=SP.PIPE)
-    res = P.communicate()
+    res = UTS.Popen(command, env=env)
     return res
 
 def setNotLocale():

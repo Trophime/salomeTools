@@ -53,13 +53,12 @@ class TestCase(unittest.TestCase):
 
   def test_010(self):
     cmd = "sat --help"
-    stdout, stderr = SAT.launchSat(cmd)
-    DBG.write("test_010 stdout", stdout)
-    DBG.write("test_010 stderr", stderr)
-    self.assertEqual(stderr, "")
-    self.assertTrue(" - config" in stdout)
-    self.assertTrue(" - prepare" in stdout)
-    self.assertTrue(" - compile" in stdout)
+    res = SAT.launchSat(cmd)
+    self.assertTrue(res.isOk())
+    out = res.getValue()
+    self.assertTrue(" - config" in out)
+    self.assertTrue(" - prepare" in out)
+    self.assertTrue(" - compile" in out)
 
   def test_011(self):
     cmd = "--help"

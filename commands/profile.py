@@ -175,7 +175,7 @@ def generate_profile_sources( config, options, logger ):
     if os.path.exists( prefix ) :
         if not options.force :
             raise Exception( 
-              _("The path %s already exists, use option --force to remove it.") % prefix )
+              _("The path %s already exists, use option --force to remove it.") % prefix)
         else :
             shutil.rmtree( prefix )
 

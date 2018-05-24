@@ -405,7 +405,10 @@ def move_test_results(in_dir, what, out_dir, logger):
 
 def check_remote_machine(machine_name, logger):
     logger.debug(_("Check the display on %s\n") % machine_name)
-    ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s "ls"' % machine_name
+    ssh_cmd = """
+set -x
+ssh -o "StrictHostKeyChecking no" %s "whoami"
+""" % machine_name
     res = UTS.Popen(ssh_cmd, shell=True, logger=logger)
 
 def create_test_report(config,

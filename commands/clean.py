@@ -134,9 +134,9 @@ The '--properties' options must have the following syntax:
         return RCO.ReturnCode("KO", "to suppress in clean command")
     
     # Check with the user if he really wants to suppress the directories
-    msg = UTS.red(_("Remove the following directories:\n"))
+    msg = _("Remove the following directories:\n")
     for directory in l_dir_to_suppress:
-        msg += "  %s\n" % directory 
+        msg += "  %s\n" % UTS.info(str(directory))
     if runner.getAnswer(msg[:-1]) == "No":
         return RCO.ReturnCode("OK", "user do not want to continue")
 
@@ -222,10 +222,9 @@ def suppress_directories(l_paths, logger):
     for path in l_paths:
         strpath = str(path)
         if not path.isdir():
-            msg = _("The path %s does not exists (or is not a directory)\n") % strpath
+            msg = _("The path %s does not exists (or is not a directory)") % UTS.info(strpath)
             logger.warning(msg)
         else:
-            logger.info(_("Removing %s ...") % strpath )
             path.rm()
-            logger.info('OK')
+            logger.info(_("Remove %s ...<OK>") % UTS.info(strpath))
 

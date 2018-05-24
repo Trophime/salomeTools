@@ -76,8 +76,9 @@ class Command(_BaseCommand):
     UTS.check_config_has_application(config).raiseIfKo()
 
     # Print some informations
-    logger.info(_('Getting sources of the application %s') % UTS.label(config.VARS.application))
-    logger.info("  workdir = %s" % UTS.blue(config.APPLICATION.workdir))
+    msg = _('Getting sources of the application %s\n  workdir = %s\n')
+    msg = msg % (UTS.label(config.VARS.application), UTS.info(config.APPLICATION.workdir))
+    logger.info(msg)
        
     # Get the products list with products informations regarding the options
     products_infos = self.get_products_list(options, config)
@@ -97,10 +98,10 @@ class Command(_BaseCommand):
       status = "KO"
       msg = _("Some sources haven't been get")
       details = [p for p in results if (results[product] == 0 or results[product] is None)]
-      details  = " ".join(details)
+      details  = ",".join(details)
       logger.info("\n%s %s: <%s>.\n%s\n" % (msg, msgCount, status, details))
 
-    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
+    return RCO.ReturnCode(status, "%s get sources: %s" % (msg, msgCount))
 
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
@@ -166,10 +167,7 @@ def get_source_from_git(product_info,
         repo_git = product_info.git_info.repo    
         
     # Display informations
-    msg = "%s:%s" % (coflag, repo_git)
-    msg += " " * (pad + 50 - len(repo_git))
-    msg += " tag:%s" % product_info.git_info.tag
-    msg += "."*(10 - len(product_info.git_info.tag))
+    msg =  " %s:%s tag:%s ..."  % (coflag, repo_git, product_info.git_info.tag)
     logger.info(msg)
     
     # Call the system function that do the extraction in git mode
@@ -358,7 +356,7 @@ def get_product_sources(config,
     """
     
     # Get the application environment
-    logger.info(_("Set the application environment"))
+    logger.debug(_("Set the application environment"))
     env_appli = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)))
     env_appli.set_application_env(logger)
     
@@ -433,16 +431,16 @@ def get_all_product_sources(config, products, logger):
             source_dir = UTS.Path('')
 
         # display and log
-        logger.info('%s: ' % UTS.label(product_name))
-        logger.info(' ' * (max_product_name_len - len(product_name)))
+        p_len = len(product_name)
+        logger.info('%s: ...' % UTS.label(product_name))
         
         # Remove the existing source directory if 
         # the product is not in development mode
         is_dev = PROD.product_is_dev(product_info)
         if source_dir.exists():
-            logger.info("<OK>\n")
-            msg = _("Nothing done because source directory existing yet.\n")
-            logger.info(msg)
+            msg = _("Do nothing because source directory existing yet.")
+            logger.warning(msg)
+            logger.info("<OK>")
             good_result = good_result + 1
             # Do not get the sources and go to next product
             continue
@@ -485,7 +483,7 @@ def get_all_product_sources(config, products, logger):
         
         # print the result
         if not(PROD.product_is_fixed(product_info) or PROD.product_is_native(product_info)):
-            logger.info('%s\n' % res)
+            logger.info(res)
 
     return good_result, results
 

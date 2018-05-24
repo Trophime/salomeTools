@@ -325,7 +325,11 @@ def generate_application(config, appli_dir, config_file, logger):
         envi = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), True)
         envi.set_a_product('Python', logger)
     
-    command = "python %s --prefix=%s --config=%s" % (script, appli_dir, config_file)
+    command = """
+set -x
+which python
+python %s --prefix=%s --config=%s
+""" % (script, appli_dir, config_file)
     res = UTS.Popen(command, shell=True, cwd=target_dir, env=envi.environ.environ, logger=logger)  
     res.raiseIfKo()
     return res

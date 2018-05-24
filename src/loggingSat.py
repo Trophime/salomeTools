@@ -733,13 +733,18 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
     handler.setFormatter(formatter)
   handler.idCommandHandlers = 0
   logger.addHandler(handler)
+  # as RootLogger is level WARNING
+  # my logger is not notset but low, handlers needs setlevel greater
+  logger.setLevel(LOGI.DEBUG)
+  # import src/debug as DBG
+  # tmp = (logger.getEffectiveLevel(), LOGI.NOTSET, logger.level, logger.parent.level)
+  # DBG.write("logger levels tmp, True)  
   if level is not None: # level could be modified during execution....
-    logger.setLevel(level)
     handler.setLevel(level) # on screen log as user wants
   else:
-    logger.setLevel(LOGI.STEP) # in xml files log step
     handler.setLevel(LOGI.INFO) # on screen no log step, which are in xml files
-
+  return
+    
   
 def initLoggerAsUnittest(logger, fmt=None, level=None):
   """
@@ -859,4 +864,4 @@ else:
   _loggerDefault = getDefaultLogger()
   _loggerUnittest = getUnittestLogger()
   initLoggerAsDefault(_loggerDefault, '%(levelname)s :: %(message)s')
-  initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)s :: %(message)s', level=LOGI.DEBUG)
+  initLoggerAsUnittest(_loggerUnittest, '%(asctime)s :: %(levelname)s :: %(message)s')

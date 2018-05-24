@@ -30,6 +30,7 @@ import subprocess as SP
 
 import utilsSat as UTS
 import src.returnCode as RCO
+import src.debug as DBG
 
 def show_in_editor(editor, filePath, logger):
     """open filePath using editor.
@@ -49,9 +50,8 @@ def show_in_editor(editor, filePath, logger):
         cmd = editor % filePath
         msg = "show_in_editor command: '%s'" % cmd
         logger.debug(msg)
-        p = SP.Popen(cmd, shell=True)
-        p.communicate()
-        return RCO.ReturnCode("OK", msg)
+        res = UTS.Popen(cmd, logger=logger)
+        return res
     except:
         msg = _("Unable to edit file '%s'") % filePath
         logger.error(msg)
@@ -67,24 +67,26 @@ def git_extract(from_what, tag, where, logger, environment=None):
     :param logger: (Logger) The logger instance to use.
     :param environment: (Environ) 
       The environment to source when extracting.
-    :return: RCO.ReturnCode OK if the extraction is successful
+    :return: (ReturnCode) OK if the extraction is successful
     """
     if not where.exists():
-        where.make()
+      where.make()
     whe = str(where)
-    if tag == "master" or tag == "HEAD":
-        command = "git clone %(rem)s %(whe)s --quiet" %  {'rem': from_what, 'whe': whe}
-    else:
-        # NOTICE: this command only works with recent version of git
-        #         because --work-tree does not work with an absolute path
-        where_git = os.path.join(whe, ".git" )
-        command = r"""rmdir %(whe)s && \
-git clone %(rem)s %(whe)s --quiet && \
-git --git-dir=%(whe_git)s --work-tree=%(whe)s checkout %(tag)s --quiet"""
-        command = command % {'rem': from_what, 'tag': tag, 'whe': whe, 'whe_git': where_git }
+    where_git = os.path.join(whe, ".git" )
+    command = r"""
+set -x 
+aDir=%(whe)s
+rmdir $aDir
+git clone %(rem)s $aDir --quiet
+cd $aDir
+git checkout %(tag)s --quiet
+# last command for OK/KO
+git log -n 1
+""" % {'rem': from_what, 'tag': tag, 'whe': whe }
 
     env = environment.environ.environ
     res = UTS.Popen(command, cwd=str(where.dir()), env=env, logger=logger)
+    DBG.write("git_extract", res.__repr__())
     return res
 
 def archive_extract(from_what, where, logger):
@@ -96,13 +98,15 @@ def archive_extract(from_what, where, logger):
     :return: (bool) True if the extraction is successful
     """
     try:
-        archive = tarfile.open(from_what)
-        for i in archive.getmembers():
-            archive.extract(i, path=str(where))
-        return True, os.path.commonprefix(archive.getnames())
-    except Exception as exc:
-        logger.error("archive_extract: %s\n" % exc)
-        return False, None
+      archive = tarfile.open(from_what)
+      for i in archive.getmembers():
+        archive.extract(i, path=str(where))
+      value = os.path.commonprefix(archive.getnames())
+      res = RCO.ReturnCode("OK", "archive_extract done", value=value)
+    except Exception as e:
+      logger.error("<KO> archive_extract problem:\n%s" % str(e))
+      res = RCO.ReturnCode("KO", "archive_extract problem", value=str(e))
+    return res
 
 def cvs_extract(protocol, user, server, base, tag, product, where,
                 logger, checkout=False, environment=None):
@@ -119,43 +123,46 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
     :param checkout: (bool) If true use checkout cvs.
     :param environment: (Environ) 
       The environment to source when extracting.
-    :return: (bool) True if the extraction is successful
+    :return: (ReturnCode) OK if the extraction is successful
     """
 
     opttag = ''
     if tag is not None and len(tag) > 0:
-        opttag = '-r ' + tag
+      opttag = '-r ' + tag
 
     cmd = 'export'
     if checkout:
-        cmd = 'checkout'
+      cmd = 'checkout'
     elif len(opttag) == 0:
-        opttag = '-DNOW'
+      opttag = '-DNOW'
     
     if len(protocol) > 0:
-        root = "%s@%s:%s" % (user, server, base)
-        command = "cvs -d :%(protocol)s:%(root)s %(command)s -d %(where)s %(tag)s %(product)s" % \
-            { 'protocol': protocol, 'root': root, 'where': str(where.base()),
-              'tag': opttag, 'product': product, 'command': cmd }
+      root = "%s@%s:%s" % (user, server, base)
+      command = r"""
+set -x 
+aDir=%(whe)s
+cvs -d :%(prot)s:%(root)s %(cmd)s -d $aDir %(tag)s %(prod)s
+# last command for OK/KO
+cd $aDir
+""" % { 'prot': protocol, 'root': root, 'whe': str(where.base()),
+        'tag': opttag, 'prod': product, 'cmd': cmd }
     else:
-        command = "cvs -d %(root)s %(command)s -d %(where)s %(tag)s %(base)s/%(product)s" % \
-            { 'root': server, 'base': base, 'where': str(where.base()),
-              'tag': opttag, 'product': product, 'command': cmd }
-
-    logger.debug(command)
+      command = r"""
+set -x 
+aDir=%(whe)s
+cvs -d %(root)s %(cmd)s -d $aDir %(tag)s %(base)s/%(prod)s
+# last command for OK/KO
+cd $aDir
+""" % { 'root': server, 'base': base, 'whe': str(where.base()),
+       'tag': opttag, 'prod': product, 'cmd': cmd }
 
     if not where.dir().exists():
-        where.dir().make()
+      where.dir().make()
 
-    logger.logTxtFile.write("\n" + command + "\n")
-    logger.logTxtFile.flush()        
-    res = SP.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=SP.STDOUT)
-    return (res == 0)
+    env = environment.environ.environ
+    res = UTS.Popen(command, cwd=str(where.dir()), env=env, logger=logger)
+    DBG.write("cvs_extract", res.__repr__())
+    return res
 
 def svn_extract(user,
                 from_what,
@@ -174,36 +181,38 @@ def svn_extract(user,
     :param checkout: (bool) If true use checkout svn.
     :param environment: (Environ)
       The environment to source when extracting.
-    :return: (bool) True if the extraction is successful
+    :return: (ReturnCode) OK if the extraction is successful
     """
     if not where.exists():
-        where.make()
-
+      where.make()
+      
+    repl = {
+      'rem': from_what,
+      'user': user, 
+      'whe': str(where),
+      'tag' : tag,
+    }
+    
     if checkout:
-        command = "svn checkout --username %(user)s %(remote)s %(where)s" % \
-            { 'remote': from_what, 'user' : user, 'where': str(where) }
+      cmd = "svn checkout --username %(user)s %(rem)s $aDir" %  repl
     else:
-        command = ""
-        if os.path.exists(str(where)):
-            command = "/bin/rm -rf %(where)s && " % \
-                { 'remote': from_what, 'where': str(where) }
+      cmd = ""
+      if os.path.exists(str(where)):
+        cmd = "rm -rf $aDir\n" % repl
+      if tag == "master":
+        cmd += "svn export --username %(user)s %(rem)s $aDir" % repl      
+      else:
+        cmd += "svn export -r %(tag)s --username %(user)s %(rem)s $aDir" % repl
         
-        if tag == "master":
-            command += "svn export --username %(user)s %(remote)s %(where)s" % \
-                { 'remote': from_what, 'user' : user, 'where': str(where) }       
-        else:
-            command += "svn export -r %(tag)s --username %(user)s %(remote)s %(where)s" % \
-                { 'tag' : tag, 'remote': from_what, 'user' : user, 'where': str(where) }
-    
-    logger.logTxtFile.write(command + "\n")
-    
-    logger.debug(command)
-    logger.logTxtFile.write("\n" + command + "\n")
-    logger.logTxtFile.flush()
-    res = SP.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=SP.STDOUT)
-    return (res == 0)
+    cmd = """
+set -x 
+aDir=%(whe)s
+%s
+# last command for OK/KO
+cd $aDir
+""" % cmd
+    env = environment.environ.environ
+    res = UTS.Popen(cmd, cwd=str(where.dir()), env=env, logger=logger)
+    DBG.write("svn_extract", res.__repr__())
+    return res
+
