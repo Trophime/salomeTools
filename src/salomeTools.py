@@ -368,6 +368,8 @@ class _BaseCommand(object):
         if remaindersArgs != []:
           msg = "%s.Command have unknown remainders arguments:\n(%s)" % (fullName, " ".join(remaindersArgs))
           self.getLogger().error(msg)
+        
+        self.getLogger().trace("%s.Command options\n%s" % (fullName, commandOptions))
         return commandOptions, remaindersArgs
     
     def description(self):
@@ -494,7 +496,7 @@ class Sat(object):
                           _("overwrites a configuration parameters."))
         
         parser.add_option('v', 'verbose', 'level', "output_verbose_level", 
-                          _("change console output verbose level (default is INFO)."))
+                          _("change console output verbose level (default is INFO)."), "INFO")
         
         parser.add_option('d', 'devel', 'noboolean', "development mode", 
                           _("""\
@@ -515,8 +517,8 @@ development mode (more verbose error/exception messages)
     def parseArguments(self, arguments):
         args = self.assumeAsList(arguments)
         genericOptions, remaindersArgs = self.parser.parse_args(args)
-        DBG.write("Sat generic options", genericOptions, True)
-        DBG.write("Sat remainders arguments", remaindersArgs, True)
+        DBG.write("Sat generic options", genericOptions)
+        DBG.write("Sat remainders arguments", remaindersArgs)
         return genericOptions, remaindersArgs
                
     
@@ -572,6 +574,11 @@ development mode (more verbose error/exception messages)
             return RCO.ReturnCode("OK", "No arguments, as 'sat --help'")
         
         self.options, remainderArgs = self.parseArguments(args)
+        # set main handler level
+        logger = self.getLogger()
+        logger.setLevelMainHandler(self.options.output_verbose_level)
+        
+        logger.trace("generic options\n%s" % self.options)
         
         # if the help option has been called, print command help and returns
         if self.options.help:

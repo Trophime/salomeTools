@@ -500,7 +500,39 @@ def error(msg):
 
 def critical(msg):
     return "<critical>"+msg+"<reset>"
-
+  
+def tabColor(*args):
+    """
+    return tabulated colored string from args, 
+    assume true length of color tags as <OK> <info> etc. to correct alignment
+    when tags are interpreted as (no-length-spacing) color
+    for colorama use or else
+    """
+    # DBG.write("tabulate args %s" % type(args), args, True)
+    i = 0
+    imax = len(args)
+    res = ""
+    for ii in range(30): # no more 30 items
+      idx, aStr = args[i:i+2]
+      if idx > 0: 
+        res += aStr + addSpaces(idx, aStr) # left aligment
+      else:
+        res += addSpaces(idx, aStr) + aStr # right aligment
+      i += 2
+      if i >= imax:
+        return res
+    # something wrong
+    #Raise Exception("tabColor problem on %s" % args)
+      
+def addSpaces(idx, aStr):
+    import src.coloringSat as COLS
+    cleaned = COLS.cleanColors(aStr)
+    # DBG.write("cleaned", "'%s' ->\n'%s'" % (aStr, cleaned), True)
+    lg = abs(idx) - len(cleaned)
+    if lg <= 0: 
+      return ""
+    else:
+      return " "*lg
 
 ##############################################################################
 # list and dict utilities

@@ -35,8 +35,8 @@ class OptResult(object):
     The aim of this class is to have an elegant syntax to manipulate the options.
     
     | Example: 
-    | >> print(options.level)
-    | >> 5
+    | >> print(options.output_verbose_level)
+    | >> 'INFO'
     """
     def __init__(self):
         """Initialization
@@ -90,8 +90,7 @@ class Options(object):
         self.default = None
         self.results = {}
 
-    def add_option(self, shortName, longName,
-                    optionType, destName, helpString="", default = None):
+    def add_option(self, shortName, longName, optionType, destName, helpString="", default=None):
         """
         Add an option to a command. It gets all attributes
         of an option and append it in the options field
@@ -259,9 +258,9 @@ class Options(object):
       for i in range(maxLen):
         for lev in knownLevels:
           if aLev == lev[:i]:
-            DBG.write("filterLevel", "%s -> %s" % (aLevel, lev), True) 
+            DBG.write("filterLevel", "%s -> %s" % (aLevel, lev)) 
             return lev
-      msg = "Unknown level '%s', accepted are:\n%s" % (aLev, ",".join(knownLevels))
+      msg = "Unknown level '%s', accepted are:\n%s" % (aLev, ", ".join(knownLevels))
       raise Exception(msg)
       
     def filterList2(self, aStr):

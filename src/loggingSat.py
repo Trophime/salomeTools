@@ -387,7 +387,15 @@ class LoggerSat(LOGI.Logger):
     self.idCommandHandlers += 1
     log("setFileHandler %s" % logger)
     return self.idCommandHandlers
-  
+
+  def setLevelMainHandler (self, level):
+    for handl in list(self.handlers): # get main handler
+      if handl.idCommandHandlers == 0:
+        log("setLevelMainHandler %s" % level)
+        handl.setLevel(level)
+        return
+    raise Exception("main handler not found for level %s" % level)
+    
   def closeFileHandlerForCommand(self, cmdInstance):
     for handl in list(self.handlers): # get original list
       try: # may be foreign handlers without idCommandHandlers attribute
@@ -746,7 +754,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   # import src/debug as DBG
   # tmp = (logger.getEffectiveLevel(), LOGI.NOTSET, logger.level, logger.parent.level)
   # DBG.write("logger levels tmp, True)  
-  if level is not None: # level could be modified during execution....
+  if level is not None: # level could be modified during execution
     handler.setLevel(level) # on screen log as user wants
   else:
     handler.setLevel(LOGI.INFO) # on screen no log step, which are in xml files
@@ -850,8 +858,21 @@ def testMain():
     
   from colorama import Fore as FG
   from colorama import Style as ST
-  print("this is unconditionally %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))   
+  print("this is unconditionally %scolored in green%s !!!" % (FG.GREEN, ST.RESET_ALL))
+  
+  import src.utilsSat as UTS
+  import src.coloringSat as COLS
+  print("\n1234567890123456789012345678901234567890123456789012345678901234567890")
+  print(UTS.tabColor(10, "0", 10, "1", 10, "2", 10, "3", 10, "4", 10, "5", 10, "6"))
+  print(UTS.tabColor(20, "1 tabulated", 15, "21 OK here", 10, "36 OK end"))   
+  print(COLS.toColor(UTS.tabColor(20, "1 <green>tabulated<reset>", 15, "21 <OK> <info>here<reset>", 10, "36 <OK> end")))   
+  print('toColor(20, "1 <green>tabulated<reset>", 15, "21 <OK> <info>here<reset>", 10, "36 <OK> end")') 
 
+  print("\n1234567890123456789012345678901234567890123456789012345678901234567890")
+  print(UTS.tabColor(10, "0", 10, "1", 10, "2", 10, "3", 10, "4", 10, "5", 10, "6"))
+  print(UTS.tabColor(-20, "tabulated 20", -15, "OK here 35", -10, "OK end 45"))   
+  print(COLS.toColor(UTS.tabColor(-20, "<green>tabulated<reset> 20", -15, "<OK> <info>here<reset> 35", -10, "<OK> end 45")))   
+  print('toColor(-20, "<green>tabulated<reset> 20", -15, "<OK> <info>here<reset> 35", -10, "<OK> end 45")')  
 
 
 #################################################################

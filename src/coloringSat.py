@@ -105,10 +105,13 @@ _tags = _tags + [
 
 # more non empty colored smart tags reversed order
 _tagsNone = [
-  (FG.GREEN + ST.BRIGHT + "OK" + ST.RESET_ALL, "OK"),
-  (FG.RED + ST.BRIGHT + "KO" + ST.RESET_ALL, "KO"),
+  ("<OK>", "OK"),
+  ("<KO>", "KO"),
 ] + _tagsNone
 
+# import pprint as PP
+# print("_tags %s" % PP.pformat(_tags))
+# print("_tagsNone %s" % PP.pformat(_tagsNone))
 
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""

@@ -73,7 +73,6 @@ class Builder:
         Prepares the environment.
         Build two environment: one for building and one for testing (launch).
         """
-
         if not self.build_dir.exists():
             # create build dir
             self.build_dir.make()
@@ -87,14 +86,12 @@ class Builder:
         #environ_info.append(self.product_info.name)
 
         # create build environment
-        self.build_environ = ENVI.SalomeEnviron(
-          self.config, ENVI.Environ(dict(os.environ)), True)
+        self.build_environ = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)), True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
         # create runtime environment
-        self.launch_environ = ENVI.SalomeEnviron(
-          self.config, ENVI.Environ(dict(os.environ)), False)
+        self.launch_environ = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)), False)
         self.launch_environ.silent = True # no need to show here
         self.launch_environ.set_full_environ(self.logger, environ_info)
 
@@ -105,10 +102,9 @@ class Builder:
 
         return 0
 
-    ##
-    # Runs cmake with the given options.
-    def cmake(self, options=""):
 
+    def cmake(self, options=""):
+        """Runs cmake with the given options."""
         cmake_option = options
         # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
         if 'cmake_options' in self.product_info:
@@ -144,10 +140,9 @@ class Builder:
         else:
             return 1
 
-    ##
-    # Runs build_configure with the given options.
-    def build_configure(self, options=""):
 
+    def build_configure(self, options=""):
+        """Runs build_configure with the given options."""
         if 'buildconfigure_options' in self.product_info:
             options += " %s " % self.product_info.buildconfigure_options
 
@@ -167,10 +162,9 @@ class Builder:
         else:
             return 1
 
-    ##
-    # Runs configure with the given options.
-    def configure(self, options=""):
 
+    def configure(self, options=""):
+        """Runs configure with the given options."""
         if 'configure_options' in self.product_info:
             options += " %s " % self.product_info.configure_options
 
@@ -244,10 +238,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             return 1
     
-    ##
-    # Runs msbuild to build the module.
     def wmake(self,nb_proc, opt_nb_proc = None):
-
+        """Runs msbuild to build the module."""
         hh = 'MSBUILD /m:%s' % str(nb_proc)
         if self.debug_mode:
             hh += " " + UTS.red("DEBUG")
@@ -274,9 +266,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             return 1
 
-    ##
-    # Runs 'make install'.
+
     def install(self):
+        """Runs 'make install'."""
         if self.config.VARS.dist_name=="Win":
             command = 'msbuild INSTALL.vcxproj'
             if self.debug_mode:
@@ -301,9 +293,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             return 1
 
-    ##
-    # Runs 'make_check'.
+
     def check(self, command=""):
+        """Runs 'make_check'."""
         if ARCH.is_windows():
             cmd = 'msbuild RUN_TESTS.vcxproj'
         else :
@@ -329,12 +321,11 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             return 1
       
-    ##
-    # Performs a default build for this module.
     def do_default_build(self,
                          build_conf_options="",
                          configure_options="",
                          show_warning=True):
+        """Performs a default build for this module."""
         use_autotools = False
         if 'use_autotools' in self.product_info:
             uc = self.product_info.use_autotools

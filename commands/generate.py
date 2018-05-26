@@ -143,14 +143,8 @@ def generate_component_list(config, product_info, context, logger):
     logger.info("\n")
     for compo in PROD.get_product_components(product_info):
         header = "  %s %s " % (UTS.label(compo), "." * (20 - len(compo)))
-        res = generate_component(config,
-                                 compo,
-                                 product_info,
-                                 context,
-                                 header,
-                                 logger)
-        if config.USER.output_verbose_level == 3:
-            logger.info("\r%s%s\r%s" % (header, " " * 20, header))
+        res = generate_component(config, compo, product_info, context, header, logger)
+        logger.info("\r%s%s\r%s" % (header, " " * 20, header))
         logger.info(res + "\n")
     return res
 

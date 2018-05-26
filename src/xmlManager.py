@@ -261,54 +261,7 @@ class XmlLogFile(object):
         with open(self.pyconfFile, 'w') as f:
           config.__save__(f)
     
-
-    def write(self, message, level=None, screenOnly=False):
-        """
-        function used in the commands 
-        to print in the terminal and the log file.
-        
-        :param message: (str) The message to print.
-        :param level: (int) 
-          The output level corresponding to the message 0 < level < 6.
-        :param screenOnly: (bool) if True, do not write in log file.
-        """
-        # do not write message starting with \r to log file
-        if not message.startswith("\r") and not screenOnly:
-            self.xmlFile.append_node_text("Log", 
-                                          printcolors.cleancolor(message))
-
-        # get user or option output level
-        current_output_verbose_level = self.config.USER.output_verbose_level
-        if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
-            # clean the message color if the terminal is redirected by user
-            # ex: sat compile appli > log.txt
-            message = printcolors.cleancolor(message)
-        
-        # Print message regarding the output level value
-        if level:
-            if level <= current_output_verbose_level and not self.silentSysStd:
-                sys.stdout.write(message)
-        else:
-            if self.default_level <= current_output_verbose_level and not self.silentSysStd:
-                sys.stdout.write(message)
-        self.flush()
-
-    def error(self, message):
-        """Print an error.
-        
-        :param message: (str:) The message to print.
-        """
-        # Print in the log file
-        self.xmlFile.append_node_text("traces", _('ERROR:') + message)
-
-        # Print in the terminal and clean colors if the terminal 
-        # is redirected by user
-        if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
-            sys.stderr.write(printcolors.printcError(_('ERROR:') + message))
-        else:
-            sys.stderr.write(_('ERROR:') + message)
-
-        
+    
           
 ##############################################################################
 class ReadXmlFile(object):
