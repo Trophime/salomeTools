@@ -85,7 +85,8 @@ class Options(object):
         # in a list that contains dicts
         self.options = []
         # The list of available option type
-        self.availableOptions = "boolean string int float long list list2 level".split()
+        self.availableOptions = "noboolean boolean string int float long list list2 level".split()
+        self.noArgOptions = "noboolean boolean".split()
         self.default = None
         self.results = {}
 
@@ -192,11 +193,11 @@ class Options(object):
         longNameOption = []
         for option in self.options:
             shortNameOption = shortNameOption + option['shortName']
-            if option['shortName'] != "" and option['optionType'] != "boolean":
+            if option['shortName'] != "" and option['optionType'] not in self.noArgOptions:
                 shortNameOption = shortNameOption + ":"
 
             if option['longName'] != "":
-                if option['optionType'] != "boolean":
+                if option['optionType'] not in self.noArgOptions:
                     longNameOption.append(option['longName'] + "=")
                 else:
                     longNameOption.append(option['longName'])
@@ -206,7 +207,7 @@ class Options(object):
         try:
           optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
         except Exception as e:
-          msg = str(e) + " on %s\n\n" % argList + self.get_help()
+          msg = str(e) + " on '%s'\n\n" % " ".join(argList) + self.get_help()
           raise Exception(msg)
 
         # instantiate and completing the optResult that will be returned
@@ -221,6 +222,8 @@ class Options(object):
                         option['result'] = opt[1]
                     elif optionType == "boolean":
                         option['result'] = True
+                    elif optionType == "noboolean":
+                        option['result'] = False
                     elif optionType == "int":
                         option['result'] = int(opt[1])
                     elif optionType == "float":
@@ -232,16 +235,11 @@ class Options(object):
                             option['result'] = list()
                         option['result'].append(opt[1])
                     elif optionType == "level": #logger logging levels
-                        option['result'] = opt[1]
-                        # TODO test in (lowercase) debug info warning error critical
+                        option['result'] = self.filterLevel(opt[1])
                     elif optionType == "list2":
                         if option['result'] is None:
                             option['result'] = list()
-                        if opt[1].find(",") == -1:
-                            option['result'].append(opt[1])
-                        else:
-                            elts = filter(lambda l: len(l) > 0, opt[1].split(","))
-                            option['result'].extend(elts)
+                        option['result'] = self.filterList2(opt[1])
 
             optResult.__setattr__(option['destName'], option['result'])
             # free the option in order to be able to make 
@@ -251,6 +249,26 @@ class Options(object):
         self.results = {"optlist": optlist, "optResult": optResult, "args": args, "argList": argList}
         DBG.write("results", self.results)
         return optResult, args
+        
+    def filterLevel(self, aLevel):
+      """filter level logging values"""
+      import src.loggingSat as LOG
+      aLev = aLevel.upper()
+      knownLevels = LOG._knownLevels
+      maxLen = max([len(i) for i in knownLevels])
+      for i in range(maxLen):
+        for lev in knownLevels:
+          if aLev == lev[:i]:
+            DBG.write("filterLevel", "%s -> %s" % (aLevel, lev), True) 
+            return lev
+      msg = "Unknown level '%s', accepted are:\n%s" % (aLev, ",".join(knownLevels))
+      raise Exception(msg)
+      
+    def filterList2(self, aStr):
+      """filter a list as 'KERNEL,YACS,etc.'"""
+      aList = aStr.strip().split(",")
+      return aList
+      
 
     def __repr__(self): 
         """

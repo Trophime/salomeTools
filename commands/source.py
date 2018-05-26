@@ -167,7 +167,7 @@ def get_source_from_git(product_info,
         repo_git = product_info.git_info.repo    
         
     # Display informations
-    msg =  " %s:%s tag:%s ..."  % (coflag, repo_git, product_info.git_info.tag)
+    msg =  " %s:%s tag:%s ..."  % (coflag, UTS.info(repo_git), product_info.git_info.tag)
     logger.info(msg)
     
     # Call the system function that do the extraction in git mode
@@ -188,24 +188,21 @@ def get_source_from_archive(product_info, source_dir, logger):
     :return: (bool) True if it succeed, else False
     """
     # check archive exists
-    if not os.path.exists(product_info.archive_info.archive_name):
-        raise Exception(_("Archive not found: '%s'") % \
-                               product_info.archive_info.archive_name)
+    archName = product_info.archive_info.archive_name
+    if not os.path.exists(archName):
+        raise Exception(_("Archive not found: '%s'") % archName)
 
-    logger.info('arc:%s ... ' % UTS.info(product_info.archive_info.archive_name))
+    logger.info(' arc:%s ...' % UTS.info(archName))
     # Call the system function that do the extraction in archive mode
-    retcode, NameExtractedDirectory = SYSS.archive_extract(
-                                    product_info.archive_info.archive_name,
-                                    source_dir.dir(), logger)
+    retcode = SYSS.archive_extract(archName, source_dir.dir(), logger)
+    nameDirectory = retcode.getValue() # where extracted
     
     # Rename the source directory if 
     # it does not match with product_info.source_dir
-    if (NameExtractedDirectory.replace('/', '') != 
-            os.path.basename(product_info.source_dir)):
-        shutil.move(os.path.join(os.path.dirname(product_info.source_dir), 
-                                 NameExtractedDirectory), 
-                    product_info.source_dir)
-    
+    baseDir = os.path.basename(product_info.source_dir)
+    if (nameDirectory.replace('/', '') != baseDir):
+      iniDir = os.path.join(os.path.dirname(product_info.source_dir), nameDirectory)
+      shutil.move(iniDir, product_info.source_dir)  
     return retcode
 
 def get_source_from_dir(product_info, source_dir, logger):
@@ -229,7 +226,7 @@ def get_source_from_dir(product_info, source_dir, logger):
         logger.error(msg)
         return False
     
-    logger.info('DIR: %s ... ' % UTS.info(product_info.dir_info.dir))
+    logger.info(' DIR: %s ...' % UTS.info(product_info.dir_info.dir))
     retcode = UTS.Path(product_info.dir_info.dir).copy(source_dir) 
     return retcode
     
@@ -275,17 +272,13 @@ def get_source_from_cvs(user,
     coflag = 'cvs'
     if checkout: coflag = coflag.upper()
 
-    msg = '%s:%s' % (coflag, cvs_line)
-    msg += " " * (pad + 50 - len(cvs_line))
+    msg = " %s:%s" % (coflag, cvs_line)
     msg += " src:%s" % product_info.cvs_info.source
-    msg += " " * (pad + 1 - len(product_info.cvs_info.source))
     msg += " tag:%s" % product_info.cvs_info.tag
                  
     # at least one '.' is visible
-    msg += " %s. " % ("." * (10 - len(product_info.cvs_info.tag)))
-                 
+    msg += " %s ..." % msg
     logger.info(msg)
-
     # Call the system function that do the extraction in cvs mode
     retcode = SYSS.cvs_extract(protocol, user,
                                  product_info.cvs_info.server,
@@ -320,8 +313,7 @@ def get_source_from_svn(user,
     coflag = 'svn'
     if checkout: coflag = coflag.upper()
 
-    logger.info('%s:%s ... ' % (coflag, product_info.svn_info.repo))
-
+    logger.info(' %s:%s ...' % (coflag, product_info.svn_info.repo))
     # Call the system function that do the extraction in svn mode
     retcode = SYSS.svn_extract(user, 
                                product_info.svn_info.repo, 

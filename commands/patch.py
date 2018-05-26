@@ -18,7 +18,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import subprocess as sP
+import pprint as PP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -75,9 +75,9 @@ class Command(_BaseCommand):
 
     # Print some informations
     logger.info("Patching sources of the application %s" % \
-                UTS.blue(config.VARS.application))
+                UTS.label(config.VARS.application))
 
-    logger.info("  workdir = %s" % UTS.blue(config.APPLICATION.workdir))
+    logger.info("  workdir = %s" % UTS.info(config.APPLICATION.workdir))
 
     # Get the products list with products informations regarding the options
     products_infos = self.get_products_list(options, config)
@@ -90,112 +90,87 @@ class Command(_BaseCommand):
     # The loop on all the products on which to apply the patches
     good_result = 0
     for tmp, product_info in products_infos:
-        # Apply the patch
-        rc = apply_patch(config, product_info, max_product_name_len, logger)
-        logger.info(str(rc))
-        if rc.isOk():
-            good_result += 1
+      # Apply the patch
+      rc = apply_patch(config, product_info, max_product_name_len, logger)
+      if rc.isOk():
+        good_result += 1
     
     # Display the results (how much passed, how much failed, etc...)
-
     if good_result == len(products_infos):
-        status = "OK"
+      status = "OK"
     else:
-        status = "KO"
+      status = "KO"
     
     # write results
     msg = ("Patching sources of the application: <%s> (%d/%d)") % \
-                  (status, good_result, len(products_infos))
-    logger.info(msg)    
-
+           (status, good_result, len(products_infos))
+    logger.info(msg) 
     return RCO.ReturnCode(status, msg)
      
 
 def apply_patch(config, product_info, max_product_name_len, logger):
-    """The method called to apply patches on a product
+  """The method called to apply patches on a product
 
-    :param config: (Config) The global configuration
-    :param product_info: (Config) 
-      The configuration specific to the product to be patched
-    :param logger: (Logger: 
-      The logger instance to use for the display and logging
-    :return: (RCO.ReturnCode)
-    """
+  :param config: (Config) The global configuration
+  :param product_info: (Config) 
+    The configuration specific to the product to be patched
+  :param logger: (Logger: 
+    The logger instance to use for the display and logging
+  :return: (RCO.ReturnCode)
+  """
 
-    # if the product is native, do not apply patch
-    if PROD.product_is_native(product_info):
-        # display and log
-        logger.info('%s: ' % UTS.label(product_info.name))
-        logger.info(' ' * (max_product_name_len - len(product_info.name)))
-        logger.info("\n")
-        msg = _("The %s product is native. Do not apply any patch") % product_info.name
-        logger.info(msg + "\n")
-        return RCO.ReturnCode("OK", msg)     
+  # if the product is native, do not apply patch
+  msg = '%s: ' % UTS.label(product_info.name)
+  if PROD.product_is_native(product_info):
+    # display and log
+    msg += _("The product is native. Do not apply any patch")
+    logger.info(msg)
+    return RCO.ReturnCode("OK", msg)     
 
-    if not "patches" in product_info or len(product_info.patches) == 0:
-        # display and log
-        logger.info('%s: ' % UTS.label(product_info.name))
-        logger.info(' ' * (max_product_name_len - len(product_info.name)))
-        logger.info("\n")
-        msg = _("No patch for the %s product") % product_info.name
-        logger.info(msg + "\n")
-        return RCO.ReturnCode("OK", msg) 
-    else:
-        # display and log
-        logger.info('%s: ' % UTS.label(product_info.name))
-        logger.info(' ' * (max_product_name_len - len(product_info.name)))
-        logger.info("\n")
+  if not "patches" in product_info or len(product_info.patches) == 0:
+    # display and log
+    msg += _("No patch for the product")
+    logger.info(msg)
+    return RCO.ReturnCode("OK", msg) 
+  else:
+    # display and log after action
+    pass
 
-    if not os.path.exists(product_info.source_dir):
-        msg = _("No sources found for the %s product") % product_info.name
-        logger.error(UTS.red(msg))
-        return RCO.ReturnCode("KO", msg)
+  if not os.path.exists(product_info.source_dir):
+    msg += _("No sources found for the product")
+    logger.error(UTS.red(msg))
+    return RCO.ReturnCode("KO", msg)
 
-    # At this point, there one or more patches and the source directory exists
-    retcode = []
-    res = []
-    # Loop on all the patches of the product
-    for patch in product_info.patches:
-        details = []
-        
-        # Check the existence and apply the patch
-        if os.path.isfile(patch):
-            patch_cmd = "patch -p1 < %s" % patch
-            
-            # Write the command in the terminal if verbose level is at 5
-            logger.info("    >%s\n" % patch_cmd)
-            
-            # Write the command in the log file (can be seen using 'sat log')
-            logger.logTxtFile.write("\n    >%s\n" % patch_cmd)
-            logger.logTxtFile.flush()
-            
-            # Call the command
-            res_cmd = SP.call(patch_cmd, shell=True, cwd=product_info.source_dir, 
-                              stdout=logger.logTxtFile, stderr=SP.STDOUT )
-                         
-            res_cmd = (res_cmd == 0)       
-        else:
-            res_cmd = False
-            details.append("  " + UTS.red(_("Not a valid patch: %s\n")) % patch)
-
-        res.append(res_cmd)
-        
-        if res_cmd:
-            message = _("Apply patch %s") % UTS.blue(patch)
-        else:
-            message = _("Failed to apply patch %s") % UTS.red(patch)
-
-        if config.USER.output_verbose_level >= 3:
-            retcode.append("  %s" % message)
-        else:
-            retcode.append("%s: %s" % (product_info.name, message))
-        
-        if len(details) > 0:
-            retcode.extend(details)
-
-    if False in res: 
-      rc = "KO"
-    else:
-      rc = "OK"
+  # At this point, there one or more patches and the source directory exists
+  retcodes = []
+  rc = "OK"
+  # Loop on all the patches of the product
+  for patch in product_info.patches:
+    details = []
+    # Check the existence and apply the patch
+    if not os.path.isfile(patch):
+      msg += _("Patch file %s not found") % UTS.info(patch)
+      logger.error(msg)
+      continue
     
-    return RCO.ReturnCode(rc, "\n".join(retcode))
+    cmd = """
+set -x
+patch -p1 < %s
+""" % patch         
+    # Call the command
+    res = UTS.Popen(cmd, cwd=product_info.source_dir, logger=logger)
+    if not res.isOk():
+      rc = "KO"
+      resPatch = RCO.ReturnCode("KO", _("Failed to apply patch %s") % UTS.red(patch))
+    else:
+      resPatch = RCO.ReturnCode("OK", _("Apply patch %s") % UTS.info(patch))
+    retcodes.append(resPatch)
+  
+  res = RCO.ReturnCodeFromList(retcodes)
+  if res.isOk(): 
+    logger.info(msg + "...<OK>")
+    logger.trace(msg + "...<OK> %s" % res.getWhy())
+  else: 
+    logger.info(msg + "...<KO> %s" % res.getWhy())
+  return res
+

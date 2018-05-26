@@ -486,18 +486,27 @@ class Sat(object):
         (internal use only)
         """
         parser = Options()
+        
         parser.add_option('h', 'help', 'boolean', 'help', 
                           _("shows global help or help on a specific command."))
+        
         parser.add_option('o', 'overwrite', 'list', "overwrite", 
                           _("overwrites a configuration parameters."))
-        parser.add_option('g', 'debug', 'boolean', 'debug_mode', 
-                          _("run salomeTools in debug mode."))
-        parser.add_option('v', 'verbose', 'int', "output_verbose_level", 
-                          _("change output verbose level (default is 3)."))
+        
+        parser.add_option('v', 'verbose', 'level', "output_verbose_level", 
+                          _("change console output verbose level (default is INFO)."))
+        
+        parser.add_option('d', 'devel', 'noboolean', "development mode", 
+                          _("""\
+development mode (more verbose error/exception messages) 
+(default is production mode)."""))
+        
         parser.add_option('b', 'batch', 'boolean', "batch", 
                           _("batch mode (no question)."))
-        parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal", 
-                          _("all traces in the terminal (for example compilation logs)."))
+                          
+        parser.add_option('t', 'terminal_all_log', "noboolean", 'terminal_all_log',
+                          _("all log traces in the terminal (for example compilation logs)."))
+
         parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
                           _("put the command result and paths to log files."))
         return parser
@@ -506,8 +515,8 @@ class Sat(object):
     def parseArguments(self, arguments):
         args = self.assumeAsList(arguments)
         genericOptions, remaindersArgs = self.parser.parse_args(args)
-        DBG.write("Sat generic options", genericOptions)
-        DBG.write("Sat remainders arguments", remaindersArgs)
+        DBG.write("Sat generic options", genericOptions, True)
+        DBG.write("Sat remainders arguments", remaindersArgs, True)
         return genericOptions, remaindersArgs
                
     

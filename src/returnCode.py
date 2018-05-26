@@ -212,3 +212,20 @@ class ReturnCode(object):
       return self
     else:
       raise Exception(self.getWhy())
+
+def ReturnCodeFromList(aListOfReturnCodes):
+  """
+  Create ReturnCode from list of ReturnCode
+  
+  convenience over "+" operand
+  """
+  res = "OK"
+  whyes = []
+  for rc in aListOfReturnCodes:
+    if not rc.isOk():
+      res = "KO"
+    whyes.append(str(rc))
+  reswhy = "\n  ".join(whyes)
+  return ReturnCode(res, "\n  " + reswhy)
+    
+    

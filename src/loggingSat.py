@@ -66,6 +66,7 @@ _TRACE = LOGI.INFO - 2 # trace level is just below STEP
 LOGI.STEP = _STEP # only for coherency,
 LOGI.TRACE = _TRACE # only for coherency,
 
+_knownLevels = "CRITICAL ERROR WARNING INFO STEP TRACE DEBUG".upper().split()
 
 #################################################################
 # utilities methods
@@ -206,6 +207,7 @@ class LoggerSat(LOGI.Logger):
     LOGI.addLevelName(_STEP, "STEP")
     LOGI.addLevelName(_TRACE, "TRACE")
     self.dateLogger = "NoDateLogger"
+    self.dateHour = None # datehour of main command
     self.isClosed = False
     self.idCommandHandlers = 0 # incremented, 0 for main command 1, 2, etc. for micro command
     self.STEP = _STEP
@@ -292,7 +294,12 @@ class LoggerSat(LOGI.Logger):
     log_dir_out = os.path.join(log_dir, "OUT") # files txt
     UTS.ensure_path_exists(log_dir)
     UTS.ensure_path_exists(log_dir_out)
-    datehour = config.VARS.datehour
+    if self.idCommandHandlers == 0:
+      datehour = config.VARS.datehour
+      self.dateHour = datehour # save dateHour for micro commands
+    else:
+      datehour = self.dateHour # micro commands have same datehour for naming files
+
     cmd = config.VARS.command
     fullNameCmd = cmdInstance.getFullNameStr()
     hostname = config.VARS.hostname
