@@ -445,6 +445,28 @@ def log_res_step(logger, res):
     else:
         logger.info("<KO>\n")
 
+def isSilent(output_verbose_level):
+    """is silent fort self.build_environ"""
+    lev = levelToSat5p1(output_verbose_level)
+    if lev in ["TRACE", "DEBUG"]:
+      return False # as verbose if debug
+    return True # as silent if not debug
+            
+def levelToSat5p1(output_verbose_level):
+    """
+    convert sat5 output_verbose_level integer 0=>no output, 5=>debug
+    to string sat5.1 compatible ('INFO', 'DEBUG' etc)
+    """
+    try:
+      aInt = int(output_verbose_level)
+      if aInt < 0: return "INFO" # not set
+      if aInt < 3: return "WARNING"
+      if aInt == 3: return "INFO"
+      if aInt == 4: return "TRACE"
+      return "DEBUG"
+    except:
+      return str(output_verbose_level) # suppose sat5.1 'DEBUG' to 'CRITICAL'
+
 ##############################################################################
 # color utilities, for convenience    
 ##############################################################################

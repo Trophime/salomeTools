@@ -19,6 +19,7 @@
 
 import os
 import shutil
+import pprint as PP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -97,11 +98,9 @@ class Command(_BaseCommand):
     else:
       status = "KO"
       msg = _("Some sources haven't been get")
-      details = [p for p in results if (results[product] == 0 or results[product] is None)]
-      details  = ",".join(details)
-      logger.info("\n%s %s: <%s>.\n%s\n" % (msg, msgCount, status, details))
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
 
-    return RCO.ReturnCode(status, "%s get sources: %s" % (msg, msgCount))
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
 
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
@@ -116,7 +115,7 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     :param logger: (Logger)
       The logger instance to use for the display and logging
     :param pad: (int) The gap to apply for the terminal display
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
        
     # Call the function corresponding to get the sources with True checkout
@@ -153,7 +152,7 @@ def get_source_from_git(product_info,
     :param is_dev: (bool) True if the product is in development mode
     :param environ: (src.environment.Environ)
       The environment to source when extracting.
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
     # The str to display
     coflag = 'git'
@@ -185,7 +184,7 @@ def get_source_from_archive(product_info, source_dir, logger):
       where to put the sources
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
     # check archive exists
     archName = product_info.archive_info.archive_name
@@ -208,27 +207,29 @@ def get_source_from_archive(product_info, source_dir, logger):
 def get_source_from_dir(product_info, source_dir, logger):
     
     if "dir_info" not in product_info:
-        msg = _("You must put a dir_info section in the file %s.pyconf") % \
-              product_info.name
+        msg = _("You must put a dir_info section in the file %s.pyconf") % product_info.name
         logger.error(msg)
-        return False
+        return RCO.ReturnCode("KO", msg)
 
     if "dir" not in product_info.dir_info:
         msg = _("Error: you must put a dir in the dir_info section  in the file %s.pyconf") % \
               product_info.name
         logger.error(msg)
-        return False
+        return RCO.ReturnCode("KO", msg)
 
     # check that source exists
     if not os.path.exists(product_info.dir_info.dir):
         msg = _("The dir %s defined in the file %s.pyconf does not exists") % \
                 (product_info.dir_info.dir, product_info.name)
         logger.error(msg)
-        return False
+        return RCO.ReturnCode("KO", msg)
     
     logger.info(' DIR: %s ...' % UTS.info(product_info.dir_info.dir))
     retcode = UTS.Path(product_info.dir_info.dir).copy(source_dir) 
-    return retcode
+    if retcode:
+      RCO.ReturnCode("OK", "for copy directory s'" % product_info.dir_info.dir)
+    else:
+      RCO.ReturnCode("KO", "for copy directory s'" % product_info.dir_info.dir)
     
 def get_source_from_cvs(user,
                         product_info,
@@ -252,7 +253,7 @@ def get_source_from_cvs(user,
     :param pad: (int) The gap to apply for the terminal display
     :param environ: (src.environment.Environ) 
       The environment to source when extracting.
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
     # Get the protocol to use in the command
     if "protocol" in product_info.cvs_info:
@@ -270,7 +271,8 @@ def get_source_from_cvs(user,
                                 product_info.cvs_info.product_base)
 
     coflag = 'cvs'
-    if checkout: coflag = coflag.upper()
+    if checkout: 
+      coflag = coflag.upper()
 
     msg = " %s:%s" % (coflag, cvs_line)
     msg += " src:%s" % product_info.cvs_info.source
@@ -281,11 +283,11 @@ def get_source_from_cvs(user,
     logger.info(msg)
     # Call the system function that do the extraction in cvs mode
     retcode = SYSS.cvs_extract(protocol, user,
-                                 product_info.cvs_info.server,
-                                 product_info.cvs_info.product_base,
-                                 product_info.cvs_info.tag,
-                                 product_info.cvs_info.source,
-                                 source_dir, logger, checkout, environ)
+                               product_info.cvs_info.server,
+                               product_info.cvs_info.product_base,
+                               product_info.cvs_info.tag,
+                               product_info.cvs_info.source,
+                               source_dir, logger, checkout, environ)
     return retcode
 
 def get_source_from_svn(user,
@@ -308,7 +310,7 @@ def get_source_from_svn(user,
       The logger instance to use for the display and logging
     :param environ: (src.environment.Environ)
       The environment to source when extracting.
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
     coflag = 'svn'
     if checkout: coflag = coflag.upper()
@@ -344,7 +346,7 @@ def get_product_sources(config,
       The logger instance to use for the display and logging
     :param pad: (int) The gap to apply for the terminal display
     :param checkout: (bool) If True, get the source in checkout mode
-    :return: (bool) True if it succeed, else False
+    :return: (RCO.ReturnCode) OK if it succeed
     """
     
     # Get the application environment
@@ -375,21 +377,21 @@ def get_product_sources(config,
 
     if product_info.get_source == "native":
         # skip
-        msg = "<OK>" + _("\ndo nothing because the product is of type 'native'.\n")
-        logger.info(msg)
-        return True        
+        msg = _("Do nothing because the product is of type 'native'")
+        logger.info("<OK> " + msg)
+        return RCO.ReturnCode("OK", msg)      
 
     if product_info.get_source == "fixed":
         # skip
-        msg = "<OK>" + _("\ndo nothing because the product is of type 'fixed'.\n")
-        logger.info(msg)
-        return True  
+        msg = _("Do nothing because the product is of type 'fixed'")
+        logger.info("<OK> " + msg)
+        return RCO.ReturnCode("OK", msg)
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]
     msg = _("Unknown get source method '%s' for product %s") % \
                  ( product_info.get_source, product_info.name) 
-    logger.info("%s ... " % msg)
-    return False
+    logger.warning("<KO> " + msg)
+    return RCO.ReturnCode("KO", msg)
 
 def get_all_product_sources(config, products, logger):
     """Get all the product sources.
@@ -432,7 +434,7 @@ def get_all_product_sources(config, products, logger):
         if source_dir.exists():
             msg = _("Do nothing because source directory existing yet.")
             logger.warning(msg)
-            logger.info("<OK>")
+            logger.info("<OK> "+ msg)
             good_result = good_result + 1
             # Do not get the sources and go to next product
             continue
@@ -454,7 +456,7 @@ def get_all_product_sources(config, products, logger):
         
         # Check that the sources are correctly get using the files to be tested
         # in product information
-        if retcode:
+        if retcode.isOk():
             rc = check_sources(product_info, logger)
             if not rc.isOk():
                 # Print the missing file path
@@ -465,7 +467,7 @@ def get_all_product_sources(config, products, logger):
 
         # show results
         results[product_name] = retcode
-        if retcode:
+        if retcode.isOk():
             # The case where it succeed
             res = "<OK>"
             good_result = good_result + 1
@@ -506,7 +508,7 @@ def check_sources(product_info, logger):
       else:
         logger.debug("%s <OK>" % msg)
     if len(filesKo) != 0:
-      return RCO.ReturnCode("KO", "check_sources, missing files")
+      return RCO.ReturnCode("KO", "check_sources, missing files", filesKo)
     else:
-      return RCO.ReturnCode("OK", "check_sources, no missing file")
+      return RCO.ReturnCode("OK", "check_sources, no missing file", l_files_to_be_tested)
     

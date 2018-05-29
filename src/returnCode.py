@@ -191,6 +191,9 @@ class ReturnCode(object):
       self._value = value
     else:
       self._value = self._DEFAULT_VALUE
+      
+  def getStatus(self):
+    return self._status
 
   def isOk(self):
     """

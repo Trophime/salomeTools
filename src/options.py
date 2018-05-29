@@ -34,7 +34,8 @@ class OptResult(object):
     in code of all salomeTools commands
     The aim of this class is to have an elegant syntax to manipulate the options.
     
-    | Example: 
+    | Example:        
+    | >> options, remainderArgs = command.parseArguments(args)
     | >> print(options.output_verbose_level)
     | >> 'INFO'
     """

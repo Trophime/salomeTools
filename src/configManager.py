@@ -435,11 +435,12 @@ class ConfigManager:
         """
         # get the expected name and path of the file
         self.config_file_name = 'SAT.pyconf'
-        self.user_config_file_path = os.path.join(config.VARS.personalDir,
-                                                   self.config_file_name)
+        cfg_name = os.path.join(config.VARS.personalDir, self.config_file_name)
+        self.user_config_file_path = cfg_name
         
         # if pyconf does not exist, create it from scratch
-        if not os.path.isfile(self.user_config_file_path): 
+        DBG.write("user config file", cfg_name)
+        if not os.path.isfile(cfg_name): 
             self.create_config_file(config)
     
     def create_config_file(self, config):
@@ -461,8 +462,9 @@ class ConfigManager:
                         "This is the user name used to access salome cvs base.\n")
         USER.addMapping('svn_user', config.VARS.user, 
                         "This is the user name used to access salome svn base.\n")
-        USER.addMapping('output_verbose_level', 3,
-                        "This is the default output_verbose_level you want. 0=>no output, 5=>debug.\n")
+        # TODO set output_verbose_level sat5.1 as "CRITICAL->DEBUG" but not sat5.0 "0->5"
+        USER.addMapping('output_verbose_level', "3",
+                        "This is the default sat5 output_verbose_level you want. 0=>warning, 3=>info, 5=>debug.\n")
         USER.addMapping('publish_dir', os.path.join(os.path.expanduser('~'), 'websupport', 'satreport'), 
                         "")
         USER.addMapping('editor', 'vi', "This is the editor used to modify configuration files\n")
@@ -471,7 +473,8 @@ class ConfigManager:
                
         UTS.ensure_path_exists(config.VARS.personalDir)
         UTS.ensure_path_exists(os.path.join(config.VARS.personalDir, 'Applications'))
-
+        
+        self.logger.warning("Create user config file %s" % UTS.info(cfg_name))
         with open(cfg_name, 'w') as f:
           cfg.__save__(f)
         return cfg   
@@ -797,12 +800,10 @@ def _getConfig(self, appliToLoad):
         batch_save = self.options.batch
         self.options.__setattr__("batch", True)
 
-    # set output level
+    # set output level, TODO useless sat5.1?
     if self.runner.options.output_verbose_level is not None:
         config.USER.output_verbose_level = self.runner.options.output_verbose_level
-    if config.USER.output_verbose_level < 1:
-        config.USER.output_verbose_level = 0
-    silent = (config.USER.output_verbose_level == 0)
+    silent = config.USER.output_verbose_level in ["WARNING", "ERROR", "CRITICAL"]
 
     # create log file
     micro_command = False

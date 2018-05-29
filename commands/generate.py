@@ -218,13 +218,13 @@ def generate_component(config, compo, product_info, context, header, logger):
     VersionSalome = UTS.get_salome_version(config)
     if VersionSalome >= 750 :
         use_autotools=False
-        builder.log('USE CMAKE', 3)
+        logger.info('USE CMAKE')
     else:
         use_autotools=True
-        builder.log('USE AUTOTOOLS', 3)
+        logger.info('USE AUTOTOOLS')
 
     result = "GENERATE"
-    builder.log('GENERATE', 3)
+    logger.info('GENERATE')
     
     prevstdout = sys.stdout
     prevstderr = sys.stderr
@@ -255,7 +255,7 @@ def generate_component(config, compo, product_info, context, header, logger):
 
         if use_autotools:
             result = "BUID_CONFIGURE"
-            builder.log('BUID_CONFIGURE (no bootstrap)', 3)
+            logger.info('BUID_CONFIGURE (no bootstrap)')
             g.bootstrap(compo_info.source_dir, logger.logTxtFile)
 
         result = RCO._OK_STATUS

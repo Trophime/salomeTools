@@ -130,8 +130,8 @@ class Command(_BaseCommand):
     msg = _("Application %s, executing compile commands in build directories of products.\n")
     logger.info(msg % UTS.label(nameApp))
     
-    info = [ (_("SOURCE directory"), srcDir),
-             (_("BUILD directory"),buildDir) ]
+    info = [ (_("SOURCE directory"), UTS.info(srcDir)),
+             (_("BUILD directory"), UTS.info(buildDir)) ]
     UTS.logger_info_tuples(logger, info)
 
     # Get the list of products to treat
@@ -147,7 +147,6 @@ class Command(_BaseCommand):
 
     # Sort the list regarding the dependencies of the products
     products_infos = sort_products(config, products_infos)
-
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -155,20 +154,14 @@ class Command(_BaseCommand):
     
     # Print the final state
     nb_products = len(products_infos)
-    if res == 0:
-        final_status = "<OK>"
-    else:
-        final_status = "<KO>"
-   
-    logger.info(_("\nCompilation: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': final_status, 
-          '1': nb_products - res,
-          '2': nb_products })    
+    nb_ok = res.getValue()
+      
+    logger.info(_("\nCompilation: <%(0)s> (%(1)d/%(2)d)\n") % \
+        { '0': res.getStatus(), 
+          '1': nb_products - nb_ok,
+          '2': nb_products } )    
     
-    code = res
-    if code != 0:
-        code = 1
-    return code
+    return res
 
 def get_children(config, p_name_p_info):
     l_res = []
@@ -256,10 +249,10 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
         if father_name not in l_fathers_name:
             if father_name not in config.APPLICATION.products:
                 msg = _("The product %(father_name)s that is in %(product_nam"
-                        "e)s dependencies is not present in application "
-                        "%(appli_name)s" % {"father_name" : father_name, 
-                                    "product_name" : p_name, 
-                                    "appli_name" : config.VARS.application})
+                        "e)s dependencies is not present in application %(appli_name)s" % \
+                        {"father_name" : father_name, 
+                         "product_name" : p_name, 
+                         "appli_name" : config.VARS.application})
                 raise Exception(msg)
             prod_info_father = PROD.get_product_config(config, father_name)
             pname_pinfo_father = (prod_info_father.name, prod_info_father)
@@ -345,7 +338,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
       List of (str, Config) => (product_name, product_info)
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (int) the number of failing commands.
+    :return: (RCO.ReturnCode) with value as the number of failing commands.
     """
     res = 0
     for p_name_info in products_infos:
@@ -361,16 +354,13 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Do nothing if the product is not compilable
         if ("properties" in p_info and \
             "compilation" in p_info.properties and \
-            p_info.properties.compilation == "no"):
-              
+            p_info.properties.compilation == "no"):     
             UTS.log_step(logger, header, "ignored")
-            logger.info("\n")
             continue
 
         # Do nothing if the product is native
         if PROD.product_is_native(p_info):
             UTS.log_step(logger, header, "native")
-            logger.info("\n")
             continue
 
         # Clean the build and the install directories 
@@ -401,12 +391,12 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Check if it was already successfully installed
         if PROD.check_installation(p_info):
-            logger.info(_("Already installed\n"))
+            logger.info(_("Already installed"))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            logger.info(_("Not installed\n"))
+            logger.info(_("Not installed"))
             continue
         
         # Check if the dependencies are installed
@@ -463,13 +453,15 @@ def compile_all_products(sat, config, options, products_infos, logger):
             logger.info("\r" + header + "<OK>")
             logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
             logger.debug("\n==== <OK> in compile of %s\n" % p_name)
-        logger.info("\n")
         
         
         if res_prod != 0 and options.stop_first_fail:
             break
         
-    return res
+    if res == 0: # no failing commands
+      return RCO.ReturnCode("OK", "no failing compile commands", res)
+    else:
+      return RCO.ReturnCode("KO", "existing %i failing compile commands" % res, res)
 
 def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     """
@@ -482,7 +474,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
       The logger instance to use for the display and logging
     :param header: (str) the header to display when logging
     :param len_end: (int) the length of the the end of line (used in display)
-    :return: (int) 1 if it fails, else 0.
+    :return: (RCO.ReturnCode) KO if it fails.
     """
     
     p_name, p_info = p_name_info
@@ -512,11 +504,10 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
 
     # Check that the install directory exists
     if res==0 and not(os.path.exists(p_info.install_dir)):
-        res = 1
         error_step = "NO INSTALL DIR"
-        msg = _("despite all the steps ended successfully, no install directory was found\n")
+        msg = _("All steps ended successfully, but install directory not found")
         logger.error(msg)
-        return res, len_end, error_step
+        return RCO.ReturnCode("KO", "Install directory not found", (error_step, p_name, p_info.install_dir))
     
     # Add the config file corresponding to the dependencies/versions of the 
     # product that have been successfully compiled

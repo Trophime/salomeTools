@@ -228,7 +228,7 @@ class LoggerSat(LOGI.Logger):
     # todo etc
     self.isClosed = True # done at end sat, flushed closed xml files.
     return
-    
+       
   def __repr__(self):
     """one line string representation"""
     msg = "%s(name=%s, dateLogger=%s, handlers=%s)"

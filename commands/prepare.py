@@ -19,6 +19,7 @@
 
 import os
 import re
+import pprint as PP
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -58,12 +59,7 @@ class Command(_BaseCommand):
   def run(self, cmd_arguments):
     """method called for command 'sat prepare <options>'"""
     argList = self.assumeAsList(cmd_arguments)
-    
-    # print general help and returns
-    if len(argList) == 0:
-      self.print_help()
-      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
-      
+          
     self._options, remaindersArgs = self.parseArguments(argList)
     
     if self._options.help:
@@ -85,8 +81,11 @@ class Command(_BaseCommand):
     args_appli = config.VARS.application
     if options.products:
         listProd = list(options.products)
-    else:
+    else: # no product interpeted as all products
         listProd = [name for name, tmp in products_infos]
+        logger.warning("prepare all products:\n%s" % PP.pformat(sorted(listProd)))
+
+    # DBG.write("prepare products", sorted(listProd))
     args_product_opt = '--products ' + ",".join(listProd)
     do_source = (len(listProd) > 0)
     

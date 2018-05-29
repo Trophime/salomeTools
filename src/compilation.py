@@ -29,6 +29,7 @@ import shutil
 import subprocess as SP
 
 from src.options import OptResult
+import returnCode as RCO
 import src.utilsSat as UTS
 import src.product as PROD
 import src.environment as ENVI
@@ -59,15 +60,6 @@ class Builder:
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
 
-    def log(self, text, level, showInfo=True):
-        """Shortcut method to log in log file."""
-        self.logger.info(text)
-        self.logger.logTxtFile.write(UTS.cleancolor(text))
-
-    def log_command(self, command):
-        """Shortcut method to log a command."""
-        self.log("> %s\n" % command, 5)
-
     def prepare(self):
         """
         Prepares the environment.
@@ -87,7 +79,7 @@ class Builder:
 
         # create build environment
         self.build_environ = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)), True)
-        self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
+        self.build_environ.silent = UTS.isSilent(self.config.USER.output_verbose_level)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
         # create runtime environment
@@ -101,7 +93,6 @@ class Builder:
                 self.log("  %s = %s\n" % (ee, vv), 4, False)
 
         return 0
-
 
     def cmake(self, options=""):
         """Runs cmake with the given options."""
@@ -123,22 +114,19 @@ class Builder:
             cmake_option += " -DCMAKE_GENERATOR=%s" \
                                        % self.config.APPLICATION.cmake_generator
         
-        command = ("cmake %s -DCMAKE_INSTALL_PREFIX=%s %s" %
-                            (cmake_option, self.install_dir, self.source_dir))
+        cmd = """
+# CMAKE
+set -x
+cmake %s -DCMAKE_INSTALL_PREFIX=%s %s
+""" % (cmake_option, self.install_dir, self.source_dir)
 
-        self.log_command(command)
-        # for key in sorted(self.build_environ.environ.environ.keys()):
-            # print key, "  ", self.build_environ.environ.environ[key]
-        res = SP.call(command, shell=True, cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-
-        self.put_txt_log_in_appli_log_dir("cmake")
-        if res == 0:
-            return res
-        else:
-            return 1
+        """
+        for key in sorted(self.build_environ.environ.environ.keys()):
+          print key, "  ", self.build_environ.environ.environ[key]
+        """
+        env = self.build_environ.environ.environ
+        res = UTS.Popen(cmd, cwd=str(self.build_dir),env=env)
+        return res
 
 
     def build_configure(self, options=""):
@@ -146,21 +134,15 @@ class Builder:
         if 'buildconfigure_options' in self.product_info:
             options += " %s " % self.product_info.buildconfigure_options
 
-        command = str('%s/build_configure') % (self.source_dir)
-        command = command + " " + options
-        self.log_command(command)
+        bconf = os.path.join(self.source_dir, "build_configure")
+        cmd = """
+set -x
+%s %s
+""" % (bconf, options)
 
-        res = SP.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-        self.put_txt_log_in_appli_log_dir("build_configure")
-        if res == 0:
-            return res
-        else:
-            return 1
+        env = self.build_environ.environ.environ
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
+        return res
 
 
     def configure(self, options=""):
@@ -168,36 +150,31 @@ class Builder:
         if 'configure_options' in self.product_info:
             options += " %s " % self.product_info.configure_options
 
-        command = "%s/configure --prefix=%s" % (self.source_dir,
-                                                str(self.install_dir))
+        conf = os.path.join(self.source_dir, "configure")
+        cmd = """
+set -x
+%s --prefix=%s %s
+""" % (conf, self.install_dir, options)
 
-        command = command + " " + options
-        self.log_command(command)
-
-        res = SP.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-        
-        self.put_txt_log_in_appli_log_dir("configure")
-        if res == 0:
-            return res
-        else:
-            return 1
+        env = self.build_environ.environ.environ
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
+        return res
 
     def hack_libtool(self):
-        if not os.path.exists(str(self.build_dir + 'libtool')):
-            return
+        libtool = os.path.join(str(self.build_dir), "libtool")
+        if not os.path.exists(libtool):
+          return RCO.ReturnCode("OK", "file libtool not existing '%s'" % libtool)
 
-        lf = open(os.path.join(str(self.build_dir), "libtool"), 'r')
-        for line in lf.readlines():
+        with open(libtool, 'r') as lf:
+          for line in lf.readlines():
             if 'hack_libtool' in line:
-                return
+              return RCO.ReturnCode("OK", "existing 'hack_libtool' in '%s'" % libtool)
 
         # fix libtool by replacing CC="<compil>" with hack_libtool function
-        hack_command='''sed -i "s%^CC=\\"\(.*\)\\"%hack_libtool() { \\n\\
+        # TODO rewrite that horreur
+        obsolete_hack_cmd='''
+set -x
+sed -i "s%^CC=\\"\(.*\)\\"%hack_libtool() { \\n\\
 if test \\"\$(echo \$@ | grep -E '\\\\\\-L/usr/lib(/../lib)?(64)? ')\\" == \\\"\\\" \\n\\
   then\\n\\
     cmd=\\"\\1 \$@\\"\\n\\
@@ -208,96 +185,75 @@ if test \\"\$(echo \$@ | grep -E '\\\\\\-L/usr/lib(/../lib)?(64)? ')\\" == \\\"\
 }\\n\\
 CC=\\"hack_libtool\\"%g" libtool'''
 
-        self.log_command(hack_command)
-        SP.call(hack_command,
-                        shell=True,
-                        cwd=str(self.build_dir),
-                        env=self.build_environ.environ.environ,
-                        stdout=self.logger.logTxtFile,
-                        stderr=SP.STDOUT)
+        hack_cmd=r'''
+set -x
+sed -i "s%^CC=\"\(.*\)\"%hack_libtool() { \n\
+if test \"\$(echo \$@ | grep -E '\\\-L/usr/lib(/../lib)?(64)? ')\" == \"\" \n\
+  then\n\
+    cmd=\"\1 \$@\"\n\
+  else\n\
+    cmd=\"\1 \"\`echo \$@ | sed -r -e 's|(.*)-L/usr/lib(/../lib)?(64)? (.*)|\\\1\\\4 -L/usr/lib\\\3|g'\`\n\
+  fi\n\
+  \$cmd\n\
+}\n\
+CC=\"hack_libtool\"%g" libtool
+'''
+
+        env = self.build_environ.environ.environ
+        res = UTS.Popen(hack_cmd, cwd=str(self.build_dir), env=env)
+        return res
 
 
-    ##
-    # Runs make to build the module.
     def make(self, nb_proc, make_opt=""):
-
+        """Runs make to build the module."""
         # make
-        command = 'make'
-        command = command + " -j" + str(nb_proc)
-        command = command + " " + make_opt
-        self.log_command(command)
-        res = SP.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-        self.put_txt_log_in_appli_log_dir("make")
-        if res == 0:
-            return res
-        else:
-            return 1
+        cmd = """
+set -x
+make -j %s %s
+""" % (nb_proc, make_opt)
+
+        env = self.build_environ.environ.environ
+        res = SP.call(cmd, cwd=str(self.build_dir), env=env)
+        return res
+
     
-    def wmake(self,nb_proc, opt_nb_proc = None):
+    def wmake(self, nb_proc, opt_nb_proc = None):
         """Runs msbuild to build the module."""
         hh = 'MSBUILD /m:%s' % str(nb_proc)
         if self.debug_mode:
             hh += " " + UTS.red("DEBUG")
         # make
-        command = 'msbuild'
-        command = command + " /maxcpucount:" + str(nb_proc)
+        cmd = "msbuild /maxcpucount:%s" % nb_proc
         if self.debug_mode:
-            command = command + " /p:Configuration=Debug"
+            cmd += " /p:Configuration=Debug"
         else:
-            command = command + " /p:Configuration=Release"
-        command = command + " ALL_BUILD.vcxproj"
+            cmd += " /p:Configuration=Release"
+        cmd += cmd + " ALL_BUILD.vcxproj"
 
-        self.log_command(command)
-        res = SP.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
+        env = self.build_environ.environ.environ
+        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        return res
         
-        self.put_txt_log_in_appli_log_dir("make")
-        if res == 0:
-            return res
-        else:
-            return 1
-
 
     def install(self):
         """Runs 'make install'."""
         if self.config.VARS.dist_name=="Win":
-            command = 'msbuild INSTALL.vcxproj'
+            cmd = "msbuild INSTALL.vcxproj"
             if self.debug_mode:
-                command = command + " /p:Configuration=Debug"
+                cmd += " /p:Configuration=Debug"
             else:
-                command = command + " /p:Configuration=Release"
+                cmd += " /p:Configuration=Release"
         else :
-            command = 'make install'
+            cmd = 'make install'
 
-        self.log_command(command)
-
-        res = SP.call(command,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-        
-        self.put_txt_log_in_appli_log_dir("makeinstall")
-        if res == 0:
-            return res
-        else:
-            return 1
-
+        env = self.build_environ.environ.environ
+        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        return res
 
     def check(self, command=""):
         """Runs 'make_check'."""
         if ARCH.is_windows():
-            cmd = 'msbuild RUN_TESTS.vcxproj'
+            cmd = "msbuild RUN_TESTS.vcxproj"
         else :
             if self.product_info.build_source=="autotools" :
                 cmd = 'make check'
@@ -307,19 +263,10 @@ CC=\\"hack_libtool\\"%g" libtool'''
         if command:
             cmd = command
         
-        self.log_command(cmd)
+        env = self.build_environ.environ.environ
+        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        return res
 
-        res = SP.call(cmd,
-                              shell=True,
-                              cwd=str(self.build_dir),
-                              env=self.launch_environ.environ.environ,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT)
-
-        if res == 0:
-            return res
-        else:
-            return 1
       
     def do_default_build(self,
                          build_conf_options="",
@@ -425,21 +372,19 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else :
             make_options = "-j%s" % nb_proc
 
-        self.log_command("  " + _("Run build script %s\n") % script)
+        self.logger.info(_("Run build script '%s'") % script)
         self.complete_environment(make_options)
         
-        res = SP.call(script, 
-                              shell=True,
-                              stdout=self.logger.logTxtFile,
-                              stderr=SP.STDOUT,
-                              cwd=str(self.build_dir),
-                              env=self.build_environ.environ.environ)
+        # linux or win compatible, have to be chmod +x ?
+        cmd = """
+# Run build script
+%s
+""" % script
 
-        self.put_txt_log_in_appli_log_dir("script")
-        if res == 0:
-            return res
-        else:
-            return 1
+        
+        env = self.build_environ.environ.environ
+        res = SP.Popen(cmd, cwd=str(self.build_dir), env=env)
+        return res
     
     def do_script_build(self, script, number_of_proc=0):
         # define make options (may not be used by the script)
@@ -450,31 +395,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             nb_proc = min(number_of_proc, self.config.VARS.nb_proc)
             
-        extension = script.split('.')[-1]
-        if extension in ["bat","sh"]:
+        extension = os.path.splitext(script)[-1]
+        if extension in [".bat", ".sh", ".bash"]:
             return self.do_batch_script_build(script, nb_proc)
-        if extension == "py":
+        if extension == ".py":
             return self.do_python_script_build(script, nb_proc)
         
-        msg = _("The script %s must have .sh, .bat or .py extension.") % script
+        msg = _("The script %s must have extension as .sh, .bat or .py.") % script
         raise Exception(msg)
-    
-    def put_txt_log_in_appli_log_dir(self, file_name):
-        """
-        Put the txt log (that contain the system logs, like make command output)
-        in the directory <APPLICATION DIR>/LOGS/<product_name>/
-    
-        :param file_name: (str) The name of the file to write
-        """
-        if self.logger.logTxtFile == sys.__stdout__:
-            return
-        dir_where_to_put = os.path.join(self.config.APPLICATION.workdir, "LOGS", self.product_info.name)
-        file_path = os.path.join(dir_where_to_put, file_name)
-        UTS.ensure_path_exists(dir_where_to_put)
-        # write the logTxtFile copy it to the destination, and then recreate 
-        # it as it was
-        self.logger.logTxtFile.close()
-        shutil.move(self.logger.txtFilePath, file_path)
-        self.logger.logTxtFile = open(str(self.logger.txtFilePath), 'w')
-        self.logger.logTxtFile.write(open(file_path, "r").read())
         

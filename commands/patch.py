@@ -104,9 +104,12 @@ class Command(_BaseCommand):
     # write results
     msg = ("Patching sources of the application: <%s> (%d/%d)") % \
            (status, good_result, len(products_infos))
-    logger.info(msg) 
+    logger.info("\n" + msg) 
+    
+    msg = ("Patching sources of the application (%d/%d)") % \
+           (good_result, len(products_infos))
+    
     return RCO.ReturnCode(status, msg)
-     
 
 def apply_patch(config, product_info, max_product_name_len, logger):
   """The method called to apply patches on a product

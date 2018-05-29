@@ -618,7 +618,7 @@ development mode (more verbose error/exception messages)
         LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", strArgs)
         LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXmlPassed())
         
-        logger.closeFileHandlerForCommand(cmdInstance)
+        # close logger/main handler have to be caller stuff...    
         
         return returnCode
         
