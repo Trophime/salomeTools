@@ -91,11 +91,6 @@ class Command(_BaseCommand):
   def run(self, cmd_arguments):
     """method called for command 'sat compile <options>'"""
     argList = self.assumeAsList(cmd_arguments)
-
-    # print general help and returns
-    if len(argList) == 0:
-      self.print_help()
-      return RCO.ReturnCode("OK", "No arguments, as 'sat %s --help'" % self.name)
       
     self._options, remaindersArgs = self.parseArguments(argList)
     
@@ -150,7 +145,7 @@ class Command(_BaseCommand):
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = compile_all_products(runner, config, options, products_infos, logger)
+    res = self.compile_all_products(products_infos)
     
     # Print the final state
     nb_products = len(products_infos)
@@ -158,11 +153,311 @@ class Command(_BaseCommand):
       
     logger.info(_("\nCompilation: <%(0)s> (%(1)d/%(2)d)\n") % \
         { '0': res.getStatus(), 
-          '1': nb_products - nb_ok,
+          '1': nb_ok,
           '2': nb_products } )    
-    
     return res
 
+
+  def compile_all_products(self, products_infos): #sat, config, options, products_infos, logger):
+    """
+    Execute the proper configuration commands 
+    in each product build directory.
+
+    :param config: (Config) The global configuration
+    :param products_info: (list)
+      List of (str, Config) => (product_name, product_info)
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :return: (RCO.ReturnCode) with value as the number of failing commands.
+    """
+    # shortcuts
+    config = self.getConfig()
+    options = self.getOptions()
+    logger = self.getLogger()
+    nameAppli = config.VARS.application
+    
+    res = [] # list of results for each products
+    DBG.write("compile", [p for p, tmp in products_infos])
+    for p_name_info in products_infos:
+        
+        p_name, p_info = p_name_info
+        
+        # Logging
+        len_end_line = 30
+        header = _("Compilation of %s ...") % UTS.label(p_name)
+        logger.info(header)
+        
+        # Do nothing if the product is not compilable
+        if ("properties" in p_info and \
+            "compilation" in p_info.properties and \
+            p_info.properties.compilation == "no"):     
+            UTS.log_step(logger, header, "ignored")
+            res.append(RCO.ReturnCode("OK", "compile %s ignored" % p_name))
+            continue
+
+        # Do nothing if the product is native
+        if PROD.product_is_native(p_info):
+            UTS.log_step(logger, header, "native")
+            res.append(RCO.ReturnCode("OK", "no compile %s as native" % p_name))
+            continue
+
+        # Clean the build and the install directories 
+        # if the corresponding options was called
+        if options.clean_all:
+            UTS.log_step(logger, header, "CLEAN BUILD AND INSTALL")
+            cmd_args = "--products %s --build --install" % p_name
+            rc = self.executeMicroCommand("clean", nameAppli, cmd_args)
+            if not rc.isOk():
+              res.append(rc)
+              continue
+        
+        # Clean the the install directory 
+        # if the corresponding option was called
+        if options.clean_install and not options.clean_all:
+            UTS.log_step(logger, header, "CLEAN INSTALL")
+            cmd_args = "--products %s --install" % p_name
+            rc = self.executeMicroCommand("clean", nameAppli, cmd_args)
+            if not rc.isOk():
+              res.append(rc)
+              continue
+        
+        # Recompute the product information to get the right install_dir
+        # (it could change if there is a clean of the install directory)
+        p_info = PROD.get_product_config(config, p_name)
+        
+        # Check if it was already successfully installed
+        if PROD.check_installation(p_info):
+            logger.info(_("Already installed"))
+            res.append(RCO.ReturnCode("OK", "no compile %s as already installed" % p_name))
+            continue
+        
+        # If the show option was called, do not launch the compilation
+        if options.no_compile:
+            logger.info(_("No compile and install as show option"))
+            res.append(RCO.ReturnCode("OK", "no compile %s as show option" % p_name))
+            continue
+        
+        # Check if the dependencies are installed
+        l_depends_not_installed = check_dependencies(config, p_name_info)
+        if len(l_depends_not_installed) > 0:
+            UTS.log_step(logger, header, "<KO>")
+            msg = _("the following products are mandatory:\n")
+            for prod_name in sorted(l_depends_not_installed):
+                msg += "%s\n" % prod_name
+            logger.error(msg)
+            res.append(RCO.ReturnCode("KO", "no compile %s as missing mandatory product(s)" % p_name))
+            continue
+        
+        # Call the function to compile the product
+        #res_prod, len_end_line, error_step = self.compile_product(p_name_info) 
+        #sat, p_name_info, config, options, logger, header, len_end_line)
+        rc = self.compile_product(p_name_info)
+        error_step, nameprod, install_dir = rc.getValue()
+        res.append(rc)
+        
+        if not rc.isOk(): 
+          # problem
+          if error_step != "CHECK":
+            # Clean the install directory if there is any
+            logger.debug(_("Cleaning the install directory if there is any"))
+            cmd_args = "--products %s --install" % p_name
+            rc0 = self.executeMicroCommand("clean", nameAppli, cmd_args)       
+        else: 
+          # Ok Clean the build directory if the compilation and tests succeed
+          if options.clean_build_after:
+            UTS.log_step(logger, header, "CLEAN BUILD")
+            cmd_args = "--products %s --build" % p_name
+            rc0 = self.executeMicroCommand("clean", nameAppli, cmd_args)
+
+        # Log the result
+        if rc.isOk():
+          logger.info("<KO> " + rc.getWhy())
+        else:
+          logger.info("<KO> " + rc.getWhy())
+        
+        if not rc.isOk() and options.stop_first_fail:
+            break # stop at first problem
+    
+    resAll = RCO.ReturnCodeFromList(res)
+    nbOk = len([r for r in res if r.isOk()])
+    nbKo = len([r for r in res if not r.isOk()])
+    if resAll.isOk(): # no failing commands
+      return RCO.ReturnCode("OK", "No failing compile commands", nbOk)
+    else:
+      return RCO.ReturnCode("KO", "Existing %s failing compile product(s)" % nbKo, nbOk)
+
+  def compile_product(self, p_name_info): #sat, p_name_info, config, options, logger, header, len_end):
+    """
+    Execute the proper configuration command(s) 
+    in the product build directory.
+    
+    :param p_name_info: (tuple) (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the length of the the end of line (used in display)
+    :return: (RCO.ReturnCode) KO if it fails.
+    """
+    config = self.getConfig()
+    options = self.getOptions()
+    logger = self.getLogger()
+    header = "yyyy" # TODO
+    
+    nameAppli = config.VARS.application
+    p_name, p_info = p_name_info
+          
+    # Get the build procedure from the product configuration.
+    # It can be :
+    # build_sources : autotools -> build_configure, configure, make, make install
+    # build_sources : cmake     -> cmake, make, make install
+    # build_sources : script    -> script executions
+    if (PROD.product_is_autotools(p_info) or PROD.product_is_cmake(p_info)):
+        rc = self.compile_product_cmake_autotools(p_name_info)
+        # sat, p_name_info, config, options, logger, header, len_end)
+    if PROD.product_has_script(p_info):
+        rc = self.compile_product_script(p_name_info)
+        # sat, p_name_info, config, options, logger, header, len_end)
+
+    # Check that the install directory exists
+    if rc.isOk() and not(os.path.exists(p_info.install_dir)):
+        error_step = "NO INSTALL DIR"
+        msg = _("All steps ended successfully, but install directory not found")
+        logger.error(msg)
+        return RCO.ReturnCode("KO", "Install directory for %s not found" % p_name, (error_step, p_name, p_info.install_dir))
+    
+    # Add the config file corresponding to the dependencies/versions of the 
+    # product that have been successfully compiled
+    if rc.isOk():       
+        logger.debug(_("Add the config file in installation directory"))
+        add_compile_config_file(p_info, config)
+        
+        if options.check:
+            # Do the unit tests (call the check command)
+            UTS.log_step(logger, header, "CHECK")
+            cmd_args = "--products %s" % p_name
+            rc0 = self.executeMicroCommand("check", nameAppli, cmd_args)
+            if not rc0.isOk():
+                error_step = "CHECK"
+                msg = _("compile steps ended successfully, but check problem")
+                logger.error(msg)
+                return RCO.ReturnCode("KO", "check of compile for %s problem" % p_name, (error_step, p_name, p_info.install_dir))
+    
+    rc.setValue( ("COMPILE", p_name, p_info.install_dir) )
+    return rc
+
+  def compile_product_cmake_autotools(self, p_name_info): #sat, p_name_info, config, options, logger, header, len_end):
+    """
+    Execute the proper build procedure for autotools or cmake
+    in the product build directory.
+    
+    :param p_name_info: (tuple) 
+      (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the length of the the end of line (used in display)
+    :return: (int) 1 if it fails, else 0.
+    """
+    config = self.getConfig()
+    options = self.getOptions()
+    logger = self.getLogger()
+
+    p_name, p_info = p_name_info
+    
+    # Execute "sat configure", "sat make" and "sat install"
+    res = 0
+    error_step = ""
+    
+    # Logging and sat command call for configure step
+    len_end_line = len_end
+    UTS.log_step(logger, header, "CONFIGURE")
+    res_c = sat.configure(config.VARS.application + " --products " + p_name,
+                          verbose = 0,
+                          logger_add_link = logger)
+    UTS.log_res_step(logger, res_c)
+    res += res_c
+    
+    if res_c > 0:
+        error_step = "CONFIGURE"
+    else:
+        # Logging and sat command call for make step
+        # Logging take account of the fact that the product has a compilation 
+        # script or not
+        if PROD.product_has_script(p_info):
+            # if the product has a compilation script, 
+            # it is executed during make step
+            scrit_path_display = UTS.label(
+                                                        p_info.compil_script)
+            UTS.log_step(logger, header, "SCRIPT " + scrit_path_display)
+            len_end_line = len(scrit_path_display)
+        else:
+            UTS.log_step(logger, header, "MAKE")
+        make_arguments = config.VARS.application + " --products " + p_name
+        # Get the make_flags option if there is any
+        if options.makeflags:
+            make_arguments += " --option -j" + options.makeflags
+        res_m = sat.make(make_arguments,
+                         verbose = 0,
+                         logger_add_link = logger)
+        UTS.log_res_step(logger, res_m)
+        res += res_m
+        
+        if res_m > 0:
+            error_step = "MAKE"
+        else: 
+            # Logging and sat command call for make install step
+            UTS.log_step(logger, header, "MAKE INSTALL")
+            res_mi = sat.makeinstall(config.VARS.application + 
+                                     " --products " + 
+                                     p_name,
+                                    verbose = 0,
+                                    logger_add_link = logger)
+
+            UTS.log_res_step(logger, res_mi)
+            res += res_mi
+            
+            if res_mi > 0:
+                error_step = "MAKE INSTALL"
+                
+    return res, len_end_line, error_step 
+
+  def compile_product_script(self, p_name_info): # sat, p_name_info, config, options, logger, header, len_end):
+    """Execute the script build procedure in the product build directory.
+    
+    :param p_name_info: (tuple) 
+      (str, Config) => (product_name, product_info)
+    :param config: (Config) The global configuration
+    :param logger: (Logger) 
+      The logger instance to use for the display and logging
+    :param header: (str) the header to display when logging
+    :param len_end: (int) the length of the the end of line (used in display)
+    :return: (int) 1 if it fails, else 0.
+    """
+    config = self.getConfig()
+    options = self.getOptions()
+    logger = self.getLogger()
+    nameAppli = config.VARS.application
+    
+    header = "xxxx" # TODO
+
+    p_name, p_info = p_name_info
+    
+    # Execute "sat configure", "sat make" and "sat install"
+    error_step = ""
+    
+    # Logging and sat command call for the script step
+    script_path_display = UTS.label(p_info.compil_script)
+    UTS.log_step(logger, header, "SCRIPT %s ..." % script_path_display)
+    
+    # res = sat.script(config.VARS.application + " --products " + p_name, verbose = 0, logger_add_link = logger)
+    cmd_args = "--products %s" % p_name
+    res = self.executeMicroCommand("script", nameAppli, cmd_args)
+    UTS.log_res_step(logger, res)
+    return res
+    
+    
 def get_children(config, p_name_p_info):
     l_res = []
     p_name, __ = p_name_p_info
@@ -328,319 +623,6 @@ def check_dependencies(config, p_name_p_info):
             l_depends_not_installed.append(p_name_father)
     return l_depends_not_installed
 
-def compile_all_products(sat, config, options, products_infos, logger):
-    """
-    Execute the proper configuration commands 
-    in each product build directory.
-
-    :param config: (Config) The global configuration
-    :param products_info: (list)
-      List of (str, Config) => (product_name, product_info)
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (RCO.ReturnCode) with value as the number of failing commands.
-    """
-    res = 0
-    for p_name_info in products_infos:
-        
-        p_name, p_info = p_name_info
-        
-        # Logging
-        len_end_line = 30
-        header = _("Compilation of %s") % UTS.label(p_name)
-        header += " %s \n" % ("." * (len_end_line - len(p_name)))
-        logger.info(header)
-        
-        # Do nothing if the product is not compilable
-        if ("properties" in p_info and \
-            "compilation" in p_info.properties and \
-            p_info.properties.compilation == "no"):     
-            UTS.log_step(logger, header, "ignored")
-            continue
-
-        # Do nothing if the product is native
-        if PROD.product_is_native(p_info):
-            UTS.log_step(logger, header, "native")
-            continue
-
-        # Clean the build and the install directories 
-        # if the corresponding options was called
-        if options.clean_all:
-            UTS.log_step(logger, header, "CLEAN BUILD AND INSTALL")
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --build --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-        
-        # Clean the the install directory 
-        # if the corresponding option was called
-        if options.clean_install and not options.clean_all:
-            UTS.log_step(logger, header, "CLEAN INSTALL")
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-        
-        # Recompute the product information to get the right install_dir
-        # (it could change if there is a clean of the install directory)
-        p_info = PROD.get_product_config(config, p_name)
-        
-        # Check if it was already successfully installed
-        if PROD.check_installation(p_info):
-            logger.info(_("Already installed"))
-            continue
-        
-        # If the show option was called, do not launch the compilation
-        if options.no_compile:
-            logger.info(_("Not installed"))
-            continue
-        
-        # Check if the dependencies are installed
-        l_depends_not_installed = check_dependencies(config, p_name_info)
-        if len(l_depends_not_installed) > 0:
-            UTS.log_step(logger, header, "")
-            msg = _("the following products are mandatory:\n")
-            for prod_name in l_depends_not_installed:
-                msg += "%s\n" % prod_name
-            logger.error(msg)
-            continue
-        
-        # Call the function to compile the product
-        res_prod, len_end_line, error_step = compile_product(sat,
-                                                             p_name_info,
-                                                             config,
-                                                             options,
-                                                             logger,
-                                                             header,
-                                                             len_end_line)
-        
-        if res_prod != 0:
-            res += 1
-            
-            if error_step != "CHECK":
-                # Clean the install directory if there is any
-                logger.debug(_("Cleaning the install directory if there is any\n"))
-                sat.clean(config.VARS.application + 
-                          " --products " + p_name + 
-                          " --install",
-                          batch=True,
-                          verbose=0,
-                          logger_add_link = logger)
-        else:
-            # Clean the build directory if the compilation and tests succeed
-            if options.clean_build_after:
-                UTS.log_step(logger, header, "CLEAN BUILD")
-                sat.clean(config.VARS.application + 
-                          " --products " + p_name + 
-                          " --build",
-                          batch=True,
-                          verbose=0,
-                          logger_add_link = logger)
-
-        # Log the result
-        if res_prod > 0:
-            logger.info("\r%s%s" % (header, " " * len_end_line))
-            logger.info("\r" + header + "<KO> " + error_step)
-            logger.debug("\n==== <KO> in compile of %s\n" % p_name)
-            if error_step == "CHECK":
-                logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
-        else:
-            logger.info("\r%s%s" % (header, " " * len_end_line))
-            logger.info("\r" + header + "<OK>")
-            logger.info(_("\nINSTALL directory = %s") % p_info.install_dir)
-            logger.debug("\n==== <OK> in compile of %s\n" % p_name)
-        
-        
-        if res_prod != 0 and options.stop_first_fail:
-            break
-        
-    if res == 0: # no failing commands
-      return RCO.ReturnCode("OK", "no failing compile commands", res)
-    else:
-      return RCO.ReturnCode("KO", "existing %i failing compile commands" % res, res)
-
-def compile_product(sat, p_name_info, config, options, logger, header, len_end):
-    """
-    Execute the proper configuration command(s) 
-    in the product build directory.
-    
-    :param p_name_info: (tuple) (str, Config) => (product_name, product_info)
-    :param config: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :param header: (str) the header to display when logging
-    :param len_end: (int) the length of the the end of line (used in display)
-    :return: (RCO.ReturnCode) KO if it fails.
-    """
-    
-    p_name, p_info = p_name_info
-          
-    # Get the build procedure from the product configuration.
-    # It can be :
-    # build_sources : autotools -> build_configure, configure, make, make install
-    # build_sources : cmake     -> cmake, make, make install
-    # build_sources : script    -> script executions
-    res = 0
-    if (PROD.product_is_autotools(p_info) or PROD.product_is_cmake(p_info)):
-        res, len_end_line, error_step = compile_product_cmake_autotools(sat,
-                                                                  p_name_info,
-                                                                  config,
-                                                                  options,
-                                                                  logger,
-                                                                  header,
-                                                                  len_end)
-    if PROD.product_has_script(p_info):
-        res, len_end_line, error_step = compile_product_script(sat,
-                                                                  p_name_info,
-                                                                  config,
-                                                                  options,
-                                                                  logger,
-                                                                  header,
-                                                                  len_end)
-
-    # Check that the install directory exists
-    if res==0 and not(os.path.exists(p_info.install_dir)):
-        error_step = "NO INSTALL DIR"
-        msg = _("All steps ended successfully, but install directory not found")
-        logger.error(msg)
-        return RCO.ReturnCode("KO", "Install directory not found", (error_step, p_name, p_info.install_dir))
-    
-    # Add the config file corresponding to the dependencies/versions of the 
-    # product that have been successfully compiled
-    if res==0:       
-        logger.debug(_("Add the config file in installation directory\n"))
-        add_compile_config_file(p_info, config)
-        
-        if options.check:
-            # Do the unit tests (call the check command)
-            UTS.log_step(logger, header, "CHECK")
-            res_check = sat.check(
-                              config.VARS.application + " --products " + p_name,
-                              verbose = 0,
-                              logger_add_link = logger)
-            if res_check != 0:
-                error_step = "CHECK"
-                
-            res += res_check
-    
-    return res, len_end_line, error_step
-
-def compile_product_cmake_autotools(sat,
-                                    p_name_info,
-                                    config,
-                                    options,
-                                    logger,
-                                    header,
-                                    len_end):
-    """
-    Execute the proper build procedure for autotools or cmake
-    in the product build directory.
-    
-    :param p_name_info: (tuple) 
-      (str, Config) => (product_name, product_info)
-    :param config: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :param header: (str) the header to display when logging
-    :param len_end: (int) the length of the the end of line (used in display)
-    :return: (int) 1 if it fails, else 0.
-    """
-    p_name, p_info = p_name_info
-    
-    # Execute "sat configure", "sat make" and "sat install"
-    res = 0
-    error_step = ""
-    
-    # Logging and sat command call for configure step
-    len_end_line = len_end
-    UTS.log_step(logger, header, "CONFIGURE")
-    res_c = sat.configure(config.VARS.application + " --products " + p_name,
-                          verbose = 0,
-                          logger_add_link = logger)
-    UTS.log_res_step(logger, res_c)
-    res += res_c
-    
-    if res_c > 0:
-        error_step = "CONFIGURE"
-    else:
-        # Logging and sat command call for make step
-        # Logging take account of the fact that the product has a compilation 
-        # script or not
-        if PROD.product_has_script(p_info):
-            # if the product has a compilation script, 
-            # it is executed during make step
-            scrit_path_display = UTS.label(
-                                                        p_info.compil_script)
-            UTS.log_step(logger, header, "SCRIPT " + scrit_path_display)
-            len_end_line = len(scrit_path_display)
-        else:
-            UTS.log_step(logger, header, "MAKE")
-        make_arguments = config.VARS.application + " --products " + p_name
-        # Get the make_flags option if there is any
-        if options.makeflags:
-            make_arguments += " --option -j" + options.makeflags
-        res_m = sat.make(make_arguments,
-                         verbose = 0,
-                         logger_add_link = logger)
-        UTS.log_res_step(logger, res_m)
-        res += res_m
-        
-        if res_m > 0:
-            error_step = "MAKE"
-        else: 
-            # Logging and sat command call for make install step
-            UTS.log_step(logger, header, "MAKE INSTALL")
-            res_mi = sat.makeinstall(config.VARS.application + 
-                                     " --products " + 
-                                     p_name,
-                                    verbose = 0,
-                                    logger_add_link = logger)
-
-            UTS.log_res_step(logger, res_mi)
-            res += res_mi
-            
-            if res_mi > 0:
-                error_step = "MAKE INSTALL"
-                
-    return res, len_end_line, error_step 
-
-def compile_product_script(sat,
-                           p_name_info,
-                           config,
-                           options,
-                           logger,
-                           header,
-                           len_end):
-    """Execute the script build procedure in the product build directory.
-    
-    :param p_name_info: (tuple) 
-      (str, Config) => (product_name, product_info)
-    :param config: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :param header: (str) the header to display when logging
-    :param len_end: (int) the length of the the end of line (used in display)
-    :return: (int) 1 if it fails, else 0.
-    """
-    p_name, p_info = p_name_info
-    
-    # Execute "sat configure", "sat make" and "sat install"
-    error_step = ""
-    
-    # Logging and sat command call for the script step
-    scrit_path_display = UTS.label(p_info.compil_script)
-    UTS.log_step(logger, header, "SCRIPT " + scrit_path_display)
-    len_end_line = len_end + len(scrit_path_display)
-    res = sat.script(config.VARS.application + " --products " + p_name,
-                     verbose = 0,
-                     logger_add_link = logger)
-    UTS.log_res_step(logger, res)
-              
-    return res, len_end_line, error_step 
 
 def add_compile_config_file(p_info, config):
     """
@@ -654,14 +636,11 @@ def add_compile_config_file(p_info, config):
     compile_cfg = PYCONF.Config()
     for prod_name in p_info.depend:
         if prod_name not in compile_cfg:
-            compile_cfg.addMapping(prod_name,
-                                   PYCONF.Mapping(compile_cfg),
-                                   "")
+            compile_cfg.addMapping(prod_name, PYCONF.Mapping(compile_cfg), "")
         prod_dep_info = PROD.get_product_config(config, prod_name, False)
         compile_cfg[prod_name] = prod_dep_info.version
     # Write it in the install directory of the product
     compile_cfg_path = os.path.join(p_info.install_dir, UTS.get_CONFIG_FILENAME())
-    f = open(compile_cfg_path, 'w')
-    compile_cfg.__save__(f)
-    f.close()
+    with open(compile_cfg_path, 'w') as f:
+      compile_cfg.__save__(f)
     

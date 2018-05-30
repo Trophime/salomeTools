@@ -129,9 +129,10 @@ The '--properties' options must have the following syntax:
                                                 options.sources_without_dev)
     
     if len(l_dir_to_suppress) == 0:
-        msg = _("Specify what you want to suppress in clean command.")
-        logger.error(msg + "\n(see: 'sat -h clean')")
-        return RCO.ReturnCode("KO", "to suppress in clean command")
+        msg = _("Specify what to suppress in clean command")
+        msg += "\noption(s) source/build/install/all (see: 'sat -h clean')"
+        logger.error(msg)
+        return RCO.ReturnCode("KO", "missing option (source/build/install/all) in clean command")
     
     # Check with the user if he really wants to suppress the directories
     msg = _("Remove the following directories:\n")

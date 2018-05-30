@@ -26,7 +26,6 @@ Utilities to build and compile
 import os
 import sys
 import shutil
-import subprocess as SP
 
 from src.options import OptResult
 import returnCode as RCO
@@ -65,42 +64,49 @@ class Builder:
         Prepares the environment.
         Build two environment: one for building and one for testing (launch).
         """
+        # shortcuts
+        logger = self.logger
+        config = self.config
+        
         if not self.build_dir.exists():
             # create build dir
             self.build_dir.make()
 
-        self.log('  build_dir   = %s\n' % str(self.build_dir), 4)
-        self.log('  install_dir = %s\n' % str(self.install_dir), 4)
-        self.log('\n', 4)
+        msg = """
+build_dir   = %s
+install_dir = %s
+""" % (str(self.build_dir), str(self.install_dir))      
+        logger.trace(msg)
 
         # add products in depend and opt_depend list recursively
-        environ_info = PROD.get_product_dependencies(self.config, self.product_info)
+        environ_info = PROD.get_product_dependencies(config, self.product_info)
         #environ_info.append(self.product_info.name)
 
         # create build environment
-        self.build_environ = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)), True)
-        self.build_environ.silent = UTS.isSilent(self.config.USER.output_verbose_level)
-        self.build_environ.set_full_environ(self.logger, environ_info)
+        self.build_environ = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), True)
+        self.build_environ.silent = UTS.isSilent(config.USER.output_verbose_level)
+        self.build_environ.set_full_environ(logger, environ_info)
         
         # create runtime environment
-        self.launch_environ = ENVI.SalomeEnviron(self.config, ENVI.Environ(dict(os.environ)), False)
+        self.launch_environ = ENVI.SalomeEnviron(config, ENVI.Environ(dict(os.environ)), False)
         self.launch_environ.silent = True # no need to show here
-        self.launch_environ.set_full_environ(self.logger, environ_info)
+        self.launch_environ.set_full_environ(logger, environ_info)
 
+        msg = "build environment:\n"
         for ee in C_COMPILE_ENV_LIST:
-            vv = self.build_environ.get(ee)
-            if len(vv) > 0:
-                self.log("  %s = %s\n" % (ee, vv), 4, False)
-
-        return 0
+          vv = self.build_environ.get(ee)
+          if len(vv) > 0:
+            msg += "  %s = %s\n" % (ee, vv)
+                          
+        logger.trace(msg)
+        return RCO.ReturnCode("OK", "prepare done")
 
     def cmake(self, options=""):
         """Runs cmake with the given options."""
         cmake_option = options
         # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
         if 'cmake_options' in self.product_info:
-            cmake_option += " %s " % " ".join(
-                                        self.product_info.cmake_options.split())
+            cmake_option += " %s " % " ".join(self.product_info.cmake_options.split())
 
         # add debug option
         if self.debug_mode:
@@ -110,9 +116,9 @@ class Builder:
         
         # In case CMAKE_GENERATOR is defined in environment, 
         # use it in spite of automatically detect it
-        if 'cmake_generator' in self.config.APPLICATION:
-            cmake_option += " -DCMAKE_GENERATOR=%s" \
-                                       % self.config.APPLICATION.cmake_generator
+        if 'cmake_genepreparerator' in self.config.APPLICATION:
+            cmake_option += " -DCMAKE_GENERATOR=%s" % \
+                            self.config.APPLICATION.cmake_generator
         
         cmd = """
 # CMAKE
@@ -213,7 +219,7 @@ make -j %s %s
 """ % (nb_proc, make_opt)
 
         env = self.build_environ.environ.environ
-        res = SP.call(cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=self.logger)
         return res
 
     
@@ -231,7 +237,7 @@ make -j %s %s
         cmd += cmd + " ALL_BUILD.vcxproj"
 
         env = self.build_environ.environ.environ
-        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=self.logger)  
         return res
         
 
@@ -247,7 +253,7 @@ make -j %s %s
             cmd = 'make install'
 
         env = self.build_environ.environ.environ
-        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=self.logger)  
         return res
 
     def check(self, command=""):
@@ -264,7 +270,7 @@ make -j %s %s
             cmd = command
         
         env = self.build_environ.environ.environ
-        res = SP.Popen(command, cwd=str(self.build_dir), env=env)  
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env , logger=self.logger) 
         return res
 
       
@@ -299,14 +305,11 @@ make -j %s %s
             if use_autotools: cmd = "(autotools)"
             if use_ctest: cmd = "(ctest)"
             
-            self.log("\n", 4, False)
-            self.log("%(module)s: Run default compilation method %(cmd)s\n" % \
-                { "module": self.module, "cmd": cmd }, 4)
+            self.info("%s: Run default compilation method %s" % (self.module, cmd))
 
         if use_autotools:
             if not self.prepare(): return self.get_result()
-            if not self.build_configure(
-                                   build_conf_options): return self.get_result()
+            if not self.build_configure(build_conf_options): return self.get_result()
             if not self.configure(configure_options): return self.get_result()
             if not self.make(): return self.get_result()
             if not self.install(): return self.get_result()
@@ -330,18 +333,19 @@ make -j %s %s
 
     def do_python_script_build(self, script, nb_proc):
         """Performs a build with a script."""
+        logger = self.logger
         # script found
-        self.logger.info(_("Compile %s using script %s\n") % \
+        logger.info(_("Compile %s using script %s\n") % \
                           (self.product_info.name, UTS.label(script)) )
         try:
             import imp
             product = self.product_info.name
             pymodule = imp.load_source(product + "_compile_script", script)
             self.nb_proc = nb_proc
-            retcode = pymodule.compil(self.config, self, self.logger)
+            retcode = pymodule.compil(self.config, self, logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
-            self.logger.error(str(exceptionValue))
+            logger.error(str(exceptionValue))
             import traceback
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
@@ -372,7 +376,7 @@ make -j %s %s
         else :
             make_options = "-j%s" % nb_proc
 
-        self.logger.info(_("Run build script '%s'") % script)
+        self.logger.trace(_("Run build script '%s'") % script)
         self.complete_environment(make_options)
         
         # linux or win compatible, have to be chmod +x ?
@@ -380,10 +384,9 @@ make -j %s %s
 # Run build script
 %s
 """ % script
-
         
         env = self.build_environ.environ.environ
-        res = SP.Popen(cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
         return res
     
     def do_script_build(self, script, number_of_proc=0):
@@ -402,5 +405,5 @@ make -j %s %s
             return self.do_python_script_build(script, nb_proc)
         
         msg = _("The script %s must have extension as .sh, .bat or .py.") % script
-        raise Exception(msg)
+        return RCO.ReturnCode("KO", msg)
         

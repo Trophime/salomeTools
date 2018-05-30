@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -81,7 +82,7 @@ class Command(_BaseCommand):
     products_infos = self.get_products_list(options, config)
     
     # Print some informations
-    msg = ('Executing the script in the build directories of the application %s\n') % \
+    msg = ('Executing the script in the build directories of the application %s') % \
                 UTS.label(config.VARS.application)
     logger.info(msg)
     
@@ -92,22 +93,21 @@ class Command(_BaseCommand):
     # the right command(s)
     if options.nb_proc is None:
         options.nb_proc = 0
-    res = run_script_all_products(config,
-                                  products_infos,
-                                  options.nb_proc,
-                                  logger)
+    good_result, results = run_script_all_products(config, products_infos, options.nb_proc, logger)
     
     # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "<OK>"
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("Execute script")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        final_status = "<KO>"
-   
-    logger.info( _("\nScript: %(s (%d/%d)\n") % \
-          (final_status, nb_products - res, nb_products) )   
-    
-    return res 
+      status = "KO"
+      msg = _("Problem executing script")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
 
 def run_script_all_products(config, products_infos, nb_proc, logger):
     """Execute the script in each product build directory.
@@ -120,15 +120,19 @@ def run_script_all_products(config, products_infos, nb_proc, logger):
       The logger instance to use for the display and logging
     :return: (int) The number of failing commands.
     """
-    res = 0
+    # Initialize the variables that will count the fails and success
+    results = dict()
+    good_result = 0
+    DBG.write("run_script_all_products", [p for p, tmp in products_infos])
     for p_name_info in products_infos:
-        res_prod = run_script_of_product(p_name_info,
-                                      nb_proc,
-                                      config,
-                                      logger)
-        if res_prod != 0:
-            res += 1 
-    return res
+      retcode = run_script_of_product(p_name_info, nb_proc, config, logger)
+      # show results
+      p_name, p_info = p_name_info
+      results[p_name] = retcode
+      if retcode.isOk():
+        good_result += 1
+        
+    return good_result, results
 
 def run_script_of_product(p_name_info, nb_proc, config, logger):
     """
@@ -143,13 +147,12 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
       The logger instance to use for the display and logging
     :return: (int) 1 if it fails, else 0.
     """
-    
     p_name, p_info = p_name_info
     
+    header = "zzzz" # TODO
     # Logging
-    header = _("Running script of %s") % UTS.label(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.info("\n" + header)
+    msg = _("Running script of %s ...") % UTS.label(p_name)
+    logger.info(msg)
 
     # Do nothing if he product is not compilable or has no compilation script
     test1 = "properties" in p_info and \
@@ -157,35 +160,24 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
             p_info.properties.compilation == "no"
     if ( test1 or (not PROD.product_has_script(p_info)) ):
         UTS.log_step(logger, header, "ignored")
-        logger.info("\n")
-        return 0
+        return res.append(RCO.ReturnCode("OK", "run script %s ignored" % p_name))
+
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, header, "PREPARE ENV ...")
     res_prepare = builder.prepare()
     UTS.log_res_step(logger, res_prepare)
     
     # Execute the script
-    len_end_line = 20
     script_path_display = UTS.label(p_info.compil_script)
     UTS.log_step(logger, header, "SCRIPT " + script_path_display)
-    len_end_line += len(script_path_display)
     res = builder.do_script_build(p_info.compil_script, number_of_proc=nb_proc)
     UTS.log_res_step(logger, res)
-    
-    # Log the result
-    if res > 0:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<KO>")
-        logger.debug("==== <KO> in script execution of %s\n" %  p_name)
-    else:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<OK>")
-        logger.debug("==== <OK> in script execution of %s\n" %  p_name)
-    logger.info("\n")
+ 
+    #logger.info("")
 
     return res

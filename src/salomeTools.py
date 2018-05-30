@@ -249,7 +249,7 @@ class _BaseCommand(object):
         return cmdInstance
         
     def runMicroCommand(self, cmdInstance, cmd_arguments):
-        """create instance of a micro command and launch on arguments"""
+        """launch a micro command on arguments"""
         logger = self.getLogger()
         commandArguments = self.assumeAsList(cmd_arguments)
         # Run the micro command using the remainders command arguments
@@ -268,6 +268,20 @@ class _BaseCommand(object):
         
         return returnCode
         
+    def executeMicroCommand(self, nameCmd, nameAppli, cmd_arguments):
+        """create instance of a micro command and launch on arguments"""  
+        # create/get dynamically the command instance to call its 'run' method
+        cmdInstance = self.getMicroCommand(nameCmd, nameAppli)
+        
+        # some initialisation stuff
+        # cmdInstance.initFullName() # as micro command
+        # cmdInstance.setConfig(config)
+        
+        # logger = self.getLogger()
+        # logger.setFileHandlerForCommand(self, cmdInstance)
+        
+        returnCode = self.runMicroCommand(cmdInstance, cmd_arguments)
+        return returnCode
 
     def run(self, cmd_arguments):
         """
@@ -348,6 +362,7 @@ class _BaseCommand(object):
         return CFGMGR.get_products_list(options, config)
 
     def assumeAsList(self, strOrList):
+        # DBG.write("command %s assumeAsList" % self.getFullNameStr(), strOrList)
         return assumeAsList(strOrList)
                   
     def getParser(self):
@@ -480,6 +495,7 @@ class Sat(object):
         return self.options
         
     def assumeAsList(self, strOrList):
+        # DBG.write("Sat assumeAsList", strOrList, True)
         return assumeAsList(strOrList)
 
     def _getParser(self):

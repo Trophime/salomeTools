@@ -249,15 +249,15 @@ def check_has_key(inConfig, key):
     :param key: (str) The key to check presence in in-Config node
     :return: (RCO.ReturnCode) 'OK' if presence
     """
-    debug = True
+    # debug = True
     if key not in inConfig:
       msg = _("check_has_key '%s' not found" % key)
-      DBG.write("check_has_key", msg, debug)
-      return RCO.ReturnCode("KO", msg)
+      # DBG.write("check_has_key", msg, debug)
+      return RCO.ReturnCode("KO", msg, None)
     else:
       msg = _("check_has_key '%s' found" % key)
-      DBG.write("check_has_key", msg, debug)
-      return RCO.ReturnCode("OK", msg)
+      # DBG.write("check_has_key", msg, debug)
+      return RCO.ReturnCode("OK", msg, inConfig[key])
          
 def check_config_has_application(config):
     """
@@ -303,8 +303,9 @@ def get_config_key(inConfig, key, default):
     :param default: (str) The value to return if key is not in-Config
     :return: (if supposedly leaf (str),else (in-Config Node) 
     """
-    if check_has_key(inConfig, key).isOk():
-      return inConfig[key]
+    rc = check_has_key(inConfig, key)
+    if rc.isOk():
+      return rc.getValue()
     else:
       return default
 
@@ -436,14 +437,14 @@ def logger_info_tuples(logger, tuples):
     logger.info(msg)
 
 def log_step(logger, header, step):
-    logger.info("\r%s%s" % (header, " " * 20))
-    logger.info("\r%s%s" % (header, step))
+    #logger.info("\r%s%s" % (header, step))
+    logger.info("%s" % step)
 
 def log_res_step(logger, res):
-    if res == 0:
-        logger.info("<OK>\n")
+    if res.isOk():
+        logger.info("<OK>")
     else:
-        logger.info("<KO>\n")
+        logger.info("<KO>")
 
 def isSilent(output_verbose_level):
     """is silent fort self.build_environ"""
