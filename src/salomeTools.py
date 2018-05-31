@@ -28,6 +28,13 @@ This file is the main API file for salomeTools
 
 _KOSYS = 1 # avoid import src
 
+# Compatibility python 2/3 for input function
+# input stays input for python 3 and input = raw_input for python 2
+try: 
+    input = raw_input
+except NameError: 
+    pass
+  
 ########################################################################
 # NO __main__ entry allowed, use sat
 ########################################################################
@@ -113,7 +120,7 @@ def launchSat(command):
       env["PATH"] = rootdir + ":" + env["PATH"]
     # TODO setLocale not 'fr' on subprocesses, why not?
     # env["LANG"] == ''
-    res = UTS.Popen(command, env=env)
+    res = UTS.Popen(command, env=env, logger=None) # no logger!
     return res
 
 def setNotLocale():
@@ -463,6 +470,7 @@ class Sat(object):
         self.nameAppliLoaded = None
       
         self.parser = self._getParser()
+        self._confirmMode = True
                 
     def __repr__(self):
         aDict = {
@@ -692,27 +700,33 @@ development mode (more verbose error/exception messages)
         return msg
    
     def getConfirmMode(self):
-        return False
+        return self._confirmMode
+    
+    def setConfirmMode(self, value):
+        self._confirmMode = value
     
     def getBatchMode(self):
-        return True
+        return self.options.batch
         
     def getAnswer(self, msg):
         """
-        question and user answer (in console) if confirm mode and not batch mode
-        returns 'YES' or 'NO' if confirm mode and not batch mode
-        returns 'YES' if batch mode
+        question and user answer (in console) 
+        if confirm mode and not batch mode.
+        
+        | returns 'YES' or 'NO' if confirm mode and not batch mode
+        | returns 'YES' if batch mode
         """
+        logger = self.getLogger()
         if self.getConfirmMode() and not self.getBatchMode():       
-          self.getLogger().info(msg)
-          rep = input(_("Are you sure you want to continue? [yes/no]"))
+          logger.info("\n" + msg)
+          rep = input(_("Do you want to continue? [yes/no] "))
           if rep.upper() == _("YES"):
             return "YES"
           else:
             return "NO"
         else:
-          self.getLogger().info(msg)
-          self.getLogger().info("<green>YES<reset> (as automatic answer)")
+          logger.debug(msg) # silent message
+          logger.debug("<green>YES<reset> (as automatic answer)")
           return "YES"
 
 

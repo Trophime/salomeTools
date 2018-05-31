@@ -84,10 +84,9 @@ class Command(_BaseCommand):
     # Print some informations
     msg = ('Executing the script in the build directories of the application %s') % \
                 UTS.label(config.VARS.application)
-    logger.info(msg)
-    
     info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
-    UTS.logger_info_tuples(logger, info)
+    msg += "\n" + UTS.formatTuples(info)
+    logger.trace(msg)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -101,11 +100,11 @@ class Command(_BaseCommand):
     if good_result == nbExpected:
       status = "OK"
       msg = _("Execute script")
-      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+      logger.trace("%s %s: <%s>" % (msg, msgCount, status))
     else:
       status = "KO"
       msg = _("Problem executing script")
-      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+      logger.warning("%s %s: <%s>" % (msg, msgCount, status))
 
     return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
 
@@ -149,17 +148,16 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     """
     p_name, p_info = p_name_info
     
-    header = "zzzz" # TODO
     # Logging
     msg = _("Running script of %s ...") % UTS.label(p_name)
-    logger.info(msg)
+    logger.trace(msg)
 
     # Do nothing if he product is not compilable or has no compilation script
     test1 = "properties" in p_info and \
             "compilation" in p_info.properties and \
             p_info.properties.compilation == "no"
     if ( test1 or (not PROD.product_has_script(p_info)) ):
-        UTS.log_step(logger, header, "ignored")
+        UTS.log_step(logger, "ignored")
         return res.append(RCO.ReturnCode("OK", "run script %s ignored" % p_name))
 
 
@@ -168,16 +166,14 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV ...")
+    UTS.log_step(logger, "PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_res_step(logger, res_prepare)
+    UTS.log_step(logger, res_prepare)
     
     # Execute the script
     script_path_display = UTS.label(p_info.compil_script)
-    UTS.log_step(logger, header, "SCRIPT " + script_path_display)
+    UTS.log_step(logger, "SCRIPT " + script_path_display)
     res = builder.do_script_build(p_info.compil_script, number_of_proc=nb_proc)
-    UTS.log_res_step(logger, res)
+    UTS.log_step(logger, res)
  
-    #logger.info("")
-
     return res

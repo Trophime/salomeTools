@@ -135,14 +135,13 @@ def makeinstall_product(p_name_info, config, logger):
     
     # Logging
     header = _("Make install of %s") % UTS.label(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.info(header)
+    UTS.init_log_step(logger, header)
 
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        UTS.log_step(logger, header, "ignored")
+        UTS.log_step(logger, "ignored")
         return RCO.ReturnCode("OK", "product %s is not compilable" % p_name)
 
     # Instantiate the class that manages all the construction commands
@@ -150,28 +149,17 @@ def makeinstall_product(p_name_info, config, logger):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, "PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_res_step(logger, res_prepare)
+    UTS.log_step(logger, res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
-    res = 0
+    res = TODO
     if not PROD.product_has_script(p_info):
-        UTS.log_step(logger, header, "MAKE INSTALL")
+        UTS.log_step(logger, "MAKE INSTALL")
         res_m = builder.install()
-        UTS.log_res_step(logger, res_m)
+        UTS.log_step(logger, res_m)
         res += res_m
-    
-    # Log the result
-    if res > 0:
-        logger.info("\r%s%s" % (header, " " * 20))
-        logger.info("\r" + header + "<KO>")
-        logger.debug("==== <KO> in make install of s\n" % p_name)
-    else:
-        logger.info("\r%s%s" % (header, " " * 20))
-        logger.info("\r" + header + "<OK>")
-        logger.debug("==== <OK> in make install of %s\n" % p_name)
-    logger.info("\n")
 
     return res

@@ -166,7 +166,10 @@ def toColor(msg):
     # clean the message color (if the terminal is redirected by user)
     return replace(msg, _tagsNone)
   else:
-    return replace(msg, _tags)
+    # https://en.wikipedia.org/wiki/ANSI_escape_code#Escape_sequences
+    # rc + CSI 0 K as clear from cursor to the end of the line
+    s = msg.replace("<RC>", "\r\033[0;K")
+    return replace(s, _tags)
     
 def cleanColors(msg):
   """clean the message of color tags '<red> ... """

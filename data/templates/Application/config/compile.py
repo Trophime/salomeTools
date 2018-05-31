@@ -15,12 +15,12 @@ def compil(config, builder, logger):
     # test lrelease #.pyconf needs in ..._APPLI pre_depend : ['qt']
     env = builder.build_environ.environ.environ
     command = "which lrelease" 
-    res = UTS.Popen(command, shell=True ,env=env)
+    res = UTS.Popen(command, shell=True ,env=env, logger=logger)
     if not res.isOk():
         return res
     
     # run lrelease
     command = "lrelease *.ts"
     cwd = str(builder.install_dir + "resources")
-    res = UTS.Popen(command, shell=True, cwd=cwd, env=env)
+    res = UTS.Popen(command, shell=True, cwd=cwd, env=env, logger=logger)
     return res

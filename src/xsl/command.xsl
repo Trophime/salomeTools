@@ -109,8 +109,8 @@
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>
-		<iframe src="{$txtLog}" frameborder="0" class="center" width="98%" height="1000" scrolling="yes"></iframe>
-		<!--<iframe src="{$txtLog}" frameborder="0" class="center" width="98%" height="1000" scrolling="yes"></iframe>-->
+		<iframe src="{$txtLog}" frameborder="0" class="center" width="98%" height="600" scrolling="yes"></iframe>
+		<!--<iframe src="{$txtLog}" frameborder="0" class="center" width="98%" height="600" scrolling="yes"></iframe>-->
 	</body>
 </xsl:template>
 

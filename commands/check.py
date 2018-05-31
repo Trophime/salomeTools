@@ -139,8 +139,7 @@ def check_product(p_name_info, config, logger):
     p_name, p_info = p_name_info
 
     header = _("Check of %s") % UTS.label(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.info(header)
+    UTS.init_log_step(logger,header)
 
     # Verify if the command has to be launched or not
     ignored = False
@@ -170,7 +169,7 @@ is not defined in the definition of %(name)\n""") % p_name
             logger.warning(msg)
                 
     if ignored or not cmd_found:
-        UTS.log_step(logger, header, "ignored")
+        UTS.log_step(logger, "ignored")
         logger.debug("==== %s %s\n" % (p_name, "IGNORED"))
         if not cmd_found:
             return 1
@@ -181,27 +180,14 @@ is not defined in the definition of %(name)\n""") % p_name
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, "PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_res_step(logger, res_prepare)
-    
-    len_end_line = 20
+    UTS.log_step(logger, res_prepare)
 
     # Launch the check    
-    UTS.log_step(logger, header, "CHECK")
+    UTS.log_step(logger, "CHECK")
     res = builder.check(command=command)
-    UTS.log_res_step(logger, res)
-    
-    # Log the result
-    if res > 0:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<KO>\n")
-        logger.debug("==== <KO> in check of %s\n" % p_name)
-    else:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<OK>\n")
-        logger.debug("==== <OK> in check of %s\n" % p_name)
-    logger.info("\n")
+    UTS.log_step(logger, res)
 
     return res
 

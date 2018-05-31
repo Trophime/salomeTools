@@ -221,11 +221,14 @@ def suppress_directories(l_paths, logger):
       The logger instance to use for the display and logging
     """    
     for path in l_paths:
-        strpath = str(path)
-        if not path.isdir():
-            msg = _("The path %s does not exists (or is not a directory)") % UTS.info(strpath)
-            logger.warning(msg)
-        else:
-            path.rm()
-            logger.info(_("Remove %s ...<OK>") % UTS.info(strpath))
+      strpath = str(path)
+      if path.isfile():
+        msg = _("The path %s is file, expected directory)") % UTS.info(strpath)
+        logger.warning(msg)       
+      if not path.isdir():
+        msg = _("The path %s does not exists (or is not a directory)") % UTS.info(strpath)
+        logger.trace(msg)
+      else:
+        path.rm()
+        logger.trace(_("Remove %s <OK>") % UTS.info(strpath))
 

@@ -103,6 +103,7 @@ install_dir = %s
 
     def cmake(self, options=""):
         """Runs cmake with the given options."""
+        logger = self.logger
         cmake_option = options
         # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
         if 'cmake_options' in self.product_info:
@@ -131,12 +132,13 @@ cmake %s -DCMAKE_INSTALL_PREFIX=%s %s
           print key, "  ", self.build_environ.environ.environ[key]
         """
         env = self.build_environ.environ.environ
-        res = UTS.Popen(cmd, cwd=str(self.build_dir),env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
 
 
     def build_configure(self, options=""):
         """Runs build_configure with the given options."""
+        logger = self.logger
         if 'buildconfigure_options' in self.product_info:
             options += " %s " % self.product_info.buildconfigure_options
 
@@ -147,12 +149,13 @@ set -x
 """ % (bconf, options)
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
 
 
     def configure(self, options=""):
         """Runs configure with the given options."""
+        logger = self.logger
         if 'configure_options' in self.product_info:
             options += " %s " % self.product_info.configure_options
 
@@ -163,10 +166,11 @@ set -x
 """ % (conf, self.install_dir, options)
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
 
     def hack_libtool(self):
+        logger = self.logger
         libtool = os.path.join(str(self.build_dir), "libtool")
         if not os.path.exists(libtool):
           return RCO.ReturnCode("OK", "file libtool not existing '%s'" % libtool)
@@ -206,25 +210,27 @@ CC=\"hack_libtool\"%g" libtool
 '''
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(hack_cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(hack_cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
 
 
     def make(self, nb_proc, make_opt=""):
         """Runs make to build the module."""
         # make
+        logger = self.logger
         cmd = """
 set -x
 make -j %s %s
 """ % (nb_proc, make_opt)
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=self.logger)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
 
     
     def wmake(self, nb_proc, opt_nb_proc = None):
         """Runs msbuild to build the module."""
+        logger = self.logger
         hh = 'MSBUILD /m:%s' % str(nb_proc)
         if self.debug_mode:
             hh += " " + UTS.red("DEBUG")
@@ -237,12 +243,13 @@ make -j %s %s
         cmd += cmd + " ALL_BUILD.vcxproj"
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=self.logger)  
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=logger)  
         return res
         
 
     def install(self):
         """Runs 'make install'."""
+        logger = self.logger
         if self.config.VARS.dist_name=="Win":
             cmd = "msbuild INSTALL.vcxproj"
             if self.debug_mode:
@@ -253,11 +260,12 @@ make -j %s %s
             cmd = 'make install'
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=self.logger)  
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=logger)  
         return res
 
     def check(self, command=""):
         """Runs 'make_check'."""
+        logger = self.logger
         if ARCH.is_windows():
             cmd = "msbuild RUN_TESTS.vcxproj"
         else :
@@ -270,7 +278,7 @@ make -j %s %s
             cmd = command
         
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env , logger=self.logger) 
+        res = UTS.Popen(command, cwd=str(self.build_dir), env=env , logger=logger) 
         return res
 
       
@@ -370,13 +378,13 @@ make -j %s %s
         self.build_environ.set("VERSION", self.product_info.version)
 
     def do_batch_script_build(self, script, nb_proc):
-
+        logger = self.logger
         if ARCH.is_windows():
             make_options = "/maxcpucount:%s" % nb_proc
         else :
             make_options = "-j%s" % nb_proc
 
-        self.logger.trace(_("Run build script '%s'") % script)
+        self.logger.trace(_("Run build script %s") % UTS.label(script))
         self.complete_environment(make_options)
         
         # linux or win compatible, have to be chmod +x ?
@@ -386,7 +394,7 @@ make -j %s %s
 """ % script
         
         env = self.build_environ.environ.environ
-        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env)
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)
         return res
     
     def do_script_build(self, script, number_of_proc=0):

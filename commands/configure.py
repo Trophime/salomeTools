@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -30,8 +31,9 @@ from src.salomeTools import _BaseCommand
 ########################################################################
 class Command(_BaseCommand):
   """
-  The configure command executes in the build directory commands
-  corresponding to the compilation mode of the application products.
+  The configure command executes in the build directory 
+  some commands corresponding to the compilation mode of 
+  the application products.
   The possible compilation modes are 'cmake', 'autotools', or 'script'.
 
   | Here are the commands to be run:
@@ -87,8 +89,7 @@ class Command(_BaseCommand):
     logger.info(_('Configuring the sources of the application %s\n') % 
                 UTS.label(config.VARS.application))
     
-    info = [(_("BUILD directory"),
-             os.path.join(config.APPLICATION.workdir, 'BUILD'))]
+    info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
     UTS.logger_info_tuples(logger, info)
     
     # Call the function that will loop over all the products and execute
@@ -141,61 +142,48 @@ def configure_product(p_name_info, conf_option, config, logger):
     :param config: (Config) The global configuration
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (int) 1 if it fails, else 0.
+    :return: (RCO.ReturnCode)
     """
     
     p_name, p_info = p_name_info
     
     # Logging
     header = _("Configuration of %s") % UTS.label(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.info(header)
+    UTS.init_log_step(logger, header)
     
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-          
-        UTS.log_step(logger, header, "ignored")
-        logger.info("\n")
-        return 0
+        UTS.end_log_step(logger, "ignored")
+        return RCO.ReturnCode("OK", "configure %s ignored" % p_name)
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, "PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_res_step(logger, res_prepare)
+    UTS.log_step(logger, res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
-    res = 0
+    res = []
     if PROD.product_is_autotools(p_info):
-        UTS.log_step(logger, header, "BUILDCONFIGURE")
-        res_bc = builder.build_configure()
-        UTS.log_res_step(logger, res_bc)
-        res += res_bc
-        UTS.log_step(logger, header, "CONFIGURE")
-        res_c = builder.configure(conf_option)
-        UTS.log_res_step(logger, res_c)
-        res += res_c
+        UTS.log_step(logger, "BUILDCONFIGURE")
+        rc = builder.build_configure()
+        UTS.log_step(logger, rc)
+        res.append(rc)
+        UTS.log_step(logger, "CONFIGURE")
+        rc = builder.configure(conf_option)
+        UTS.log_step(logger, rc)
+        res.append(rc) 
     if PROD.product_is_cmake(p_info):
-        UTS.log_step(logger, header, "CMAKE")
-        res_cm = builder.cmake(conf_option)
-        UTS.log_res_step(logger, res_cm)
-        res += res_cm
-    
-    # Log the result
-    if res > 0:
-        logger.info("\r%s%s" % (header, " " * 20))
-        logger.info("\r" + header + "<KO>")
-        logger.debug("==== <KO> in configuration of %s\n" % p_name)
-    else:
-        logger.info("\r%s%s" % (header, " " * 20))
-        logger.info("\r" + header + "<OK>")
-        logger.debug("==== <OK> in configuration of %s\n" % p_name)
-    logger.info("\n")
-
-    return res
+        UTS.log_step(logger, "CMAKE")
+        rc = builder.cmake(conf_option)
+        UTS.log_step(logger, rc)
+        res.append(rc)
+        
+    UTS.end_log_step(logger, rc.getStatus())
+    return RCO.ReturnCode(rc.getStatus(), "in configure %s" % p_name)

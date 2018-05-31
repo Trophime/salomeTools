@@ -436,15 +436,36 @@ def logger_info_tuples(logger, tuples):
     msg = formatTuples(tuples)
     logger.info(msg)
 
-def log_step(logger, header, step):
-    #logger.info("\r%s%s" % (header, step))
-    logger.info("%s" % step)
+_log_step_header = ["No log step header ..."]
 
-def log_res_step(logger, res):
-    if res.isOk():
-        logger.info("<OK>")
+def init_log_step(logger, header, step=""):
+    _log_step_header.append(header)
+    log_step(logger, step)
+    
+def log_step(logger, step):
+    header = _log_step_header[-1]
+    if type(step) == str:
+      logger.info("<RC>%s%s ..." % (header, step))
+      return
+    #as ReturnCode type step
+    if step.isOk():
+      logger.info("<RC>%s <OK>..." % header)
     else:
-        logger.info("<KO>")
+      logger.info("<RC>%s%s <KO>..." % (header, step.getwhy())) 
+
+def end_log_step(logger, step):
+    header = _log_step_header[-1]
+    if type(step) == str:
+      logger.info("<RC>%s%s" % (header, step))
+      if len(_log_step_header) > 1: _log_step_header.pop()
+      return
+    #as ReturnCode type
+    if step.isOk():
+      logger.info("<RC>%s <OK>" % header)
+    else:
+      logger.info("<RC>%s <%s>" % (header, step.getStatus()))
+    if len(_log_step_header) > 1: _log_step_header.pop()
+    
 
 def isSilent(output_verbose_level):
     """is silent fort self.build_environ"""
@@ -742,16 +763,16 @@ def Popen(command, shell=True, cwd=None, env=None, stdout=SP.PIPE, stderr=SP.PIP
       if logger is not None:
         logger.trace("<OK> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
         logger.trace("<OK> result command stdout&stderr:\n%s" % res_out)
-      return RCO.ReturnCode("OK", "command done", value=res_out)
+      return RCO.ReturnCode("OK", "Popen command done", value=res_out)
     else:
       if logger is not None:
         logger.warning("<KO> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
         logger.warning("<KO> result command stdout&stderr:\n%s" % res_out)
-      return RCO.ReturnCode("KO", "command problem", value=res_out)
+      return RCO.ReturnCode("KO", "Popen command problem", value=res_out)
   else: #except Exception as e:
     logger.error("<KO> launch command cwd=%s:\n%s" % (cwd, command))
     logger.error("launch command exception:\n%s" % e)
-    return RCO.ReturnCode("KO", "launch command problem")
+    return RCO.ReturnCode("KO", "Popen command problem")
 
   
 def generate_catalog(machines, config, logger):
@@ -783,7 +804,7 @@ def generate_catalog(machines, config, logger):
       logger.info("    ssh %s " % (k + " ").ljust(20, '.'), 4)
 
       ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
-      res = UTS.Popen(ssh_cmd, shell=True)
+      res = UTS.Popen(ssh_cmd, shell=True, logger=logger)
       if res.isOk():
         lines = p.stdout.readlines()
         freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()

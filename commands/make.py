@@ -141,14 +141,13 @@ def make_product(p_name_info, make_option, config, logger):
     
     # Logging
     header = _("Make of %s") % UTS.label(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.info(header)
+    UTS.init_log_step(logger, header)
 
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        UTS.log_step(logger, header, "ignored")
+        UTS.log_step(logger, "ignored")
         return 0
 
     # Instantiate the class that manages all the construction commands
@@ -156,32 +155,21 @@ def make_product(p_name_info, make_option, config, logger):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, header, "PREPARE ENV")
+    UTS.log_step(logger, "PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_res_step(logger, res_prepare)
+    UTS.log_step(logger, res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
-    len_end_line = 20
 
     nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
-    UTS.log_step(logger, header, "MAKE -j" + str(nb_proc))
+    UTS.log_step(logger, "MAKE -j" + str(nb_proc))
     if ARCH.is_windows():
         res = builder.wmake(nb_proc, make_opt_without_j)
     else:
         res = builder.make(nb_proc, make_opt_without_j)
-    UTS.log_res_step(logger, res)
+    UTS.log_step(logger, res)
     
-    # Log the result
-    if res > 0:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<KO>")
-        logger.debug("==== <KO> in make of %s\n" % p_name)
-    else:
-        logger.info("\r%s%s" % (header, " " * len_end_line))
-        logger.info("\r" + header + "<OK>")
-        logger.debug("==== <OK> in make of %s\n" % p_name)
-    logger.info("\n")
     return res
 
 def get_nb_proc(product_info, config, make_option):
