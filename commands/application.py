@@ -134,7 +134,8 @@ Note:     this command will ssh to retrieve information to each machine in the l
     logger.info(fmt % (_("Application directory"), appli_dir))
     
     # get catalog
-    catalog, catalog_src = "", ""
+    catalog = ""
+    catalog_src = ""
     if options.catalog:
         # use catalog specified in the command line
         catalog = options.catalog
@@ -162,29 +163,15 @@ Note:     this command will ssh to retrieve information to each machine in the l
         else:
             logger.info(fmt % (_("Resources Catalog"), catalog))
 
-    details = []
-
     # remove previous application
     if os.path.exists(appli_dir):
         logger.info(get_step(_("Removing previous application directory")))
-        rres = "<KO>"
-        try:
-            shutil.rmtree(appli_dir)
-            rres = "<OK>"
-        finally:
-            logger.info(rres)
+        shutil.rmtree(appli_dir)
 
     # generate the application
-    try:
-        try: # try/except/finally not supported in all version of python
-            retcode = create_application(config, appli_dir, catalog, logger)
-        except Exception as exc:
-            details.append(str(exc))
-            raise
-    finally:
-        logger.info("\n")
-
-    return RCO.ReturnCode("OK")
+    retcode = create_application(config, appli_dir, catalog, logger)
+    
+    return retcode
 
 
 def make_alias(appli_path, alias_path, force=False):
@@ -261,7 +248,7 @@ def customize_app(config, appli_dir, logger):
     """Customizes the application by editing SalomeApp.xml."""
     if 'configure' not in config.APPLICATION.virtual_app \
         or len(config.APPLICATION.virtual_app.configure) == 0:
-        return
+        return RCO.ReturnCode("OK", "Nothing in configure")
 
     def get_element(parent, name, strtype):
         """shortcut to get an element (section or parameter) from parent."""
@@ -293,7 +280,6 @@ def customize_app(config, appli_dir, logger):
     document = tree.getroot()
     assert document is not None, "document tag not found"
 
-    logger.info("\n")
     for section_name in config.APPLICATION.virtual_app.configure:
         for parameter_name in config.APPLICATION.virtual_app.configure[section_name]:
             parameter_value = config.APPLICATION.virtual_app.configure[section_name][parameter_name]
@@ -305,10 +291,10 @@ def customize_app(config, appli_dir, logger):
             parameter.attrib['value'] = parameter_value
 
     # write the file
-    f = open(app_file, "w")
-    f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-    f.write(ETREE.tostring(document, encoding='utf-8'))
-    f.close()
+    with open(app_file, "w") as f:
+      f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+      f.write(ETREE.tostring(document, encoding='utf-8'))
+    return RCO.ReturnCode("OK", "customize %s done" % app_file)
 
 def generate_application(config, appli_dir, config_file, logger):
     """Generates the application with the config_file."""
@@ -342,25 +328,27 @@ def get_step(logger, message, pad=50):
     return "%s %s " % (message, '.'*(pad - len(message.decode("UTF-8"))))
 
 def create_application(config, appli_dir, catalog, logger, display=True):
-    """reates a SALOME application."""  
+    """Creates a SALOME application."""  
     SALOME_modules = get_SALOME_modules(config)
     
     warn = ['KERNEL', 'GUI']
     if display:
         for w in warn:
             if w not in SALOME_modules:
-                msg = _("module %s is required to create application\n") % w
+                msg = _("module %s is required to create application") % w
                 logger.warning(msg)
 
     # generate the launch file
     retcode = generate_launch_file(config, appli_dir, catalog, logger, SALOME_modules)
+    cmd = UTS.label(os.path.join(appli_dir, "salome"))
     
-    if retcode == 0:
-        cmd = UTS.label("%s/salome" % appli_dir)
+    if not retcode.isOk():
+        logger.error("Problem generating %s" % cmd)
+        return retcode
 
     if display:
         msg = _("To launch the application, type:")
-        logger.info("\n%s\n  %s\n" % (msg, cmd))
+        logger.info("\n%s\n  %s" % (msg, cmd))
     return retcode
 
 def get_SALOME_modules(config):
@@ -377,13 +365,10 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     Obsolescent way of creating the application.
     This method will use appli_gen to create the application directory.
     """
-    retcode = -1
-
     if len(catalog) > 0 and not os.path.exists(catalog):
         raise IOError(_("Catalog not found: %s") % catalog)
     
     logger.info(get_step(_("Creating environment files")))
-    status = "<KO>"
 
     VersionSalome = UTS.get_salome_version(config)
     if VersionSalome >= 820:
@@ -394,18 +379,11 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
         app_shell="bash"
         env_ext="sh"
 
-    try:
-        import environ
-        # generate only shells the user wants (by default bash, csh, batch)
-        # the environ command will only generate file compatible 
-        # with the current system.
-        environ.write_all_source_files(config,
-                                       logger,
-                                       shells=[app_shell],
-                                       silent=True)
-        status = "<OK>"
-    finally:
-        logger.info(status + "\n")
+    import environ
+    # generate only shells the user wants (by default bash, csh, batch)
+    # the environ command will only generate file compatible 
+    # with the current system.
+    environ.write_all_source_files(config, logger, shells=[app_shell], silent=True)
 
     # build the application (the name depends upon salome version
     env_file = os.path.join(config.APPLICATION.workdir, "env_launch." + env_ext)
@@ -417,19 +395,18 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     os.makedirs(appli_dir)
 
     # generate the application
-    status = "<KO>"
-    try:
-        retcode = generate_application(config, appli_dir, cf, logger)
-        customize_app(config, appli_dir, logger)
-        status = "<OK>"
-    finally:
-        logger.info(status + "\n")
-
+    retcode = generate_application(config, appli_dir, cf, logger) 
+    if not retcode.isOk(): 
+      return retcode
+    retcode = customize_app(config, appli_dir, logger)
+    if not retcode.isOk(): 
+      return retcode
+    
     # copy the catalog if one
     if len(catalog) > 0:
         shutil.copy(catalog, os.path.join(appli_dir, "CatalogResources.xml"))
 
-    return retcode
+    return RCO.ReturnCode("OK", "generate_launch_file done")
 
 
 

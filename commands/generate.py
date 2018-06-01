@@ -139,13 +139,13 @@ class Command(_BaseCommand):
 
 
 def generate_component_list(config, product_info, context, logger):
-    res = "?"
-    logger.info("\n")
+    """returns list of ReturnCode of elementary generate_component"""
+    res = []
     for compo in PROD.get_product_components(product_info):
-        header = "  %s %s " % (UTS.label(compo), "." * (20 - len(compo)))
-        res = generate_component(config, compo, product_info, context, header, logger)
-        logger.info("\r%s%s\r%s" % (header, " " * 20, header))
-        logger.info(res + "\n")
+        header = "  %s ... " % UTS.label(compo)
+        rc = generate_component(config, compo, product_info, context, header, logger)
+        res.append(rc)
+        logger.info("%s %s" % (header, rc))
     return res
 
 def generate_component(config, compo, product_info, context, header, logger):
@@ -160,8 +160,7 @@ def generate_component(config, compo, product_info, context, header, logger):
         cpplib = "lib" + compo + "CXX.so"
     cpp_path = product_info.install_dir
 
-    msg = ""
-    msg += "%s\n" % UTS.blue(header)
+    msg = "%s\n" % UTS.blue(header)
     msg += "hxxfile  = %s\n" % hxxfile
     msg += "cpplib   = %s\n" % cpplib
     msg += "cpp_path = %s\n" % cpp_path
@@ -202,17 +201,16 @@ def generate_component(config, compo, product_info, context, header, logger):
     os.chdir(generate_dir)
 
     # inline class to override bootstrap method
-    import module_generator
+    import module_generator as MG
     
-    class sat_generator(module_generator.Generator):
+    class sat_generator(MG.Generator):
         # old bootstrap for automake (used if salome version <= 7.4)
-        def bootstrap(self, source_dir, log_file):
-            # replace call to default bootstrap() by using subprocess call (cleaner)
-            command = "sh autogen.sh"
-            ier = SP.call(command, shell=True, cwd=source_dir, stdout=log_file, stderr=SP.STDOUT)
-            if ier != 0:
-                raise Exception("bootstrap has ended in error")
-
+        def bootstrap(self, source_dir, logger):
+            # replace call to default bootstrap() by using subprocess Popen
+            cmd = "sh autogen.sh"
+            rc = UTS.Popen(cmd, cwd=source_dir, logger=logger)
+            rc.raiseIfKo()
+            return rc
     
     # determine salome version
     VersionSalome = UTS.get_salome_version(config)
@@ -226,56 +224,47 @@ def generate_component(config, compo, product_info, context, header, logger):
     result = "GENERATE"
     logger.info('GENERATE')
     
-    prevstdout = sys.stdout
-    prevstderr = sys.stderr
+    if PROD.product_is_mpi(product_info):
+        salome_compo = MG.HXX2SALOMEParaComponent(hxxfile, cpplib, cpp_path)
+    else:
+        salome_compo = MG.HXX2SALOMEComponent(hxxfile, cpplib, cpp_path)
 
-    try:
-        sys.stdout = logger.logTxtFile
-        sys.stderr = logger.logTxtFile
+    if PROD.product_has_salome_gui(product_info):
+        # get files to build a template GUI
+        gui_files = salome_compo.getGUIfilesTemplate(compo)
+    else:
+        gui_files = None
 
-        if PROD.product_is_mpi(product_info):
-            salome_compo = module_generator.HXX2SALOMEParaComponent(hxxfile,
-                                                                    cpplib,
-                                                                    cpp_path)
-        else:
-            salome_compo = module_generator.HXX2SALOMEComponent(hxxfile,
-                                                                cpplib,
-                                                                cpp_path)
+    mg = MG.Module(compo, components=[salome_compo], prefix=generate_dir, gui=gui_files)
+    gg = sat_generator(mg, context)
+    gg.generate()
 
-        if PROD.product_has_salome_gui(product_info):
-            # get files to build a template GUI
-            gui_files = salome_compo.getGUIfilesTemplate(compo)
-        else:
-            gui_files = None
-
-        mg = module_generator.Module(compo, components=[salome_compo],
-                                     prefix=generate_dir, gui=gui_files)
-        g = sat_generator(mg, context)
-        g.generate()
-
-        if use_autotools:
-            result = "BUID_CONFIGURE"
-            logger.info('BUID_CONFIGURE (no bootstrap)')
-            g.bootstrap(compo_info.source_dir, logger.logTxtFile)
-
-        result = RCO._OK_STATUS
-    finally:
-        sys.stdout = prevstdout
-        sys.stderr = prevstderr
+    if use_autotools:
+      result = "BUID_CONFIGURE"
+      logger.info('BUID_CONFIGURE (no bootstrap)')
+      result = gg.bootstrap(compo_info.source_dir, logger)
+    else:
+      result = RCO.ReturnCode("OK", "generate_component no use autotools")
 
     # go back to previous directory
     os.chdir(curdir)
+    
 
     # do the compilation using the builder object
-    if builder.prepare()!= 0: return "Error in prepare"
+    rc = builder.prepare()
+    if not rc.isOk(): return rc
     if use_autotools:
-        if builder.configure()!= 0: return "Error in configure"
+      rc = builder.configure()
+      if not rc.isOk(): return rc 
     else:
-        if builder.cmake()!= 0: return "Error in cmake"
+      rc = builder.cmake()
+      if not rc.isOk(): return rc 
 
-    if builder.make(config.VARS.nb_proc, "")!=0: return "Error in make"
-    if builder.install()!=0: return "Error in make install"
-
+    rc = builder.make(config.VARS.nb_proc, "")
+    if not rc.isOk(): return rc
+    rc = builder.install()
+    if not rc.isOk(): return rc
+    
     # copy specified logo in generated component install directory
     # rem : logo is not copied in source dir because this would require
     #       to modify the generated makefile
@@ -284,8 +273,8 @@ def generate_component(config, compo, product_info, context, header, logger):
         destlogo = os.path.join(compo_info.install_dir, "share", "salome",
             "resources", compo.lower(), compo + ".png")
         UTS.Path(logo_path).copyfile(destlogo)
-
-    return result
+        
+    return RCO.ReturnCode("OK", "generate_component done")
 
 def build_context(config, logger):
     products_list = [ 'KERNEL', 'GUI' ]
