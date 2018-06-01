@@ -105,15 +105,13 @@ class Command(_BaseCommand):
     if good_result == nbExpected:
       status = "OK"
       msg = _("command configure")
-      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+      logger.info("\n%s %s: <%s>" % (msg, msgCount, status))
     else:
       status = "KO"
       msg = _("command configure, some products have failed")
-      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+      logger.info("\n%s %s: <%s>" % (msg, msgCount, status))
 
     return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
-
-
 
   def configure_all_products(self, products_infos):
     """

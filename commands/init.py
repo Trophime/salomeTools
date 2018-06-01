@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -78,29 +79,30 @@ class Command(_BaseCommand):
     # Print some informations
     logger.info(_('Local Settings of SAT %s') % UTS.label(config.VARS.salometoolsway))
 
-    res = 0
-    
+    res = []
     # Set the options corresponding to a directory
     for opt in [("base" , options.base),
                 ("workdir", options.workdir),
                 ("log_dir", options.log_dir),
                 ("archive_dir", options.archive_dir)]:
-        key, value = opt
-        if value:
-            res_check = check_path(value, logger)
-            res += res_check
-            if res_check == 0:
-                res_set = set_local_value(config, key, value, logger)
-                res += res_set
+      key, value = opt
+      if value:
+        rc = check_path(value, logger)
+        res.append(rc)
+        if rc.isOk():
+          rc = set_local_value(config, key, value, logger)
+          res.append(rc)
 
     # Set the options corresponding to an informative value            
     for opt in [("VCS", options.VCS), ("tag", options.tag)]:
-        key, value = opt
-        res_set = set_local_value(config, key, value, logger)
-        res += res_set
+      key, value = opt
+      rc = set_local_value(config, key, value, logger)
+      res.append(rc)
     
-    display_local_values(config, logger)
+    msg = get_str_local_values(config)
+    logger.info(msg)
     
+    res = RCO.ReturnCodeFromList(res)
     return res
 
 
@@ -111,42 +113,40 @@ def set_local_value(config, key, value, logger):
     :param key: (str) The key from which to change the value.
     :param value: (str) The path to change.
     :param logger: (Logger) The logger instance.
-    :return: (int) 0 if all is OK, else 1
+    :return: (RCO.ReturnCode)
     """
     local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
     # Update the local.pyconf file
     try:
-        local_cfg = PYCONF.Config(local_file_path)
-        local_cfg.LOCAL[key] = value
-        ff = open(local_file_path, 'w')
-        local_cfg.__save__(ff, 1)
-        ff.close()
-        if key != "log_dir":
-            config.LOCAL[key] = value
+      local_cfg = PYCONF.Config(local_file_path)
+      local_cfg.LOCAL[key] = value
+      with open(local_file_path, 'w') as ff:
+        local_cfg.__save__(ff, 1)     
+      if key != "log_dir":
+        config.LOCAL[key] = value
     except Exception as e:
-        err = str(e)
-        msg = _("Unable to update the local.pyconf file: %s\n") % err
-        logger.error(msg)
-        return RCO.ReturnCode("KO", msg)
+      err = str(e)
+      msg = "Unable to update the local.pyconf file: %s" % str(e)
+      logger.error(msg)
+      return RCO.ReturnCode("KO", msg)
     
     return RCO.ReturnCode("OK")
     
-def display_local_values(config, logger):
-    """Display the base path
+def get_str_local_values(config):
+    """get string to display the base path
 
     :param config: (Config) The global configuration.
-    :param key: (str) The key from which to change the value.
-    :param logger: (Logger) The logger instance.
+    :return: (str) with infos from config
     """
-    info = [("base", config.LOCAL.base),
-            ("workdir", config.LOCAL.workdir),
-            ("log_dir", config.LOCAL.log_dir),
-            ("archive_dir", config.LOCAL.archive_dir),
-            ("VCS", config.LOCAL.VCS),
-            ("tag", config.LOCAL.tag)]
-    UTS.logger_info_tuples(logger, info)
-
-    return 0
+    loc = config.LOCAL
+    info = [("base", loc.base),
+            ("workdir", loc.workdir),
+            ("log_dir", loc.log_dir),
+            ("archive_dir", loc.archive_dir),
+            ("VCS", loc.VCS),
+            ("tag", loc.tag)]
+    res = UTS.formatTuples(info)
+    return res
 
 def check_path(path_to_check, logger):
     """Verify that the given path is not a file and can be created.
@@ -155,28 +155,23 @@ def check_path(path_to_check, logger):
     :param logger: (Logger) The logger instance.
     """
     if path_to_check == "default":
-        return 0
+      return RCO.ReturnCode("OK", "check_path default")
     
-    # Get the path
-    path = UTS.Path(path_to_check)
     
     # If it is a file, do nothing and return error
-    if path.isfile():
-        msg = _("""\
+    if os.path.isfile(path_to_check):
+      msg = _("""\
 The given path is a file: %s
-Please provide a path to a directory\n""") % UTS.blue(path_to_check)
-        logger.error(msg)
-        return 1
+Please provide a path to a directory""") % UTS.blue(path_to_check)
+      logger.error(msg)
+      return RCO.ReturnCode("KO", "%s have to be directory, is file" % path_to_check)
       
     # Try to create the given path
     try:
-        UTS.ensure_path_exists(str(path))
+      UTS.ensure_path_exists(path_to_check)
     except Exception as e:
-        msg = _("""\
-Unable to create the directory %s:
-
-%s\n""") % (UTS.blue(str(path)), UTS.yellow(e))
-        logger.error(msg)
-        return 1
+      msg = "Unable to create the directory %s:\n%s" % (UTS.blue(path_to_check), UTS.yellow(str(e)))
+      logger.error(msg)
+      return RCO.ReturnCode("KO", "Unable to create the directory %s" % path_to_check)
     
-    return 0
+    return RCO.ReturnCode("OK", "check_path %s" % path_to_check)

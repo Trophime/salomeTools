@@ -144,7 +144,7 @@ class Command(_BaseCommand):
     nb_products = len(products_infos)
     nb_ok = res.getValue()
       
-    logger.info(_("\nCompilation: <%(0)s> (%(1)d/%(2)d)\n") % \
+    logger.info(_("\nCompile: <%(0)s> (%(1)d/%(2)d)\n") % \
         { '0': res.getStatus(), 
           '1': nb_ok,
           '2': nb_products } )    
@@ -161,7 +161,7 @@ class Command(_BaseCommand):
       List of (str, Config) => (product_name, product_info)
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (RCO.ReturnCode) with value as the number of failing commands.
+    :return: (RCO.ReturnCode) with value as the number of products ok.
     """
     # shortcuts
     config = self.getConfig()
@@ -277,8 +277,8 @@ class Command(_BaseCommand):
       UTS.end_log_step(logger, res[-1])
     
     resAll = RCO.ReturnCodeFromList(res)
-    nbOk = len([r for r in res if r.isOk()])
-    nbKo = len([r for r in res if not r.isOk()])
+    nbOk = sum(1 for r in res if r.isOk())
+    nbKo = sum(1 for r in res if not r.isOk())
     if resAll.isOk(): # no failing commands
       return RCO.ReturnCode("OK", "No failing compile commands", nbOk)
     else:

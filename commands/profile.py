@@ -104,9 +104,12 @@ class Command(_BaseCommand):
     return returnCode
 
 
-# Class that overrides common.Reference
-# in order to manipulate fields starting with '@'
+########################################################################
 class profileReference( PYCONF.Reference ):
+    """
+    Class that overrides common.Reference
+    in order to manipulate fields starting with '@'
+    """
     def __str__(self):
         s = self.elements[0]
         for tt, tv in self.elements[1:]:
@@ -121,9 +124,11 @@ class profileReference( PYCONF.Reference ):
         else:
             return PYCONF.DOLLAR + s
 
-##
-# Class that overrides how fields starting with '@' are read.
-class profileConfigReader( PYCONF.ConfigReader ) :
+########################################################################
+class profileConfigReader( PYCONF.ConfigReader ):
+    """
+    Class that overrides how fields starting with '@' are read.
+    """
     def parseMapping(self, parent, suffix):
         if self.token[0] == PYCONF.LCURLY:
             self.match(PYCONF.LCURLY)
@@ -140,10 +145,8 @@ class profileConfigReader( PYCONF.ConfigReader ) :
         return rv
 
 
-
-##
-# Gets the profile name
 def get_profile_name ( options, config ):
+    """Gets the profile name"""
     if options.name :
         res = options.name
     else :
@@ -195,13 +198,12 @@ def generate_profile_sources( config, options, logger ):
     #Run command
     os.environ["KERNEL_ROOT_DIR"] = kernel_root_dir
     os.environ["GUI_ROOT_DIR"] = gui_root_dir
-    res = SP.call(command, shell=True, env=os.environ,
-                  stdout=logger.logTxtFile, stderr=SP.STDOUT)
+    res = UTS.Popen(command, env=os.environ, logger=logger)
     #Check result of command
-    if res != 0:
-        raise Exception(_("Cannot create application, code = %d\n") % res)
+    if not res.isOk():
+        logger.error(_("Cannot create application"))
     else:
-        logger.info( _("Profile sources were generated in directory %s.\n" % prefix) )
+        logger.info(_("Profile sources were generated in directory %s") % prefix)
     return res
 
 
@@ -266,5 +268,7 @@ def update_pyconf( config, options, logger ):
         prf.addMapping( 'opt_depend', PYCONF.Sequence(), None )
 
     #Save config
-    f = file( os.path.join( path, pyconf ) , 'w')
-    cfg.__save__(f)
+    with open( os.path.join( path, pyconf ) , 'w') as f:
+      cfg.__save__(f)
+      
+    return

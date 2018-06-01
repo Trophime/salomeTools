@@ -92,10 +92,11 @@ class Command(_BaseCommand):
     # the right command(s)
     if options.nb_proc is None:
         options.nb_proc = 0
-    good_result, results = run_script_all_products(config, products_infos, options.nb_proc, logger)
+    res = self.run_script_all_products(products_infos, options.nb_proc)
     
     # Print the final state
     nbExpected = len(products_infos)
+    good_result = sum(1 for r in res if r.isOk())
     msgCount = "(%d/%d)" % (good_result, nbExpected)
     if good_result == nbExpected:
       status = "OK"
@@ -108,7 +109,7 @@ class Command(_BaseCommand):
 
     return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
 
-def run_script_all_products(config, products_infos, nb_proc, logger):
+  def run_script_all_products(self, products_infos, nb_proc):
     """Execute the script in each product build directory.
 
     :param config: (Config) The global configuration
@@ -117,23 +118,15 @@ def run_script_all_products(config, products_infos, nb_proc, logger):
     :param nb_proc: (int) The number of processors to use
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (int) The number of failing commands.
+    :return: (list of ReturnCode)
     """
-    # Initialize the variables that will count the fails and success
-    results = dict()
-    good_result = 0
+    res = []
     DBG.write("run_script_all_products", [p for p, tmp in products_infos])
     for p_name_info in products_infos:
-      retcode = run_script_of_product(p_name_info, nb_proc, config, logger)
-      # show results
-      p_name, p_info = p_name_info
-      results[p_name] = retcode
-      if retcode.isOk():
-        good_result += 1
-        
-    return good_result, results
+      res.append(self.run_script_of_product(p_name_info, nb_proc))
+    return results
 
-def run_script_of_product(p_name_info, nb_proc, config, logger):
+  def run_script_of_product(self, p_name_info, nb_proc):
     """
     Execute the proper configuration command(s) 
     in the product build directory.
@@ -146,6 +139,10 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
       The logger instance to use for the display and logging
     :return: (int) 1 if it fails, else 0.
     """
+    # shortcuts
+    config = self.getConfig()
+    logger = self.getLogger()
+    
     p_name, p_info = p_name_info
     
     # Logging

@@ -185,8 +185,8 @@ Use the --list option to get the possible files.\n""") % config_file
                             for path in l_conf_files_path]) + ".pyconf"
     path_pyconf = UTS.get_tmp_filename(config, name_pyconf)
     #Save config
-    f = file( path_pyconf , 'w')
-    config_jobs.__save__(f)
+    with open(path_pyconf , 'w') as f:
+      config_jobs.__save__(f)
     
     # log the paramiko problems
     log_dir = UTS.get_log_path(config)
@@ -230,7 +230,7 @@ Use the --list option to get the possible files.\n""") % config_file
                   logger,
                   file_boards = options.input_boards)
         
-        logger.debug("<OK>\n\n")
+        logger.debug("<OK>")
         
         # Display the list of the xml files
         logger.info(("List of published files:\n%s\n") % gui.xml_global_file.logFile)
@@ -315,8 +315,8 @@ class Machine(object):
     def connect(self, logger):
         """Initiate the ssh connection to the remote machine
         
-        :param logger: The logger instance 
-        :return: None
+        :param logger: (Logger) The logger instance 
+        :return: (RCO.ReturnCode) OK/KO and why as message
         """
 
         self._connection_successful = False
@@ -328,37 +328,40 @@ class Machine(object):
                              username=self.user,
                              password = self.password)
         except self.paramiko.AuthenticationException:
-            message = RCO._KO_STATUS + _("Authentication failed")
+            rc = RCO.ReturnCode("KO", _("Authentication failed"))
         except self.paramiko.BadHostKeyException:
-            message = (RCO._KO_STATUS + _("The server's host key could not be verified"))
+            rc = RCO.ReturnCode("KO", _("The server's host key could not be verified"))
         except self.paramiko.SSHException:
-            message = ( _("SSHException error connecting or establishing an SSH session"))            
+            rc = RCO.ReturnCode("KO", _("SSHException error connecting or establishing an SSH session"))            
         except:
-            message = ( _("Error connecting or establishing an SSH session"))
+            rc = RCO.ReturnCode("KO", _("Error connecting or establishing an SSH session"))
         else:
             self._connection_successful = True
-            message = ""
-        return message
+            rc = RCO.ReturnCode("OK", "connecting SSH session done on %s" % self.host)
+        return rc
     
     def successfully_connected(self, logger):
         """
         Verify if the connection to the remote machine has succeed
         
         :param logger: The logger instance 
-        :return: (bool) True if the connection has succeed, False if not
+        :return: (RCO.ReturnCode) OK/KO and why as message
         """
         if self._connection_successful == None:
-            message = _("""\
+            msg = _("""\
 Ask if the connection
 (name: %(1)s host: %(2)s, port: %(3)s, user: %(4)s) is OK
 whereas there were no connection request""" % \
    {"1": self.name, "2": self.host, "3": self.port, "4": self.user} )
-            logger.critical(UTS.red(message))
+            logger.critical(UTS.red(msg))
         return self._connection_successful
 
     def copy_sat(self, sat_local_path, job_file):
-        """Copy salomeTools to the remote machine in self.sat_path"""
-        res = 0
+        """
+        Copy salomeTools to the remote machine in self.sat_path
+        
+        :return: (RCO.ReturnCode) OK/KO and why as message
+        """
         try:
             # open a sftp connection
             self.sftp = self.ssh.open_sftp()
@@ -370,8 +373,9 @@ whereas there were no connection request""" % \
             # on the remote machine
             remote_job_file_name = ".%s" % os.path.basename(job_file)
             self.sftp.put(job_file, os.path.join(self.sat_path, remote_job_file_name))
+            res = RCO.ReturnCode("OK", "copy sat done on %s" % self.host)
         except Exception as e:
-            res = str(e)
+            res = RCO.ReturnCode("KO", "copy sat problem on %s\n%s" % (self.host, str(e)))
             self._connection_successful = False
         
         return res
@@ -1007,7 +1011,7 @@ The job will not be launched.
             step = "SSH connection"
             self.logger.info( begin_line + endline + step)
             # the call to the method that initiate the ssh connection
-            msg = machine.connect(self.logger)
+            msg = machine.connect()
             
             # Copy salomeTools to the remote machine
             if machine.successfully_connected(self.logger):
@@ -1054,10 +1058,7 @@ The job will not be launched.
                         (begin_line, endline, "<KO>",
                          _("Copy of SAT failed: %s") % res_copy))
             else:
-                self.logger.info('\r%s' % 
-                                  ((len(begin_line)+len(endline)+20) * " "))
-                self.logger.info('\r%s%s%s %s' % (begin_line, endline, "<KO>", msg))
-            self.logger.info("\n")
+                self.logger.info("<TODO_RC>%s" % msg)
                 
         self.logger.info("\n")
         
@@ -1085,7 +1086,7 @@ The job will not be launched.
         Updates the lists that store the currently
         running jobs and the jobs that have already finished.
         
-        :return: None
+        :return: (bool) nb_job_finished_now > nb_job_finished_before
         """
         jobs_finished_list = []
         jobs_running_list = []
@@ -1109,7 +1110,6 @@ The job will not be launched.
         
         :return: None
         """
-        
         for job in self.ljobs:
             if job.after is None:
                 continue
@@ -1121,7 +1121,7 @@ The job will not be launched.
         """Returns the job by its name.
         
         :param name: (str) a job name
-        :return: (Job) the job that has the name. 
+        :return: (Job) the job that has the name, else None 
         """
         for jb in self.ljobs:
             if jb.name == name:

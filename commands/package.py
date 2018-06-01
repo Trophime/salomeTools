@@ -44,6 +44,14 @@ SOURCE = "Source"
 PROJECT = "Project"
 SAT = "Sat"
 
+_CHMOD_STAT = stat.S_IRUSR | \
+              stat.S_IRGRP | \
+              stat.S_IROTH | \
+              stat.S_IWUSR | \
+              stat.S_IXUSR | \
+              stat.S_IXGRP | \
+              stat.S_IXOTH
+
 ARCHIVE_DIR = "ARCHIVES"
 PROJECT_DIR = "PROJECT"
 
@@ -175,7 +183,7 @@ Needs a type for the package
 Use one of the following options:
   '--binaries' '--sources' '--project' or '--salometools'\n""")
         logger.error(msg)
-        return 1
+        return RCO.ReturnCode("KO", "Needs a type for the package")
     
     # The repository where to put the package if not Binary or Source
     package_default_path = config.LOCAL.workdir
@@ -203,7 +211,7 @@ Use one of the following options:
 The project %s is not visible by salomeTools.
 Please add it in the %s file.\n""") % (options.project, local_path)
             logger.error(msg)
-            return 1
+            return RCO.ReturnCode("KO", "The project %s is not visible by salomeTools" % options.project)
     
     # Remove the products that are filtered by the --without_property option
     if options.without_property:
@@ -253,17 +261,17 @@ Cannot name the archive.
 check if at least one of the following options was selected: 
   '--binaries' '--sources' '--project' or '--salometools'\n""")
             logger.error(msg)
-            return 1
+            return RCO.ReturnCode("KO", "Cannot name the archive")
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
     
-    logger.info("  Package path = %s\n" % UTS.blue(path_targz))
+    logger.info("  Package path = %s" % UTS.blue(path_targz))
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
     tmp_working_dir = os.path.join(config.VARS.tmp_root, config.VARS.datehour)
     UTS.ensure_path_exists(tmp_working_dir)
-    logger.debug(_("The temporary working directory: %s\n") % tmp_working_dir)
+    logger.debug(_("The temporary working directory: %s") % tmp_working_dir)
     
     msg = _("Preparation of files to add to the archive")
     logger.info(UTS.label(msg))
@@ -304,7 +312,7 @@ check if at least one of the following options was selected:
                                                       d_paths_to_substitute,
                                                       "install_bin.sh")
             d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
-            logger.debug("substitutions to be done later:\n%s\n" % str(d_paths_to_substitute))
+            logger.debug("substitutions to be done later:\n%s" % str(d_paths_to_substitute))
 
     else:
         # --salomeTool option is not considered when --sources is selected, as this option
@@ -317,9 +325,9 @@ check if at least one of the following options was selected:
         d_files_to_add.update(project_package(options.project, tmp_working_dir))
 
     if not(d_files_to_add):
-        msg = _("Empty dictionary to build the archive.\n")
+        msg = _("Empty dictionary to build the archive.")
         logger.error(msg)
-        return 1
+        return RCO.ReturnCode("KO", msg)
 
     # Add the README file in the package
     local_readme_tmp_path = add_readme(config, options, tmp_working_dir)
@@ -329,39 +337,37 @@ check if at least one of the following options was selected:
     if options.add_files:
         for file_path in options.add_files:
             if not os.path.exists(file_path):
-                msg = _("The file %s is not accessible.\n") % file_path
+                msg = _("The file %s is not accessible.") % file_path
+                logger.warning(msg)
                 continue
             file_name = os.path.basename(file_path)
             d_files_to_add[file_name] = (file_path, file_name)
 
     msg = UTS.label(_("Actually do the package"))
-    logger.info("\n%s\n" % msg)
+    logger.info("\n%s" % msg)
     
     try:
         # Creating the object tarfile
-        tar = tarfile.open(path_targz, mode='w:gz')
-        
-        # get the filtering function if needed
-        filter_function = exclude_VCS_and_extensions
-
-        # Add the files to the tarfile object
-        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
-        tar.close()
+        with tarfile.open(path_targz, mode='w:gz')  as tar:
+          # get the filtering function if needed
+          filter_function = exclude_VCS_and_extensions
+          # Add the files to the tarfile object
+          res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
         
     except KeyboardInterrupt:
-        logger.critical(UTS.red(_("KeyboardInterrupt forced interruption\n")))
-        logger.info(_("Removing the temporary working directory ... "))
+        msg = UTS.red(_("KeyboardInterrupt forced interruption"))
+        msg += "\n" + _("Removing the temporary working directory ...")
+        logger.critical(msg)
         # remove the working directory
         shutil.rmtree(tmp_working_dir)
         logger.info("<OK>")
-        return 1
+        return RCO.ReturnCode("KO", "KeyboardInterrupt forced interruption")
     
     # remove the working directory    
     shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package
-    logger.info("  Package path = %s\n" % UTS.blue(path_targz))
-    
+    logger.info("  Package path = %s" % UTS.blue(path_targz)) 
     return res
 
 
@@ -382,7 +388,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     # get the max length of the messages in order to make the display
     max_len = len(max(d_content.keys(), key=len))
     
-    success = 0
+    res = RCO.returnCode("OK", "all tar add files done")
     # loop over each directory or file stored in the d_content dictionary
     for name in d_content.keys():
         # display information
@@ -395,11 +401,11 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         # Add it in the archive
         try:
             tar.add(local_path, arcname=in_archive, exclude=f_exclude)
-            logger.info("<OK>\n")
+            logger.info("<OK>")
         except Exception as e:
-            logger.info("<KO> %s\n" % str(e))
-            success = 1
-    return success
+            logger.info("<KO> %s" % str(e))
+            res = RCO.returnCode("KO", "problem tar add files")
+    return res
 
 def exclude_VCS_and_extensions(filename):
     """
@@ -416,6 +422,8 @@ def exclude_VCS_and_extensions(filename):
         if filename.endswith(extension):
             return True
     return False
+  
+
 
 def produce_relative_launcher(config,
                               logger,
@@ -463,14 +471,13 @@ def produce_relative_launcher(config,
     
     filepath = os.path.join(file_dir, file_name)
     # open the file and write into it
-    launch_file = open(filepath, "w")
-    launch_file.write(before)
-    # Write
-    writer.write_cfgForPy_file(launch_file,
+    with open(filepath, "w") as launch_file:
+      launch_file.write(before)
+      # Write
+      writer.write_cfgForPy_file(launch_file,
                                for_package = binaries_dir_name,
                                with_commercial=with_commercial)
-    launch_file.write(after)
-    launch_file.close()
+      launch_file.write(after)
     
     # Little hack to put out_dir_Path outside the strings
     UTS.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
@@ -480,15 +487,7 @@ def produce_relative_launcher(config,
     hack_for_distene_licence(filepath)
        
     # change the rights in order to make the file executable for everybody
-    os.chmod(filepath,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-
+    os.chmod(filepath, _CHMOD_STAT)
     return filepath
 
 def hack_for_distene_licence(filepath):
@@ -499,25 +498,23 @@ def hack_for_distene_licence(filepath):
     shutil.move(filepath, filepath + "_old")
     fileout= filepath
     filein = filepath + "_old"
-    fin = open(filein, "r")
-    fout = open(fileout, "w")
-    text = fin.readlines()
-    # Find the Distene section
-    num_line = -1
-    for i,line in enumerate(text):
-        if "# Set DISTENE License" in line:
-            num_line = i
-            break
-    if num_line == -1:
-        # No distene product, there is nothing to do
-        fin.close()
-        for line in text:
-            fout.write(line)
-        fout.close()
-        return
-    del text[num_line +1]
-    del text[num_line +1]
-    text_to_insert ="""\
+    with open(filein, "r") as fin:
+      with open(fileout, "w") as fout:
+        text = fin.readlines()
+        # Find the Distene section
+        num_line = -1
+        for i,line in enumerate(text):
+            if "# Set DISTENE License" in line:
+                num_line = i
+                break
+        if num_line == -1:
+            # No distene product, there is nothing to do
+            for line in text:
+                fout.write(line)
+            return
+        del text[num_line +1]
+        del text[num_line +1]
+        text_to_insert ="""\
 import imp
 try:
   distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
@@ -525,11 +522,9 @@ try:
 except:
   pass
 """
-    text.insert(num_line + 1, text_to_insert)
-    for line in text:
-        fout.write(line)
-    fin.close()    
-    fout.close()
+        text.insert(num_line + 1, text_to_insert)
+        for line in text:
+            fout.write(line)
     return
     
 def produce_relative_env_files(config,
@@ -560,15 +555,7 @@ def produce_relative_env_files(config,
     UTS.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
 
     # change the rights in order to make the file executable for everybody
-    os.chmod(filepath,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-    
+    os.chmod(filepath, _CHMOD_STAT)
     return filepath
 
 def produce_install_bin_file(config,
@@ -615,15 +602,7 @@ def produce_install_bin_file(config,
         content = TPLATE.substitute(installbin_template_path, d)
         installbin_file.write(content)
         # change the rights in order to make the file executable for everybody
-        os.chmod(filepath,
-                 stat.S_IRUSR |
-                 stat.S_IRGRP |
-                 stat.S_IROTH |
-                 stat.S_IWUSR |
-                 stat.S_IXUSR |
-                 stat.S_IXGRP |
-                 stat.S_IXOTH)
-    
+        os.chmod(filepath, _CHMOD_STAT)
     return filepath
 
 def product_appli_creation_script(config,
@@ -675,20 +654,11 @@ def product_appli_creation_script(config,
     filled_text = text_to_fill.replace("TO BE FILLED 2", text_to_add)
     
     tmp_file_path = os.path.join(file_dir, "create_appli.py")
-    ff = open(tmp_file_path, "w")
-    ff.write(filled_text)
-    ff.close()
+    with open(tmp_file_path, "w") as ff:
+      ff.write(filled_text)
     
     # change the rights in order to make the file executable for everybody
-    os.chmod(tmp_file_path,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-    
+    os.chmod(tmp_file_path,_CHMOD_STAT)
     return tmp_file_path
 
 def binary_package(config, logger, options, tmp_working_dir):
@@ -854,12 +824,12 @@ def source_package(sat, config, logger, options, tmp_working_dir):
                                           config,
                                           logger,
                                           tmp_working_dir)
-        logger.info("Done\n")
+        logger.info("Done")
 
     # Create a project
     logger.info("Create the project ... ")
     d_project = create_project_for_src_package(config, tmp_working_dir, options.with_vcs)
-    logger.info("Done\n")
+    logger.info("Done")
     
     # Add salomeTools
     tmp_sat = add_salomeTools(config, tmp_working_dir)
@@ -949,9 +919,8 @@ def add_salomeTools(config, tmp_working_dir):
                                      file_or_dir)
             os.remove(file_path)
     
-    ff = open(local_pyconf_file, "w")
-    ff.write(LOCAL_TEMPLATE)
-    ff.close()
+    with open(local_pyconf_file, "w") as ff:
+      ff.write(LOCAL_TEMPLATE)
     
     return sat_tmp_path.path
 
@@ -1010,12 +979,11 @@ def make_archive(prod_name, prod_info, where):
     :return: (str) The path of the resulting archive
     """
     path_targz_prod = os.path.join(where, prod_name + ".tgz")
-    tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
-    local_path = prod_info.source_dir
-    tar_prod.add(local_path,
-                 arcname=prod_name,
-                 exclude=exclude_VCS_and_extensions)
-    tar_prod.close()
+    with tarfile.open(path_targz_prod, mode='w:gz') as tar_prod:
+      local_path = prod_info.source_dir
+      tar_prod.add(local_path,
+                   arcname=prod_name,
+                   exclude=exclude_VCS_and_extensions)
     return path_targz_prod       
 
 def create_project_for_src_package(config, tmp_working_dir, with_vcs):
@@ -1035,19 +1003,12 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
 
     # Create in the working temporary directory the full project tree
     project_tmp_dir = os.path.join(tmp_working_dir, PROJECT_DIR)
-    products_pyconf_tmp_dir = os.path.join(project_tmp_dir,
-                                         "products")
-    compil_scripts_tmp_dir = os.path.join(project_tmp_dir,
-                                         "products",
-                                         "compil_scripts")
-    env_scripts_tmp_dir = os.path.join(project_tmp_dir,
-                                         "products",
-                                         "env_scripts")
-    patches_tmp_dir = os.path.join(project_tmp_dir,
-                                         "products",
-                                         "patches")
-    application_tmp_dir = os.path.join(project_tmp_dir,
-                                         "applications")
+    products_pyconf_tmp_dir = os.path.join(project_tmp_dir, "products")
+    compil_scripts_tmp_dir = os.path.join(project_tmp_dir, "products", "compil_scripts")
+    env_scripts_tmp_dir = os.path.join(project_tmp_dir, "products", "env_scripts")
+    patches_tmp_dir = os.path.join(project_tmp_dir, "products", "patches")
+    application_tmp_dir = os.path.join(project_tmp_dir, "applications")
+    
     for directory in [project_tmp_dir,
                       compil_scripts_tmp_dir,
                       env_scripts_tmp_dir,
@@ -1058,9 +1019,8 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
     # Create the pyconf that contains the information of the project
     project_pyconf_name = "project.pyconf"        
     project_pyconf_file = os.path.join(project_tmp_dir, project_pyconf_name)
-    ff = open(project_pyconf_file, "w")
-    ff.write(PROJECT_TEMPLATE)
-    ff.close()
+    with open(project_pyconf_file, "w") as ff:
+      ff.write(PROJECT_TEMPLATE)
     
     # Loop over the products to get there pyconf and all the scripts 
     # (compilation, environment, patches)
@@ -1235,10 +1195,10 @@ def project_package(project_file_path, tmp_working_dir):
     # Write the project pyconf file
     project_file_name = os.path.basename(project_file_path)
     project_pyconf_tmp_path = os.path.join(tmp_working_dir, project_file_name)
-    ff = open(project_pyconf_tmp_path, 'w')
-    ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
-    project_pyconf_cfg.__save__(ff, 1)
-    ff.close()
+    with open(project_pyconf_tmp_path, 'w') as ff:
+      ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
+      project_pyconf_cfg.__save__(ff, 1)
+      
     d_project["Project hat file"] = (project_pyconf_tmp_path, project_file_name)
     
     return d_project
@@ -1249,8 +1209,7 @@ def add_readme(config, options, where):
   
     readme_path = JOIN(where, "README")
     with codecs.open(readme_path, "w", 'utf-8') as f:
-
-    # templates for building the header
+        # templates for building the header
         readme_header="""
 # This package was generated with sat $version
 # Date: $date

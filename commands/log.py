@@ -104,7 +104,7 @@ class Command(_BaseCommand):
     nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
     info = [("log directory", logDir), 
             ("number of log files", nb_files_log_dir)]
-    UTS.logger_info_tuples(logger, info)
+    logger.info(UTS.formatTuples(info))
     
     # If the clean options is invoked, 
     # do nothing but deleting the concerned files.
@@ -226,7 +226,7 @@ class Command(_BaseCommand):
     UTS.update_hat_xml(logDir, 
                        application = config.VARS.application, 
                        notShownCommands = notShownCommands)
-    logger.info("<OK>\n")
+    logger.info("<OK>")
     
     # open the hat xml in the user editor
     if not options.no_browser:
@@ -243,7 +243,7 @@ def get_last_log_file(logDir, notShownCommands):
     
     :param logDir: (str) The directory where to search the log files
     :param notShownCommands: (list) the list of commands to ignore
-    :return: (str) the path to the last log file
+    :return: (str) the path to the last log file, None if no log file
     """
     last = (_, 0)
     for fileName in os.listdir(logDir):
@@ -292,12 +292,12 @@ def print_log_command_in_terminal(filePath, logger):
     for attrib in dAttrText:
         lAttrText.append((attrib, dAttrText[attrib]))
     
-    UTS.logger_info_tuples(logger, lAttrText)
+    logger.info(UTS.formatTuples(lAttrText))
     # Get the traces
     command_traces = xmlRead.get_node_text('Log')
     # Print it if there is any
     if command_traces:
-      msg = _("Here are the command traces :\n%s\n") % command_traces
+      msg = _("Here are the command traces :\n%s") % command_traces
       logger.info(msg)
         
 def getMaxFormat(aListOfStr, offset=1):
@@ -320,6 +320,7 @@ def show_last_logs(logger, config, log_dirs):
     if maxLen > 33: nb_cols = 2
     if maxLen > 50: nb_cols = 1
     col_size = (nb / nb_cols) + 1
+    lmsg = []
     for index in range(0, col_size):
         msg = ""
         for i in range(0, nb_cols):
@@ -329,8 +330,9 @@ def show_last_logs(logger, config, log_dirs):
                 str_indice = UTS.label("%2d" % (k+1))
                 log_name = l
                 msg += fmt2 % (str_indice, log_name)
-        logger.info(msg + "\n")
-
+        lmsg.append(msg)    
+    logger.info("\n".join(lmsg))
+    
     # loop till exit
     x = -1
     while (x < 0):
@@ -338,6 +340,8 @@ def show_last_logs(logger, config, log_dirs):
         if x > 0:
             product_log_dir = os.path.join(log_dir, log_dirs[x-1])
             show_product_last_logs(logger, config, product_log_dir)
+            
+    return RCO.ReturnCode("OK", "show_last_logs done")
 
 def show_product_last_logs(logger, config, product_log_dir):
     """Show last compilation logs of a product"""
@@ -386,5 +390,5 @@ def ask_value(nb):
                 x = -1
     except:
         x = -1
-    
+   
     return x
