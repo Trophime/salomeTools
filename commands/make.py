@@ -79,12 +79,11 @@ class Command(_BaseCommand):
     products_infos = self.get_products_list(options, config)
     
     # Print some informations
-    logger.info(
-        _('Executing the make command in the build directories of the application %s\n') % \
-        UTS.label(config.VARS.application))
-    
+    msg = _('Executing the make command in the build directories of the application %s') % \
+          UTS.label(config.VARS.application)
     info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
-    UTS.logger_info_tuples(logger, info)
+    msg += "\n" + UTS.formatTuples(info)
+    logger.info(msg)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -92,17 +91,19 @@ class Command(_BaseCommand):
         options.option = ""
     res = make_all_products(config, products_infos, options.option, logger)
     
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
+    good_result = sum(1 for r in res if r.isOk())
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("command make")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        final_status = "KO"
-   
-    msg = _("\nMake: <%s> (%d/%d)\n") % (final_status, nb_products - res, nb_products)
-    logger.info(msg)    
-    
-    return RCO.ReturnCode(final_status, msg)
+      status = "KO"
+      msg = _("command make, some products have failed")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
 
 def make_all_products(config, products_infos, make_option, logger):
     """
@@ -115,13 +116,11 @@ def make_all_products(config, products_infos, make_option, logger):
     :param make_option: (str) The options to add to the command
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (int) the number of failing commands.
+    :return: (list of RCO.ReturnCode)
     """
-    res = 0
+    res = []
     for p_name_info in products_infos:
-        res_prod = make_product(p_name_info, make_option, config, logger)
-        if res_prod != 0:
-            res += 1 
+      res.append(make_product(p_name_info, make_option, config, logger))
     return res
 
 def make_product(p_name_info, make_option, config, logger):
@@ -164,12 +163,13 @@ def make_product(p_name_info, make_option, config, logger):
 
     nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
     UTS.log_step(logger, "MAKE -j" + str(nb_proc))
+    
     if ARCH.is_windows():
         res = builder.wmake(nb_proc, make_opt_without_j)
     else:
         res = builder.make(nb_proc, make_opt_without_j)
+
     UTS.log_step(logger, res)
-    
     return res
 
 def get_nb_proc(product_info, config, make_option):

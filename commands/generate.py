@@ -76,24 +76,24 @@ class Command(_BaseCommand):
     # Check that the command has been called with an application
     UTS.check_config_has_application(config).raiseIfKo()
     
-    logger.info( _('Generation of SALOME modules for application %s\n') % \
-        UTS.label(config.VARS.application) )
+    msg = _('Generation of SALOME modules for application %s') % \
+            UTS.label(config.VARS.application)
+    logger.info(msg)
 
     status = RCO._KO_STATUS
 
     # verify that YACSGEN is available
-    returnCode = check_yacsgen(config, options.yacsgen, logger)
-    
-    if not returnCode.isOk():
-        logger.error(returnCode.getWhy())
-        return returnCode
-    else:
-        yacsgen_dir = returnCode.getValue()
+    rc = check_yacsgen(config, options.yacsgen, logger)
+    if not rc.isOk():
+        logger.error(rc.getWhy())
+        return rc
+    # ok
+    yacsgen_dir = rc.getValue()
         
     # Make the generator module visible by python
     sys.path.insert(0, yacsgen_dir)
     
-    logger.info(" insert directory PATH %s = %s\n" % \
+    logger.info("  insert directory PATH %s = %s" % \
                 ("YACSGEN", UTS.blue(yacsgen_dir)) )
 
     products = config.APPLICATION.products
@@ -135,7 +135,7 @@ class Command(_BaseCommand):
         logger.error(msg)
         return RCO.ReturnCode("KO", msg)
     else:
-        return RCO.ReturnCode("OK", "generate command done")
+        return RCO.ReturnCode("OK", "command generate done")
 
 
 def generate_component_list(config, product_info, context, logger):

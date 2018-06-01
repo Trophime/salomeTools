@@ -256,21 +256,38 @@ class _BaseCommand(object):
         return cmdInstance
         
     def runMicroCommand(self, cmdInstance, cmd_arguments):
-        """launch a micro command on arguments"""
+        """
+        launch a micro command on arguments, from another command
+        set this micro command less verbose level as WARNING 
+        to not pollute user main log
+        """
         logger = self.getLogger()
         commandArguments = self.assumeAsList(cmd_arguments)
         # Run the micro command using the remainders command arguments
         strArgs = " ".join(commandArguments)
         msg = "BEGIN launch micro command %s on (%s)" % (cmdInstance.name, strArgs)
         logger.step(msg)
-        returnCode = cmdInstance.run(commandArguments)
-        msg = "END launch micro command %s on (%s)\n%s" % (cmdInstance.name, strArgs, str(returnCode))
-        logger.step(msg)
         
+        # make micro command less verbose
+        mainHandler = logger.getMainCommandHandler()
+        oldLevel = mainHandler.level
+        mainHandler.setLevel("WARNING")
+        
+        returnCode = cmdInstance.run(commandArguments)
+        
+        # restore verbosity
+        mainHandler.setLevel(oldLevel)
+        
+        msg = "END launch micro command %s on (%s)\n%s" % (cmdInstance.name, strArgs, str(returnCode))
+        
+        if type(returnCode) != RCO.ReturnCode:
+          logger.critical(msg)
+          raise Exception("command %s: ReturnCode type unexpected %s" % (cmdInstance.name, type(returnCode)))
+        
+        logger.step(msg) 
         import src.linksXml as LKXML
         LKXML.setAttribLinkForCommand(cmdInstance, "full_launched_cmd", strArgs)
         LKXML.setAttribLinkForCommand(cmdInstance, "cmd_res", returnCode.toXmlPassed())
-
         logger.closeFileHandlerForCommand(cmdInstance)
         
         return returnCode
@@ -636,6 +653,11 @@ development mode (more verbose error/exception messages)
         logger.step(msg)
         returnCode = cmdInstance.run(commandArguments)
         msg = "END main launch command %s on (%s)\n%s" % (self.nameCommandToLoad, strArgs, str(returnCode))
+
+        if type(returnCode) != RCO.ReturnCode:
+          logger.critical(msg)
+          raise Exception("command %s: ReturnCode type unexpected %s" % (cmdInstance.name, type(returnCode)))
+
         logger.step(msg)
         
         import src.linksXml as LKXML

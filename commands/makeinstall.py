@@ -17,6 +17,7 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 import src.debug as DBG
 import src.returnCode as RCO
@@ -85,40 +86,37 @@ class Command(_BaseCommand):
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = makeinstall_all_products(config, products_infos, logger)
+    res = self.makeinstall_all_products(products_infos)
     
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "OK"
+    good_result = sum(1 for r in res if r.isOk())
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("command makeinstall")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        final_status = "KO"
-   
-    msg = _("\nMake install: <%s> (%d/%d)\n") % (final_status, nb_products - res, nb_products)
-    logger.info(msg)    
-    
-    return RCO.ReturnCode(final_status, msg)
+      status = "KO"
+      msg = _("command makeinstall, some products have failed")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
 
-def makeinstall_all_products(config, products_infos, logger):
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
+
+  def makeinstall_all_products(self, products_infos):
     """
     Execute the proper configuration commands 
     in each product build directory.
 
-    :param config: (Config) The global configuration
     :param products_info: (list) 
       List of (str, Config) => (product_name, product_info)
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (int) the number of failing commands.
+    :return: (list of RCO.ReturnCode) list of OK if it succeed
     """
-    res = 0
+    res = []
     for p_name_info in products_infos:
-        res_prod = makeinstall_product(p_name_info, config, logger)
-        if res_prod != 0:
-            res += 1 
+      res.append(self.makeinstall_product(p_name_info))
     return res
 
-def makeinstall_product(p_name_info, config, logger):
+  def makeinstall_product(self, p_name_info):
     """
     Execute the proper configuration command(s) 
     in the product build directory.
@@ -128,8 +126,13 @@ def makeinstall_product(p_name_info, config, logger):
     :param config: (Config) The global configuration
     :param logger: (Logger) 
       The logger instance to use for the display and logging
-    :return: (int) 1 if it fails, else 0.
+    :return: (RCO.ReturnCode)
     """
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
     
     p_name, p_info = p_name_info
     
@@ -141,8 +144,8 @@ def makeinstall_product(p_name_info, config, logger):
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        UTS.log_step(logger, "ignored")
-        return RCO.ReturnCode("OK", "product %s is not compilable" % p_name)
+      UTS.log_step(logger, "ignored")
+      return RCO.ReturnCode("OK", "product %s is not compilable" % p_name)
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
@@ -150,16 +153,15 @@ def makeinstall_product(p_name_info, config, logger):
     
     # Prepare the environment
     UTS.log_step(logger, "PREPARE ENV")
-    res_prepare = builder.prepare()
-    UTS.log_step(logger, res_prepare)
+    res = builder.prepare()
+    UTS.log_step(logger, res)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
-    res = TODO
     if not PROD.product_has_script(p_info):
-        UTS.log_step(logger, "MAKE INSTALL")
-        res_m = builder.install()
-        UTS.log_step(logger, res_m)
-        res += res_m
+      UTS.log_step(logger, "MAKE INSTALL")
+      res_m = builder.install()
+      UTS.log_step(logger, res_m)
+      res += res_m
 
     return res

@@ -213,6 +213,16 @@ class LoggerSat(LOGI.Logger):
     self.STEP = _STEP
     self.TRACE = _TRACE
     
+  def getMainCommandHandler(self):
+    """
+    returns handler for colored stdout console/terminal
+    for human user eye sat outputs
+    """
+    for h in self.handlers:
+      if h.idCommandHandlers == 0:
+        return h
+    return None
+    
   def close(self):
     """
     final stuff for logger, done at end salomeTools
@@ -303,8 +313,8 @@ class LoggerSat(LOGI.Logger):
     cmd = config.VARS.command
     fullNameCmd = cmdInstance.getFullNameStr()
     hostname = config.VARS.hostname
-    nameFileXml = "%s_%02i_%s_%s.xml" % (datehour, self.idCommandHandlers, cmd, hostname)
-    nameFileTxt = "%s_%02i_%s_%s.txt" % (datehour, self.idCommandHandlers, cmd, hostname)
+    nameFileXml = "%s_%03i_%s_%s.xml" % (datehour, self.idCommandHandlers, cmd, hostname)
+    nameFileTxt = "%s_%03i_%s_%s.txt" % (datehour, self.idCommandHandlers, cmd, hostname)
     fileXml = os.path.join(log_dir, nameFileXml)
     fileTxt = os.path.join(log_dir_out, nameFileTxt)
     

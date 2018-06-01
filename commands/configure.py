@@ -96,42 +96,40 @@ class Command(_BaseCommand):
     # the right command(s)
     if options.option is None:
         options.option = ""
-    res = configure_all_products(config, products_infos, options.option, logger)
+        
+    res = self.configure_all_products(products_infos)
     
-    # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "<OK>"
+    good_result = sum(1 for r in res if r.isOk())
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("command configure")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        final_status = "<KO>"
-   
-    logger.info(_("\nConfiguration: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': final_status, 
-          '1': nb_products - res,
-          '2': nb_products }, 1)    
-    
-    return res 
+      status = "KO"
+      msg = _("command configure, some products have failed")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
 
-def configure_all_products(config, products_infos, conf_option, logger):
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
+
+
+
+  def configure_all_products(self, products_infos):
     """
     Execute the proper configuration commands 
     in each product build directory.
 
-    :param config: (Config) The global configuration
     :param products_info: (list) 
       List of (str, Config) => (product_name, product_info)
-    :param conf_option: (str) The options to add to the command
-    :param logger: (Logger) The logger instance to use for the display and logging
-    :return: (int) the number of failing commands.
-    """
-    res = 0
+    :return: (list of RCO.ReturnCode) list of OK if it succeed
+    """ 
+    res = []
     for p_name_info in products_infos:
-        res_prod = configure_product(p_name_info, conf_option, config, logger)
-        if res_prod != 0:
-            res += 1 
+      res.append(self.configure_product(p_name_info))    
     return res
 
-def configure_product(p_name_info, conf_option, config, logger):
+  def configure_product(self, p_name_info):
     """
     Execute the proper configuration command(s) 
     in the product build directory.
@@ -144,7 +142,14 @@ def configure_product(p_name_info, conf_option, config, logger):
       The logger instance to use for the display and logging
     :return: (RCO.ReturnCode)
     """
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
     
+    
+    conf_option = options.option
     p_name, p_info = p_name_info
     
     # Logging

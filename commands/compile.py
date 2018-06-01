@@ -365,7 +365,7 @@ class Command(_BaseCommand):
       error_step = "CONFIGURE"
       msg = _("sat configure problem")
       logger.error(msg)
-      return RCO.ReturnCode("KO", "sat configure %s problem" % p_name, (error_step, p_name, p_info.install_dir))
+      return RCO.ReturnCode("KO", "sat configure product %s problem" % p_name, (error_step, p_name, p_info.install_dir))
       
     res.append(rc)
     
@@ -402,7 +402,7 @@ class Command(_BaseCommand):
       logger.error(msg)
       return RCO.ReturnCode("KO", "sat makeinstall %s problem" % p_name, (error_step, p_name, p_info.install_dir))
     
-    return RCO.ReturnCode("OK", "compile cmake autotools %s done" % p_name)
+    return RCO.ReturnCode("OK", "compile cmake autotools product %s done" % p_name)
 
   def compile_product_script(self, p_name_info):
     """Execute the script build procedure in the product build directory.
@@ -423,7 +423,7 @@ class Command(_BaseCommand):
     
     # Logging and sat command call for the script step
     script_path_display = UTS.label(p_info.compil_script)
-    UTS.log_step(logger, "SCRIPT %s ..." % script_path_display)
+    UTS.log_step(logger, "SCRIPT %s" % script_path_display)
     
     # res = sat.script(config.VARS.application + " --products " + p_name, verbose = 0, logger_add_link = logger)
     cmd_args = "--products %s" % p_name

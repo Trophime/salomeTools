@@ -445,18 +445,18 @@ def init_log_step(logger, header, step=""):
 def log_step(logger, step):
     header = _log_step_header[-1]
     if type(step) == str:
-      logger.info("<RC>%s%s ..." % (header, step))
+      logger.info("<RC>%s %s ..." % (header, step))
       return
     #as ReturnCode type step
     if step.isOk():
       logger.info("<RC>%s <OK>..." % header)
     else:
-      logger.info("<RC>%s%s <KO>..." % (header, step.getwhy())) 
+      logger.info("<RC>%s%s <KO>..." % (header, step.getWhy())) 
 
 def end_log_step(logger, step):
     header = _log_step_header[-1]
     if type(step) == str:
-      logger.info("<RC>%s%s" % (header, step))
+      logger.info("<RC>%s %s" % (header, step))
       if len(_log_step_header) > 1: _log_step_header.pop()
       return
     #as ReturnCode type

@@ -92,11 +92,11 @@ install_dir = %s
         self.launch_environ.silent = True # no need to show here
         self.launch_environ.set_full_environ(logger, environ_info)
 
-        msg = "build environment:\n"
+        msg = "build environment"
         for ee in C_COMPILE_ENV_LIST:
           vv = self.build_environ.get(ee)
           if len(vv) > 0:
-            msg += "  %s = %s\n" % (ee, vv)
+            msg += "\n  %s = %s" % (ee, vv)
                           
         logger.trace(msg)
         return RCO.ReturnCode("OK", "prepare done")
@@ -195,6 +195,7 @@ if test \\"\$(echo \$@ | grep -E '\\\\\\-L/usr/lib(/../lib)?(64)? ')\\" == \\\"\
 }\\n\\
 CC=\\"hack_libtool\\"%g" libtool'''
 
+        # just better but horreur yet
         hack_cmd=r'''
 set -x
 sed -i "s%^CC=\"\(.*\)\"%hack_libtool() { \n\
@@ -243,7 +244,7 @@ make -j %s %s
         cmd += cmd + " ALL_BUILD.vcxproj"
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=logger)  
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)  
         return res
         
 
@@ -260,10 +261,10 @@ make -j %s %s
             cmd = 'make install'
 
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env, logger=logger)  
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger)  
         return res
 
-    def check(self, command=""):
+    def check(self, command=None):
         """Runs 'make_check'."""
         logger = self.logger
         if ARCH.is_windows():
@@ -274,11 +275,11 @@ make -j %s %s
             else:
                 cmd = 'make test'
         
-        if command:
+        if command is not None:
             cmd = command
         
         env = self.build_environ.environ.environ
-        res = UTS.Popen(command, cwd=str(self.build_dir), env=env , logger=logger) 
+        res = UTS.Popen(cmd, cwd=str(self.build_dir), env=env, logger=logger) 
         return res
 
       
@@ -341,26 +342,30 @@ make -j %s %s
 
     def do_python_script_build(self, script, nb_proc):
         """Performs a build with a script."""
+        import src.debug as DBG # Easy print stderr (for DEBUG only)
         logger = self.logger
         # script found
-        logger.info(_("Compile %s using script %s\n") % \
-                          (self.product_info.name, UTS.label(script)) )
+        logger.trace(_("Compile %s using script %s\n") % \
+                     (self.product_info.name, UTS.label(script)) )
+        self.nb_proc = nb_proc
+        # load
         try:
             import imp
             product = self.product_info.name
             pymodule = imp.load_source(product + "_compile_script", script)
+        except Exception as e:
+            msg = "Problem loading compile script\n%s" % script
+            logger.error(DBG.format_color_exception(msg))
+            return RCO.ReturnCode("KO", msg)
+        # execution
+        try:
             self.nb_proc = nb_proc
-            retcode = pymodule.compil(self.config, self, logger)
-        except:
-            __, exceptionValue, exceptionTraceback = sys.exc_info()
-            logger.error(str(exceptionValue))
-            import traceback
-            traceback.print_tb(exceptionTraceback)
-            traceback.print_exc()
-            retcode = 1
-        finally:
-            self.put_txt_log_in_appli_log_dir("script")
-        return retcode
+            retcode = pymodule.compil_SAT_51(self.config, self, logger)
+            return retcode
+        except Exception as e:
+            msg = "Problem execution method compil_SAT_51 compile script\n%s" % script
+            logger.error(DBG.format_color_exception(msg))
+            return RCO.ReturnCode("KO", msg)
 
     def complete_environment(self, make_options):
         assert self.build_environ is not None

@@ -135,14 +135,15 @@ The '--properties' options must have the following syntax:
         return RCO.ReturnCode("KO", "missing option (source/build/install/all) in clean command")
     
     # Check with the user if he really wants to suppress the directories
-    msg = _("Remove the following directories:\n")
-    for directory in l_dir_to_suppress:
-        msg += "  %s\n" % UTS.info(str(directory))
-    if runner.getAnswer(msg[:-1]) == "No":
-        return RCO.ReturnCode("OK", "user do not want to continue")
-
-    # Suppress the list of paths
-    suppress_directories(l_dir_to_suppress, logger) 
+    if len(l_dir_to_suppress) > 1:  # need one or more
+      msg = _("Remove the following directories:")
+      for directory in l_dir_to_suppress:
+        msg += "\n  %s" % UTS.info(str(directory))
+      if runner.getAnswer(msg) == "NO":
+        return RCO.ReturnCode("OK", "user do not want to clean")
+      # Suppress the list of paths
+      suppress_directories(l_dir_to_suppress, logger)
+      
     return RCO.ReturnCode("OK", "Command clean done")
     
 

@@ -80,61 +80,58 @@ Optional: products to configure.
     
     # Print some informations
     msg = _('Executing the check command in the build directories of the application')
-    logger.info("%s %s\n" % (msg, UTS.label(config.VARS.application)))
-    
-    info = [(_("BUILD directory"),
-             os.path.join(config.APPLICATION.workdir, 'BUILD'))]
-    UTS.logger_info_tuples(logger, info)
+    msg = "%s %s" % (msg, UTS.label(config.VARS.application))
+    info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
+    msg = "\n" + UTS.formatTuples(info)
+    logger.info(msg)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = check_all_products(config, products_infos, logger)
+    res = self.check_all_products(products_infos)
     
     # Print the final state
-    nb_products = len(products_infos)
-    if res == 0:
-        final_status = "<OK>"
+    good_result = sum(1 for r in res if r.isOk())
+    nbExpected = len(products_infos)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("command check")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
     else:
-        final_status = "<KO>"
-   
-    logger.info(_("\nCheck: %(status)s (%(1)d/%(2)d)\n") % \
-        { 'status': final_status, 
-          '1': nb_products - res,
-          '2': nb_products })    
-    
-    return res
+      status = "KO"
+      msg = _("command check, some products have failed")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
 
-def check_all_products(config, products_infos, logger):
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
+
+  def check_all_products(self, products_infos):
     """
     Execute the proper configuration commands 
     in each product build directory.
 
-    :param config: (Config) The global configuration
     :param products_info: (list) 
       List of (str, Config) => (product_name, product_info)
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (int) the number of failing commands.
+    :return: (list of RCO.ReturnCode) list of OK if it succeed
     """
-    res = 0
+    res = []
     for p_name_info in products_infos:
-        res_prod = check_product(p_name_info, config, logger)
-        if res_prod != 0:
-            res += 1 
+      res.append(self.check_product(p_name_info)
     return res
 
-def check_product(p_name_info, config, logger):
+  def check_product(self, p_name_info):
     """
     Execute the proper configuration command(s) 
     in the product build directory.
     
     :param p_name_info: (tuple) 
       (str, Config) => (product_name, product_info)
-    :param config: (Config) The global configuration
-    :param logger: (Logger) 
-      The logger instance to use for the display and logging
-    :return: (int) 1 if it fails, else 0.
+    :return: (RCO.ReturnCode)
     """
+    # shortcuts
+    runner = self.getRunner()
+    config = self.getConfig()
+    logger = self.getLogger()
+    options = self.getOptions()
     
     p_name, p_info = p_name_info
 
@@ -170,10 +167,9 @@ is not defined in the definition of %(name)\n""") % p_name
                 
     if ignored or not cmd_found:
         UTS.log_step(logger, "ignored")
-        logger.debug("==== %s %s\n" % (p_name, "IGNORED"))
         if not cmd_found:
-            return 1
-        return 0
+            return RCO.ReturnCode("KO", "command not found product %s" % p_name)
+        return RCO.ReturnCode("OK", "ignored product %s" % p_name)
     
     # Instantiate the class that manages all the construction commands
     # like cmake, check, make install, make test, environment management, etc...
