@@ -635,6 +635,10 @@ development mode (more verbose error/exception messages)
         cfgMgr = CFGMGR.ConfigManager(self)
         # as main config
         config = cfgMgr.get_config(nameAppli, self.options, nameCommand, datadir=None)
+        
+        config.LOCAL.log_dir = "TMP"
+        logger.warning("log_dir %s for DEBUG, remove that in production" % config.LOCAL.log_dir)
+        
         self.config = config # runner.config main config 
         
         # create/get dynamically the command instance to call its 'run' method
@@ -670,8 +674,11 @@ development mode (more verbose error/exception messages)
         
     def getCommandAndAppli(self, arguments):
         """
-        returns name command to load and name appli to load
-        and command to load remainders arguments
+        returns tuple
+        
+        | ( name command to load,
+        |   name appli to load,
+        |   remainders arguments of command to load )
         """
         args = self.assumeAsList(arguments)
         namecmd, nameAppli, remainderArgs = None, None, []

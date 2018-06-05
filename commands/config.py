@@ -197,42 +197,39 @@ If a name is given the new config file takes the given name."""))
     
     # case : display all the available pyconf applications
     elif options.list:
-        lproduct = []
-        # search in all directories that can have pyconf applications
-        for path in config.PATHS.APPLICATIONPATH:
-            # print a header
-            if not options.no_label:
-                logger.info(UTS.header("------ %s" % path))
-            msg = "" # only one multiline info
-            if not os.path.exists(path):
-                msg += (UTS.red( _("Directory not found")) + "\n" )
-            else:
-                for f in sorted(os.listdir(path)):
-                    # ignore file that does not ends with .pyconf
-                    if not f.endswith('.pyconf'):
-                        continue
+      lproduct = []
+      # search in all directories that can have pyconf applications
+      msg = ""
+      for path in config.PATHS.APPLICATIONPATH:
+        # print a header
+        if not options.no_label:
+          msg += UTS.header("\n------ %s\n" % path)
+        if not os.path.exists(path):
+          msg += (UTS.red( _("Directory not found")) + "\n" )
+        else:
+          for f in sorted(os.listdir(path)):
+            # ignore file that does not ends with .pyconf
+            if not f.endswith('.pyconf'):
+              continue
+            appliname = f[:-len('.pyconf')]
+            if appliname not in lproduct:
+              lproduct.append(appliname)
+              if path.startswith(config.VARS.personalDir):
+                msg += "%s<red>*<reset>\n" % appliname
+              else:
+                msg += "%s\n" % appliname
+      logger.info(msg)
 
-                    appliname = f[:-len('.pyconf')]
-                    if appliname not in lproduct:
-                        lproduct.append(appliname)
-                        if path.startswith(config.VARS.personalDir) \
-                                    and not options.no_label:
-                            msg += "%s*\n" % appliname
-                        else:
-                            msg += "%s\n" % appliname
-                            
-            logger.info(msg)
-        DBG.write("lproduct", lproduct)
-        if len(lproduct) == 0:
-          aFile = os.path.join(config.VARS.datadir, 'local.pyconf')
-          msg = """\
+      if len(lproduct) == 0:
+        aFile = os.path.join(config.VARS.datadir, 'local.pyconf')
+        msg = """\
 no existing product
 may be you have to set some PROJECTS.project_file_paths in file
 %s""" % aFile
-          logger.warning(msg)
-          return RCO.ReturnCode("OK", msg)
-        else:
-          return RCO.ReturnCode("OK", "config -l command done", lproduct)
+        logger.warning(msg)
+        return RCO.ReturnCode("OK", msg)
+      else:
+        return RCO.ReturnCode("OK", "config -l command done", lproduct)
                 
     # case : give a synthetic view of all patches used in the application
     elif options.show_patchs:

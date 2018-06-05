@@ -300,7 +300,10 @@ class Test:
 
 
     def read_results(self, listTest, has_timed_out):
-        """Read the xxx.result.py files."""
+        """Read the xxx.result.py files.
+        
+        return: (dict) with keys test from listTest
+        """
         results = {}
         for test in listTest:
             resfile = os.path.join(self.currentDir,

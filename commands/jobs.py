@@ -26,6 +26,8 @@ import shutil
 import itertools
 import re
 
+import pprint as PP
+
 # import paramiko later
   
 import src.ElementTree as ETREE
@@ -48,12 +50,21 @@ _PARAMIKO = []
 def getParamiko(logger=None):
   if len(_PARAMIKO) == 0:
     try:
-      import paramiko as PARAMIKO
-      _PARAMIKO.append(PARAMIKO)
-      return PARAMIKO
+      import paramiko as PRMK
+      _PARAMIKO.append(PRMK)
+      if logger is not None: # as native
+        msg = "\nparamiko version %s at %s" % \
+              (PRMK.__version__, os.path.dirname(PRMK.__file__))
+        logger.info(msg)
+      return PRMK
     except Exception as e:
       if logger is not None:
-        logger.critical("Problem import paramiko. No jobs if not 'pip install paramiko'")
+        msg = """\
+Python paramiko prerequisite not installed.
+Jobs on other machines impossible.
+try 'pip install paramiko'
+"""        
+        logger.critical(msg)
       return None
   else:
     return _PARAMIKO[0]
@@ -68,7 +79,10 @@ class Command(_BaseCommand):
   the dedicated jobs configuration file.
 
   | Examples:
-  | >> sat jobs --name my_jobs --publish
+  | >> # get list of existing config jobs files (pyconf files)
+  | >> sat jobs --list
+  | >> # launch job1 & job2 defined in my_jobs.pyconf
+  | >> sat jobs --configs my_jobs -jobs job1,job2 --publish
   """
   
   name = "jobs"
@@ -76,15 +90,27 @@ class Command(_BaseCommand):
   def getParser(self):
     """Define all options for command 'sat jobs <options>'"""
     parser = self.getParserWithHelp()
+    
+    '''version 5.0
     parser.add_option(
         'n', 'name', 'list2', 'jobs_cfg', 
         _('Mandatory: The name of the config file that contains the jobs configuration. Can be a list.') )
-    parser.add_option(
+     parser.add_option(
         'o', 'only_jobs', 'list2', 'only_jobs',
-        _('Optional: the list of jobs to launch, by their name. ') )
+        _('Optional: the list of jobs to launch, by their name.') )   
+    '''
+        
+    # version 5.1 destroy commands job & jobs ambiguity
+    parser.add_option(
+        'c', 'configs', 'list2', 'configs_jobs', 
+        _('Mandatory: The name of the config file(s) that contains the jobs configurations.') )
+    parser.add_option(
+        'j', 'jobs', 'list2', 'job_names',
+        _('Mandatory: The job name(s) from which to execute commands.'), "" )
+
     parser.add_option(
         'l', 'list', 'boolean', 'list', 
-                      _('Optional: list all available config files.') )
+        _('Optional: list all available config files.') )
     parser.add_option(
         't', 'test_connection', 'boolean', 'test_connection',
         _("Optional: try to connect to the machines. Not executing the jobs."),
@@ -94,8 +120,8 @@ class Command(_BaseCommand):
         _("Optional: generate an xml file that can be read in a browser to display the jobs status."),
         False )
     parser.add_option(
-        'i', 'input_boards', 'string', 'input_boards', _("Optional: "
-        "the path to csv file that contain the expected boards."),
+        'i', 'input_boards', 'string', 'input_boards', 
+        _("Optional: the path to csv file that contain the expected boards."),
         "" )
     parser.add_option(
         '', 'completion', 'boolean', 'no_label',
@@ -128,22 +154,24 @@ class Command(_BaseCommand):
     
     # list option : display all the available config files
     if options.list:
-        for cfg_dir in l_cfg_dir:
-            if not options.no_label:
-                logger.info("------ %s\n" % UTS.blue(cfg_dir))
-            if not os.path.exists(cfg_dir):
+      msg = ""
+      for cfg_dir in l_cfg_dir:
+        if not options.no_label:
+            msg += UTS.info("\n------ %s\n" % cfg_dir)
+        if not os.path.exists(cfg_dir):
+            continue
+        for f in sorted(os.listdir(cfg_dir)):
+            if not f.endswith('.pyconf'):
                 continue
-            for f in sorted(os.listdir(cfg_dir)):
-                if not f.endswith('.pyconf'):
-                    continue
-                cfilename = f[:-7]
-                logger.info("%s\n" % cfilename)
-        return RCO.ReturnCode("OK", "jobs command done")
+            cfilename = f[:-7]
+            msg += ("%s\n" % cfilename)
+      logger.info(msg)
+      return RCO.ReturnCode("OK", "jobs command --list done")
 
     # Make sure the jobs_config option has been called
-    if not options.jobs_cfg:
-        msg = _("The option --jobs_config is required\n")      
-        logger.error(message)
+    if not options.configs_jobs:
+        msg = _("The option --jobs_config is required")      
+        logger.error(msg)
         return RCO.ReturnCode("KO", msg)
     
     # Find the file in the directories, unless it is a full path
@@ -151,30 +179,31 @@ class Command(_BaseCommand):
     merger = PYCONF.ConfigMerger()
     config_jobs = PYCONF.Config()
     l_conf_files_path = []
-    for config_file in options.jobs_cfg:
-        found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
+    for config_file in options.configs_jobs:
+        found, file_configs_jobs = get_config_file_path(config_file, l_cfg_dir)
         if not found:
             msg = _("""\
 The file configuration %s was not found.
-Use the --list option to get the possible files.\n""") % config_file
+Use the --list option to get the possible files.""") % config_file
             logger.error(msg)
             return RCO.ReturnCode("KO", msg)
-        l_conf_files_path.append(file_jobs_cfg)
+        l_conf_files_path.append(file_configs_jobs)
         # Read the config that is in the file
-        one_config_jobs = UTS.read_config_from_a_file(file_jobs_cfg)
+        one_config_jobs = UTS.read_config_from_a_file(file_configs_jobs)
         merger.merge(config_jobs, one_config_jobs)
     
-    info = [(_("Platform"), config.VARS.dist),
-            (_("Files containing the jobs configuration"), l_conf_files_path)]    
-    UTS.logger_info_tuples(logger, info)
+    msg = "\n" + _("Platform = ") + config.VARS.dist
+    msg += "\n%s =\n%s" % \
+           ( _("Files containing the jobs configuration"), 
+            PP.pformat(l_conf_files_path) )   
+    logger.info(msg)
 
-    if options.only_jobs:
-        l_jb = PYCONF.Sequence()
-        for jb in config_jobs.jobs:
-            if jb.name in options.only_jobs:
-                l_jb.append(jb,
-                "Job that was given in only_jobs option parameters\n")
-        config_jobs.jobs = l_jb
+    if options.job_names:
+      l_jb = PYCONF.Sequence()
+      for jb in config_jobs.jobs:
+          if jb.name in options.job_names:
+              l_jb.append(jb, "Job that was given in job_names option parameters")
+      config_jobs.jobs = l_jb
     
     # Parse the config jobs in order to develop all the factorized jobs
     develop_factorized_jobs(config_jobs)
@@ -188,21 +217,29 @@ Use the --list option to get the possible files.\n""") % config_file
     with open(path_pyconf , 'w') as f:
       config_jobs.__save__(f)
     
-    # log the paramiko problems
+    # log the paramiko messages and problems
     log_dir = UTS.get_log_path(config)
-    paramiko_log_dir_path = os.path.join(log_dir, "JOBS")
-    UTS.ensure_path_exists(paramiko_log_dir_path)
-    paramiko = getParamiko(logger)
-    paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
-                                           logger.txtFileName))
+    logger.info("jobs log directory = %s" % UTS.info(log_dir))
     
+    paramiko = getParamiko(logger)
+    if paramiko == None:
+      return RCO.ReturnCode("KO", "paramiko prerequisite not installed")
+
+    # paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path, logger.txtFileName))
+    rc = logger.setLoggerParamiko() # manages configuration of paramiko logger
+
+    loggerPrmk = logger.getLoggerParamiko()
+    logger.info("paramiko logger %s" % rc)
+    loggerPrmk.info("initial message from sat jobs options\n%s" % options)
+      
     # Initialization
     today_jobs = Jobs(runner, logger, path_pyconf, config_jobs)
     
     # SSH connection to all machines
-    today_jobs.ssh_connection_all_machines()
+    logger.info("today jobs machines =\n%s" % PP.pformat([m.host for m in today_jobs.lmachines]))
+    res = today_jobs.ssh_connection_all_machines()
     if options.test_connection:
-        return RCO.ReturnCode("OK", "jobs ssh_connection done")
+      return RCO.ReturnCodeFromList(res)
     
     gui = None
     if options.publish:
@@ -230,10 +267,10 @@ Use the --list option to get the possible files.\n""") % config_file
                   logger,
                   file_boards = options.input_boards)
         
-        logger.debug("<OK>")
+        logger.debug("Gui init <OK>")
         
         # Display the list of the xml files
-        logger.info(("List of published files:\n%s\n") % gui.xml_global_file.logFile)
+        logger.info(("List of published files:\n%s") % gui.xml_global_file.logFile)
         msg = ""
         for board in gui.d_xml_board_files.keys():
             file_path = gui.d_xml_board_files[board].logFile
@@ -312,7 +349,7 @@ class Machine(object):
         self.ssh = self.paramiko.SSHClient()
         self._connection_successful = None
     
-    def connect(self, logger):
+    def connect(self):
         """Initiate the ssh connection to the remote machine
         
         :param logger: (Logger) The logger instance 
@@ -328,13 +365,13 @@ class Machine(object):
                              username=self.user,
                              password = self.password)
         except self.paramiko.AuthenticationException:
-            rc = RCO.ReturnCode("KO", _("Authentication failed"))
+            rc = RCO.ReturnCode("KO", "Authentication failed on %s" % self.host)
         except self.paramiko.BadHostKeyException:
-            rc = RCO.ReturnCode("KO", _("The server's host key could not be verified"))
+            rc = RCO.ReturnCode("KO", "The server's host key could not be verified on %s" % self.host)
         except self.paramiko.SSHException:
-            rc = RCO.ReturnCode("KO", _("SSHException error connecting or establishing an SSH session"))            
+            rc = RCO.ReturnCode("KO", "SSH Exception connecting on %s" % self.host)          
         except:
-            rc = RCO.ReturnCode("KO", _("Error connecting or establishing an SSH session"))
+            rc = RCO.ReturnCode("KO", "Problem connecting or establishing an SSH session on %s" % self.host)
         else:
             self._connection_successful = True
             rc = RCO.ReturnCode("OK", "connecting SSH session done on %s" % self.host)
@@ -517,14 +554,13 @@ class Job(object):
         
         self.name_remote_jobs_pyconf = ".%s" % os.path.basename(job_file_path)
         self.commands = commands
-        self.command = (os.path.join(self.machine.sat_path, "sat") +
-                        " -l " +
-                        os.path.join(self.machine.sat_path,
-                                     "list_log_files.txt") +
-                        " job --jobs_config " + 
-                        os.path.join(self.machine.sat_path,
-                                     self.name_remote_jobs_pyconf) +
-                        " --name " + self.name)
+        sat_path = self.machine.sat_path
+        sat = os.path.join(sat_path, "sat")
+        cmd = sat + " -l %s job --config %s --job %s"
+        self.command = cmd % \
+                     ( os.path.join(sat_path, "list_log_files.txt"),
+                       os.path.join(sat_path, self.name_remote_jobs_pyconf),
+                       self.name )
         if prefix:
             self.command = prefix + ' "' + self.command +'"'
     
@@ -540,7 +576,7 @@ class Job(object):
         (_, out_pid, _) = self.machine.exec_command(cmd_pid, self.logger)
         pids_cmd = out_pid.readlines()
         pids_cmd = [str(UTS.only_numbers(pid)) for pid in pids_cmd]
-        pids+=pids_cmd
+        pids += pids_cmd
         return pids
     
     def kill_remote_process(self, wait=1):
@@ -554,8 +590,7 @@ class Job(object):
             return ("Unable to get the pid of the command.", "")
             
         cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])
-        (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
-                                                            self.logger)
+        (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, self.logger)
         DATT.sleep(wait)
         return (out_kill.read().decode(), err_kill.read().decode())
             
@@ -902,7 +937,7 @@ class Jobs(object):
                    board,
                    cmmnds,
                    timeout,
-                   self.runner.cfg,
+                   self.runner.getConfig(),
                    self.job_file_path,
                    self.logger,
                    after = after,
@@ -935,16 +970,17 @@ This job is ignored.
                     a_machine = mach
                     break
             
+            config = self.runner.getConfig()
             if a_machine == None:
                 for machine_def in self.cfg_jobs.machines:
                     if machine_def.name == name_machine:
                         if 'host' not in machine_def:
-                            host = self.runner.cfg.VARS.hostname
+                            host = config.VARS.hostname
                         else:
                             host = machine_def.host
 
                         if 'user' not in machine_def:
-                            user = self.runner.cfg.VARS.user
+                            user = config.VARS.user
                         else:
                             user = machine_def.user
 
@@ -994,73 +1030,68 @@ The job will not be launched.
                
         self.lhosts = host_list
         
-    def ssh_connection_all_machines(self, pad=50):
+    def ssh_connection_all_machines(self):
         """Do the ssh connection to every machine to be used today.
 
         :return: None
         """
-        self.logger.info( "Establishing connection with all the machines :\n")
-        for machine in self.lmachines:
+        config = self.runner.getConfig()
+        logger = self.logger
+        logger.info("\nEstablishing connection with all the machines:")
+        
+        res = [] # all connections
+        for machine in self.lmachines[0:2]: # TODO for debug [0:2]
             # little algorithm in order to display traces
-            begin_line = (_("Connection to %s: ") % machine.name)
-            if pad - len(begin_line) < 0:
-                endline = " "
-            else:
-                endline = (pad - len(begin_line)) * "." + " "
-            
+            header = ("Connection to %s" % machine.name)
             step = "SSH connection"
-            self.logger.info( begin_line + endline + step)
+            logger.logStep_begin(header, step)
             # the call to the method that initiate the ssh connection
-            msg = machine.connect()
+            rc = machine.connect()
+            res.append(rc)
+            if not rc.isOk():
+              logger.logStep_end(rc, 40)
+              continue
             
             # Copy salomeTools to the remote machine
-            if machine.successfully_connected(self.logger):
+            if machine.successfully_connected(logger): # as rc.isOk()
                 step = _("Remove SAT")
-                self.logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
-                self.logger.info('\r%s%s%s' % (begin_line, endline, step))
+                logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
+                logger.info('\r%s%s%s' % (begin_line, endline, step))
                 (__, out_dist, __) = machine.exec_command(
-                            "rm -rf %s" % machine.sat_path, self.logger)
+                            "rm -rf %s" % machine.sat_path, logger)
                 out_dist.read()
                 
                 step = _("Copy SAT")
-                self.logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
-                self.logger.info('\r%s%s%s' % (begin_line, endline, step))
+                logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
+                logger.info('\r%s%s%s' % (begin_line, endline, step))
 
-                res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway,
-                                            self.job_file_path)
+                res_copy = machine.copy_sat(config.VARS.salometoolsway, self.job_file_path)
 
                 # set the local settings of sat on the remote machine using
                 # the init command
-                (__, out_dist, __) = machine.exec_command(
-                                os.path.join(machine.sat_path,
-                                    "sat init --base default --workdir"
-                                    " default --log_dir default"),
-                                self.logger)
+                sat = os.path.join(machine.sat_path, "sat")
+                cmd = sat + " init --base default --workdir  default --log_dir default"
+                (__, out_dist, __) = machine.exec_command(cmd, logger)
                 out_dist.read()    
                 
                 # get the remote machine distribution using a sat command
-                (__, out_dist, __) = machine.exec_command(
-                                os.path.join(machine.sat_path,
-                                    "sat config --value VARS.dist --no_label"),
-                                self.logger)
-                machine.distribution = out_dist.read().decode().replace("\n",
-                                                                        "")
+                cmd = sat + " config --value VARS.dist --no_label" 
+                (__, out_dist, __) = machine.exec_command(cmd, logger)
+                machine.distribution = out_dist.read().decode().replace("\n", "")
                 
                 # Print the status of the copy
                 if res_copy == 0:
-                    self.logger.info('\r%s' % \
+                    logger.info('\r%s' % \
                                 ((len(begin_line)+len(endline)+20) * " "))
-                    self.logger.info('\r%s%s%s' % (begin_line, endline, "<OK>"))
+                    logger.info('\r%s%s%s' % (begin_line, endline, "<OK>"))
                 else:
-                    self.logger.info('\r%s' % \
+                    logger.info('\r%s' % \
                             ((len(begin_line)+len(endline)+20) * " "), 3)
-                    self.logger.info('\r%s%s%s %s' % \
+                    logger.info('\r%s%s%s %s' % \
                         (begin_line, endline, "<KO>",
                          _("Copy of SAT failed: %s") % res_copy))
-            else:
-                self.logger.info("<TODO_RC>%s" % msg)
                 
-        self.logger.info("\n")
+        return res
         
 
     def is_occupied(self, hostname):
@@ -1759,22 +1790,22 @@ class Gui(object):
 
 def get_config_file_path(job_config_name, l_cfg_dir):
     found = False
-    file_jobs_cfg = None
+    file_configs_jobs = None
     if os.path.exists(job_config_name) and job_config_name.endswith(".pyconf"):
         found = True
-        file_jobs_cfg = job_config_name
+        file_configs_jobs = job_config_name
     else:
         for cfg_dir in l_cfg_dir:
-            file_jobs_cfg = os.path.join(cfg_dir, job_config_name)
-            if not file_jobs_cfg.endswith('.pyconf'):
-                file_jobs_cfg += '.pyconf'
+            file_configs_jobs = os.path.join(cfg_dir, job_config_name)
+            if not file_configs_jobs.endswith('.pyconf'):
+                file_configs_jobs += '.pyconf'
             
-            if not os.path.exists(file_jobs_cfg):
+            if not os.path.exists(file_configs_jobs):
                 continue
             else:
                 found = True
                 break
-    return found, file_jobs_cfg
+    return found, file_configs_jobs
 
 def develop_factorized_jobs(config_jobs):
     """update information about the jobs for the file xml_file   

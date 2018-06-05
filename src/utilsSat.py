@@ -295,7 +295,7 @@ def check_config_has_profile(config):
 def get_config_key(inConfig, key, default):
     """
     Search for key value in config node 'inConfig[key]' as 'inConfig.key'
-    If key is not in inCconfig, then return default,
+    If key is not in inConfig, then return default,
     else, return the found value
        
     :param inConfig: (Config or Mapping etc) The in-Config node.
@@ -377,11 +377,13 @@ def only_numbers(str_num):
     return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
 
 def read_config_from_a_file(filePath):
+    import src.pyconf as PYCONF
     try:
-        cfg_file = pyconf.Config(filePath)
-    except pyconf.ConfigError as e:
-        raise Exception(_("Error in configuration file: %(file)s\n  %(error)s") %
-            { 'file': filePath, 'error': str(e) } )
+        cfg_file = PYCONF.Config(filePath)
+    except PYCONF.ConfigError as e:
+      msg = _("Error in configuration file: %(file)s\n  %(error)s") % \
+             {'file': filePath, 'error': str(e)}
+      raise Exception(_msg)
     return cfg_file
 
 def get_tmp_filename(config, name):
@@ -414,7 +416,7 @@ def formatTuples(tuples):
     for i in tuples:
         sp = " " * (smax - len(i[0]))
         msg += sp + "%s = %s\n" % (i[0], i[1]) # tuples, may be longer
-    if len(tuples) > 1: msg += "\n" # for long list
+    if len(tuples) > 1: msg += "\n" # skip one line for long list
     return msg
     
 def formatValue(label, value, suffix=""):
@@ -427,45 +429,6 @@ def formatValue(label, value, suffix=""):
     """
     msg = "  %s = %s %s" % (label, value, suffix)
     return msg
-    
-def logger_info_tuples(logger, tuples):
-    """
-    For convenience
-    format as formatTuples() and call logger.info()
-    """
-    msg = formatTuples(tuples)
-    logger.info(msg)
-
-_log_step_header = ["No log step header ..."]
-
-def init_log_step(logger, header, step=""):
-    _log_step_header.append(header)
-    log_step(logger, step)
-    
-def log_step(logger, step):
-    header = _log_step_header[-1]
-    if type(step) == str:
-      logger.info("<RC>%s %s ..." % (header, step))
-      return
-    #as ReturnCode type step
-    if step.isOk():
-      logger.info("<RC>%s <OK>..." % header)
-    else:
-      logger.info("<RC>%s%s <KO>..." % (header, step.getWhy())) 
-
-def end_log_step(logger, step):
-    header = _log_step_header[-1]
-    if type(step) == str:
-      logger.info("<RC>%s %s" % (header, step))
-      if len(_log_step_header) > 1: _log_step_header.pop()
-      return
-    #as ReturnCode type
-    if step.isOk():
-      logger.info("<RC>%s <OK>" % header)
-    else:
-      logger.info("<RC>%s <%s>" % (header, step.getStatus()))
-    if len(_log_step_header) > 1: _log_step_header.pop()
-    
 
 def isSilent(output_verbose_level):
     """is silent fort self.build_environ"""

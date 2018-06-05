@@ -212,7 +212,134 @@ class LoggerSat(LOGI.Logger):
     self.idCommandHandlers = 0 # incremented, 0 for main command 1, 2, etc. for micro command
     self.STEP = _STEP
     self.TRACE = _TRACE
+   
+    self._logStep_header = ["No log step header ..."] # one line message for steps
+    self._loggerParamiko = None # set only if sat jobs, else useless
+    self._fileParamiko = None # set when main command set sat logger
+
+  def logStep_begin(self, header, step=""):
+    """
+    initialize for main handler (tty as stdout)
+    a one line message for steps (...of compilation for example) 
+    as no return line message with logger.info() level
     
+    | example:
+    | 'header ... first temporary step message ...' 
+    | 'header ... etc ...'         (on same line)
+    | 'header ... OK'              (on same line)
+    """
+    self._logStep_header.append(header)
+    self.logStep(step)
+      
+  def logStep(self, step):
+    """
+    current logger.info() step as
+    'header ... etc ...'
+    """
+    header = self._logStep_header[-1]
+    if type(step) == str:
+      self.info("<RC>%s %s ..." % (header, step))
+      return
+    elif step.isOk(): # as ReturnCode type step
+      self.info("<RC>%s <OK> ..." % header)
+    else:
+      self.info("<RC>%s %s <KO> ..." % (header, step.getWhy())) 
+  
+  def logStep_end(self, step, tab=None):
+    """
+    last logger.info() step as
+    'header ... OK' or 'header ... KO'
+    """
+    import src.utilsSat as UTS
+    
+    header = self._logStep_header[-1]
+    if tab is None:
+      if type(step) == str:
+        self.info("<RC>%s %s" % (header, step))
+      elif step.isOk(): # as ReturnCode type
+        self.info("<RC>%s <OK>" % header)
+      else:
+        self.info("<RC>%s <%s>" % (header, step.getStatus()))
+      # pop as end
+      if len(self._logStep_header) > 1: 
+        self._logStep_header.pop()    
+      else:
+        self.error("Something wrong for logStep")
+      return
+    
+    else:
+      if type(step) == str:
+        stepTab = UTS.tabColor(tab, header, 0, step)
+        self.info("<RC>%s" % stepTab)
+      elif step.isOk(): # as ReturnCode type
+        stepTab = UTS.tabColor(tab, header, 0, "<OK>")
+        self.info("<RC>%s" % stepTab)
+      else:
+        stepTab = UTS.tabColor(tab, header, 0, "<%s>: %s" % (step.getStatus(), step.getWhy()))
+        self.info("<RC>%s" % stepTab)
+      # pop as end
+      if len(self._logStep_header) > 1: 
+        self._logStep_header.pop()    
+      else:
+        self.error("Something wrong for logStep")
+      return
+        
+  def setLoggerParamiko(self):
+      """
+      jobs used paramiko wich uses 'paramiko' logger,
+      which is defined here with an handler to automatic named file .txt.
+      this method have to be called only one time.
+      
+      | see:
+      | >> cd /usr/lib/python2.7/site-packages/paramiko/
+      | >> ffipy logging.getLogger
+      |      ./util.py:248:     l = logging.getLogger("paramiko")
+      |      ./util.py:270:     l = logging.getLogger(name)
+      | >> ffipy paramiko | grep Logger
+      |      ./util.py:248:     l = logging.getLogger("paramiko")
+      | >> ffipy paramiko | grep "get_logger"
+      |.      /channel.py:120:  self.logger = util.get_logger('paramiko.transport')
+      |      ./sftp.py:99:      self.logger = util.get_logger('paramiko.sftp')
+      |      ./hostkeys.py:337: log = get_logger('paramiko.hostkeys')
+      """
+      import src.returnCode as RCO
+      import src.utilsSat as UTS
+      
+      if self._loggerParamiko is None:
+        loggerPrmk = LOGI.getLogger("paramiko")
+        self._loggerParamiko = loggerPrmk
+        if self._fileParamiko is None:
+          msg = "logger._fileParamiko not set, fix it"
+          return RCO.ReturnCode("KO", msg)
+        if len(loggerPrmk.handlers) != 0:
+          self.warning("logger paramiko have handler set yet ouside sat, is a surprise")
+        
+        paramiko_log_dir = os.path.dirname(self._fileParamiko)
+        UTS.ensure_path_exists(paramiko_log_dir)
+        handler = LOGI.FileHandler(self._fileParamiko)
+        # original from paramiko
+        # frm = '%(levelname)-.3s [%(asctime)s.%(msecs)03d] thr=%(thread)-3d %(name)s: %(message)s' # noqa
+        frm = '%(levelname)-.4s :: %(asctime)s.%(msecs)03d :: %(name)s :: %(message)s' # noqa
+        handler.setFormatter(LOGI.Formatter(frm, '%Y%m%d-%H:%M:%S'))
+        loggerPrmk.addHandler(handler)
+        
+        # logger is not notset but low, handlers needs setlevel greater
+        loggerPrmk.setLevel(LOGI.DEBUG)
+        handler.setLevel(LOGI.INFO) # may be other
+    
+        msg = "create paramiko logger, with handler on file %s" % self._fileParamiko
+        self.trace(msg)
+
+        return RCO.ReturnCode("OK", msg, loggerPrmk)
+      else:
+        self.warning("logger paramiko set yet, fix it")
+        msg = "existing paramiko logger, with %s handlers" % len(loggerPrmk.handlers)
+        return RCO.ReturnCode("OK", msg, loggerPrmk)
+        
+  def getLoggerParamiko(self):
+    """for convenience, theorically useless"""
+    return self._loggerParamiko
+        
   def getMainCommandHandler(self):
     """
     returns handler for colored stdout console/terminal
@@ -300,8 +427,9 @@ class LoggerSat(LOGI.Logger):
     log("setFileHandler config\n%s" % PP.pformat(dict(config.VARS)))
     log("setFileHandler TODO set log_dir config.LOCAL.log_dir")
     
-    log_dir = "TMP" # TODO for debug config.LOCAL.log_dir # files xml
+    log_dir = config.LOCAL.log_dir # files xml
     log_dir_out = os.path.join(log_dir, "OUT") # files txt
+    log_dir_jobs = os.path.join(log_dir, "JOBS") # files txt
     UTS.ensure_path_exists(log_dir)
     UTS.ensure_path_exists(log_dir_out)
     if self.idCommandHandlers == 0:
@@ -357,6 +485,10 @@ class LoggerSat(LOGI.Logger):
       handler.setFormatter(formatter)
       logger.addHandler(handler)
       
+      # same name for paramiko logs if needed, useful for sat logs only
+      # but other JOBS directory  
+      self._fileParamiko = os.path.join(log_dir_jobs, nameFileTxt) # useful for sat logs only
+      
   
     elif self.idCommandHandlers > 0: # secondary micro command
       log("TODO setFileHandler '%s' micro command (id=%i)" % (fullNameCmd, self.idCommandHandlers))
@@ -398,7 +530,7 @@ class LoggerSat(LOGI.Logger):
     log("setFileHandler %s" % logger)
     return self.idCommandHandlers
 
-  def setLevelMainHandler (self, level):
+  def setLevelMainHandler(self, level):
     for handl in list(self.handlers): # get main handler
       if handl.idCommandHandlers == 0:
         log("setLevelMainHandler %s" % level)

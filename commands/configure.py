@@ -90,7 +90,7 @@ class Command(_BaseCommand):
                 UTS.label(config.VARS.application))
     
     info = [(_("BUILD directory"), os.path.join(config.APPLICATION.workdir, 'BUILD'))]
-    UTS.logger_info_tuples(logger, info)
+    logger.info(UTS.formatTuples(info))
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -152,13 +152,13 @@ class Command(_BaseCommand):
     
     # Logging
     header = _("Configuration of %s") % UTS.label(p_name)
-    UTS.init_log_step(logger, header)
+    logger.logStep_begin(header) # needs logStep_end
     
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        UTS.end_log_step(logger, "ignored")
+        logger.logStep_end("ignored")
         return RCO.ReturnCode("OK", "configure %s ignored" % p_name)
 
     # Instantiate the class that manages all the construction commands
@@ -166,27 +166,27 @@ class Command(_BaseCommand):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, "PREPARE ENV")
+    logger.logStep("PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_step(logger, res_prepare)
+    logger.logStep(res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     res = []
     if PROD.product_is_autotools(p_info):
-        UTS.log_step(logger, "BUILDCONFIGURE")
+        logger.logStep("BUILDCONFIGURE")
         rc = builder.build_configure()
-        UTS.log_step(logger, rc)
+        logger.logStep(rc)
         res.append(rc)
-        UTS.log_step(logger, "CONFIGURE")
+        logger.logStep("CONFIGURE")
         rc = builder.configure(conf_option)
-        UTS.log_step(logger, rc)
+        logger.logStep(rc)
         res.append(rc) 
     if PROD.product_is_cmake(p_info):
-        UTS.log_step(logger, "CMAKE")
+        logger.logStep("CMAKE")
         rc = builder.cmake(conf_option)
-        UTS.log_step(logger, rc)
+        logger.logStep(rc)
         res.append(rc)
         
-    UTS.end_log_step(logger, rc.getStatus())
+    logger.logStep_end(rc.getStatus())
     return RCO.ReturnCode(rc.getStatus(), "in configure %s" % p_name)

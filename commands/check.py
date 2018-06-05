@@ -136,7 +136,7 @@ Optional: products to configure.
     p_name, p_info = p_name_info
 
     header = _("Check of %s") % UTS.label(p_name)
-    UTS.init_log_step(logger,header)
+    logger.logStep_begin(header) # needs logStep_end
 
     # Verify if the command has to be launched or not
     ignored = False
@@ -166,7 +166,7 @@ is not defined in the definition of %(name)\n""") % p_name
             logger.warning(msg)
                 
     if ignored or not cmd_found:
-        UTS.log_step(logger, "ignored")
+        logger.logStep("ignored")
         if not cmd_found:
             return RCO.ReturnCode("KO", "command not found product %s" % p_name)
         return RCO.ReturnCode("OK", "ignored product %s" % p_name)
@@ -176,14 +176,14 @@ is not defined in the definition of %(name)\n""") % p_name
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, "PREPARE ENV")
+    logger.logStep("PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_step(logger, res_prepare)
+    logger.logStep(res_prepare)
 
     # Launch the check    
-    UTS.log_step(logger, "CHECK")
+    logger.logStep("CHECK")
     res = builder.check(command=command)
-    UTS.log_step(logger, res)
+    logger.logStep(res)
 
     return res
 

@@ -93,47 +93,48 @@ Optional: dictionary to generate the configuration for salomeTools.
     logger = self.getLogger()
     options = self.getOptions()
 
-    msg_miss = _("The --%s argument is required\n")
+    msg_miss = _("The --%s argument is required")
+    rc_ko = RCO.returnCode("KO", "command template not done")
     if options.template is None:
         logger.error(msg_miss % "template")
-        return 1
+        return rc_ko
 
     if options.target is None and options.info is None:
         logger.error(msg_miss % "target")
-        return 1
+        return rc_ko
 
     if "APPLICATION" in config:
-        msg = _("This command does not use a product.\n")
+        msg = _("This command does not use a product")
         logger.error(msg)
-        return 1
+        return rc_ko
 
     if options.info:
-        return get_template_info(config, options.template, logger)
+        return self.get_template_info(options.template)
 
     if options.name is None:
         logger.error(msg_miss % "name")
-        return 1
+        return rc_ko
 
     if not options.name.replace('_', '').isalnum():
         msg = _("""\
-Component name must contains only alphanumeric characters and no spaces\n""")
+Component name must contains only alphanumeric characters and no spaces""")
         logger.error(msg)
-        return 1
+        return rc_ko
 
     if options.target is None:
         logger.error(msg_miss % "target")
-        return 1
+        return rc_ko
 
     target_dir = os.path.join(options.target, options.name)
     if os.path.exists(target_dir):
-        msg = _("The target already exists: %s\n") % target_dir
+        msg = _("The target already exists: %s") % target_dir
         logger.error(msg)
-        return 1
+        return rc_ko
 
     msg = ""
     msg += _('Create sources from template\n')
     msg += '  destination = %s\n' % target_dir
-    msg += '  name = %\ns' % options.name
+    msg += '  name = %s\n' % options.name
     msg += '  template = %s\n' % options.template
     logger.info(msg)
     
@@ -143,23 +144,22 @@ Component name must contains only alphanumeric characters and no spaces\n""")
         for elt in options.param.split(","):
             param_def = elt.strip().split('=')
             if len(param_def) != 2:
-                msg = _("Bad parameter definition: '%s'\n") % elt
+                msg = _("Bad parameter definition: '%s'") % elt
                 logger.error(msg)
-                return 1
+                return rc_ko
             conf_values[param_def[0].strip()] = param_def[1].strip()
     
-    retcode = prepare_from_template(config, options.name, options.template,
-        target_dir, conf_values, logger)
+    rc = self.prepare_from_template(
+          config, options.name, options.template, target_dir, conf_values, logger)
 
-    if retcode == 0:
-        logger.info(_("The sources were created in %s\n") % UTS.info(target_dir))
-        msg = _("Do not forget to put them in your version control system.\n")
-        logger.info("\n" + UTS.red(msg))
-    else:    
-        logger.info("\n")
+    if rc.isOk():
+        msg = _("The sources were created in %s") % UTS.info(target_dir)
+        msg += "\n" + _("Do not forget to put them in your version control system.")
+        logger.info("\n" + msg)
     
-    return retcode
+    return rc
 
+#######################################################################
 class TParam:
     def __init__(self, param_def, compo_name, dico=None):
         self.default = ""
@@ -176,7 +176,7 @@ class TParam:
             if len(param_def) > 2: self.prompt = param_def[2]
             if len(param_def) > 3: self.check_method = param_def[3]
         else:
-            raise Exception(_("ERROR in template parameter definition"))
+            raise Exception(_("Problem in template parameter definition"))
 
         self.raw_prompt = self.prompt
         if len(self.prompt) == 0:
@@ -190,11 +190,13 @@ class TParam:
             return len(val) > 0
         return len(val) > 0 and self.check_method(val)
 
+
 def get_dico_param(dico, key, default):
     if dico.has_key(key):
         return dico[key]
     return default
 
+#######################################################################
 class TemplateSettings:
     def __init__(self, compo_name, settings_file, target):
         self.compo_name = compo_name
@@ -224,8 +226,8 @@ class TemplateSettings:
         self.delimiter_char = get_dico_param(ldic, "delimiter", ":sat:")
 
         # get the ignore filter
-        self.ignore_filters = map(lambda l: l.strip(),
-                                  ldic["ignore_filters"].split(','))
+        self.ignore_filters = \
+          map(lambda l: l.strip(), ldic["ignore_filters"].split(','))
 
     def has_pyconf(self):
         return len(self.pyconf) > 0
@@ -235,15 +237,15 @@ class TemplateSettings:
             return []
         return re.findall("%\((?P<name>\S[^\)]*)", self.pyconf)
 
-    ##
-    # Check if the file needs to be parsed.
     def check_file_for_substitution(self, file_):
+        """Check if the file needs to be parsed"""
         for filter_ in self.ignore_filters:
             if fnmatch.fnmatchcase(file_, filter_):
                 return False
         return True
 
     def check_user_values(self, values):
+        """raise Exception if missing parameters"""
         if values is None:
             return
         
@@ -264,8 +266,7 @@ class TemplateSettings:
                 missing.append(p)
         
         if len(missing) > 0:
-            raise Exception(
-                _("Missing parameters: %s") % ", ".join(missing) )
+            raise Exception(_("Missing parameters: %s") % ", ".join(missing))
 
     def get_parameters(self, conf_values=None):
         if self.dico is not None:
@@ -274,12 +275,13 @@ class TemplateSettings:
         self.check_user_values(conf_values)
 
         # create dictionary with default values
-        dico = {}
-        dico["name"] = self.compo_name.lower()
-        dico["Name"] = self.compo_name.capitalize()
-        dico["NAME"] = self.compo_name
-        dico["target"] = self.target
-        dico[self.file_subst] = self.compo_name
+        dico = {
+          "name": self.compo_name.lower(),
+          "Name": self.compo_name.capitalize(),
+          "NAME": self.compo_name,
+          "target": self.target,
+          self.file_subst: self.compo_name,
+        }
         # add user values if any
         if conf_values is not None:
             for p in conf_values.keys():
@@ -310,7 +312,6 @@ class TemplateSettings:
         return self.dico
 
 def search_template(config, template):
-    # search template
     template_src_dir = ""
     if os.path.isabs(template):
         if os.path.exists(template):
@@ -336,16 +337,16 @@ def prepare_from_template(config,
                           conf_values,
                           logger):
     """Prepares a module from a template."""
-    res = RCO.ReturnCode("OK", "prepare_from_template has no raise")
+    res = RCO.ReturnCode("OK", "prepare_from_template done")
     
     template_src_dir = search_template(config, template)
 
     # copy the template
     if os.path.isfile(template_src_dir):
-        logger.info(_("Extract template %s\n") % UTS.info(template))
+        logger.info(_("Extract template %s") % UTS.info(template))
         SYSS.archive_extract(template_src_dir, target_dir)
     else:
-        logger.info(_("Copy template %s\n") % UTS.info(template))
+        logger.info(_("Copy template %s") % UTS.info(template))
         shutil.copytree(template_src_dir, target_dir)
     
 
@@ -360,7 +361,7 @@ def prepare_from_template(config,
     tsettings = TemplateSettings(compo_name, settings_file, target_dir)
 
     # first rename the files
-    logger.debug(UTS.label(_("Rename files\n")))
+    logger.debug(UTS.label(_("Rename files")))
     for root, dirs, files in os.walk(target_dir):
         for fic in files:
             ff = fic.replace(tsettings.file_subst, compo_name)
@@ -369,11 +370,11 @@ def prepare_from_template(config,
                     raise Exception(
                         _("Destination file already exists: %s") % \
                         os.path.join(root, ff) )
-                logger.debug("    %s -> %s\n" % (fic, ff))
+                logger.debug("    %s -> %s" % (fic, ff))
                 os.rename(os.path.join(root, fic), os.path.join(root, ff))
 
     # rename the directories
-    logger.debug(UTS.label(_("Rename directories\n")))
+    logger.debug(UTS.label(_("Rename directories")))
     for root, dirs, files in os.walk(target_dir, topdown=False):
         for rep in dirs:
             dd = rep.replace(tsettings.file_subst, compo_name)
@@ -382,16 +383,17 @@ def prepare_from_template(config,
                     raise Exception(
                         _("Destination directory already exists: %s") % \
                         os.path.join(root, dd) )
-                logger.debug("    %s -> %s\n" % (rep, dd))
+                logger.debug("    %s -> %s" % (rep, dd))
                 os.rename(os.path.join(root, rep), os.path.join(root, dd))
 
     # ask for missing parameters
-    logger.debug(UTS.label(_("Make substitution in files\n")))
-    logger.debug(_("Delimiter =") + " %s\n" % tsettings.delimiter_char)
-    logger.debug(_("Ignore Filters =") + " %s\n" % ', '.join(tsettings.ignore_filters))
+    msg = UTS.label(_("Make substitution in files"))
+    msg += "\n" + _("Delimiter") + " = '%s'" % tsettings.delimiter_char)
+    msg += "\n" + _("Ignore Filters") + "= %s" % ', '.join(tsettings.ignore_filters)
+    logger.debug(msg)
     dico = tsettings.get_parameters(conf_values)
 
-
+    ##############################################################################
     class CompoTemplate(string.Template):
         """override standard string.Template class to use the desire delimiter"""
         delimiter = tsettings.delimiter_char
@@ -403,7 +405,7 @@ def prepare_from_template(config,
         for fic in files:
             fpath = os.path.join(root, fic)
             if not tsettings.check_file_for_substitution(fpath[pathlen:]):
-                logger.debug("  - %s\n" % fpath[pathlen:])
+                logger.debug("  - %s" % fpath[pathlen:])
                 continue
             # read the file
             m = file(fpath, 'r').read()
@@ -415,7 +417,7 @@ def prepare_from_template(config,
             if d != m:
                 changed = "*"
                 file(fpath, 'w').write(d)
-            logger.debug("  %s %s\n" % (changed, fpath[pathlen:]))
+            logger.debug("  %s %s" % (changed, fpath[pathlen:]))
 
     if not tsettings.has_pyconf:
         logger.error(_("Definition for sat not found in settings file."))
@@ -435,7 +437,7 @@ def prepare_from_template(config,
 
 def get_template_info(config, template_name, logger):
     sources = search_template(config, template_name)
-    logger.info("  Template = %s\n" %  sources)
+    logger.info("  Template = %s" %  sources)
 
     # read settings
     tmpdir = os.path.join(config.VARS.tmp_root, "tmp_template")
@@ -459,7 +461,7 @@ def get_template_info(config, template_name, logger):
     else:
         msg += tsettings.info
 
-    msg += "\n= Configuration\n"
+    msg += "= Configuration\n"
     msg += "  file substitution key = %s\n" % tsettings.file_subst
     msg += "  substitution key = '%s'\n" % tsettings.delimiter_char
     if len(tsettings.ignore_filters) > 0:
@@ -479,14 +481,14 @@ def get_template_info(config, template_name, logger):
 
     logger.info(msg)
     
-    retcode = 0
+    res = [] # list of ReturnCode
     
     msg = skip
     msg += "= Verification\n"
     if tsettings.file_subst not in pnames:
-        msg += "file substitution key not defined as a parameter: %s\n" % \
+        msg += "file substitution key not defined as a parameter: %s" % \
                 tsettings.file_subst
-        retcode = 1
+        res.append(RCO.ReturnCode("KO", msg))
     
     logger.info(msg)
     
@@ -506,15 +508,11 @@ def get_template_info(config, template_name, logger):
             if len(zz) > 0:
                 msg += "Missing definition in %s: %s\n" % \
                       ( fpath[pathlen:], ", ".join(zz) )
-                retcode = 1
+                res.append(RCO.ReturnCode("KO", msg))
 
-    logger.info(msg)
+    if msg != "": logger.info(msg)
     
-    if retcode == 0:
-        logger.info("<OK>" + skip)
-    else:
-        logger.info("<KO>" + skip)
-
+    retcode = RCO.ReturnCodeFromList(res)
 
     # clean up tmp file
     shutil.rmtree(tmpdir)

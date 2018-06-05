@@ -146,15 +146,15 @@ class Command(_BaseCommand):
     p_name, p_info = p_name_info
     
     # Logging
-    msg = _("Running script of %s ...") % UTS.label(p_name)
-    logger.trace(msg)
+    header = _("Running script of %s") % UTS.label(p_name)
+    logger.logStep_begin(header) # needs logStep_end
 
     # Do nothing if he product is not compilable or has no compilation script
     test1 = "properties" in p_info and \
             "compilation" in p_info.properties and \
             p_info.properties.compilation == "no"
     if ( test1 or (not PROD.product_has_script(p_info)) ):
-        UTS.log_step(logger, "ignored")
+        logger.logStep("ignored")
         return res.append(RCO.ReturnCode("OK", "run script %s ignored" % p_name))
 
 
@@ -163,14 +163,14 @@ class Command(_BaseCommand):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, "PREPARE ENV")
+    logger.logStep("PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_step(logger, res_prepare)
+    logger.logStep(res_prepare)
     
     # Execute the script
     script_path_display = UTS.label(p_info.compil_script)
-    UTS.log_step(logger, "SCRIPT " + script_path_display)
+    logger.logStep("SCRIPT " + script_path_display)
     res = builder.do_script_build(p_info.compil_script, number_of_proc=nb_proc)
-    UTS.log_step(logger, res)
+    logger.logStep(res)
  
     return res

@@ -153,7 +153,7 @@ class Command(_BaseCommand):
             (_("Ignored extensions"), extension_ignored),
             (_("Ignored directories"), directories_ignored)
            ]
-    UTS.logger_info_tuples(logger, info)
+    logger.info(UTS.formatTuples(info))
     
     # Get all the files and paths
     logger.info(_("Store all file paths ... "), 3)

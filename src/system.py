@@ -37,6 +37,7 @@ def show_in_editor(editor, filePath, logger):
     
     :param editor: (str) The editor to use.
     :param filePath: (str) The path to the file to open.
+    :return: (RCO.ReturnCode)
     """
     # default editor is vi
     if editor is None or len(editor) == 0:

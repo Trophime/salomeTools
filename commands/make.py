@@ -140,13 +140,13 @@ def make_product(p_name_info, make_option, config, logger):
     
     # Logging
     header = _("Make of %s") % UTS.label(p_name)
-    UTS.init_log_step(logger, header)
+    logger.logStep_begin(header) # needs logStep_end
 
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-        UTS.log_step(logger, "ignored")
+        logger.logStep("ignored")
         return 0
 
     # Instantiate the class that manages all the construction commands
@@ -154,22 +154,22 @@ def make_product(p_name_info, make_option, config, logger):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, "PREPARE ENV")
+    logger.logStep("PREPARE ENV")
     res_prepare = builder.prepare()
-    UTS.log_step(logger, res_prepare)
+    logger.logStep(res_prepare)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
 
     nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
-    UTS.log_step(logger, "MAKE -j" + str(nb_proc))
+    logger.logStep("MAKE -j" + str(nb_proc))
     
     if ARCH.is_windows():
         res = builder.wmake(nb_proc, make_opt_without_j)
     else:
         res = builder.make(nb_proc, make_opt_without_j)
 
-    UTS.log_step(logger, res)
+    logger.logStep(res)
     return res
 
 def get_nb_proc(product_info, config, make_option):

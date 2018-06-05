@@ -82,7 +82,7 @@ class Command(_BaseCommand):
     
     info = [(_("BUILD directory"),
              os.path.join(config.APPLICATION.workdir, 'BUILD'))]
-    UTS.logger_info_tuples(logger, info)
+    logger.info(UTS.formatTuples(info))
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
@@ -138,13 +138,13 @@ class Command(_BaseCommand):
     
     # Logging
     header = _("Make install of %s") % UTS.label(p_name)
-    UTS.init_log_step(logger, header)
+    logger.logStep_begin(header) # needs logStep_end
 
     # Do nothing if he product is not compilable
     if ("properties" in p_info and \
         "compilation" in p_info.properties and \
         p_info.properties.compilation == "no"):
-      UTS.log_step(logger, "ignored")
+      logger.logStep("ignored")
       return RCO.ReturnCode("OK", "product %s is not compilable" % p_name)
 
     # Instantiate the class that manages all the construction commands
@@ -152,16 +152,16 @@ class Command(_BaseCommand):
     builder = COMP.Builder(config, logger, p_info)
     
     # Prepare the environment
-    UTS.log_step(logger, "PREPARE ENV")
+    logger.logStep("PREPARE ENV")
     res = builder.prepare()
-    UTS.log_step(logger, res)
+    logger.logStep(res)
     
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     if not PROD.product_has_script(p_info):
-      UTS.log_step(logger, "MAKE INSTALL")
+      logger.logStep("MAKE INSTALL")
       res_m = builder.install()
-      UTS.log_step(logger, res_m)
+      logger.logStep(res_m)
       res += res_m
 
     return res

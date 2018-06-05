@@ -177,33 +177,33 @@ class Command(_BaseCommand):
         p_name, p_info = p_name_info
         
         if header is not None: # close previous step in for loop
-          UTS.end_log_step(logger, res[-1])
+          logger.logStep_end(res[-1])
           
         # Logging
         header = _("Compilation of %s ...") % UTS.label(p_name)
-        UTS.init_log_step(logger, header)
+        logger.logStep_begin(header) # needs logStep_end
         
         # Do nothing if the product is not compilable
         if ("properties" in p_info and \
             "compilation" in p_info.properties and \
             p_info.properties.compilation == "no"):     
-            UTS.log_step(logger, "ignored")
+            logger.logStep("ignored")
             res.append(RCO.ReturnCode("OK", "compile %s ignored" % p_name))
             continue
 
         # Do nothing if the product is native
         if PROD.product_is_native(p_info):
-            UTS.log_step(logger, "native")
+            logger.logStep("native")
             res.append(RCO.ReturnCode("OK", "no compile %s as native" % p_name))
             continue
 
         # Clean the build and the install directories 
         # if the corresponding options was called
         if options.clean_all:
-            UTS.log_step(logger, "CLEAN BUILD AND INSTALL")
+            logger.logStep("CLEAN BUILD AND INSTALL")
             # import time 
             # time.sleep(5)
-            # UTS.log_step(logger, header, "IIYOO")
+            # logger.logStep(header, "IIYOO")
             # raise Exception('YOO')    
             cmd_args = "--products %s --build --install" % p_name
             rc = self.executeMicroCommand("clean", nameAppli, cmd_args)
@@ -214,7 +214,7 @@ class Command(_BaseCommand):
         # Clean the the install directory 
         # if the corresponding option was called
         if options.clean_install and not options.clean_all:
-            UTS.log_step(logger, "CLEAN INSTALL")
+            logger.logStep("CLEAN INSTALL")
             cmd_args = "--products %s --install" % p_name
             rc = self.executeMicroCommand("clean", nameAppli, cmd_args)
             if not rc.isOk():
@@ -227,20 +227,20 @@ class Command(_BaseCommand):
         
         # Check if it was already successfully installed
         if PROD.check_installation(p_info):
-            UTS.log_step(logger, _("already installed"))
+            logger.logStep(_("already installed"))
             res.append(RCO.ReturnCode("OK", "no compile %s as already installed" % p_name))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            UTS.log_step(logger, _("No compile and install as show option"))
+            logger.logStep(_("No compile and install as show option"))
             res.append(RCO.ReturnCode("OK", "no compile %s as show option" % p_name))
             continue
         
         # Check if the dependencies are installed
         l_depends_not_installed = check_dependencies(config, p_name_info)
         if len(l_depends_not_installed) > 0:
-            UTS.log_step(logger, "<KO>")
+            logger.logStep("<KO>")
             msg = _("the following products are mandatory:\n")
             for prod_name in sorted(l_depends_not_installed):
                 msg += "%s\n" % prod_name
@@ -263,7 +263,7 @@ class Command(_BaseCommand):
         else: 
           # Ok Clean the build directory if the compilation and tests succeed
           if options.clean_build_after:
-            UTS.log_step(logger, "CLEAN BUILD")
+            logger.logStep("CLEAN BUILD")
             cmd_args = "--products %s --build" % p_name
             rc0 = self.executeMicroCommand("clean", nameAppli, cmd_args)
 
@@ -274,7 +274,7 @@ class Command(_BaseCommand):
           
         
     if header is not None: # close last step in for loop
-      UTS.end_log_step(logger, res[-1])
+      logger.logStep_end(res[-1])
     
     resAll = RCO.ReturnCodeFromList(res)
     nbOk = sum(1 for r in res if r.isOk())
@@ -325,7 +325,7 @@ class Command(_BaseCommand):
         
         if options.check:
             # Do the unit tests (call the check command)
-            UTS.log_step(logger, "CHECK")
+            logger.logStep("CHECK")
             cmd_args = "--products %s" % p_name
             rc0 = self.executeMicroCommand("check", nameAppli, cmd_args)
             if not rc0.isOk():
@@ -358,7 +358,7 @@ class Command(_BaseCommand):
     error_step = ""
     
     # Logging and sat command call for configure step
-    UTS.log_step(logger, "CONFIGURE")
+    logger.logStep("CONFIGURE")
     cmd_args = "--products %s" % p_name
     rc = self.executeMicroCommand("configure", nameAppli, cmd_args)
     if not rc.isOk():
@@ -375,9 +375,9 @@ class Command(_BaseCommand):
       # if the product has a compilation script, 
       # it is executed during make step
       script_path_display = UTS.label(p_info.compil_script)
-      UTS.log_step(logger, "SCRIPT " + script_path_display)
+      logger.logStep("SCRIPT " + script_path_display)
     else:
-      UTS.log_step(logger, "MAKE")
+      logger.logStep("MAKE")
     
     cmd_args = "--products %s" % p_name
     # Get the make_flags option if there is any
@@ -393,7 +393,7 @@ class Command(_BaseCommand):
     res.append(rc)
     
     # Logging and sat command call for make install step
-    UTS.log_step(logger, "MAKE INSTALL")
+    logger.logStep("MAKE INSTALL")
     cmd_args = "--products %s" % p_name
     rc = self.executeMicroCommand("makeinstall", nameAppli, cmd_args)
     if not rc.isOk():
@@ -423,12 +423,12 @@ class Command(_BaseCommand):
     
     # Logging and sat command call for the script step
     script_path_display = UTS.label(p_info.compil_script)
-    UTS.log_step(logger, "SCRIPT %s" % script_path_display)
+    logger.logStep("SCRIPT %s" % script_path_display)
     
     # res = sat.script(config.VARS.application + " --products " + p_name, verbose = 0, logger_add_link = logger)
     cmd_args = "--products %s" % p_name
     res = self.executeMicroCommand("script", nameAppli, cmd_args)
-    UTS.log_step(logger, res)
+    logger.logStep(res)
     return res
     
     

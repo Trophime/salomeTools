@@ -40,11 +40,23 @@ class Command(_BaseCommand):
   def getParser(self):
     """Define all options for command 'sat job <options>'"""
     parser = self.getParserWithHelp()
+    
+    '''version 5.0
     parser.add_option(
         'j', 'jobs_config', 'string', 'jobs_cfg', 
         _('Mandatory: The name of the config file that contains the jobs configuration') )
     parser.add_option(
         '', 'name', 'string', 'job',
+        _('Mandatory: The job name from which to execute commands.'), "" )
+    return parser
+    '''
+
+    # version 5.1 destroy commands job & jobs ambiguity
+    parser.add_option(
+        'c', 'config', 'string', 'config_jobs', 
+        _('Mandatory: The name of the config file that contains the jobs configuration') )
+    parser.add_option(
+        'j', 'job', 'string', 'job_name',
         _('Mandatory: The job name from which to execute commands.'), "" )
     return parser
 
@@ -72,26 +84,24 @@ class Command(_BaseCommand):
     l_cfg_dir = config.PATHS.JOBPATH
     
     # Make sure the jobs_config option has been called
-    if not options.jobs_cfg:
-        message = _("The option --jobs_config is required\n")      
-        logger.error(message)
-        return 1
+    if not options.config_jobs:
+        msg = _("The option --config is required")      
+        return RCO.ReturnCode("KO", msg)
     
     # Make sure the name option has been called
-    if not options.job:
-        message = _("The option --name is required\n")      
-        logger.error(message)
-        return 1
+    if not options.job_name:
+        msg = _("The option --job is required")      
+        return RCO.ReturnCode("KO", msg)
     
     # Find the file in the directories
     found = True
-    fPyconf = options.jobs_cfg
-    if not file_jobs_cfg.endswith('.pyconf'): 
+    fPyconf = options.config_jobs
+    if not file_config_jobs.endswith('.pyconf'): 
         fPyconf += '.pyconf'
         
     for cfg_dir in l_cfg_dir:
-        file_jobs_cfg = os.path.join(cfg_dir, fPyconf)
-        if os.path.exists(file_jobs_cfg):
+        file_config_jobs = os.path.join(cfg_dir, fPyconf)
+        if os.path.exists(file_config_jobs):
             found = True
             break
 
@@ -99,34 +109,31 @@ class Command(_BaseCommand):
         msg = _("""\
 The job file configuration %s was not found.
 Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
-        logger.error(msg)
-        return 1
+        return RCO.ReturnCode("KO", msg)
     
     info = [ (_("Platform"), config.VARS.dist),
-             (_("File containing the jobs configuration"), file_jobs_cfg) ]
-    UTS.logger_info_tuples(logger, info)
+             (_("File containing the jobs configuration"), file_config_jobs) ]
+    logger.info(UTS.formatTuples(info))
     
     # Read the config that is in the file
-    config_jobs = UTS.read_config_from_a_file(file_jobs_cfg)
+    config_jobs = UTS.read_config_from_a_file(file_config_jobs)
     
     # Find the job and its commands
     found = False
     for job in config_jobs.jobs:
-        if job.name == options.job:
+        if job.name == options.job_name:
             commands = job.commands
             found = True
             break
     if not found:
-        msg = _("Impossible to find the job %s in %s\n") % (options.job, file_jobs_cfg)
-        logger.error(msg)
-        return 1
+        msg = _("Impossible to find the job %s in %s") % (options.job_name, file_config_jobs)
+        return RCO.ReturnCode("KO", msg)
     
     # Find the maximum length of the commands in order to format the display
     len_max_command = max([len(cmd) for cmd in commands])
     
     # Loop over the commands and execute it
-    res = 0
-    nb_pass = 0
+    res = [] # list of results
     for command in commands:
         specific_option = False
         # Determine if it is a sat command or a shell command
@@ -151,35 +158,32 @@ Use the --list option to get the possible files.""") % UTS.blue(fPyconf)
         if not(specific_option):
             options = None
 
-        # Get dynamically the command function to call
-        sat_command = runner.__getattr__(sat_command_name)
-
-        logger.info("Executing " + UTS.label(command) + " " +
-                    "." * (len_max_command - len(command)) + " ")
-        
-        error = ""
+        logger.logStep_begin("Executing %s" % UTS.label(command))
         # Execute the command
-        code = sat_command(end_cmd,
-                           options = options,
-                           batch = True,
-                           verbose = 0,
-                           logger_add_link = logger)
-            
-        # Print the status of the command
-        if code == 0:
-            nb_pass += 1
-            logger.info("<OK>\n")
-        else:
-            if sat_command_name != "test":
-                res = 1
-            logger.info('<KO>: %s\n' % error)
-    
-    # Print the final state
-    if res == 0:
-        final_status = "OK"
-    else:
-        final_status = "KO"
+        # obsolete tofix new call executeMicroCommand and filterNameAppli...
+        # rc = sat_command(end_cmd, options = options, batch = True, verbose = 0, logger_add_link = logger)
+        # example of cmd_args
+        # cmd_args = "--products %s --build --install" % p_name 
+        nameAppli, cmd_args = self.filterNameAppli(end_cmd)
+        rc = self.executeMicroCommand(sat_command_name, "", cmd_args)
+        res.append(rc)
+        logger.logStep_end(rc)
         
-    msg = "Commands: <%s> (%d/%d)" % (final_status, nb_pass, len(commands))
-    logger.info(msg)   
-    return RCO.ReturnCode(final_status, msg)
+    # Print the final state
+    good_result = sum(1 for r in res if r.isOk())
+    nbExpected = len(commands)
+    msgCount = "(%d/%d)" % (good_result, nbExpected)
+    if good_result == nbExpected:
+      status = "OK"
+      msg = _("command job")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+    else:
+      status = "KO"
+      msg = _("command job, some commands have failed")
+      logger.info("\n%s %s: <%s>.\n" % (msg, msgCount, status))
+
+    return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))
+    
+  def filterNameAppli(self, end_cmd):
+    DBG.tofix("sat job filterNameAppli()", end_cmd)
+    return "???", end_cmd

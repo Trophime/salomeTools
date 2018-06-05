@@ -38,7 +38,13 @@ try:
 except ImportError:
     from sha import sha as sha1
 
-
+# Compatibility python 2/3 for input function
+# input stays input for python 3 and input = raw_input for python 2
+try: 
+    input = raw_input
+except NameError: 
+    pass
+  
 ########################################################################
 # Command class
 ########################################################################
@@ -77,7 +83,7 @@ Optional: set the display where to launch SALOME.
     """Check the options
     
     :param options: (Options) The options
-    :return: None
+    :return: (RCO.ReturnCode)
     """
     if not options.launcher:
         options.launcher = ""
@@ -85,11 +91,11 @@ Optional: set the display where to launch SALOME.
         returnCode = UTS.check_config_has_application(config)
         if not returnCode.isOk():
             msg = _("An application is required to use a relative path with option --appli")
-            raise Exception(msg)
+            return RCO.ReturnCode("KO", msg)
         options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
         if not os.path.exists(options.launcher):
-            raise Exception(_("Launcher %s not found") % options.launcher )
-    return
+            return RCO.ReturnCode("KO", _("Launcher %s not found") % options.launcher)
+    return RCO.ReturnCode("OK", "check_option done")
 
   def run(self, cmd_arguments):
     """method called for command 'sat test <options>'"""
@@ -112,17 +118,18 @@ Optional: set the display where to launch SALOME.
     logger = self.getLogger()
     options = self.getOptions()
 
-    self.check_option(options)
-
+    rc = self.check_option(options)
+    if not rc.isOk():
+      return rc
+      
     # the test base is specified either by the application, or by the --base option
     with_application = False
-    if config.VARS.application != 'None':
-        logger.info(_('Running tests on application %s\n') % 
-                     UTS.label(config.VARS.application))
+    vars_app = config.VARS.application
+    if vars_app != 'None':
+        logger.info(_('Running tests on application %s') % UTS.label(vars_app))
         with_application = True
     elif not options.base:
-        raise Exception(
-          _('A test base is required. Use the --base option') )
+        return RCO.ReturnCode("KO", _('A test base is required. Use the --base option') )
 
     # the launcher is specified either by the application, or by the --launcher option
     if with_application:
@@ -137,8 +144,7 @@ Optional: set the display where to launch SALOME.
 Impossible to find any launcher.
 Please specify an application or a launcher
 """)
-        logger.error(msg)
-        return 1
+        return RCO.ReturnCode("KO", msg)
 
     # set the display
     show_desktop = (options.display and options.display.upper() == "NO")
@@ -160,38 +166,33 @@ Please specify an application or a launcher
 
     # initialization
     #################
+    tmp_root = config.VARS.tmp_root
+    conf_app = config.APPLICATION
     if with_application:
-        tmp_dir = os.path.join(config.VARS.tmp_root,
-                               config.APPLICATION.name,
-                               "test")
+        tmp_dir = os.path.join(tmp_root, conf_app.name, "test")
     else:
-        tmp_dir = os.path.join(config.VARS.tmp_root,
-                               "test")
+        tmp_dir = os.path.join(tmp_root, "test")
 
     # remove previous tmp dir
     if os.access(tmp_dir, os.F_OK):
         try:
             shutil.rmtree(tmp_dir)
         except:
-            logger.error(
-                _("error removing TT_TMP_RESULT %s\n") % tmp_dir)
+            logger.error(_("error removing TT_TMP_RESULT %s") % tmp_dir)
 
-    lines = []
-    lines.append("date = '%s'" % config.VARS.date)
-    lines.append("hour = '%s'" % config.VARS.hour)
-    lines.append("node = '%s'" % config.VARS.node)
-    lines.append("arch = '%s'" % config.VARS.dist)
+    msg = []
+    msg.append("date = '%s'" % config.VARS.date)
+    msg.append("hour = '%s'" % config.VARS.hour)
+    msg.append("node = '%s'" % config.VARS.node)
+    msg.append("arch = '%s'" % config.VARS.dist)
 
     if 'APPLICATION' in config:
-        lines.append("application_info = {}")
-        lines.append("application_info['name'] = '%s'" % 
-                     config.APPLICATION.name)
-        lines.append("application_info['tag'] = '%s'" % 
-                     config.APPLICATION.tag)
-        lines.append("application_info['products'] = %s" % 
-                     str(config.APPLICATION.products))
+      msg.append("application_info = {}")
+      msg.append("application_info['name'] = '%s'" % conf_app.name)
+      msg.append("application_info['tag'] = '%s'" %  conf_app.tag)
+      msg.append("application_info['products'] = %s" %  str(conf_app.products))
 
-    content = "\n".join(lines)
+    content = "\n".join(msg)
 
     # create hash from context information
     dirname = sha1(content.encode()).hexdigest()
@@ -200,9 +201,7 @@ Please specify an application or a launcher
     os.environ['TT_TMP_RESULT'] = base_dir
 
     # create env_info file
-    f = open(os.path.join(base_dir, 'env_info.py'), "w")
-    f.write(content)
-    f.close()
+    open(os.path.join(base_dir, 'env_info.py'), "w").write(content)
 
     # create working dir and bases dir
     working_dir = os.path.join(base_dir, 'WORK')
@@ -222,8 +221,8 @@ Please specify an application or a launcher
     test_base = ""
     if options.base:
         test_base = options.base
-    elif with_application and "test_base" in config.APPLICATION:
-        test_base = config.APPLICATION.test_base.name
+    elif with_application and "test_base" in conf_app:
+        test_base = conf_app.test_base.name
 
     fmt = "  %s = %s\n"
     msg  = fmt % (_('Display'), os.environ['DISPLAY'])
@@ -241,18 +240,17 @@ Please specify an application or a launcher
                             launcher=options.launcher,
                             show_desktop=show_desktop)
     
-    if not test_runner.test_base_found:
-        # Fail 
-        return 1
+    if not test_runner.test_base_found: # Fail 
+        return RCO.ReturnCode("KO", "test base not found")
         
     # run the test
     logger.allowPrintLevel = False
     retcode = test_runner.run_all_tests()
     logger.allowPrintLevel = True
 
-    logger.info(_("Tests finished\n"))
+    logger.info(_("Tests finished"))
     
-    logger.debug(_("Generate the specific test log\n"))
+    logger.debug(_("Generate the specific test log"))
     log_dir = UTS.get_log_path(config)
     out_dir = os.path.join(log_dir, "TEST")
     UTS.ensure_path_exists(out_dir)
@@ -284,20 +282,19 @@ Please specify an application or a launcher
 
 def ask_a_path():
     """
-    interactive as using 'raw_input'
+    interactive terminal user ask answer using 'input'
     """
-    path = raw_input("enter a path where to save the result: ")
+    path = input("enter a path where to save the result: ")
+    sure = " Are you sure to continue ? [y/n] "
     if path == "":
-        result = raw_input("the result will be not save. Are you sure to "
-                           "continue ? [y/n] ")
+        result = input("the result will be not save." + sure)
         if result == "y":
             return path
         else:
             return ask_a_path()
 
     elif os.path.exists(path):
-        result = raw_input("WARNING: the content of %s will be deleted. Are you"
-                           " sure to continue ? [y/n] " % path)
+        result = input("WARNING: the content of %s will be deleted." % path + sure)
         if result == "y":
             return path
         else:
@@ -306,15 +303,10 @@ def ask_a_path():
         return path
 
 def save_file(filename, base):
-    f = open(filename, 'r')
-    content = f.read()
-    f.close()
-
+    content = open(filename, 'r').read()
     objectname = sha1(content).hexdigest()
-
-    f = gzip.open(os.path.join(base, '.objects', objectname), 'w')
-    f.write(content)
-    f.close()
+    with gzip.open(os.path.join(base, '.objects', objectname), 'w') as f:
+      f.write(content)
     return objectname
 
 def move_test_results(in_dir, what, out_dir, logger):
@@ -332,7 +324,7 @@ def move_test_results(in_dir, what, out_dir, logger):
                 os.makedirs(finalPath)
             pathIsOk = True
         except:
-            logger.error(_("%s cannot be created.") % finalPath)
+            logger.error(_("directory %s cannot be created.") % finalPath)
             finalPath = ask_a_path()
 
     if finalPath != "":
@@ -373,13 +365,11 @@ def move_test_results(in_dir, what, out_dir, logger):
 
                 if grid_ == 'RESSOURCES':
                     for file_name in os.listdir(ingrid):
-                        if not os.path.isfile(os.path.join(ingrid,
-                                                           file_name)):
+                        if not os.path.isfile(os.path.join(ingrid, file_name)):
                             continue
-                        f = open(os.path.join(outgrid, file_name), "w")
-                        f.write(save_file(os.path.join(ingrid, file_name),
-                                          finalPath))
-                        f.close()
+                        with open(os.path.join(outgrid, file_name), "w") as f:
+                          f.write(save_file(os.path.join(ingrid, file_name), finalPath))
+
                 else:
                     for session_name in [t for t in os.listdir(ingrid) if 
                                       os.path.isdir(os.path.join(ingrid, t))]:
@@ -388,28 +378,25 @@ def move_test_results(in_dir, what, out_dir, logger):
                         os.makedirs(outsession)
                         
                         for file_name in os.listdir(insession):
-                            if not os.path.isfile(os.path.join(insession,
-                                                               file_name)):
+                            if not os.path.isfile(os.path.join(insession, file_name)):
                                 continue
                             if file_name.endswith('result.py'):
                                 shutil.copy2(os.path.join(insession, file_name),
                                              os.path.join(outsession, file_name))
                             else:
-                                f = open(os.path.join(outsession, file_name), "w")
-                                f.write(save_file(os.path.join(insession,
-                                                               file_name),
-                                                  finalPath))
-                                f.close()
+                                with open(os.path.join(outsession, file_name), "w") as f:
+                                  f.write(save_file(os.path.join(insession, file_name), finalPath))
 
-    logger.info("<OK>\n")
+    logger.info("move test results <OK>")
 
 def check_remote_machine(machine_name, logger):
-    logger.debug(_("Check the display on %s\n") % machine_name)
+    logger.debug(_("Check the display on %s") % machine_name)
     ssh_cmd = """
 set -x
 ssh -o "StrictHostKeyChecking no" %s "whoami"
 """ % machine_name
     res = UTS.Popen(ssh_cmd, shell=True, logger=logger)
+    return res
 
 def create_test_report(config,
                        xml_history_path,
@@ -685,7 +672,7 @@ def create_test_report(config,
 
     XMLMGR.write_report(os.path.join(dest_path, xmlname), root, "test.xsl")
     XMLMGR.write_report(xml_history_path, root, "test_history.xsl")
-    return RCO._OK_STATUS
+    return RCO.ReturnCode("OK", "create test report done")
 
 def generate_history_xml_path(config, test_base):
     """

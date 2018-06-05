@@ -141,7 +141,7 @@ class Command(_BaseCommand):
     return RCO.ReturnCode(status, "%s %s" % (msg, msgCount))   
 
   def generate_component_list(self, product_info, context):
-    """returns list of ReturnCode of elementary generate_component"""
+    """returns list of ReturnCode of elementaries generate_component calls"""
     # shortcuts
     logger = self.getLogger()
     
