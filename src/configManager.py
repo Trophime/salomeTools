@@ -87,52 +87,44 @@ class ConfigManager:
           The repository that contain external data for salomeTools.
         :return: (dict) The dictionary that stores all information.
         """
+        JOIN = os.path.join # shortcut
         var = {}      
         var['user'] = ARCH.get_user()
         var['salometoolsway'] = os.path.dirname(
                                     os.path.dirname(os.path.abspath(__file__)))
-        var['srcDir'] = os.path.join(var['salometoolsway'], 'src')
-        var['internal_dir'] = os.path.join(var['srcDir'], 'internal_config')
+        var['srcDir'] = JOIN(var['salometoolsway'], 'src')
+        var['internal_dir'] = JOIN(var['srcDir'], 'internal_config')
         var['sep']= os.path.sep
         
         # datadir has a default location
-        var['datadir'] = os.path.join(var['salometoolsway'], 'data')
+        var['datadir'] = JOIN(var['salometoolsway'], 'data')
         if datadir is not None:
             var['datadir'] = datadir
 
-        var['personalDir'] = os.path.join(os.path.expanduser('~'),
-                                           '.salomeTools')
+        var['personalDir'] = JOIN(os.path.expanduser('~'), '.salomeTools')
         UTS.ensure_path_exists(var['personalDir'])
 
-        var['personal_applications_dir'] = os.path.join(var['personalDir'],
-                                                        "Applications")
+        var['personal_applications_dir'] = JOIN(var['personalDir'], "Applications")
         UTS.ensure_path_exists(var['personal_applications_dir'])
         
-        var['personal_products_dir'] = os.path.join(var['personalDir'],
-                                                    "products")
+        var['personal_products_dir'] = JOIN(var['personalDir'], "products")
         UTS.ensure_path_exists(var['personal_products_dir'])
         
-        var['personal_archives_dir'] = os.path.join(var['personalDir'],
-                                                    "Archives")
+        var['personal_archives_dir'] = JOIN(var['personalDir'], "Archives")
         UTS.ensure_path_exists(var['personal_archives_dir'])
 
-        var['personal_jobs_dir'] = os.path.join(var['personalDir'],
-                                                "Jobs")
+        var['personal_jobs_dir'] = JOIN(var['personalDir'], "Jobs")
         UTS.ensure_path_exists(var['personal_jobs_dir'])
 
-        var['personal_machines_dir'] = os.path.join(var['personalDir'],
-                                                    "Machines")
+        var['personal_machines_dir'] = JOIN(var['personalDir'], "Machines")
         UTS.ensure_path_exists(var['personal_machines_dir'])
 
         # read linux distributions dictionary
-        distrib_cfg = PYCONF.Config(os.path.join(var['srcDir'],
-                                                      'internal_config',
-                                                      'distrib.pyconf'))
+        distrib_cfg = PYCONF.Config(JOIN(var['srcDir'], 'internal_config', 'distrib.pyconf'))
         
         # set platform parameters
         dist_name = ARCH.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
-        dist_version = ARCH.get_distrib_version(dist_name, 
-                                                codes=distrib_cfg.VERSIONS)
+        dist_version = ARCH.get_distrib_version(dist_name, codes=distrib_cfg.VERSIONS)
         dist = dist_name + dist_version
         
         var['dist_name'] = dist_name
@@ -207,8 +199,7 @@ class ConfigManager:
         
         # =====================================================================
         # create VARS section
-        var = self._create_vars(application=application, command=command, 
-                                datadir=datadir)
+        var = self._create_vars(application=application, command=command, datadir=datadir)
         # add VARS to config
         cfg.VARS = PYCONF.Mapping(cfg)
         for variable in var:

@@ -359,23 +359,27 @@ class Machine(object):
         self._connection_successful = False
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(self.paramiko.AutoAddPolicy())
+        aDict = {
+          "name": self.name,
+          "host": self.host,
+          "port": self.port,
+          "distrib": self.distribution, # Will be filled after copying SAT on the machine
+          "user": self.user,
+          "password": self.password,
+          "sat_path": self.sat_path,
+        }
+        DBG.write("ssh.connect", aDict)
         try:
-            self.ssh.connect(self.host,
-                             port=self.port,
-                             username=self.user,
-                             password = self.password)
-        except self.paramiko.AuthenticationException:
-            rc = RCO.ReturnCode("KO", "Authentication failed on %s" % self.host)
-        except self.paramiko.BadHostKeyException:
-            rc = RCO.ReturnCode("KO", "The server's host key could not be verified on %s" % self.host)
-        except self.paramiko.SSHException:
-            rc = RCO.ReturnCode("KO", "SSH Exception connecting on %s" % self.host)          
-        except:
-            rc = RCO.ReturnCode("KO", "Problem connecting or establishing an SSH session on %s" % self.host)
-        else:
-            self._connection_successful = True
-            rc = RCO.ReturnCode("OK", "connecting SSH session done on %s" % self.host)
+          res = self.ssh.connect(self.host, port=self.port, username=self.user, password = self.password)
+        except Exception as e:
+          msg = "connecting SSH on %s as %s" % (self.host, str(e))
+          rc = RCO.ReturnCode("KO", msg, e) # e for futur more explicit...
+          return rc
+        DBG.write("ssh.connect OK", res)
+        self._connection_successful = True
+        rc = RCO.ReturnCode("OK", "connecting SSH done on %s" % self.host, aDict)
         return rc
+        
     
     def successfully_connected(self, logger):
         """
@@ -1038,60 +1042,68 @@ The job will not be launched.
         config = self.runner.getConfig()
         logger = self.logger
         logger.info("\nEstablishing connection with all the machines:")
+        tabul = 40
         
         res = [] # all connections
-        for machine in self.lmachines[0:2]: # TODO for debug [0:2]
+        for machine in self.lmachines:
             # little algorithm in order to display traces
             header = ("Connection to %s" % machine.name)
             step = "SSH connection"
             logger.logStep_begin(header, step)
             # the call to the method that initiate the ssh connection
             rc = machine.connect()
-            res.append(rc)
             if not rc.isOk():
-              logger.logStep_end(rc, 40)
+              logger.logStep_end(rc, tabul)
               continue
             
             # Copy salomeTools to the remote machine
             if machine.successfully_connected(logger): # as rc.isOk()
                 step = _("Remove SAT")
-                logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
-                logger.info('\r%s%s%s' % (begin_line, endline, step))
+                logger.logStep(step)
                 (__, out_dist, __) = machine.exec_command(
                             "rm -rf %s" % machine.sat_path, logger)
                 out_dist.read()
                 
                 step = _("Copy SAT")
-                logger.info('\r%s%s%s' % (begin_line, endline, 20 * " "))
-                logger.info('\r%s%s%s' % (begin_line, endline, step))
+                logger.logStep(step)
 
-                res_copy = machine.copy_sat(config.VARS.salometoolsway, self.job_file_path)
-
-                # set the local settings of sat on the remote machine using
-                # the init command
-                sat = os.path.join(machine.sat_path, "sat")
-                cmd = sat + " init --base default --workdir  default --log_dir default"
-                (__, out_dist, __) = machine.exec_command(cmd, logger)
-                out_dist.read()    
+                rc = machine.copy_sat(config.VARS.salometoolsway, self.job_file_path)
+                logger.logStep(str(rc))
                 
-                # get the remote machine distribution using a sat command
-                cmd = sat + " config --value VARS.dist --no_label" 
-                (__, out_dist, __) = machine.exec_command(cmd, logger)
-                machine.distribution = out_dist.read().decode().replace("\n", "")
+                if rc.isOk():
+                  # set the local settings of sat on the remote machine using the init command
+                  sat = os.path.join(machine.sat_path, "sat")
+                  cmd = sat + " init --base default --workdir  default --log_dir default"
+                  (__, out_dist, __) = machine.exec_command(cmd, logger)
+                  out_dist.read()    
+                  
+                  # get the remote machine distribution using a sat command
+                  cmd = sat + " config --value VARS.dist" 
+                  (__, out_dist, __) = machine.exec_command(cmd, logger)
+                  # machine.distribution = out_dist.read().decode().replace("\n", "")
+                  rc = self.extractIn(out_dist.read(), "dist: ")
+                  if rc.isOk():
+                    machine.distribution = rc.getValue()
+                  rc = RCO.ReturnCode("OK", "remote distribution %s" % machine.distribution)
                 
-                # Print the status of the copy
-                if res_copy == 0:
-                    logger.info('\r%s' % \
-                                ((len(begin_line)+len(endline)+20) * " "))
-                    logger.info('\r%s%s%s' % (begin_line, endline, "<OK>"))
-                else:
-                    logger.info('\r%s' % \
-                            ((len(begin_line)+len(endline)+20) * " "), 3)
-                    logger.info('\r%s%s%s %s' % \
-                        (begin_line, endline, "<KO>",
-                         _("Copy of SAT failed: %s") % res_copy))
+            # end of one machine
+            res.append(rc)
+            # Print the status of the copy
+            logger.logStep_end(str(rc), tabul)
                 
         return res
+        
+    def extractIn(self, inStr, searchStr):
+      """
+      find in multiples lines value at left of searchStr
+      return at first line OK
+      """
+      out = inStr.decode().split("\n")
+      for line in out:
+        if searchStr in line:
+          res = line.split(searchStr)[1]
+          return RCO.ReturnCode("OK", "'%s' found as '%s'" % (searchStr, res), res)
+      return RCO.ReturnCode("KO", "'%s' not found in %s" % (searchStr, out))
         
 
     def is_occupied(self, hostname):

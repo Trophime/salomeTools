@@ -31,6 +31,7 @@ import os
 import shutil
 import errno
 import stat
+import time
 
 import re
 import tempfile
@@ -786,3 +787,5 @@ def generate_catalog(machines, config, logger):
 """ % msg)
     return catfile
 
+def sleep(sec):
+    time.sleep(sec)

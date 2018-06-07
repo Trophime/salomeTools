@@ -150,8 +150,7 @@ def generate_launch_file(config,
       .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
       .replace("KERNEL_INSTALL_DIR", kernel_root_dir)
 
-    before, after = withProfile.split(
-                                "# here your local standalone environment\n")
+    before, after = withProfile.split("# here your local standalone environment\n")
 
     # create an environment file writer
     writer = ENVI.FileEnvWriter(config, logger, pathlauncher, src_root=None, env_info=None)
