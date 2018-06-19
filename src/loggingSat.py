@@ -67,10 +67,32 @@ LOGI.STEP = _STEP # only for coherency,
 LOGI.TRACE = _TRACE # only for coherency,
 
 _knownLevels = "CRITICAL ERROR WARNING INFO STEP TRACE DEBUG".upper().split()
+_knownLevelsStr = "[%s]" % "|".join(_knownLevels)
 
 #################################################################
 # utilities methods
 #################################################################
+
+def filterLevel(aLevel):
+  """
+  filter levels logging values from firsts characters levels.
+  No case sensitive
+  
+  | example:
+  | 'i' -> 'INFO'
+  | 'cRiT' -> 'CRITICAL'
+  """
+  aLev = aLevel.upper()
+  knownLevels = _knownLevels
+  maxLen = max([len(i) for i in knownLevels])
+  for i in range(maxLen):
+    for lev in knownLevels:
+      if aLev == lev[:i]:
+        # DBG.write("filterLevel", "%s -> %s" % (aLevel, lev)) 
+        return lev
+  msg = "Unknown level '%s', accepted are:\n%s" % (aLev, ", ".join(knownLevels))
+  return msg
+  #raise Exception(msg)
 
 def indent(msg, nb, car=" "):
   """indent nb car (spaces) multi lines message except first one"""
