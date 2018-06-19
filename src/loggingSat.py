@@ -54,6 +54,7 @@ import logging as LOGI
 from logging.handlers import BufferingHandler
 import pprint as PP
 
+import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 _verbose = False
 _name = "loggingSat"
@@ -429,6 +430,7 @@ class LoggerSat(LOGI.Logger):
     add file handler to logger to set log files
     for a salometools command. 
     when command is known from pyconf/config instance
+    functionality only for 
     
     | Example: 
     | log files names for command prepare 
@@ -439,6 +441,10 @@ class LoggerSat(LOGI.Logger):
     |   ~/LOGS/OUT/micro_20180510_140607_clean_lenovo.txt
     |   etc.
     """
+    if self.name == "SatUnittestLogger":
+      DBG.write("warning", "setFileHandlerForCommand not valid for SatUnittestLogger")
+      return self.idCommandHandlers
+
     import src.utilsSat as UTS # needs sys.path.insert(0, satdir)
 
     logger = self
@@ -454,19 +460,30 @@ class LoggerSat(LOGI.Logger):
     log_dir_jobs = os.path.join(log_dir, "JOBS") # files txt
     UTS.ensure_path_exists(log_dir)
     UTS.ensure_path_exists(log_dir_out)
-    if self.idCommandHandlers == 0:
-      datehour = config.VARS.datehour
-      self.dateHour = datehour # save dateHour for micro commands
-    else:
-      datehour = self.dateHour # micro commands have same datehour for naming files
 
-    cmd = config.VARS.command
-    fullNameCmd = cmdInstance.getFullNameStr()
-    hostname = config.VARS.hostname
-    nameFileXml = "%s_%03i_%s_%s.xml" % (datehour, self.idCommandHandlers, cmd, hostname)
-    nameFileTxt = "%s_%03i_%s_%s.txt" % (datehour, self.idCommandHandlers, cmd, hostname)
-    fileXml = os.path.join(log_dir, nameFileXml)
-    fileTxt = os.path.join(log_dir_out, nameFileTxt)
+    ok = False
+    for ii in range(0, 30): # max simultaneous sat processes launched in same second (unittest....)
+      if self.idCommandHandlers == 0:
+        datehour = config.VARS.datehour
+        self.dateHour = datehour # save dateHour for micro commands
+      else:
+        datehour = self.dateHour # micro commands have same datehour for naming files
+
+      cmd = config.VARS.command
+      fullNameCmd = cmdInstance.getFullNameStr()
+      hostname = config.VARS.hostname
+      nameFileXml = "%s_%02i_%03i_%s_%s.xml" % (datehour, ii, self.idCommandHandlers, cmd, hostname)
+      nameFileTxt = "%s_%02i_%03i_%s_%s.txt" % (datehour, ii, self.idCommandHandlers, cmd, hostname)
+      fileXml = os.path.join(log_dir, nameFileXml)
+      fileTxt = os.path.join(log_dir_out, nameFileTxt)
+      if os.path.exists(fileXml):
+        continue
+      else:
+        ok = True
+        break
+
+    if not ok:
+      raise Exception("max %i simultaneous sat processes launched in same second reached" % ii)
     
     # precaution
     lastCmd = cmdInstance.getFullNameList()[-1]

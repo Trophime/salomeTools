@@ -115,7 +115,7 @@ Optional: products to configure.
     """
     res = []
     for p_name_info in products_infos:
-      res.append(self.check_product(p_name_info)
+      res.append(self.check_product(p_name_info))
     return res
 
   def check_product(self, p_name_info):

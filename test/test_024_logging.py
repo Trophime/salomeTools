@@ -120,9 +120,9 @@ class TestCase(unittest.TestCase):
     self.assertEqual(lgr.name, name)
     self.assertIn("trace", dir(lgr))
     self.assertIn("TRACE", LOGI._levelNames.keys())
-    self.assertIn(lgr._TRACE, LOGI._levelNames.keys())
+    self.assertIn(_TRACE, LOGI._levelNames.keys())
     self.assertEqual(LOGI.getLevelName(LOGI.INFO), "INFO")
-    self.assertEqual(LOGI.getLevelName(lgr._TRACE), "TRACE")
+    self.assertEqual(LOGI.getLevelName(_TRACE), "TRACE")
     
     # creation d'un handler pour chaque log sur la console
     formatter = LOGI.Formatter('%(levelname)-8s :: %(message)s')

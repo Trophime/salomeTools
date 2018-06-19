@@ -30,18 +30,19 @@ import src.loggingSat as LOG
 class TestCase(unittest.TestCase):
   "Test the sat --help commands"""
   
-  logger = LOG.getUnittestLogger()
   debug = False
   
   def tearDown(self):
     # print "tearDown", __file__
     # assure self.logger clear for next test
-    logs = self.logger.getLogsAndClear()
+    logger = LOG.getUnittestLogger()
+    logs = logger.getLogsAndClear()
     # using assertNotIn() is too much verbose
     self.assertFalse("ERROR" in logs)
     self.assertFalse("CRITICAL" in logs)
   
   def test_000(self):
+    logger = LOG.getUnittestLogger()
     # one shot setUp() for this TestCase
     if self.debug: DBG.push_debug(True)
     SAT.setNotLocale() # test english
@@ -61,11 +62,12 @@ class TestCase(unittest.TestCase):
     self.assertTrue(" - compile" in out)
 
   def test_011(self):
+    logger = LOG.getUnittestLogger()
     cmd = "--help"
-    s = SAT.Sat(self.logger)
+    s = SAT.Sat(logger)
     returnCode = s.execute_cli(cmd)
     self.assertTrue(returnCode.isOk())
-    logs = self.logger.getLogs()
+    logs = logger.getLogs()
     DBG.write("test_011 logger", logs)
     self.assertTrue(" - config" in logs)
     self.assertTrue(" - prepare" in logs)
@@ -73,20 +75,32 @@ class TestCase(unittest.TestCase):
     
   def test_030(self):
     cmd = "sat config --help"
-    stdout, stderr = SAT.launchSat(cmd)
-    DBG.write("test_030 stdout", stdout)
-    self.assertEqual(stderr, "")
-    self.assertTrue("--value" in stdout)
+    returnCode = SAT.launchSat(cmd)
+    self.assertTrue(returnCode.isOk())
+    out = returnCode.getValue()
+    DBG.write("test_030 stdout", out)
+    self.assertTrue("--value" in out)
 
   def test_031(self):
+    logger = LOG.getUnittestLogger()
     cmd = "config --help"
-    s = SAT.Sat(self.logger)
+    s = SAT.Sat(logger)
     returnCode = s.execute_cli(cmd)
     self.assertTrue(returnCode.isOk())
-    logs = self.logger.getLogs()
+    logs = logger.getLogs()
     DBG.write("test_031 logger", logs)
-    self.assertTrue("--value" in logs)
-    
+    self.assertTrue("--help" in logs)
+
+  def test_032(self):
+    logger = LOG.getUnittestLogger()
+    cmd = "prepare --help"
+    s = SAT.Sat(logger)
+    returnCode = s.execute_cli(cmd)
+    self.assertTrue(returnCode.isOk())
+    logs = logger.getLogs()
+    DBG.write("test_031 logger", logs)
+    self.assertTrue("--help" in logs)
+
   def xxtest_040(self):
     cmd = "config --list"
     s = SAT.Sat(self.logger)
@@ -100,20 +114,26 @@ class TestCase(unittest.TestCase):
     DBG.write("test_050 getCommandsList", cmds)
     for c in cmds:
       cmd = "sat %s --help" % c
-      stdout, stderr = SAT.launchSat(cmd)
-      self.assertEqual(stderr, "")
-      DBG.write("test_050 %s stdout" % c, stdout)
-      self.assertTrue("The %s command" % c in stdout)
-      self.assertTrue("Available options" in stdout)
+      DBG.write("test_050", cmd)
+      returnCode = SAT.launchSat(cmd)
+      if not returnCode.isOk():
+        DBG.write("test_050 %s" % cmd, returnCode.getValue(), True)
+      self.assertTrue(returnCode.isOk())
+      out = returnCode.getValue()
+      DBG.write("test_050 %s stdout" % c, out)
+      self.assertTrue("The %s command" % c in out)
+      self.assertTrue("Available options" in out)
       
   def test_051(self):
+    logger = LOG.getUnittestLogger()
     cmds = SAT.getCommandsList()
     for c in cmds:
       cmd = "%s --help" % c
-      s = SAT.Sat(self.logger)
+      DBG.write("test_051", cmd)
+      s = SAT.Sat(logger)
       returnCode = s.execute_cli(cmd)
       self.assertTrue(returnCode.isOk())
-      logs = self.logger.getLogsAndClear()
+      logs = logger.getLogsAndClear()
       DBG.write(cmd, logs)
       self.assertTrue("The %s command" % c in logs)
       self.assertTrue("Available options" in logs)

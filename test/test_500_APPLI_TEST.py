@@ -29,8 +29,7 @@ import src.loggingSat as LOG
 
 class TestCase(unittest.TestCase):
   "Test the sat commands on APPLI_TEST configuration pyconf etc. files"""
-  
-  logger = LOG.getUnittestLogger()
+
   debug = False
   
   #see test_100, # commands are expected OK
@@ -57,7 +56,8 @@ class TestCase(unittest.TestCase):
   def tearDown(self):
     # print "tearDown", __file__
     # assure self.logger clear for next test
-    logs = self.logger.getLogsAndClear()
+    logger = LOG.getUnittestLogger()
+    logs = logger.getLogsAndClear()
     # using assertNotIn() is too much verbose
     self.assertFalse("ERROR    ::" in logs)
     self.assertFalse("CRITICAL ::" in logs)
@@ -74,24 +74,26 @@ class TestCase(unittest.TestCase):
     if self.debug: DBG.pop_debug()
 
   def test_010(self):
+    logger = LOG.getUnittestLogger()
     cmd = "config -l"
-    s = SAT.Sat(self.logger)
+    s = SAT.Sat(logger)
     DBG.write("s.getConfig()", s.getConfig()) #none
     DBG.write("s.__dict__", s.__dict__) # have 
     returnCode = s.execute_cli(cmd)
-    DBG.write("test_010 returnCode", returnCode)
-    logs = self.logger.getLogs()
+    DBG.write("test_010", returnCode)
+    logs = logger.getLogs()
     DBG.write("test_010 logger", logs)
     self.assertTrue(returnCode.isOk())
     
   def test_100(self):
     # test all satCommands expected OK
-    dbg = self.debug # True # 
+    logger = LOG.getUnittestLogger()
+    dbg = self.debug
     for cmd in self.satCommandsToTestOk:
-      s = SAT.Sat(self.logger)
+      s = SAT.Sat(logger)
       returnCode = s.execute_cli(cmd)
-      DBG.write("test_800 'sat %s' returnCode" % cmd, str(returnCode), True)
-      logs = self.logger.getLogsAndClear()
+      DBG.write("test_100 'sat %s'" % cmd, str(returnCode), dbg)
+      logs = logger.getLogsAndClear()
       DBG.write("logs", logs, dbg)    
       # using assertNotIn() is too much verbose
       self.assertFalse("ERROR    ::" in logs)
@@ -99,23 +101,25 @@ class TestCase(unittest.TestCase):
       
   def test_110(self):
     # test all satCommands expected KO
+    logger = LOG.getUnittestLogger()
     dbg = self.debug
     for cmd in self.satCommandsToTestKo:
-      s = SAT.Sat(self.logger)
+      s = SAT.Sat(logger)
       returnCode = s.execute_cli(cmd)
-      DBG.write("test_810 'sat %s' returnCode" % cmd, returnCode, dbg)
-      logs = self.logger.getLogsAndClear()
+      DBG.write("test_110 'sat %s'" % cmd, returnCode, dbg)
+      logs = logger.getLogsAndClear()
       DBG.write("logs", logs, dbg)    
       
   def test_120(self):
     # test all satCommands expected raise
+    logger = LOG.getUnittestLogger()
     dbg = self.debug
     for cmd in self.satCommandsToTestRaise:
-      s = SAT.Sat(self.logger)
-      DBG.write("test_820 'sat %s'" % cmd, "expected raise", dbg)
+      s = SAT.Sat(logger)
+      DBG.write("test_120 'sat %s'" % cmd, "expected raise", dbg)
       with self.assertRaises(Exception):
         returnCode = s.execute_cli(cmd)
-      logs = self.logger.getLogsAndClear()
+      logs = logger.getLogsAndClear()
       DBG.write("logs", logs, dbg)    
       
       

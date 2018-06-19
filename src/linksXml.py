@@ -87,7 +87,7 @@ class LinkXml(object):
     import src.debug as DBG
     if self.findLink(idName) is not None:
       msg = "appendLink: idname '%s' existing yet" % idName
-      DBG.write(msg, self, True)
+      DBG.write(msg, self)
       raise Exception(msg)
     app = LinkXml(idName)
     self._linksXml.append(app)
@@ -156,10 +156,15 @@ def appendLinkForCommand(cmdParent, cmdNew):
   
 def setAttribLinkForCommand(cmd, nameAttrib, value):
   """init an attribute value in link of a command in singleton tree"""
+  DBG.write("setAttribLinkForCommand", (cmd.name, nameAttrib, value))
   k0 = getLinksXml() # get singleton
   kCmd = k0.findLink(cmd.getId())
-  kCmd.setAuthAttr(nameAttrib, value)
-  # DBG.write("setAttribLinkForCommand", (nameAttrib, value), True)
+  if kCmd is not None:
+    kCmd.setAuthAttr(nameAttrib, value)
+  else: # SatUnittestLogger implies no xml
+    msg = "no links for log command only if logger 'SatUnittestLogger' "
+    DBG.write("warning", msg)
+
   
 def getLinksForXml(idCommand):
   """return list of links of one command from its id"""

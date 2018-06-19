@@ -31,7 +31,7 @@ class TestCase(unittest.TestCase):
   
   def test_000(self):
     # one shot setUp() for this TestCase
-    DBG.push_debug(True)
+    DBG.push_debug(False)
     # SAT.setNotLocale() # test english
     return
     

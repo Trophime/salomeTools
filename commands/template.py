@@ -388,7 +388,7 @@ def prepare_from_template(config,
 
     # ask for missing parameters
     msg = UTS.label(_("Make substitution in files"))
-    msg += "\n" + _("Delimiter") + " = '%s'" % tsettings.delimiter_char)
+    msg += "\n" + _("Delimiter") + " = '%s'" % tsettings.delimiter_char
     msg += "\n" + _("Ignore Filters") + "= %s" % ', '.join(tsettings.ignore_filters)
     logger.debug(msg)
     dico = tsettings.get_parameters(conf_values)

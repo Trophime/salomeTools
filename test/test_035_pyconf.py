@@ -237,20 +237,20 @@ Bienvenue, Yves
     cfg.__save__(outStream)
     
     res = outStream.value
-    DBG.write("test_120 cfg save", res, True)
+    DBG.write("test_120 cfg save", res)
     self.assertNotIn("ERROR", res)
     
     res = DBG.getStrConfigDbg(cfg)
-    DBG.write("test_120 cfg debug", res, True)
+    DBG.write("test_120 cfg debug", res)
     # no error circular !!!
     # self.assertIn("ERROR", res) # no error circular !!!
     # self.assertIn("unable to evaluate $cc", res)
     # self.assertIn("unable to evaluate $bb", res)
     res = cfg.bb
-    DBG.write("test_120 cfg.bb debug", res, True)
+    DBG.write("test_120 cfg.bb debug", res)
 
     res = cfg.cc
-    DBG.write("test_120 cfg.cc debug", res, True)
+    DBG.write("test_120 cfg.cc debug", res)
     
   def test_999(self):
     # one shot tearDown() for this TestCase
