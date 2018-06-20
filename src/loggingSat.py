@@ -50,6 +50,7 @@ more TMP/*xml TMP/OUT/*.txt
 import os
 import sys
 import time
+import random
 import logging as LOGI
 from logging.handlers import BufferingHandler
 import pprint as PP
@@ -477,6 +478,7 @@ class LoggerSat(LOGI.Logger):
       fileXml = os.path.join(log_dir, nameFileXml)
       fileTxt = os.path.join(log_dir_out, nameFileTxt)
       if os.path.exists(fileXml):
+        time.sleep(random.random()/10.) #avoid next collisions of simultaneous sat processes
         continue
       else:
         ok = True
