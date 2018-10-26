@@ -153,15 +153,16 @@ def saveConfigStd(config, aStream):
     config.__save__(aStream, indent) 
 
 def getStrConfigStd(config):
-    """set string as saveConfigStd, 
-    as file .pyconf"""
+    """set string as saveConfigStd, as file .pyconf"""
     outStream = OutStream()
     saveConfigStd(config, outStream)
     return outStream.value
 
 def getStrConfigDbg(config):
-    """set string as saveConfigDbg, 
-    as (path expression evaluation) for debug"""
+    """
+    set string as saveConfigDbg, 
+    as (path expression evaluation) for debug
+    """
     outStream = OutStream()
     saveConfigDbg(config, outStream)
     return outStream.value

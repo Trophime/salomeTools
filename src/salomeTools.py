@@ -26,6 +26,8 @@ This file is the main API file for salomeTools
 | Usage: see file ../sat 
 """
 
+import sys
+
 _KOSYS = 1 # avoid import src
 
 # Compatibility python 2/3 for input function
@@ -46,7 +48,6 @@ ERROR: 'salomeTools.py' is not main command entry (CLI) for salomeTools.
     sys.exit(_KOSYS)
 
 import os
-import sys
 import re
 import tempfile
 import imp

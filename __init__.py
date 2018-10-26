@@ -1,1 +1,1 @@
-__all__ = ['src', 'commands', ]
+__all__ = ['src', 'commands', "test", "unittestpy", ]
