@@ -428,6 +428,12 @@ class SalomeEnviron:
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages        
         """
+
+        if src.architecture.is_windows():
+            out_dir_Path = "%out_dir_Path%"
+        else:
+            out_dir_Path = "out_dir_Path"
+
         # set root dir
         DBG.write("set_salome_minimal_product_env", product_info)
         root_dir = product_info.name + "_ROOT_DIR"
@@ -448,7 +454,7 @@ class SalomeEnviron:
                     if not self.for_package:
                         self.set(src_dir, product_info.source_dir)
                     else:
-                        self.set(src_dir, os.path.join("out_dir_Path",
+                        self.set(src_dir, os.path.join(out_dir_Path,
                                                        "SOURCES",
                                                        product_info.name))
 
@@ -589,6 +595,11 @@ class SalomeEnviron:
         :param logger Logger: The logger instance to display messages
         """
 
+        if src.architecture.is_windows():
+            out_dir_Path = "%out_dir_Path%"
+        else:
+            out_dir_Path = "out_dir_Path"
+
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
         
@@ -612,7 +623,7 @@ class SalomeEnviron:
                
         
         if self.for_package:
-            pi.install_dir = os.path.join("out_dir_Path",
+            pi.install_dir = os.path.join(out_dir_Path,
                                           self.for_package,
                                           pi.name)
 

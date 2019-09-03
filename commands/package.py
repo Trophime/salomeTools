@@ -256,7 +256,7 @@ def produce_relative_launcher(config,
     
     # Little hack to put out_dir_Path outside the strings
     src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
-    
+
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
     if distene_licence_file_name:
@@ -356,7 +356,10 @@ def produce_relative_env_files(config,
                           for_package = binaries_dir_name)
 
     # Little hack to put out_dir_Path as environment variable
-    src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
+    if src.architecture.is_windows():
+      src.replace_in_file(filepath, '"out_dir_Path', '"%out_dir_Path%' )
+    else:
+      src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
 
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
