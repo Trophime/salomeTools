@@ -903,7 +903,11 @@ def make_archive(prod_name, prod_info, where):
     :return: The path of the resulting archive
     :rtype: str
     '''
-    path_targz_prod = os.path.join(where, prod_name + ".tgz")
+    if src.architecture.is_windows():
+      ext = '.tar.gz' # using tgz for windows, raises error messages with 7z
+    else:
+      ext = '.tgz'
+    path_targz_prod = os.path.join(where, prod_name + ext)
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
     tar_prod.add(local_path,
@@ -1488,7 +1492,11 @@ Please add it in file:
             logger.write("\n", 1)
             return 1
  
-    path_targz = os.path.join(dir_name, archive_name + ".tgz")
+    if src.architecture.is_windows():
+       ext = '.tar.gz' # using tgz for windows, raises error messages with 7z
+    else:
+       ext = '.tgz'
+    path_targz = os.path.join(dir_name, archive_name + ext)
     
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
