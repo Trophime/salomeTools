@@ -73,6 +73,7 @@ LOCAL_TEMPLATE = ("""#!/usr/bin/env python
     workdir : 'default'
     log_dir : 'default'
     archive_dir : 'default'
+    tmp_dir : 'default'
     VCS : None
     tag : None
   }
@@ -1163,6 +1164,7 @@ def sat_package(config, tmp_working_dir, options, logger):
     local_cfg.LOCAL["workdir"] = "default"
     local_cfg.LOCAL["log_dir"] = "default"
     local_cfg.LOCAL["archive_dir"] = "default"
+    local_cfg.LOCAL["tmp_dir"] = "default"
     local_cfg.LOCAL["VCS"] = "None"
     local_cfg.LOCAL["tag"] = src.get_salometool_version(config)
 

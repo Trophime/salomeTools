@@ -41,6 +41,8 @@ parser.add_option('t', 'tag', 'string', 'tag',
                   _('Optional: The tag of SAT (only informative)'))
 parser.add_option('l', 'log_dir', 'string', 'log_dir', 
                   _('Optional: The directory where to put all the logs of SAT'))
+parser.add_option('', 'tmp_dir', 'string', 'tmp_dir', 
+                  _('Optional: The temporary directory used by SAT'))
 
 def set_local_value(config, key, value, logger):
     """ Edit the site.pyconf file and change a value.
@@ -143,6 +145,7 @@ def display_local_values(config, logger):
             ("workdir", config.LOCAL.workdir),
             ("log_dir", config.LOCAL.log_dir),
             ("archive_dir", config.LOCAL.archive_dir),
+            ("tmp_dir", config.LOCAL.tmp_dir),
             ("VCS", config.LOCAL.VCS),
             ("tag", config.LOCAL.tag),
             ("projects", config.PROJECTS.project_file_paths)]
@@ -207,6 +210,7 @@ def run(args, runner, logger):
     for opt in [("base" , options.base),
                 ("workdir", options.workdir),
                 ("log_dir", options.log_dir),
+                ("tmp_dir", options.tmp_dir),
                 ("archive_dir", options.archive_dir)]:
         key, value = opt
         if value:

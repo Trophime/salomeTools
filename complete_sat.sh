@@ -59,7 +59,7 @@ _show_applications()
             opts2=$(echo --set $opts2)
             ;;
         init)
-            opts2=$(echo --base --workdir --VCS --tag --log_dir --add_project --reset_projects $opts2)
+            opts2=$(echo --base --workdir --VCS --tag --log_dir --tmp_dir --add_project --reset_projects $opts2)
             ;;
     esac
 

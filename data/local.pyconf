@@ -5,6 +5,7 @@
     workdir : 'default'
     log_dir : 'default'
     archive_dir : 'default'
+    tmp_dir : 'default'
     VCS : None
     tag : None
   }

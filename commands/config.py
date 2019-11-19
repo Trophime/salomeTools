@@ -302,7 +302,8 @@ class ConfigManager:
             cfg.LOCAL.workdir = os.path.abspath(osJoin(cfg.VARS.salometoolsway, ".."))
         if cfg.LOCAL.log_dir == "default":
             cfg.LOCAL.log_dir = os.path.abspath(osJoin(cfg.VARS.salometoolsway, "..", "LOGS"))
-
+        if cfg.LOCAL.tmp_dir == "default":
+            cfg.LOCAL.tmp_dir = os.path.abspath(osJoin(cfg.VARS.salometoolsway, "..", "TMP"))
         if cfg.LOCAL.archive_dir == "default":
             cfg.LOCAL.archive_dir = os.path.abspath( osJoin(cfg.VARS.salometoolsway, "..", "ARCHIVES"))
 
