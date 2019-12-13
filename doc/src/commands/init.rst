@@ -1,7 +1,7 @@
 .. include:: ../../rst_prolog.rst
 
-Command config
-******************
+Command init
+************
 
 Description
 ===========
