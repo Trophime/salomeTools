@@ -15,7 +15,7 @@ Usage
 
     sat config --edit
 
-* List the available applications (they come from the sat projects defined in ``data/local.pyconf``: ::
+* List the available applications (they come from the sat projects defined in ``data/local.pyconf``): ::
   
     sat config --list
 
@@ -71,7 +71,7 @@ Usage
     sat config SALOME-xx --info KERNEL
     sat config SALOME-xx --info qt
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 Exploring a current configuration.
