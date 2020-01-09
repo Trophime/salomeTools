@@ -18,6 +18,7 @@
 
 import re
 import os
+import time
 
 import src
 
@@ -41,6 +42,8 @@ parser.add_option('i', 'install', 'boolean', 'install',
     _("Optional: Clean the product install directories."))
 parser.add_option('g', 'generated', 'boolean', 'generated', 
     _("Optional: Clean source, build and install directories for generated products."))
+parser.add_option('l', 'log', 'int', 'log', 
+    _("Optional: Clean logs older than <n> days."))
 parser.add_option('', 'package', 'boolean', 'package', 
     _("Optional: Clean packages produced by sat package command."))
 parser.add_option('a', 'all', 'boolean', 'all', 
@@ -143,6 +146,30 @@ def get_generated_directories(config, products_infos):
         
     return l_dir_install
 
+def list_log_files_to_remove(logdir, oldest_log_date_allowed):
+    for root, folders, files in os.walk(logdir):
+        for filename in folders + files:
+            full_path=os.path.join(root, filename)
+            fileCreation = os.path.getctime(full_path)
+            if fileCreation < oldest_log_date_allowed:
+                yield os.path.join(root, filename)
+
+def clean_old_logs(config, n_days):
+    """\
+    Clean log older that n_days.
+    If n_days is equal to zero, all logs are cleaned.
+    
+    :param config : The global configuration
+    :param n_days : int: The number of log days we keep.
+    :return: the list of install paths.
+    """
+    now = time.time()
+    n_seconds=60*60*24*n_days # n_days in seconds
+    oldest_log_date = now - n_seconds
+    log_dir=config.LOCAL.log_dir
+    print ("log files to remove in %s : " % log_dir)
+    for logfile in list_log_files_to_remove(log_dir, oldest_log_date):
+        print(logfile)
 
 
 def product_has_dir(product_info, without_dev=False):
@@ -200,9 +227,14 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    # clean old log if -l option used
+    # this option is global and don't requires an application
+    if options.log:
+        clean_old_logs(runner.cfg, options.log)
+        return 0
+
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
-
 
     # Get the list of products to threat
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
