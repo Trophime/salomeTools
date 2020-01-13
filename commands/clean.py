@@ -154,7 +154,7 @@ def list_log_files_to_remove(logdir, oldest_log_date_allowed):
             if fileCreation < oldest_log_date_allowed:
                 yield os.path.join(root, filename)
 
-def clean_old_logs(config, n_days):
+def clean_old_logs(config, n_days, logger):
     """\
     Clean log older that n_days.
     If n_days is equal to zero, all logs are cleaned.
@@ -167,10 +167,12 @@ def clean_old_logs(config, n_days):
     n_seconds=60*60*24*n_days # n_days in seconds
     oldest_log_date = now - n_seconds
     log_dir=config.LOCAL.log_dir
-    print ("log files to remove in %s : " % log_dir)
+    logger.write("Clean log files in %s older than %d days...\n" % (log_dir, n_days), 2)
+    nb_file_removed=0
     for logfile in list_log_files_to_remove(log_dir, oldest_log_date):
-        print(logfile)
-
+        nb_file_removed+=1
+        os.remove(logfile)
+    logger.write("    removed %d files\n" % nb_file_removed, 3)
 
 def product_has_dir(product_info, without_dev=False):
     """\
@@ -230,7 +232,7 @@ def run(args, runner, logger):
     # clean old log if -l option used
     # this option is global and don't requires an application
     if options.log:
-        clean_old_logs(runner.cfg, options.log)
+        clean_old_logs(runner.cfg, options.log, logger)
         return 0
 
     # check that the command has been called with an application
