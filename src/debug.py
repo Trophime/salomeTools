@@ -73,7 +73,7 @@ except ImportError:
 _debug = [False] #support push/pop for temporary activate debug outputs
 
 # wambeke is christian at home
-_developers = ["christian", "wambeke"] # crouzet, kloss ...
+_developers = ["christian", "wambeke"]
 
 
 def isDeveloper():
