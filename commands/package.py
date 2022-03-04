@@ -41,7 +41,7 @@ SAT = "Sat"
 ARCHIVE_DIR = "ARCHIVES"
 PROJECT_DIR = "PROJECT"
 
-IGNORED_DIRS = [".git", ".svn"]
+IGNORED_DIRS = [".git", ".svn", "__pycache__"]
 IGNORED_EXTENSIONS = []
 
 PACKAGE_EXT=".tar.gz" # the extension we use for the packages

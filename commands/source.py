@@ -135,6 +135,9 @@ def get_source_from_git(config,
       retcode = src.system.git_extract(repo_git,
                                    product_info.git_info.tag,git_options,
                                    source_dir, logger, environ)
+      if "submodules" in product_info.git_info:
+          if product_info.git_info.submodules:
+              retcode = src.system.git_submodule(source_dir, logger, environ)
     else:
       # Call the system function that do the extraction of a sub_dir in git mode
       logger.write("sub_dir:%s " % sub_dir, 3)

@@ -295,6 +295,17 @@ def check_yacsgen(config, directory, logger):
     if pv is None:
         python_info = src.product.get_product_config(config, "Python")
         pv = '.'.join(python_info.version.split('.')[:2])
+        if src.product.product_is_native(pi):
+            command = "python"
+            if config.cfg.APPLICATION.python3 == "yes":
+                command += "3"
+
+            command += " --version"            
+            pyver = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+            ver = pyver.replace('Python ','')
+            major,minor,patch = ver.split('.')
+            pv = str(major) + '.' + str(minor)
+
     assert pv is not None, "$PYTHON_VERSION not defined"
     yacsgen_dir = os.path.join(yacsgen_dir, "lib", "python%s" % pv,
                                "site-packages")
