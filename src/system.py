@@ -75,6 +75,42 @@ def git_describe(repo_path):
         return tag_description
 
 
+def git_submodule(where, logger, environment=None):
+  '''Extracts submodules from a git repository.
+  :return: True if the extraction is successful
+  :rtype: boolean
+  '''
+  DBG.write("git_submodule", [str(where)])
+  if not where.exists():
+      logger.write("git_submodule failed no destination repository provided")
+      return False
+  else:
+      logger.write("get submodules (%s)" % str(where) )
+  cmd = "cd %(where)s && git submodule update --init --recursive"
+  cmd = cmd % {'where': str(where)}
+  
+  logger.logTxtFile.write("\n" + cmd + "\n")
+  logger.logTxtFile.flush()
+
+  DBG.write("cmd", cmd)
+
+  # git commands may fail sometimes for various raisons 
+  # (big module, network troubles, tuleap maintenance)
+  # therefore we give several tries
+  i_try = 0
+  max_number_of_tries = 3
+  sleep_delay = 30  # seconds
+  while (True):
+    i_try += 1
+    rc = UTS.Popen(cmd, cwd=str(where.dir()), env=environment.environ.environ, logger=logger)
+    if rc.isOk() or (i_try>=max_number_of_tries):
+      break
+    logger.write('\ngit command failed! Wait %d seconds and give an other try (%d/%d)\n' % \
+                 (sleep_delay, i_try + 1, max_number_of_tries), 3)
+    time.sleep(sleep_delay) # wait a little
+
+  return rc.isOk()
+  
 def git_extract(from_what, tag, git_options, where, logger, environment=None):
   '''Extracts sources from a git repository.
 
@@ -99,7 +135,9 @@ def git_extract(from_what, tag, git_options, where, logger, environment=None):
 set -x
 git clone %(git_options)s %(remote)s %(where)s
 res=$?
-if [ $res -eq 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+if [ $res -eq 0 ]; then
+   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;
+fi
 exit $res
 """
     cmd = cmd % {'git_options': git_options, 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
@@ -116,8 +154,13 @@ rm -rf %(where)s
 git clone %(git_options)s %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 res=$?
+if [ $res -ne 0 ]; then
+   git --git-dir=%(where_git)s --work-tree=%(where)s checkout tags/%(tag)s;
+fi
 git --git-dir=%(where_git)s status|grep HEAD
-if [ $res -eq 0 -a $? -ne 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+if [ $res -eq 0 -a $? -ne 0 ]; then
+   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;
+fi
 exit $res
 """
     cmd = cmd % {'git_options': git_options,
@@ -151,7 +194,8 @@ exit $res
 
 
 def git_extract_sub_dir(from_what, tag, git_options, where, sub_dir, logger, environment=None):
-  '''Extracts sources from a subtree sub_dir of a git repository.
+  '''
+  Extracts sources from a subtree sub_dir of a git repository.
 
   :param from_what str: The remote git repository.
   :param tag str: The tag.
@@ -383,19 +427,15 @@ def check_system_pkg(check_cmd,pkg):
 
 
     if check_cmd[0]=="apt":
-        # special treatment for apt
-        # apt output is too messy for being used
-        # some debian packages have version numbers in their name, we need to add a *
-        # also apt do not return status, we need to use grep
-        # and apt output is too messy for being used 
-        cmd_is_package_installed[-1]+="*" # we don't specify in pyconf the exact name because of version numbers
-        p=subprocess.Popen(cmd_is_package_installed,
-                           stdout=subprocess.PIPE,
-                           stderr=FNULL)
-        try:
-            output = subprocess.check_output(['grep', pkg], stdin=p.stdout)
+        import apt
+        cache = apt.Cache()
+        package_installed = False
+        if pkg in cache:
+            package_installed = cache[pkg].is_installed
+            # print("cache[%s]=" % pkg, cache[pkg])
             msg_status=src.printcolors.printcSuccess("OK")
-        except:
+            msg_status+="\n"
+        else:
             msg_status=src.printcolors.printcError("KO")
             msg_status+=" (package is not installed!)\n"
     else:

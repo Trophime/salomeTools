@@ -8,9 +8,8 @@
     VCS : 'unknown'
     tag : 'unknown'
   }
-  PROJECTS :
-  {
-    project_file_paths :
-    [
-    ]
-  }
+
+PROJECTS :
+{
+project_file_paths : [$VARS.salometoolsway + $VARS.sep + ".." + $VARS.sep + "PROJECT" + $VARS.sep + "project.pyconf"]
+}

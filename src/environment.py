@@ -634,6 +634,7 @@ class SalomeEnviron:
             self.expand_salome_modules(pi)
 
         # use variable LICENCE_FILE to communicate the licence file name to the environment script
+        # print("pi=", pi, "LICENCE_FILE=", self.cfg.PATHS.LICENCEPATH)
         licence_file_name = src.product.product_has_licence(pi, self.cfg.PATHS.LICENCEPATH)
         if licence_file_name:
             logger.write("licence file found for product %s : %s\n" % (pi.name, licence_file_name), 5) 
@@ -914,6 +915,7 @@ class FileEnvWriter:
         :rtype: str
         """
         additional_env["sat_dist"]=self.config.VARS.dist
+        print("sat_dist=", additional_env["sat_dist"])
         if not self.silent:
             self.logger.write(_("Create environment file %s\n") % 
                               src.printcolors.printcLabel(filename), 3)
